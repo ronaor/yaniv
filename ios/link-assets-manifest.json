@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "source/assets/fonts/LuckiestGuy-Regular.ttf",
+      "sha1": "e372cd620ff26875dc0b0bfecb39b277323362eb"
+    },
+    {
+      "path": "source/assets/fonts/PloniDL1.1AAA-Bold.ttf",
+      "sha1": "9051c3b13c6006d7ed7d62662c7f626d8e753ff6"
+    }
+  ]
+}

@@ -1,0 +1,516 @@
+diff --git a/node_modules/react-native-sound/android/build.gradle b/node_modules/react-native-sound/android/build.gradle
+index de375bf..1efa22d 100644
+--- a/node_modules/react-native-sound/android/build.gradle
++++ b/node_modules/react-native-sound/android/build.gradle
+@@ -9,6 +9,7 @@ android {
+     buildToolsVersion rootProject.hasProperty('buildToolsVersion') ? rootProject.buildToolsVersion : DEFAULT_BUILD_TOOLS_VERSION
+ 
+   defaultConfig {
++    namespace "com.zmxv.RNSound"
+     minSdkVersion 16
+     targetSdkVersion rootProject.hasProperty('targetSdkVersion') ? rootProject.targetSdkVersion : DEFAULT_TARGET_SDK_VERSION
+     versionCode 1
+diff --git a/node_modules/react-native-sound/android/build/.transforms/469fa812ce485a556ca8f69a52b2eb2b/results.bin b/node_modules/react-native-sound/android/build/.transforms/469fa812ce485a556ca8f69a52b2eb2b/results.bin
+new file mode 100644
+index 0000000..1ed65e0
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/.transforms/469fa812ce485a556ca8f69a52b2eb2b/results.bin
+@@ -0,0 +1 @@
++i/
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/results.bin b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/results.bin
+new file mode 100644
+index 0000000..6e09b8c
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/results.bin
+@@ -0,0 +1 @@
++o/out
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/AndroidManifest.xml b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/AndroidManifest.xml
+new file mode 100644
+index 0000000..272cd74
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/AndroidManifest.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.zmxv.RNSound"
++    xml:android="http://schemas.android.com/apk/res/android" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/R.txt b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/classes.jar b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/classes.jar
+new file mode 100644
+index 0000000..80aa44b
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/classes.jar differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/libs/R.jar b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/libs/R.jar
+new file mode 100644
+index 0000000..e5f441f
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/4bde0b897fadea04b6e090895cc1fda7/transformed/out/jars/libs/R.jar differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/results.bin b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/results.bin
+new file mode 100644
+index 0000000..9e53e72
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/results.bin
+@@ -0,0 +1 @@
++o/release
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/desugar_graph.bin b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/desugar_graph.bin
+new file mode 100644
+index 0000000..e85e519
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/desugar_graph.bin differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/BuildConfig.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/BuildConfig.dex
+new file mode 100644
+index 0000000..91b51ec
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/BuildConfig.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$1.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$1.dex
+new file mode 100644
+index 0000000..73c6b7c
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$1.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$2.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$2.dex
+new file mode 100644
+index 0000000..b564e2a
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$2.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$3.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$3.dex
+new file mode 100644
+index 0000000..4082d58
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$3.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$4.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$4.dex
+new file mode 100644
+index 0000000..1ac6b33
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule$4.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule.dex
+new file mode 100644
+index 0000000..90a24f3
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundModule.dex differ
+diff --git a/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundPackage.dex b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundPackage.dex
+new file mode 100644
+index 0000000..36f4a90
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/.transforms/652ad43180fa29270fa91b02efa24a82/transformed/release/com/zmxv/RNSound/RNSoundPackage.dex differ
+diff --git a/node_modules/react-native-sound/android/build/generated/source/buildConfig/debug/CrossWordMega/BuildConfig.java b/node_modules/react-native-sound/android/build/generated/source/buildConfig/debug/CrossWordMega/BuildConfig.java
+new file mode 100644
+index 0000000..ca1a539
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/generated/source/buildConfig/debug/CrossWordMega/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package CrossWordMega;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "CrossWordMega";
++  public static final String BUILD_TYPE = "debug";
++}
+diff --git a/node_modules/react-native-sound/android/build/generated/source/buildConfig/release/com/zmxv/RNSound/BuildConfig.java b/node_modules/react-native-sound/android/build/generated/source/buildConfig/release/com/zmxv/RNSound/BuildConfig.java
+new file mode 100644
+index 0000000..0da1f87
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/generated/source/buildConfig/release/com/zmxv/RNSound/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.zmxv.RNSound;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = false;
++  public static final String LIBRARY_PACKAGE_NAME = "com.zmxv.RNSound";
++  public static final String BUILD_TYPE = "release";
++}
+diff --git a/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml b/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..272cd74
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.zmxv.RNSound"
++    xml:android="http://schemas.android.com/apk/res/android" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json b/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+new file mode 100644
+index 0000000..02da1a7
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.zmxv.RNSound",
++  "variantName": "release",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/aar_main_jar/release/classes.jar b/node_modules/react-native-sound/android/build/intermediates/aar_main_jar/release/classes.jar
+new file mode 100644
+index 0000000..80aa44b
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/aar_main_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-sound/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-sound/android/build/intermediates/aar_metadata/release/aar-metadata.properties b/node_modules/react-native-sound/android/build/intermediates/aar_metadata/release/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/aar_metadata/release/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json b/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/annotations_typedef_file/release/typedefs.txt b/node_modules/react-native-sound/android/build/intermediates/annotations_typedef_file/release/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-sound/android/build/intermediates/compile_library_classes_jar/release/classes.jar b/node_modules/react-native-sound/android/build/intermediates/compile_library_classes_jar/release/classes.jar
+new file mode 100644
+index 0000000..2249993
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/compile_library_classes_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/compile_r_class_jar/release/R.jar b/node_modules/react-native-sound/android/build/intermediates/compile_r_class_jar/release/R.jar
+new file mode 100644
+index 0000000..e5f441f
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/compile_r_class_jar/release/R.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/compile_symbol_list/release/R.txt b/node_modules/react-native-sound/android/build/intermediates/compile_symbol_list/release/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-sound/android/build/intermediates/full_jar/release/full.jar b/node_modules/react-native-sound/android/build/intermediates/full_jar/release/full.jar
+new file mode 100644
+index 0000000..32a0ce0
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/full_jar/release/full.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..754e17f
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Sat Oct 19 23:16:15 IDT 2024
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..2f0c603
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/debug/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/generated/res/resValues/debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/generated/res/resValues/debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..fafbde8
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/debug/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..6a1ad7c
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/debug/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..d733b02
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/jniLibs"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/release/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+new file mode 100644
+index 0000000..8d69411
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/shaders"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/release/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..209f1d5
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/debug/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/intermediates/shader_assets/debug/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/packageReleaseAssets/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+new file mode 100644
+index 0000000..0c63446
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/assets"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/release/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/intermediates/shader_assets/release/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/release-mergeJavaRes/merge-state b/node_modules/react-native-sound/android/build/intermediates/incremental/release-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..1c983fc
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/incremental/release-mergeJavaRes/merge-state differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties b/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+new file mode 100644
+index 0000000..0fde2f3
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu May 15 08:28:55 IDT 2025
+diff --git a/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml b/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+new file mode 100644
+index 0000000..c54580d
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/release/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release" generated-set="release$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/release/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/generated/res/resValues/release"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/build/generated/res/resValues/release"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/BuildConfig.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/BuildConfig.class
+new file mode 100644
+index 0000000..a857df3
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/BuildConfig.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$1.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$1.class
+new file mode 100644
+index 0000000..2fd1eff
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$1.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$2.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$2.class
+new file mode 100644
+index 0000000..8a4d80d
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$2.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$3.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$3.class
+new file mode 100644
+index 0000000..00f9ca7
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$3.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$4.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$4.class
+new file mode 100644
+index 0000000..1db0f9c
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule$4.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule.class
+new file mode 100644
+index 0000000..905d01b
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundModule.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundPackage.class b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundPackage.class
+new file mode 100644
+index 0000000..ccfd27e
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/javac/release/classes/com/zmxv/RNSound/RNSoundPackage.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties b/node_modules/react-native-sound/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties
+new file mode 100644
+index 0000000..d8cabc7
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties
+@@ -0,0 +1,2 @@
++mavenArtifactId=react-native-sound
++mavenGroupId=CrossWordMega
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/local_aar_for_lint/release/out.aar b/node_modules/react-native-sound/android/build/intermediates/local_aar_for_lint/release/out.aar
+new file mode 100644
+index 0000000..fe15ec6
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/local_aar_for_lint/release/out.aar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/release/R-def.txt b/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-sound/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt b/node_modules/react-native-sound/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+new file mode 100644
+index 0000000..afe9d86
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+@@ -0,0 +1,9 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.zmxv.RNSound"
++4    xml:android="http://schemas.android.com/apk/res/android" >
++5
++6    <uses-sdk android:minSdkVersion="16" />
++6-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++7
++8</manifest>
+diff --git a/node_modules/react-native-sound/android/build/intermediates/merged_java_res/release/feature-react-native-sound.jar b/node_modules/react-native-sound/android/build/intermediates/merged_java_res/release/feature-react-native-sound.jar
+new file mode 100644
+index 0000000..15cb0ec
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/merged_java_res/release/feature-react-native-sound.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/merged_manifest/release/AndroidManifest.xml b/node_modules/react-native-sound/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+new file mode 100644
+index 0000000..272cd74
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.zmxv.RNSound"
++    xml:android="http://schemas.android.com/apk/res/android" >
++
++    <uses-sdk android:minSdkVersion="16" />
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/react-native-sound/android/build/intermediates/navigation_json/debug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/navigation_json/debug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/navigation_json/release/navigation.json b/node_modules/react-native-sound/android/build/intermediates/navigation_json/release/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/navigation_json/release/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/BuildConfig.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/BuildConfig.class
+new file mode 100644
+index 0000000..a857df3
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/BuildConfig.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$1.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$1.class
+new file mode 100644
+index 0000000..2fd1eff
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$1.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$2.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$2.class
+new file mode 100644
+index 0000000..8a4d80d
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$2.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$3.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$3.class
+new file mode 100644
+index 0000000..00f9ca7
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$3.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$4.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$4.class
+new file mode 100644
+index 0000000..1db0f9c
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule$4.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule.class
+new file mode 100644
+index 0000000..905d01b
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundModule.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundPackage.class b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundPackage.class
+new file mode 100644
+index 0000000..ccfd27e
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_dir/release/com/zmxv/RNSound/RNSoundPackage.class differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_jar/release/classes.jar b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_jar/release/classes.jar
+new file mode 100644
+index 0000000..c6eb2af
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/intermediates/runtime_library_classes_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-sound/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt b/node_modules/react-native-sound/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+new file mode 100644
+index 0000000..9397f71
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+@@ -0,0 +1 @@
++com.zmxv.RNSound
+diff --git a/node_modules/react-native-sound/android/build/outputs/logs/manifest-merger-release-report.txt b/node_modules/react-native-sound/android/build/outputs/logs/manifest-merger-release-report.txt
+new file mode 100644
+index 0000000..099e2d9
+--- /dev/null
++++ b/node_modules/react-native-sound/android/build/outputs/logs/manifest-merger-release-report.txt
+@@ -0,0 +1,27 @@
++-- Merging decision tree log ---
++manifest
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:1-2:12
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:1-2:12
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:1-2:12
++	package
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:1-2:12
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++	xml:android
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:11-67
++	xmlns:android
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml:1:1-2:12
++uses-sdk
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-sound/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-sound/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..2c8c48a
+Binary files /dev/null and b/node_modules/react-native-sound/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-sound/android/src/main/AndroidManifest.xml b/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
+index d961e60..babb201 100644
+--- a/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-sound/android/src/main/AndroidManifest.xml
+@@ -1,3 +1,2 @@
+-<manifest xml:android="http://schemas.android.com/apk/res/android"
+-          package="com.zmxv.RNSound">
++<manifest xml:android="http://schemas.android.com/apk/res/android">
+ </manifest>

@@ -1,0 +1,1429 @@
+diff --git a/node_modules/react-native-google-mobile-ads/android/build.gradle b/node_modules/react-native-google-mobile-ads/android/build.gradle
+index 2fa912e..b0b6365 100644
+--- a/node_modules/react-native-google-mobile-ads/android/build.gradle
++++ b/node_modules/react-native-google-mobile-ads/android/build.gradle
+@@ -99,6 +99,7 @@ if (!appJSONGoogleMobileAdsAppIDString) {
+ }
+ 
+ android {
++  namespace "io.invertase.googlemobileads"
+   defaultConfig {
+     multiDexEnabled true
+     manifestPlaceholders = [
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/results.bin b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/results.bin
+new file mode 100644
+index 0000000..6e09b8c
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/results.bin
+@@ -0,0 +1 @@
++o/out
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/AndroidManifest.xml b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/AndroidManifest.xml
+new file mode 100644
+index 0000000..edbee91
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/AndroidManifest.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.invertase.googlemobileads" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++
++    <application>
++        <meta-data
++            android:name="com.google.android.gms.ads.APPLICATION_ID"
++            android:value="ca-app-pub-3940256099942544~3347511713" />
++        <meta-data
++            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
++            android:value="false" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
++            android:value="true" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
++            android:value="true" />
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/META-INF/com/android/build/gradle/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/R.txt b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/classes.jar b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/classes.jar
+new file mode 100644
+index 0000000..6571824
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/classes.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/libs/R.jar b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/libs/R.jar
+new file mode 100644
+index 0000000..5b19fbf
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/96b93a324f499b721552df56f9e0430d/transformed/out/jars/libs/R.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/9cd5dd93790adb8ada209932e52b7572/results.bin b/node_modules/react-native-google-mobile-ads/android/build/.transforms/9cd5dd93790adb8ada209932e52b7572/results.bin
+new file mode 100644
+index 0000000..1ed65e0
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/.transforms/9cd5dd93790adb8ada209932e52b7572/results.bin
+@@ -0,0 +1 @@
++i/
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/results.bin b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/results.bin
+new file mode 100644
+index 0000000..9e53e72
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/results.bin
+@@ -0,0 +1 @@
++o/release
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/desugar_graph.bin b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/desugar_graph.bin
+new file mode 100644
+index 0000000..ee3e9ed
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/desugar_graph.bin differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/BuildConfig.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/BuildConfig.dex
+new file mode 100644
+index 0000000..133ecf2
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/BuildConfig.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent$Companion.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent$Companion.dex
+new file mode 100644
+index 0000000..d11c06d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent$Companion.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent.dex
+new file mode 100644
+index 0000000..2b8d5a3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/OnNativeEvent.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeAppModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeAppModule.dex
+new file mode 100644
+index 0000000..08bd829
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeAppModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.dex
+new file mode 100644
+index 0000000..0e17dc9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.dex
+new file mode 100644
+index 0000000..a090cbc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.dex
+new file mode 100644
+index 0000000..86a13f7
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.dex
+new file mode 100644
+index 0000000..29e91fb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.dex
+new file mode 100644
+index 0000000..8323c07
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.dex
+new file mode 100644
+index 0000000..e4684b9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.dex
+new file mode 100644
+index 0000000..245a993
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.dex
+new file mode 100644
+index 0000000..094fa7e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.dex
+new file mode 100644
+index 0000000..cf6f63f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.dex
+new file mode 100644
+index 0000000..a5f0742
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.dex
+new file mode 100644
+index 0000000..f4bdafd
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.dex
+new file mode 100644
+index 0000000..c2a8d55
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.dex
+new file mode 100644
+index 0000000..e6691fe
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.dex
+new file mode 100644
+index 0000000..5057e23
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.dex
+new file mode 100644
+index 0000000..a6dff00
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.dex
+new file mode 100644
+index 0000000..8527769
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.dex
+new file mode 100644
+index 0000000..6675036
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.dex
+new file mode 100644
+index 0000000..9377c38
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.dex
+new file mode 100644
+index 0000000..50f79e6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.dex
+new file mode 100644
+index 0000000..f2d1817
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.dex
+new file mode 100644
+index 0000000..506e51c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.dex
+new file mode 100644
+index 0000000..5e813d9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.dex
+new file mode 100644
+index 0000000..a7a88d6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.dex
+new file mode 100644
+index 0000000..8d3b45d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.dex
+new file mode 100644
+index 0000000..922d0fb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.dex
+new file mode 100644
+index 0000000..968513d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.dex
+new file mode 100644
+index 0000000..da3d7a1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.dex
+new file mode 100644
+index 0000000..2c148c1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/RCTConvert.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/RCTConvert.dex
+new file mode 100644
+index 0000000..f0b8442
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/RCTConvert.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeAdView.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeAdView.dex
+new file mode 100644
+index 0000000..05b64b7
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeAdView.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeApp.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeApp.dex
+new file mode 100644
+index 0000000..d6cff5c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeApp.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEvent.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEvent.dex
+new file mode 100644
+index 0000000..a5a127d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEvent.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.dex
+new file mode 100644
+index 0000000..7e3dfef
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.dex
+new file mode 100644
+index 0000000..e7982d8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeJSON.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeJSON.dex
+new file mode 100644
+index 0000000..b624ccd
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeJSON.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeMeta.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeMeta.dex
+new file mode 100644
+index 0000000..96f5076
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeMeta.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeModule.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeModule.dex
+new file mode 100644
+index 0000000..0bcd93a
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativeModule.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativePreferences.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativePreferences.dex
+new file mode 100644
+index 0000000..bab610f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/ReactNativePreferences.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/SharedUtils.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/SharedUtils.dex
+new file mode 100644
+index 0000000..339c075
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/SharedUtils.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/TaskExecutorService.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/TaskExecutorService.dex
+new file mode 100644
+index 0000000..9e2a062
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/common/TaskExecutorService.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/ContextProvider.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/ContextProvider.dex
+new file mode 100644
+index 0000000..db7a0f9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/ContextProvider.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeError.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeError.dex
+new file mode 100644
+index 0000000..4804c63
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeError.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeEvent.dex b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeEvent.dex
+new file mode 100644
+index 0000000..85cd7a1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/.transforms/c2e4eb90df542c78e3ee2de065a948f2/transformed/release/io/invertase/googlemobileads/interfaces/NativeEvent.dex differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/generated/source/buildConfig/release/io/invertase/googlemobileads/BuildConfig.java b/node_modules/react-native-google-mobile-ads/android/build/generated/source/buildConfig/release/io/invertase/googlemobileads/BuildConfig.java
+new file mode 100644
+index 0000000..e35fc0d
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/generated/source/buildConfig/release/io/invertase/googlemobileads/BuildConfig.java
+@@ -0,0 +1,14 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package io.invertase.googlemobileads;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = false;
++  public static final String LIBRARY_PACKAGE_NAME = "io.invertase.googlemobileads";
++  public static final String BUILD_TYPE = "release";
++  // Field from default config.
++  public static final String GOOGLE_MOBILE_ADS_JSON_RAW = "{\"android_app_id\":\"ca-app-pub-3940256099942544~3347511713\",\"ios_app_id\":\"ca-app-pub-3940256099942544~1458002511\"}";
++  // Field from default config.
++  public static final boolean IS_NEW_ARCHITECTURE_ENABLED = false;
++}
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..edbee91
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/AndroidManifest.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.invertase.googlemobileads" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++
++    <application>
++        <meta-data
++            android:name="com.google.android.gms.ads.APPLICATION_ID"
++            android:value="ca-app-pub-3940256099942544~3347511713" />
++        <meta-data
++            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
++            android:value="false" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
++            android:value="true" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
++            android:value="true" />
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+new file mode 100644
+index 0000000..0bf55bb
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aapt_friendly_merged_manifests/release/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "io.invertase.googlemobileads",
++  "variantName": "release",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_main_jar/release/classes.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_main_jar/release/classes.jar
+new file mode 100644
+index 0000000..6571824
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_main_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_metadata/release/aar-metadata.properties b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_metadata/release/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/aar_metadata/release/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json b/node_modules/react-native-google-mobile-ads/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/annotation_processor_list/release/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/annotations_typedef_file/release/typedefs.txt b/node_modules/react-native-google-mobile-ads/android/build/intermediates/annotations_typedef_file/release/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_library_classes_jar/release/classes.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_library_classes_jar/release/classes.jar
+new file mode 100644
+index 0000000..c70645a
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_library_classes_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_r_class_jar/release/R.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_r_class_jar/release/R.jar
+new file mode 100644
+index 0000000..5b19fbf
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_r_class_jar/release/R.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_symbol_list/release/R.txt b/node_modules/react-native-google-mobile-ads/android/build/intermediates/compile_symbol_list/release/R.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/full_jar/release/full.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/full_jar/release/full.jar
+new file mode 100644
+index 0000000..293a056
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/full_jar/release/full.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..85caac7
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/jniLibs"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/release/jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+new file mode 100644
+index 0000000..b5fb4fd
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/mergeReleaseShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/shaders"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/release/shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/packageReleaseAssets/merger.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+new file mode 100644
+index 0000000..f15cfcf
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/packageReleaseAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/assets"/></dataSet><dataSet config="release" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/release/assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/build/intermediates/shader_assets/release/out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release-mergeJavaRes/merge-state b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..f012064
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release-mergeJavaRes/merge-state differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+new file mode 100644
+index 0000000..7dce8e6
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/compile-file-map.properties
+@@ -0,0 +1 @@
++#Thu May 15 08:28:37 IDT 2025
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+new file mode 100644
+index 0000000..ca02970
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/incremental/release/packageReleaseResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/release/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="release" generated-set="release$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/release/res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/build/generated/res/resValues/release"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/build/generated/res/resValues/release"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/BuildConfig.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/BuildConfig.class
+new file mode 100644
+index 0000000..6bb478e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/BuildConfig.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeAppModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeAppModule.class
+new file mode 100644
+index 0000000..f4e11f2
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeAppModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class
+new file mode 100644
+index 0000000..0bf49fc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class
+new file mode 100644
+index 0000000..28f6b5c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class
+new file mode 100644
+index 0000000..d97ce9f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class
+new file mode 100644
+index 0000000..40934fb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class
+new file mode 100644
+index 0000000..e59ae82
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class
+new file mode 100644
+index 0000000..35f777e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class
+new file mode 100644
+index 0000000..c64d800
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class
+new file mode 100644
+index 0000000..a9d7ee8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class
+new file mode 100644
+index 0000000..d56bee1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class
+new file mode 100644
+index 0000000..0ea75b0
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class
+new file mode 100644
+index 0000000..a3fe248
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class
+new file mode 100644
+index 0000000..36bc6cc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/RCTConvert.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/RCTConvert.class
+new file mode 100644
+index 0000000..9647b51
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/RCTConvert.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeAdView.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeAdView.class
+new file mode 100644
+index 0000000..6d96668
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeAdView.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeApp.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeApp.class
+new file mode 100644
+index 0000000..795e487
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeApp.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEvent.class
+new file mode 100644
+index 0000000..3c54186
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class
+new file mode 100644
+index 0000000..ed243bf
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeInitProvider.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeInitProvider.class
+new file mode 100644
+index 0000000..fc30331
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeInitProvider.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeJSON.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeJSON.class
+new file mode 100644
+index 0000000..efe9b15
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeJSON.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeMeta.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeMeta.class
+new file mode 100644
+index 0000000..b7e09ed
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeMeta.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeModule.class
+new file mode 100644
+index 0000000..fc58dc8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativeModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativePreferences.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativePreferences.class
+new file mode 100644
+index 0000000..4c31b32
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/ReactNativePreferences.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/SharedUtils.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/SharedUtils.class
+new file mode 100644
+index 0000000..47d79ed
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/SharedUtils.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/TaskExecutorService.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/TaskExecutorService.class
+new file mode 100644
+index 0000000..0b4df4d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/common/TaskExecutorService.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/ContextProvider.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/ContextProvider.class
+new file mode 100644
+index 0000000..f608edc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/ContextProvider.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeError.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeError.class
+new file mode 100644
+index 0000000..afb5b4b
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeError.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeEvent.class
+new file mode 100644
+index 0000000..ece86d7
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/javac/release/classes/io/invertase/googlemobileads/interfaces/NativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/library_java_res/release/res.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/library_java_res/release/res.jar
+new file mode 100644
+index 0000000..29f9cfe
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/library_java_res/release/res.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties b/node_modules/react-native-google-mobile-ads/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties
+new file mode 100644
+index 0000000..0e9614a
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/lint_model_metadata/release/lint-model-metadata.properties
+@@ -0,0 +1,2 @@
++mavenArtifactId=react-native-google-mobile-ads
++mavenGroupId=CrossWordMega
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_aar_for_lint/release/out.aar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_aar_for_lint/release/out.aar
+new file mode 100644
+index 0000000..35c53a8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_aar_for_lint/release/out.aar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_only_symbol_list/release/R-def.txt b/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/local_only_symbol_list/release/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt b/node_modules/react-native-google-mobile-ads/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+new file mode 100644
+index 0000000..bfc70eb
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/manifest_merge_blame_file/release/manifest-merger-blame-release-report.txt
+@@ -0,0 +1,42 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="io.invertase.googlemobileads" >
++4
++5    <uses-sdk android:minSdkVersion="23" />
++5-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++6
++7    <uses-permission android:name="android.permission.INTERNET" />
++7-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:4:5-67
++7-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:4:22-64
++8    <uses-permission android:name="android.permission.WAKE_LOCK" />
++8-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:5:5-68
++8-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:5:22-65
++9    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++9-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:6:5-79
++9-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:6:22-76
++10
++11    <application>
++11-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:8:5-21:19
++12        <meta-data
++13            android:name="com.google.android.gms.ads.APPLICATION_ID"
++13-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:10:9-65
++14            android:value="ca-app-pub-3940256099942544~3347511713" />
++14-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:11:9-55
++15        <meta-data
++16            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
++16-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:13:9-77
++17            android:value="false" />
++17-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:14:9-73
++18        <meta-data
++19            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
++19-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:16:9-79
++20            android:value="true" />
++20-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:17:9-72
++21        <meta-data
++22            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
++22-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:19:9-75
++23            android:value="true" />
++23-->/Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:20:9-67
++24    </application>
++25
++26</manifest>
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_java_res/release/feature-react-native-google-mobile-ads.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_java_res/release/feature-react-native-google-mobile-ads.jar
+new file mode 100644
+index 0000000..d076f2e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_java_res/release/feature-react-native-google-mobile-ads.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_manifest/release/AndroidManifest.xml b/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+new file mode 100644
+index 0000000..edbee91
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/merged_manifest/release/AndroidManifest.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="io.invertase.googlemobileads" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.INTERNET" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++
++    <application>
++        <meta-data
++            android:name="com.google.android.gms.ads.APPLICATION_ID"
++            android:value="ca-app-pub-3940256099942544~3347511713" />
++        <meta-data
++            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
++            android:value="false" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
++            android:value="true" />
++        <meta-data
++            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
++            android:value="true" />
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/navigation_json/release/navigation.json b/node_modules/react-native-google-mobile-ads/android/build/intermediates/navigation_json/release/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/navigation_json/release/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/META-INF/react-native-google-mobile-ads_release.kotlin_module b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/META-INF/react-native-google-mobile-ads_release.kotlin_module
+new file mode 100644
+index 0000000..3aa6361
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/META-INF/react-native-google-mobile-ads_release.kotlin_module differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/BuildConfig.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/BuildConfig.class
+new file mode 100644
+index 0000000..6bb478e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/BuildConfig.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class
+new file mode 100644
+index 0000000..c85f383
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent.class
+new file mode 100644
+index 0000000..33dce1f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/OnNativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeAppModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeAppModule.class
+new file mode 100644
+index 0000000..f4e11f2
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeAppModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class
+new file mode 100644
+index 0000000..62bd0a3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class
+new file mode 100644
+index 0000000..0105971
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class
+new file mode 100644
+index 0000000..59e8892
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class
+new file mode 100644
+index 0000000..f5b98e6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class
+new file mode 100644
+index 0000000..0bf49fc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class
+new file mode 100644
+index 0000000..28f6b5c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$2.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class
+new file mode 100644
+index 0000000..d97ce9f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager$3.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class
+new file mode 100644
+index 0000000..40934fb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsBannerAdViewManager.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class
+new file mode 100644
+index 0000000..e59ae82
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsCommon.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class
+new file mode 100644
+index 0000000..35f777e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class
+new file mode 100644
+index 0000000..c64d800
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsConsentModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class
+new file mode 100644
+index 0000000..a9d7ee8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class
+new file mode 100644
+index 0000000..5026b05
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class
+new file mode 100644
+index 0000000..6170258
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class
+new file mode 100644
+index 0000000..01f1002
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class
+new file mode 100644
+index 0000000..735c8a6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class
+new file mode 100644
+index 0000000..25e0079
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class
+new file mode 100644
+index 0000000..dac4bd3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class
+new file mode 100644
+index 0000000..d56bee1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class
+new file mode 100644
+index 0000000..0ea75b0
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule$2.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class
+new file mode 100644
+index 0000000..a3fe248
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class
+new file mode 100644
+index 0000000..36bc6cc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsPackage.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class
+new file mode 100644
+index 0000000..e15cbe5
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class
+new file mode 100644
+index 0000000..ab89b9e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class
+new file mode 100644
+index 0000000..ffd8173
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class
+new file mode 100644
+index 0000000..065cac0
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class
+new file mode 100644
+index 0000000..b43efd3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class
+new file mode 100644
+index 0000000..655c182
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/RCTConvert.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/RCTConvert.class
+new file mode 100644
+index 0000000..9647b51
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/RCTConvert.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeAdView.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeAdView.class
+new file mode 100644
+index 0000000..6d96668
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeAdView.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeApp.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeApp.class
+new file mode 100644
+index 0000000..795e487
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeApp.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEvent.class
+new file mode 100644
+index 0000000..3c54186
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class
+new file mode 100644
+index 0000000..ed243bf
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeEventEmitter.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.class
+new file mode 100644
+index 0000000..fc30331
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeInitProvider.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeJSON.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeJSON.class
+new file mode 100644
+index 0000000..efe9b15
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeJSON.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeMeta.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeMeta.class
+new file mode 100644
+index 0000000..b7e09ed
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeMeta.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeModule.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeModule.class
+new file mode 100644
+index 0000000..fc58dc8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativeModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativePreferences.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativePreferences.class
+new file mode 100644
+index 0000000..4c31b32
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/ReactNativePreferences.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/SharedUtils.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/SharedUtils.class
+new file mode 100644
+index 0000000..47d79ed
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/SharedUtils.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/TaskExecutorService.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/TaskExecutorService.class
+new file mode 100644
+index 0000000..0b4df4d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/common/TaskExecutorService.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/ContextProvider.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/ContextProvider.class
+new file mode 100644
+index 0000000..f608edc
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/ContextProvider.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeError.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeError.class
+new file mode 100644
+index 0000000..afb5b4b
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeError.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeEvent.class
+new file mode 100644
+index 0000000..ece86d7
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_dir/release/io/invertase/googlemobileads/interfaces/NativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_jar/release/classes.jar b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_jar/release/classes.jar
+new file mode 100644
+index 0000000..268349d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/intermediates/runtime_library_classes_jar/release/classes.jar differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt b/node_modules/react-native-google-mobile-ads/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+new file mode 100644
+index 0000000..443764e
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/intermediates/symbol_list_with_package_name/release/package-aware-r.txt
+@@ -0,0 +1 @@
++io.invertase.googlemobileads
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+new file mode 100644
+index 0000000..a9f28ce
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+new file mode 100644
+index 0000000..00b7452
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+new file mode 100644
+index 0000000..3b43a24
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+new file mode 100644
+index 0000000..817b326
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+new file mode 100644
+index 0000000..ac2e2d2
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+new file mode 100644
+index 0000000..89d3b6c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+new file mode 100644
+index 0000000..74c7289
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+new file mode 100644
+index 0000000..d9dbd4c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+new file mode 100644
+index 0000000..90f446f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+new file mode 100644
+index 0000000..09407ef
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+new file mode 100644
+index 0000000..791d079
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+new file mode 100644
+index 0000000..31cd8e3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+new file mode 100644
+index 0000000..567a6bb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..d9dbd4c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..90f446f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+new file mode 100644
+index 0000000..09407ef
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..7cbb2ff
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+new file mode 100644
+index 0000000..31cd8e3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab
+new file mode 100644
+index 0000000..c7f6102
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream
+new file mode 100644
+index 0000000..dea4a8a
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len
+new file mode 100644
+index 0000000..689ec48
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len
+new file mode 100644
+index 0000000..ec8f944
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at
+new file mode 100644
+index 0000000..23f3d3e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i
+new file mode 100644
+index 0000000..b0ab6be
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/constants.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+new file mode 100644
+index 0000000..f7425e8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..6641572
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..80a019f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+new file mode 100644
+index 0000000..09407ef
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..ca1efa6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+new file mode 100644
+index 0000000..bca59c4
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab
+new file mode 100644
+index 0000000..d9d4e95
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream
+new file mode 100644
+index 0000000..9b4c037
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len
+new file mode 100644
+index 0000000..51ae757
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len
+new file mode 100644
+index 0000000..ec8f944
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at
+new file mode 100644
+index 0000000..a67aa15
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i
+new file mode 100644
+index 0000000..681fb95
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/java-sources-proto-map.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+new file mode 100644
+index 0000000..26c22c1
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+new file mode 100644
+index 0000000..362ab89
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+new file mode 100644
+index 0000000..89b9c5e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+new file mode 100644
+index 0000000..003bc0e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+new file mode 100644
+index 0000000..194a932
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+new file mode 100644
+index 0000000..5f7b873
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+new file mode 100644
+index 0000000..f300a1e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+new file mode 100644
+index 0000000..c9cf309
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+new file mode 100644
+index 0000000..8a2f5ba
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+new file mode 100644
+index 0000000..a363176
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+new file mode 100644
+index 0000000..55e1d9b
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+new file mode 100644
+index 0000000..1545b1e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab
+new file mode 100644
+index 0000000..3b2b8f7
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream
+new file mode 100644
+index 0000000..49e1151
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len
+new file mode 100644
+index 0000000..dd0a550
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len
+new file mode 100644
+index 0000000..817b326
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at
+new file mode 100644
+index 0000000..f4a2ce9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i
+new file mode 100644
+index 0000000..af19d8b
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab
+new file mode 100644
+index 0000000..c66ba41
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream
+new file mode 100644
+index 0000000..a1019e6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len
+new file mode 100644
+index 0000000..07e2a05
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len
+new file mode 100644
+index 0000000..eb0b8a0
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at
+new file mode 100644
+index 0000000..e6d37dd
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i
+new file mode 100644
+index 0000000..062e994
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/counters.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/counters.tab
+new file mode 100644
+index 0000000..3d952e7
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/counters.tab
+@@ -0,0 +1,2 @@
++7
++0
+\ No newline at end of file
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+new file mode 100644
+index 0000000..12e775f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+new file mode 100644
+index 0000000..7ead94b
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+new file mode 100644
+index 0000000..3b43a24
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+new file mode 100644
+index 0000000..817b326
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+new file mode 100644
+index 0000000..25454f3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+new file mode 100644
+index 0000000..32eaea8
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+new file mode 100644
+index 0000000..0893dc9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+new file mode 100644
+index 0000000..2459ed6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+new file mode 100644
+index 0000000..379d85c
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+new file mode 100644
+index 0000000..817b326
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+new file mode 100644
+index 0000000..5e69d6d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+new file mode 100644
+index 0000000..0667ccd
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab
+new file mode 100644
+index 0000000..f2c2527
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+new file mode 100644
+index 0000000..65eb5e5
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+new file mode 100644
+index 0000000..1f3dd0d
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+new file mode 100644
+index 0000000..eec0786
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+new file mode 100644
+index 0000000..5dd614f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+new file mode 100644
+index 0000000..2dcb450
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/last-build.bin b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/last-build.bin
+new file mode 100644
+index 0000000..a027e05
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/cacheable/last-build.bin differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/local-state/build-history.bin b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..777feeb
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/kotlin/compileReleaseKotlin/local-state/build-history.bin differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/outputs/logs/manifest-merger-release-report.txt b/node_modules/react-native-google-mobile-ads/android/build/outputs/logs/manifest-merger-release-report.txt
+new file mode 100644
+index 0000000..0bd8673
+--- /dev/null
++++ b/node_modules/react-native-google-mobile-ads/android/build/outputs/logs/manifest-merger-release-report.txt
+@@ -0,0 +1,67 @@
++-- Merging decision tree log ---
++meta-data#com.google.android.gms.ads.APPLICATION_ID
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:9:7-11:57
++	android:value
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:11:9-55
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:10:9-65
++meta-data#com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:12:7-14:75
++	android:value
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:14:9-73
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:13:9-77
++meta-data#com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:15:7-17:74
++	android:value
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:17:9-72
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:16:9-79
++meta-data#com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:18:7-20:69
++	android:value
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:20:9-67
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:19:9-75
++manifest
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:2:1-22:12
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:2:1-22:12
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:2:1-22:12
++	package
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:2:1-22:12
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++	xmlns:android
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:2:11-69
++uses-permission#android.permission.INTERNET
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:4:5-67
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:4:22-64
++uses-permission#android.permission.WAKE_LOCK
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:5:5-68
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:5:22-65
++uses-permission#android.permission.ACCESS_NETWORK_STATE
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:6:5-79
++	android:name
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:6:22-76
++application
++ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml:8:5-21:19
++uses-sdk
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		ADDED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++		INJECTED from /Users/naorbarkochva/Projects/side_projects/crossword_project/Wordle/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin b/node_modules/react-native-google-mobile-ads/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..bd1abe9
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/compileReleaseJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/META-INF/react-native-google-mobile-ads_release.kotlin_module b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/META-INF/react-native-google-mobile-ads_release.kotlin_module
+new file mode 100644
+index 0000000..3aa6361
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/META-INF/react-native-google-mobile-ads_release.kotlin_module differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class
+new file mode 100644
+index 0000000..c85f383
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent.class
+new file mode 100644
+index 0000000..33dce1f
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/OnNativeEvent.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class
+new file mode 100644
+index 0000000..62bd0a3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAdHelper.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class
+new file mode 100644
+index 0000000..0105971
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class
+new file mode 100644
+index 0000000..59e8892
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class
+new file mode 100644
+index 0000000..f5b98e6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsAppOpenModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class
+new file mode 100644
+index 0000000..5026b05
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback$onAdLoaded$fullScreenContentCallback$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class
+new file mode 100644
+index 0000000..6170258
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule$ReactNativeGoogleMobileAdsAdLoadCallback.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class
+new file mode 100644
+index 0000000..01f1002
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsFullScreenAdModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class
+new file mode 100644
+index 0000000..735c8a6
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class
+new file mode 100644
+index 0000000..25e0079
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class
+new file mode 100644
+index 0000000..dac4bd3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsInterstitialModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class
+new file mode 100644
+index 0000000..e15cbe5
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class
+new file mode 100644
+index 0000000..ab89b9e
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class
+new file mode 100644
+index 0000000..ffd8173
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedInterstitialModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class
+new file mode 100644
+index 0000000..065cac0
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$Companion.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class
+new file mode 100644
+index 0000000..b43efd3
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule$loadAd$1.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class
+new file mode 100644
+index 0000000..655c182
+Binary files /dev/null and b/node_modules/react-native-google-mobile-ads/android/build/tmp/kotlin-classes/release/io/invertase/googlemobileads/ReactNativeGoogleMobileAdsRewardedModule.class differ
+diff --git a/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml b/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
+index 065ccb8..4ef83b5 100644
+--- a/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="io.invertase.googlemobileads">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.WAKE_LOCK" />
