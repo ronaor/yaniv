@@ -29,7 +29,7 @@ const config = async () => {
       },
     },
     watchFolders: [
-      path.resolve(__dirname, 'source'),
+      path.resolve(__dirname, 'src'),
       path.resolve(__dirname, 'node_modules'),
     ],
   });
