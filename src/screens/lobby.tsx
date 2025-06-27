@@ -1,42 +1,28 @@
-import {StyleSheet, Text, View, FlatList, Alert} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {LobbyProps, Player} from '~/types/navigation';
-import socket from '../socket';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  ActivityIndicator,
+  Modal,
+} from 'react-native';
+import React, {useEffect} from 'react';
+import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '../theme';
+import {useSocketStore} from '../SocketContext';
 
-function LobbyScreen({route, navigation}: LobbyProps) {
-  const {roomId, players: initialPlayers, config} = route.params;
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
-  const [gameStarted, setGameStarted] = useState(false);
+function LobbyScreen({navigation}: LobbyProps) {
+  const {roomId, players, config, gameState, isLoading} = useSocketStore();
 
   useEffect(() => {
-    socket.off('player_joined');
-    socket.on('player_joined', ({players: updatedPlayers}) => {
-      setPlayers(updatedPlayers);
-    });
-    socket.off('player_left');
-    socket.on('player_left', ({players: updatedPlayers}) => {
-      setPlayers(updatedPlayers);
-    });
-    socket.off('start_game');
-    socket.on(
-      'start_game',
-      ({roomId: _roomId, config: _config, players: _players}) => {
-        setGameStarted(true);
-        Alert.alert('המשחק מתחיל!', 'בהצלחה!');
-        // navigation.navigate('Game', {roomId: _roomId, config: _config, players: _players});
-      },
-    );
-    return () => {
-      socket.off('player_joined');
-      socket.off('player_left');
-      socket.off('start_game');
-    };
-  }, [navigation]);
+    if (gameState === 'started') {
+      navigation.replace('Game');
+    }
+  }, [navigation, gameState]);
 
   return (
     <View style={styles.body}>
-      <Text style={textStyles.title}>{'חדר: ' + roomId}</Text>
+      <Text style={textStyles.title}>{'חדר: ' + (roomId || '')}</Text>
       <Text style={textStyles.subtitle}>{'שחקנים בחדר:'}</Text>
       <View style={styles.playerListContainer}>
         <FlatList
@@ -49,10 +35,19 @@ function LobbyScreen({route, navigation}: LobbyProps) {
         />
       </View>
       <Text style={styles.status}>
-        {gameStarted
+        {gameState === 'started'
           ? 'המשחק התחיל!'
-          : `ממתין לשחקנים... (${players.length}/${config.numPlayers})`}
+          : `ממתין לשחקנים... (${players.length}/${config?.numPlayers || '?'})`}
       </Text>
+      <Modal
+        visible={isLoading && gameState !== 'started'}
+        transparent
+        animationType="fade">
+        <View style={styles.loaderOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={textStyles.subtitle}>ממתין לשחקנים...</Text>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -91,6 +86,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  loaderOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

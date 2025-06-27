@@ -1,16 +1,28 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import MenuButton from '~/components/menuButton';
 import {HomeScreenProps} from '~/types/navigation';
 import {colors, textStyles} from '../theme';
+import {useUser} from '../userContext';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const quickGame = () => {};
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const gameWithAI = () => {};
+  const {name, setName} = useUser();
 
   return (
     <View style={styles.body}>
+      <View style={styles.header}>
+        <Text style={styles.welcome}>
+          {name ? `שלום ${name}! ברוך הבא` : ''}
+        </Text>
+        <TouchableOpacity
+          onPress={() => setName('')}
+          style={styles.changeNameBtn}>
+          <Text style={styles.changeNameText}>שנה שם</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
         <View style={styles.menuButtons}>
@@ -31,6 +43,31 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  header: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  welcome: {
+    ...textStyles.body,
+    color: colors.primary,
+    fontWeight: 'bold',
+    marginRight: 12,
+  },
+  changeNameBtn: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  changeNameText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   container: {
     flexDirection: 'column',

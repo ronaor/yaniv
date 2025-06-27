@@ -1,59 +1,52 @@
-import {StyleSheet, Text, TextInput, View, Alert} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menuButton';
 import Dialog from '~/components/dialog';
 import EnterNumber from '~/components/enterNumber';
 import {GameWithFriendsProps} from '~/types/navigation';
-import socket from '../socket';
 import {colors, textStyles} from '../theme';
+import {useUser} from '../userContext';
+import {useSocketStore} from '../SocketContext';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
   const [numPlayers, setNumPlayers] = useState<number>(3);
   const [timePerPlayer, setTimePerPlayer] = useState<number>(15);
-  const [nickname, setNickname] = useState<string>('');
   const [roomCode, setRoomCode] = useState<string>('');
+  const {name} = useUser();
+  const {
+    createRoom,
+    joinRoom,
+    clearError,
+    isInRoom,
+    isLoading,
+    error,
+    gameState,
+  } = useSocketStore();
 
   useEffect(() => {
-    // Room created (creator only)
-    socket.off('room_created');
-    socket.on('room_created', ({roomId, players, config}) => {
-      navigation.navigate('Lobby', {
-        roomId,
-        players,
-        config,
-        nickname,
-        isCreator: true,
-      });
-    });
-    // Joined room (joiner)
-    socket.off('player_joined');
-    socket.on('player_joined', ({players}) => {
-      // Only navigate if not already in lobby
-      // (creator will already be in lobby)
-      if (!newRoomModalOpen && !enterRoomModalOpen) {
-        navigation.navigate('Lobby', {
-          roomId: roomCode,
-          players,
-          config: {numPlayers, timePerPlayer}, // fallback, will update in lobby
-          nickname,
-          isCreator: false,
-        });
-      }
-    });
-    // Error
-    socket.off('room_error');
-    socket.on('room_error', ({message}) => {
-      Alert.alert('שגיאה', message);
-    });
-    return () => {
-      socket.off('room_created');
-      socket.off('player_joined');
-      socket.off('room_error');
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nickname, roomCode, numPlayers, timePerPlayer, navigation]);
+    if (gameState) {
+      navigation.replace('Game');
+    } else if (isInRoom) {
+      setNewRoomModalOpen(false);
+      setEnterRoomModalOpen(false);
+      navigation.replace('Lobby');
+    }
+  }, [gameState, isInRoom, navigation]);
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('שגיאה', error, [{text: 'סגור', onPress: clearError}]);
+    }
+  }, [error, clearError]);
 
   const createARoom = () => {
     setEnterRoomModalOpen(false);
@@ -63,28 +56,19 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     setNewRoomModalOpen(false);
     setEnterRoomModalOpen(true);
   };
-  const createRoom = () => {
-    if (!nickname) {
+  const handleCreateRoom = () => {
+    if (!name) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן');
       return;
     }
-    socket.emit('create_room', {
-      nickname,
-      numPlayers,
-      timePerPlayer,
-    });
-    setNewRoomModalOpen(false);
+    createRoom(name, numPlayers, timePerPlayer);
   };
-  const enterRoom = () => {
-    if (!nickname || !roomCode) {
+  const handleJoinRoom = () => {
+    if (!name || !roomCode) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן ומזהה חדר');
       return;
     }
-    socket.emit('join_room', {
-      roomId: roomCode,
-      nickname,
-    });
-    setEnterRoomModalOpen(false);
+    joinRoom(roomCode, name);
   };
   return (
     <View style={styles.body}>
@@ -100,14 +84,6 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
         onBackgroundPress={() => setNewRoomModalOpen(false)}>
         <Text style={textStyles.subtitle}>{'חדר חדש'}</Text>
         <View style={styles.dialogBody}>
-          <Text style={textStyles.body}>{'שם שחקן'}</Text>
-          <TextInput
-            value={nickname}
-            onChangeText={setNickname}
-            style={styles.input}
-            placeholder="הכנס שם"
-            placeholderTextColor={colors.textSecondary}
-          />
           <View style={styles.row}>
             <EnterNumber
               value={numPlayers}
@@ -124,7 +100,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             />
             <Text style={textStyles.body}>{'משך תור'}</Text>
           </View>
-          <MenuButton onPress={createRoom} text="צור חדר" />
+          <MenuButton onPress={handleCreateRoom} text="צור חדר" />
         </View>
       </Dialog>
       <Dialog
@@ -132,14 +108,6 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
         onBackgroundPress={() => setEnterRoomModalOpen(false)}>
         <Text style={textStyles.subtitle}>{'כניסה לחדר'}</Text>
         <View style={styles.dialogBody}>
-          <Text style={textStyles.body}>{'שם שחקן'}</Text>
-          <TextInput
-            value={nickname}
-            onChangeText={setNickname}
-            style={styles.input}
-            placeholder="הכנס שם"
-            placeholderTextColor={colors.textSecondary}
-          />
           <Text style={textStyles.body}>{'מזהה חדר'}</Text>
           <TextInput
             value={roomCode}
@@ -149,9 +117,14 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             autoCapitalize="characters"
             placeholderTextColor={colors.textSecondary}
           />
-          <MenuButton onPress={enterRoom} text="כנס" />
+          <MenuButton onPress={handleJoinRoom} text="כנס" />
         </View>
       </Dialog>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
     </View>
   );
 }
@@ -217,6 +190,13 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     color: colors.text,
     backgroundColor: colors.background,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
   },
 });
 

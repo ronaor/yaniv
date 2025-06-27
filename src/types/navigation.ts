@@ -13,13 +13,8 @@ export type RoomConfig = {
 export type RootStackParamList = {
   Home: undefined;
   GameWithFriends: undefined;
-  Lobby: {
-    roomId: string;
-    players: Player[];
-    config: RoomConfig;
-    nickname: string;
-    isCreator: boolean;
-  };
+  Lobby?: undefined;
+  Game?: undefined;
 };
 
 export type HomeScreenProps = NativeStackScreenProps<
@@ -31,3 +26,7 @@ export type GameWithFriendsProps = NativeStackScreenProps<
   'GameWithFriends'
 >;
 export type LobbyProps = NativeStackScreenProps<RootStackParamList, 'Lobby'>;
+export type GameScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'Game'
+>;

@@ -69,3 +69,5 @@ yarn-error.log
 # client-secrets
 /keystore.txt
 /keystore.jks
+
+/server.ts
