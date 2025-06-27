@@ -2,6 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import MenuButton from '~/components/menuButton';
 import {HomeScreenProps} from '~/types/navigation';
+import {colors, textStyles} from '../theme';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const quickGame = () => {};
@@ -11,7 +12,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
   return (
     <View style={styles.body}>
       <View style={styles.container}>
-        <Text style={styles.title}>{'יניב'}</Text>
+        <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
         <View style={styles.menuButtons}>
           <MenuButton text={'משחק מהיר'} onPress={quickGame} />
           <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
@@ -25,6 +26,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
 const styles = StyleSheet.create({
   body: {
     flex: 1,
+    backgroundColor: colors.background,
     padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
@@ -32,22 +34,32 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'column',
-    height: '75%',
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 2,
   },
   title: {
-    fontSize: 50,
-    color: '#D55500FF',
-    padding: 5,
-    fontWeight: 'bold',
-    flex: 0.5,
-    alignSelf: 'center',
+    marginBottom: 32,
   },
   menuButtons: {
     padding: 20,
     borderRadius: 20,
-    flex: 1,
-    backgroundColor: 'yellow',
-    gap: 10,
+    backgroundColor: colors.accent,
+    gap: 16,
+    marginTop: 0,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 1,
+    width: '100%',
+    alignItems: 'stretch',
   },
 });
 

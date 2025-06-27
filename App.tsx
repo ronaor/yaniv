@@ -7,7 +7,8 @@ import HomeScreen from '~/screens/home';
 import {RootStackParamList} from '~/types/navigation';
 import {I18nManager} from 'react-native';
 import GameBannerAd from '~/ads/banner';
-import GameWithFriends from '~/screens/gameWithFriends';
+import GameWithFriendsScreen from '~/screens/gameWithFriends';
+import LobbyScreen from '~/screens/lobby';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,7 +44,14 @@ const App = () => {
           />
           <Stack.Screen
             name="GameWithFriends"
-            component={GameWithFriends}
+            component={GameWithFriendsScreen}
+            options={{
+              animation: 'slide_from_left',
+            }}
+          />
+          <Stack.Screen
+            name="Lobby"
+            component={LobbyScreen}
             options={{
               animation: 'slide_from_left',
             }}

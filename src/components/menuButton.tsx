@@ -1,5 +1,6 @@
-import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import BasePressable from './basePressable';
 interface MenuButtonProps {
   text: string;
   onPress: () => void;
@@ -7,9 +8,11 @@ interface MenuButtonProps {
 
 const MenuButton = ({text, onPress}: MenuButtonProps): JSX.Element => {
   return (
-    <TouchableOpacity style={buttonStyles.body} onPress={onPress}>
-      <Text style={buttonStyles.text}>{text}</Text>
-    </TouchableOpacity>
+    <BasePressable onPress={onPress}>
+      <View style={buttonStyles.body}>
+        <Text style={buttonStyles.text}>{text}</Text>
+      </View>
+    </BasePressable>
   );
 };
 
