@@ -11,9 +11,9 @@ import MenuButton from '~/components/menuButton';
 import Dialog from '~/components/dialog';
 import EnterNumber from '~/components/enterNumber';
 import {GameWithFriendsProps} from '~/types/navigation';
-import {colors, textStyles} from '../theme';
-import {useUser} from '../userContext';
-import {useSocketStore} from '../SocketContext';
+import {colors, textStyles} from '~/theme';
+import {useUser} from '~/userContext';
+import {useSocketStore} from '~/socketStore';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -88,7 +88,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             <EnterNumber
               value={numPlayers}
               onValueChanged={setNumPlayers}
-              range={[2, 5]}
+              range={[2, 6]}
             />
             <Text style={textStyles.body}>{'מספר משתתפים'}</Text>
           </View>
@@ -96,7 +96,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             <EnterNumber
               value={timePerPlayer}
               onValueChanged={setTimePerPlayer}
-              range={[3, 30]}
+              range={[5, 30]}
             />
             <Text style={textStyles.body}>{'משך תור'}</Text>
           </View>

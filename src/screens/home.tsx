@@ -2,14 +2,25 @@ import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import MenuButton from '~/components/menuButton';
 import {HomeScreenProps} from '~/types/navigation';
-import {colors, textStyles} from '../theme';
-import {useUser} from '../userContext';
+import {colors, textStyles} from '~/theme';
+import {useUser} from '~/userContext';
+import {useSocketStore} from '../socketStore';
+import {openNamePromptEdit} from '~/components/namePrompt';
 
 function HomeScreen({navigation}: HomeScreenProps) {
-  const quickGame = () => {};
+  const {quickGame} = useSocketStore();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const gameWithAI = () => {};
-  const {name, setName} = useUser();
+  const {name} = useUser();
+
+  const quickGameHandler = () => {
+    if (!name) {
+      // Optionally show an alert
+      return;
+    }
+    quickGame(name);
+    navigation.navigate('Lobby');
+  };
 
   return (
     <View style={styles.body}>
@@ -18,7 +29,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
           {name ? `שלום ${name}! ברוך הבא` : ''}
         </Text>
         <TouchableOpacity
-          onPress={() => setName('')}
+          onPress={() => openNamePromptEdit(name)}
           style={styles.changeNameBtn}>
           <Text style={styles.changeNameText}>שנה שם</Text>
         </TouchableOpacity>
@@ -26,7 +37,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
       <View style={styles.container}>
         <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
         <View style={styles.menuButtons}>
-          <MenuButton text={'משחק מהיר'} onPress={quickGame} />
+          <MenuButton text={'משחק מהיר'} onPress={quickGameHandler} />
           <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
           <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
         </View>

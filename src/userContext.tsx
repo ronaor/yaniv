@@ -1,41 +1,28 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import {create} from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface UserContextType {
+interface UserStore {
   name: string;
-  setName: (name: string) => void;
   loading: boolean;
+  setName: (name: string) => void;
+  init: () => void;
 }
 
-const UserContext = createContext<UserContextType>({
+export const useUser = create<UserStore>((set, _get) => ({
   name: '',
-  setName: () => {},
   loading: true,
-});
-
-export const UserProvider: React.FC<{children: React.ReactNode}> = ({
-  children,
-}) => {
-  const [name, setNameState] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    AsyncStorage.getItem('yaniv_name').then(storedName => {
-      if (storedName) setNameState(storedName);
-      setLoading(false);
-    });
-  }, []);
-
-  const setName = (newName: string) => {
-    setNameState(newName);
+  setName: (newName: string) => {
+    set({name: newName});
     AsyncStorage.setItem('yaniv_name', newName);
-  };
+  },
+  init: async () => {
+    const storedName = await AsyncStorage.getItem('yaniv_name');
+    if (storedName) {
+      set({name: storedName, loading: false});
+    } else {
+      set({loading: false});
+    }
+  },
+}));
 
-  return (
-    <UserContext.Provider value={{name, setName, loading}}>
-      {children}
-    </UserContext.Provider>
-  );
-};
-
-export const useUser = () => useContext(UserContext);
+// Call useUser.getState().init() once at app startup (e.g., in App.tsx)

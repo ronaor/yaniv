@@ -8,17 +8,25 @@ import {
 } from 'react-native';
 import React, {useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
-import {colors, textStyles} from '../theme';
-import {useSocketStore} from '../SocketContext';
+import {colors, textStyles} from '~/theme';
+import {useSocketStore} from '~/socketStore';
 
 function LobbyScreen({navigation}: LobbyProps) {
-  const {roomId, players, config, gameState, isLoading} = useSocketStore();
+  const {roomId, players, config, gameState, isLoading, leaveRoom} =
+    useSocketStore();
 
   useEffect(() => {
     if (gameState === 'started') {
       navigation.replace('Game');
     }
   }, [navigation, gameState]);
+
+  useEffect(() => {
+    // On unmount, always leave the room
+    return () => {
+      leaveRoom();
+    };
+  }, [leaveRoom]);
 
   return (
     <View style={styles.body}>
@@ -31,7 +39,7 @@ function LobbyScreen({navigation}: LobbyProps) {
           renderItem={({item}) => (
             <Text style={styles.player}>{item.nickname}</Text>
           )}
-          style={{width: '100%'}}
+          style={styles.flatList}
         />
       </View>
       <Text style={styles.status}>
@@ -93,6 +101,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  flatList: {width: '100%'},
 });
 
 export default LobbyScreen;

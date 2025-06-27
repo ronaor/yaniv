@@ -20,6 +20,7 @@ interface SocketStore extends Omit<SocketState, 'callbacks'> {
     timePerPlayer: number,
   ) => void;
   joinRoom: (roomId: string, nickname: string) => void;
+  quickGame: (nickname: string) => void;
   leaveRoom: () => void;
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
   clearError: () => void;
@@ -66,8 +67,10 @@ export const useSocketStore = create<SocketStore>(((set: any, get: any) => {
         gameState: 'started',
         isLoading: false,
       }));
-      const cb = get().callbacks['onGameStarted'];
-      if (cb) cb({roomId, config, players});
+      const cb = get().callbacks.onGameStarted;
+      if (cb) {
+        cb({roomId, config, players});
+      }
     });
     socket.on('room_error', ({message}) => {
       set((state: SocketState) => ({
@@ -88,6 +91,10 @@ export const useSocketStore = create<SocketStore>(((set: any, get: any) => {
     joinRoom: (roomId, nickname) => {
       set((state: SocketState) => ({...state, isLoading: true, error: null}));
       socket.emit('join_room', {roomId, nickname});
+    },
+    quickGame: (nickname: string) => {
+      set((state: SocketState) => ({...state, isLoading: true, error: null}));
+      socket.emit('quick_game', {nickname});
     },
     leaveRoom: () => {
       set({...initialState});

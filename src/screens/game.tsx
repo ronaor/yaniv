@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {colors, textStyles} from '../theme';
-import {useSocketStore} from '../SocketContext';
-import {useUser} from '../userContext';
+import {colors, textStyles} from '~/theme';
+import {useSocketStore} from '~/socketStore';
+import {useUser} from '~/userContext';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useSocketStore();
