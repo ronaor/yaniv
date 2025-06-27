@@ -7,6 +7,7 @@ import HomeScreen from '~/screens/home';
 import {RootStackParamList} from '~/types/navigation';
 import {I18nManager} from 'react-native';
 import GameBannerAd from '~/ads/banner';
+import GameWithFriends from '~/screens/gameWithFriends';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +37,13 @@ const App = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
+            options={{
+              animation: 'slide_from_left',
+            }}
+          />
+          <Stack.Screen
+            name="GameWithFriends"
+            component={GameWithFriends}
             options={{
               animation: 'slide_from_left',
             }}
