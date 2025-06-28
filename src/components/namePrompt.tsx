@@ -55,14 +55,18 @@ const NamePrompt: React.FC = () => {
     );
   }
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Dialog
       isModalOpen={isOpen}
       onBackgroundPress={() => {
         // Prevent closing if it's the first prompt (require name)
-        if (mode === 'edit') close();
+        if (mode === 'edit') {
+          close();
+        }
       }}>
       <View style={styles.container}>
         <Text style={textStyles.subtitle}>הכנס שם</Text>

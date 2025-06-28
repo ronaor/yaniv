@@ -70,4 +70,4 @@ yarn-error.log
 /keystore.txt
 /keystore.jks
 
-/server.ts
+/server/*
