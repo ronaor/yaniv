@@ -4,11 +4,11 @@ import MenuButton from '~/components/menuButton';
 import {HomeScreenProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useUser} from '~/store/userStore';
-import {useSocketStore} from '../store/socketStore';
+import {useRoomStore} from '~/store/roomStore';
 import {openNamePromptEdit} from '~/components/namePrompt';
 
 function HomeScreen({navigation}: HomeScreenProps) {
-  const {quickGame} = useSocketStore();
+  const {quickGame} = useRoomStore();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const gameWithAI = () => {};
   const {name} = useUser();

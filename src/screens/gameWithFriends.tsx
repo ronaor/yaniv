@@ -13,7 +13,7 @@ import EnterNumber from '~/components/enterNumber';
 import {GameWithFriendsProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useUser} from '~/store/userStore';
-import {useSocketStore} from '~/store/socketStore';
+import {useRoomStore} from '~/store/roomStore';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -30,10 +30,10 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     isLoading,
     error,
     gameState,
-  } = useSocketStore();
+  } = useRoomStore();
 
   useEffect(() => {
-    if (gameState) {
+    if (gameState === 'started') {
       navigation.replace('Game');
     } else if (isInRoom) {
       setNewRoomModalOpen(false);

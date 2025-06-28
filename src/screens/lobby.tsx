@@ -2,10 +2,10 @@ import {StyleSheet, Text, View, FlatList} from 'react-native';
 import React, {useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
-import {useSocketStore} from '~/store/socketStore';
+import {useRoomStore} from '~/store/roomStore';
 
 function LobbyScreen({navigation}: LobbyProps) {
-  const {roomId, players, config, gameState, leaveRoom} = useSocketStore();
+  const {roomId, players, config, gameState, leaveRoom} = useRoomStore();
 
   useEffect(() => {
     if (gameState === 'started') {
