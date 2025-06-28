@@ -12,13 +12,6 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1533DE9DDA9E41508616AFA2 /* LuckiestGuy-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FEA86466F9594F94B249A243 /* LuckiestGuy-Regular.ttf */; };
-		61F9CB3E2CC6548400CA598C /* correct.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB392CC6548400CA598C /* correct.wav */; };
-		61F9CB3F2CC6548400CA598C /* fail.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB3A2CC6548400CA598C /* fail.wav */; };
-		61F9CB402CC6548400CA598C /* submit.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB3B2CC6548400CA598C /* submit.mp3 */; };
-		61F9CB412CC6548400CA598C /* success.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB3C2CC6548400CA598C /* success.mp3 */; };
-		61F9CB422CC6548400CA598C /* wrong.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB3D2CC6548400CA598C /* wrong.mp3 */; };
-		61F9CB442CCD645700CA598C /* PloniDL1.1AAA-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 61F9CB432CCD645700CA598C /* PloniDL1.1AAA-Bold.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-Yaniv-YanivTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-Yaniv-YanivTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -45,20 +38,12 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Yaniv/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-Yaniv-YanivTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaniv-YanivTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-Yaniv.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv.debug.xcconfig"; path = "Target Support Files/Pods-Yaniv/Pods-Yaniv.debug.xcconfig"; sourceTree = "<group>"; };
-		56F96624D1FC4CA884DE0869 /* PloniDL1.1AAA-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "PloniDL1.1AAA-Bold.ttf"; path = "../src/assets/fonts/PloniDL1.1AAA-Bold.ttf"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-Yaniv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv.release.xcconfig"; path = "Target Support Files/Pods-Yaniv/Pods-Yaniv.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-Yaniv-YanivTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv-YanivTests.debug.xcconfig"; path = "Target Support Files/Pods-Yaniv-YanivTests/Pods-Yaniv-YanivTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-Yaniv.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaniv.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		61F9CB392CC6548400CA598C /* correct.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = correct.wav; sourceTree = "<group>"; };
-		61F9CB3A2CC6548400CA598C /* fail.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = fail.wav; sourceTree = "<group>"; };
-		61F9CB3B2CC6548400CA598C /* submit.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = submit.mp3; sourceTree = "<group>"; };
-		61F9CB3C2CC6548400CA598C /* success.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = success.mp3; sourceTree = "<group>"; };
-		61F9CB3D2CC6548400CA598C /* wrong.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = wrong.mp3; sourceTree = "<group>"; };
-		61F9CB432CCD645700CA598C /* PloniDL1.1AAA-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "PloniDL1.1AAA-Bold.ttf"; path = "../src/assets/fonts/PloniDL1.1AAA-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Yaniv/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-Yaniv-YanivTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv-YanivTests.release.xcconfig"; path = "Target Support Files/Pods-Yaniv-YanivTests/Pods-Yaniv-YanivTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		FEA86466F9594F94B249A243 /* LuckiestGuy-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = LuckiestGuy-Regular.ttf; path = ../src/assets/fonts/LuckiestGuy-Regular.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,8 +99,6 @@
 		2B6878419AA241A4AB2A46DE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				56F96624D1FC4CA884DE0869 /* PloniDL1.1AAA-Bold.ttf */,
-				FEA86466F9594F94B249A243 /* LuckiestGuy-Regular.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -140,12 +123,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				61F9CB432CCD645700CA598C /* PloniDL1.1AAA-Bold.ttf */,
-				61F9CB392CC6548400CA598C /* correct.wav */,
-				61F9CB3A2CC6548400CA598C /* fail.wav */,
-				61F9CB3B2CC6548400CA598C /* submit.mp3 */,
-				61F9CB3C2CC6548400CA598C /* success.mp3 */,
-				61F9CB3D2CC6548400CA598C /* wrong.mp3 */,
 				13B07FAE1A68108700A75B9A /* Yaniv */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* YanivTests */,
@@ -274,15 +251,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				61F9CB442CCD645700CA598C /* PloniDL1.1AAA-Bold.ttf in Resources */,
-				61F9CB3E2CC6548400CA598C /* correct.wav in Resources */,
-				61F9CB3F2CC6548400CA598C /* fail.wav in Resources */,
-				61F9CB402CC6548400CA598C /* submit.mp3 in Resources */,
-				61F9CB412CC6548400CA598C /* success.mp3 in Resources */,
-				61F9CB422CC6548400CA598C /* wrong.mp3 in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				1533DE9DDA9E41508616AFA2 /* LuckiestGuy-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
