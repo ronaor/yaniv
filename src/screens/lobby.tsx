@@ -1,19 +1,11 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  ActivityIndicator,
-  Modal,
-} from 'react-native';
+import {StyleSheet, Text, View, FlatList} from 'react-native';
 import React, {useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useSocketStore} from '~/socketStore';
 
 function LobbyScreen({navigation}: LobbyProps) {
-  const {roomId, players, config, gameState, isLoading, leaveRoom} =
-    useSocketStore();
+  const {roomId, players, config, gameState, leaveRoom} = useSocketStore();
 
   useEffect(() => {
     if (gameState === 'started') {
@@ -24,8 +16,11 @@ function LobbyScreen({navigation}: LobbyProps) {
   useEffect(() => {
     // On unmount, always leave the room
     return () => {
-      leaveRoom();
+      if (gameState === 'waiting') {
+        leaveRoom();
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveRoom]);
 
   return (
@@ -47,15 +42,6 @@ function LobbyScreen({navigation}: LobbyProps) {
           ? 'המשחק התחיל!'
           : `ממתין לשחקנים... (${players.length}/${config?.numPlayers || '?'})`}
       </Text>
-      <Modal
-        visible={isLoading && gameState !== 'started'}
-        transparent
-        animationType="fade">
-        <View style={styles.loaderOverlay}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={textStyles.subtitle}>ממתין לשחקנים...</Text>
-        </View>
-      </Modal>
     </View>
   );
 }
