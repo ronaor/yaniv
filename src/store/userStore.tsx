@@ -13,10 +13,10 @@ export const useUser = create<UserStore>((set, _get) => ({
   loading: true,
   setName: (newName: string) => {
     set({name: newName});
-    AsyncStorage.setItem('yaniv_name', newName);
+    AsyncStorage.setItem('user_name', newName);
   },
   init: async () => {
-    const storedName = await AsyncStorage.getItem('yaniv_name');
+    const storedName = await AsyncStorage.getItem('user_name');
     if (storedName) {
       set({name: storedName, loading: false});
     } else {
@@ -24,5 +24,3 @@ export const useUser = create<UserStore>((set, _get) => ({
     }
   },
 }));
-
-// Call useUser.getState().init() once at app startup (e.g., in App.tsx)

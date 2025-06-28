@@ -12,8 +12,8 @@ import Dialog from '~/components/dialog';
 import EnterNumber from '~/components/enterNumber';
 import {GameWithFriendsProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
-import {useUser} from '~/userContext';
-import {useSocketStore} from '~/socketStore';
+import {useUser} from '~/store/userStore';
+import {useSocketStore} from '~/store/socketStore';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);

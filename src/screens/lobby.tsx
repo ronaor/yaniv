@@ -2,7 +2,7 @@ import {StyleSheet, Text, View, FlatList} from 'react-native';
 import React, {useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
-import {useSocketStore} from '~/socketStore';
+import {useSocketStore} from '~/store/socketStore';
 
 function LobbyScreen({navigation}: LobbyProps) {
   const {roomId, players, config, gameState, leaveRoom} = useSocketStore();

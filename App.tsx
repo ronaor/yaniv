@@ -9,7 +9,7 @@ import {I18nManager} from 'react-native';
 import GameBannerAd from '~/ads/banner';
 import GameWithFriendsScreen from '~/screens/gameWithFriends';
 import LobbyScreen from '~/screens/lobby';
-import {useUser} from '~/userContext';
+import {useUser} from '~/store/userStore';
 import GameScreen from '~/screens/game';
 import NamePrompt from '~/components/namePrompt';
 

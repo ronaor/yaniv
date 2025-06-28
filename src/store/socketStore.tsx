@@ -1,6 +1,6 @@
 import {create, StateCreator} from 'zustand';
-import socket from './socket';
-import {Player, RoomConfig} from './types/navigation';
+import socket from '../socket';
+import {Player, RoomConfig} from '../types/navigation';
 
 export interface SocketState {
   roomId: string | null;

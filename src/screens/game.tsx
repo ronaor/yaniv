@@ -8,8 +8,8 @@ import {
   Alert,
 } from 'react-native';
 import {colors, textStyles} from '~/theme';
-import {useSocketStore} from '~/socketStore';
-import {useUser} from '~/userContext';
+import {useSocketStore} from '~/store/socketStore';
+import {useUser} from '~/store/userStore';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useSocketStore();

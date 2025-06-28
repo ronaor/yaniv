@@ -3,8 +3,8 @@ import React from 'react';
 import MenuButton from '~/components/menuButton';
 import {HomeScreenProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
-import {useUser} from '~/userContext';
-import {useSocketStore} from '../socketStore';
+import {useUser} from '~/store/userStore';
+import {useSocketStore} from '../store/socketStore';
 import {openNamePromptEdit} from '~/components/namePrompt';
 
 function HomeScreen({navigation}: HomeScreenProps) {

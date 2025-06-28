@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import {useUser} from '~/userContext';
+import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import BasePressable from '~/components/basePressable';
 import Dialog from '~/components/dialog';
