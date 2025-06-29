@@ -111,7 +111,6 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         gameState: 'started',
         isLoading: false,
       }));
-      console.log('start_game');
       const cb = get().callbacks.onGameStarted;
       if (cb) {
         cb({roomId, config, players});

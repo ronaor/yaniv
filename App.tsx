@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {SafeAreaView, StatusBar} from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, NavigationState} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from '~/screens/home';
 import {RootStackParamList} from '~/types/navigation';
@@ -9,12 +9,10 @@ import {I18nManager} from 'react-native';
 import GameBannerAd from '~/ads/banner';
 import GameWithFriendsScreen from '~/screens/gameWithFriends';
 import LobbyScreen from '~/screens/lobby';
-import {useUser} from '~/store/userStore';
-import {useSocket} from '~/store/socketStore';
-import {useRoomStore} from '~/store/roomStore';
-import {useGameStore} from '~/store/gameStore';
 import GameScreen from '~/screens/game';
 import NamePrompt from '~/components/namePrompt';
+import useSocketIO from '~/useSocketIO';
+import {useRoomStore} from '~/store/roomStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -28,83 +26,35 @@ const App = () => {
   };
   I18nManager.allowRTL(false);
 
-  React.useEffect(() => {
-    // Initialize user store
-    useUser.getState().init();
+  useSocketIO();
 
-    // Initialize socket connection
-    const socket = useSocket.getState();
-    socket.connect();
+  const {leaveRoom} = useRoomStore();
 
-    // Register all socket event listeners
-    const roomStore = useRoomStore.getState();
-    const gameStore = useGameStore.getState();
+  const onStateChange = useCallback(
+    (state: NavigationState | undefined) => {
+      if (!state) {
+        return;
+      }
 
-    // Room events
-    socket.on('room_created', ({roomId, players, config}) => {
-      roomStore.setRoomCreated({roomId, players, config});
-    });
+      const currentRoute = state.routes[state.index];
+      const previousRoute = state.routes[state.index - 1];
+      const currentRouteName = currentRoute?.name;
+      const previousRouteName = previousRoute?.name;
 
-    socket.on('player_joined', ({players, config}) => {
-      roomStore.setPlayersJoined({players, config});
-    });
-
-    socket.on('player_left', ({players}) => {
-      roomStore.setPlayerLeft({players});
-    });
-
-    socket.on('start_game', ({roomId, config, players}) => {
-      roomStore.setGameStarted({roomId, config, players});
-    });
-
-    socket.on('room_error', ({message}) => {
-      roomStore.setRoomError({message});
-    });
-
-    // Game events
-    socket.on('game_initialized', data => {
-      gameStore.setGameInitialized(data);
-    });
-
-    socket.on('turn_started', data => {
-      gameStore.setTurnStarted(data);
-    });
-
-    socket.on('player_drew', data => {
-      gameStore.playerDrew(data);
-    });
-
-    socket.on('game_ended', data => {
-      gameStore.setGameEnded(data);
-    });
-
-    socket.on('game_error', data => {
-      gameStore.setGameError(data);
-    });
-
-    socket.on('yaniv', data => {
-      gameStore.onYaniv(data);
-    });
-
-    socket.on('assaf', data => {
-      gameStore.onAssaf(data);
-    });
-
-    socket.on('round_ended', data => {
-      gameStore.setRoundEnded(data);
-    });
-
-    // Cleanup on app unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+      // Check if we were in lobby and now we're not in game screen
+      // This means user navigated away from lobby (back to home or other screen)
+      if (previousRouteName === 'Lobby' && currentRouteName !== 'Game') {
+        leaveRoom();
+      }
+    },
+    [leaveRoom],
+  );
 
   return (
     <>
       <SafeAreaView style={backgroundStyle} />
       <StatusBar backgroundColor={'#FFFFFF'} />
-      <NavigationContainer>
+      <NavigationContainer onStateChange={onStateChange}>
         <Stack.Navigator
           initialRouteName="Home"
           screenOptions={{
