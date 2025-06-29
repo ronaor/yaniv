@@ -1,15 +1,5 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-export type Player = {
-  id: string;
-  nickname: string;
-};
-
-export type RoomConfig = {
-  numPlayers: number;
-  timePerPlayer: number;
-};
-
 export type RootStackParamList = {
   Home: undefined;
   GameWithFriends: undefined;

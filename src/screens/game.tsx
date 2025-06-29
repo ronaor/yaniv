@@ -7,17 +7,13 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSequence,
-  withDelay,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import {colors, textStyles} from '~/theme';
 import {useRoomStore} from '~/store/roomStore';
-import {useGameStore, Card} from '~/store/gameStore';
+import {useGameStore, getHandValue} from '~/store/gameStore';
 import {useUser} from '~/store/userStore';
+import {getCardDisplayValue, getSuitSymbol} from '~/utils/visuals';
+import {getCardValue} from '~/types/cards';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -31,34 +27,34 @@ function GameScreen({navigation}: any) {
     finalScores,
     completeTurn,
     callYaniv,
+    callAssaf,
     clearError,
-    getCardValue,
-    getHandValue,
-    canCallYaniv,
     getRemainingTime,
     lastPlayedCards,
     pickupOptions,
-    showYanivCall,
-    showAsafCall,
     roundResults,
+    callers,
+    playersScores,
   } = useGameStore();
   const {name: nickname} = useUser();
 
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [showDrawOptions, setShowDrawOptions] = useState(false);
 
-  // Use react-native-reanimated instead of regular Animated
-  const fadeAnim = useSharedValue(0);
+  const canCallYaniv = () => {
+    return publicState && getHandValue(playerHand) <= 7;
+  };
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: fadeAnim.value,
-  }));
+  const canCallAssaf = useCallback(() => {
+    return (
+      publicState &&
+      getHandValue(playerHand) < callers[callers.length - 1].value
+    );
+  }, [callers, playerHand, publicState]);
 
   // Timer for remaining time
   useEffect(() => {
-    setSelectedCards([]);
-
     if (!isMyTurn) {
+      setSelectedCards([]);
       return;
     }
 
@@ -72,25 +68,6 @@ function GameScreen({navigation}: any) {
 
     return () => clearInterval(interval);
   }, [isMyTurn, getRemainingTime, publicState?.turnStartTime]);
-
-  // Show draw options after playing cards
-  useEffect(() => {
-    if (publicState?.waitingForDraw && isMyTurn) {
-      setShowDrawOptions(true);
-    } else {
-      setShowDrawOptions(false);
-    }
-  }, [publicState?.waitingForDraw, isMyTurn]);
-
-  // Animate Yaniv/Asaf messages
-  useEffect(() => {
-    if (showYanivCall || showAsafCall) {
-      fadeAnim.value = withSequence(
-        withTiming(1, {duration: 500}),
-        withDelay(3000, withTiming(0, {duration: 500})),
-      );
-    }
-  }, [showYanivCall, showAsafCall, fadeAnim]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {
@@ -149,30 +126,6 @@ function GameScreen({navigation}: any) {
     );
   };
 
-  const getCardDisplayValue = (card: Card): string => {
-    if (card.isJoker) return 'J';
-    if (card.value === 1) return 'A';
-    if (card.value === 11) return 'J';
-    if (card.value === 12) return 'Q';
-    if (card.value === 13) return 'K';
-    return card.value.toString();
-  };
-
-  const getSuitSymbol = (suit: string): string => {
-    switch (suit) {
-      case 'hearts':
-        return '♥️';
-      case 'diamonds':
-        return '♦️';
-      case 'clubs':
-        return '♣️';
-      case 'spades':
-        return '♠️';
-      default:
-        return '';
-    }
-  };
-
   const getSuitColor = (suit: string): string => {
     return suit === 'hearts' || suit === 'diamonds' ? '#FF0000' : '#000000';
   };
@@ -206,10 +159,7 @@ function GameScreen({navigation}: any) {
         <Text style={styles.roomTitle}>חדר: {roomId}</Text>
         {isMyTurn && (
           <View style={styles.timerContainer}>
-            <Text
-              style={[styles.timer, timeRemaining <= 5 && styles.timerUrgent]}>
-              {timeRemaining}s
-            </Text>
+            <Text style={[styles.timer]}>{timeRemaining}s</Text>
           </View>
         )}
       </View>
@@ -217,20 +167,11 @@ function GameScreen({navigation}: any) {
       {/* Game Status */}
       <View style={styles.gameStatus}>
         <Text style={styles.turnInfo}>
-          {isMyTurn
-            ? showDrawOptions
-              ? 'בחר קלף לשליפה'
-              : 'התור שלך! בחר קלפים לזריקה'
-            : 'ממתין לשחקן אחר...'}
+          {isMyTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
         </Text>
         <Text style={styles.handValue}>
           הקלפים שלך: {getHandValue(playerHand)} נקודות
         </Text>
-        {isMyTurn && !showDrawOptions && selectedCards.length > 0 && (
-          <Text style={styles.selectionInfo}>
-            נבחרו {selectedCards.length} קלפים
-          </Text>
-        )}
       </View>
 
       {/* Game Area */}
@@ -238,7 +179,7 @@ function GameScreen({navigation}: any) {
         {/* Deck and Discard Pile */}
         <View style={styles.centerArea}>
           <TouchableOpacity
-            style={[styles.deck, showDrawOptions && styles.deckHighlighted]}
+            style={[styles.deck, isMyTurn && styles.deckHighlighted]}
             onPress={handleDrawFromDeck}
             disabled={!isMyTurn || selectedCards.length === 0}>
             <Text style={styles.deckText}>{'קופה'}</Text>
@@ -252,7 +193,7 @@ function GameScreen({navigation}: any) {
                   key={index}
                   style={[
                     styles.discardCard,
-                    showDrawOptions &&
+                    isMyTurn &&
                       pickupOptions.includes(card) &&
                       styles.pickupableCard,
                   ]}
@@ -278,7 +219,7 @@ function GameScreen({navigation}: any) {
         </View>
 
         {/* Draw Instructions */}
-        {isMyTurn && showDrawOptions && (
+        {isMyTurn && (
           <View style={styles.drawInstructions}>
             <Text style={styles.drawInstructionsText}>
               בחר קלף לשליפה - מהערימה או מהקלפים שנזרקו
@@ -301,8 +242,8 @@ function GameScreen({navigation}: any) {
                 item.isJoker && styles.jokerCard,
                 selectedCards.includes(index) && styles.selectedCard,
               ]}
-              onPress={() => !showDrawOptions && toggleCardSelection(index)}
-              disabled={showDrawOptions}>
+              onPress={() => toggleCardSelection(index)}
+              disabled={!isMyTurn}>
               <Text
                 style={[
                   styles.cardText,
@@ -324,16 +265,29 @@ function GameScreen({navigation}: any) {
       {/* Game Actions */}
       {isMyTurn && (
         <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={[
-              styles.actionBtn,
-              styles.yanivBtn,
-              !canCallYaniv() && styles.disabledBtn,
-            ]}
-            onPress={callYaniv}
-            disabled={!canCallYaniv()}>
-            <Text style={styles.actionBtnText}>יניב!</Text>
-          </TouchableOpacity>
+          {callers.length < 1 ? (
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                styles.yanivBtn,
+                !canCallYaniv() && styles.disabledBtn,
+              ]}
+              onPress={callYaniv}
+              disabled={!canCallYaniv()}>
+              <Text style={styles.actionBtnText}>יניב!</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                styles.yanivBtn,
+                !canCallAssaf() && styles.disabledBtn,
+              ]}
+              onPress={callAssaf}
+              disabled={!canCallAssaf()}>
+              <Text style={styles.actionBtnText}>אסף!</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -352,6 +306,7 @@ function GameScreen({navigation}: any) {
                   styles.currentPlayer,
               ]}>
               {item.nickname}
+              {playersScores[item.id]}
               {item.nickname === nickname ? ' (אתה)' : ''}
               {publicState.currentPlayer !== undefined &&
               players[publicState.currentPlayer]?.id === item.id
@@ -364,36 +319,21 @@ function GameScreen({navigation}: any) {
       </View>
 
       {/* Yaniv/Asaf Overlay */}
-      {(showYanivCall || showAsafCall) && (
-        <Animated.View style={[styles.overlay, animatedStyle]}>
-          <View style={styles.messageContainer}>
-            {showYanivCall && <Text style={styles.yanivText}>יניב!</Text>}
-            {showAsafCall && <Text style={styles.asafText}>אסף!</Text>}
-            {roundResults && (
-              <View style={styles.roundResults}>
-                <Text style={styles.resultText}>
-                  קורא יניב:{' '}
-                  {
-                    players.find(p => p.id === roundResults.yanivCaller)
-                      ?.nickname
-                  }
-                </Text>
-                <Text style={styles.resultText}>
-                  ניקוד: {roundResults.yanivCallerValue}
-                </Text>
-                {roundResults.hasAsaf && (
-                  <Text style={styles.resultText}>
-                    אסף!{' '}
-                    {roundResults.asafPlayers
-                      .map(id => players.find(p => p.id === id)?.nickname)
-                      .join(', ')}
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-        </Animated.View>
-      )}
+      <View style={styles.overlay}>
+        {callers.length > 0 && (
+          <Animated.View>
+            <View style={styles.messageContainer}>
+              {callers.map(caller => {
+                return (
+                  <View>
+                    <Text style={styles.yanivText}>{caller.type}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </Animated.View>
+        )}
+      </View>
     </View>
   );
 }
@@ -644,11 +584,9 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute',
-    top: 0,
+    top: 130,
     left: 0,
     right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,

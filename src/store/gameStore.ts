@@ -1,12 +1,7 @@
 import {create} from 'zustand';
 import {useSocket} from './socketStore';
-import {useUser} from './userStore';
-
-export interface Card {
-  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
-  value: number; // 1-13 (1=Ace, 11=Jack, 12=Queen, 13=King)
-  isJoker?: boolean;
-}
+import {Card, getCardValue} from '~/types/cards';
+import {Player, User} from '~/types/player';
 
 export interface PublicGameState {
   currentPlayer: number;
@@ -16,8 +11,8 @@ export interface PublicGameState {
   gameEnded: boolean;
   winner?: string;
   timePerPlayer: number;
-  waitingForDraw: boolean;
   lastPickedCard?: Card;
+  players: Player[];
 }
 export interface GameStore {
   // State
@@ -30,14 +25,13 @@ export interface GameStore {
   finalScores: {[playerId: string]: number} | null;
   lastPlayedCards: Card[]; // Cards from the last player's turn
   pickupOptions: Card[];
-  showYanivCall: boolean;
-  showAsafCall: boolean;
+  callers: {type: 'YANIV' | 'ASSAF'; calleeId: string; value: number}[];
+  currentPlayerTurn?: string;
+  playersScores: Record<string, number>;
   roundResults: {
-    yanivCaller: string;
-    yanivCallerValue: number;
-    handValues: {[playerId: string]: number};
-    hasAsaf: boolean;
-    asafPlayers: string[];
+    winnerId: string;
+    playersScores: Record<string, number>;
+    yanivCalle: string;
     lowestValue: number;
   } | null;
 
@@ -48,41 +42,28 @@ export interface GameStore {
     pickupIndex?: number,
   ) => void;
   callYaniv: () => void;
+  callAssaf: () => void;
+  onYaniv: (data: {playerId: string; handValue: number}) => void;
+  onAssaf: (data: {playerId: string; handValue: number}) => void;
   toggleCardSelection: (index: number) => void;
   clearSelection: () => void;
   clearError: () => void;
-  getCardValue: (card: Card) => number;
-  getHandValue: (hand: Card[]) => number;
-  isValidPlay: (cards: Card[]) => boolean;
-  canCallYaniv: () => boolean;
   getRemainingTime: () => number;
-
   // Event setters
   setGameInitialized: (data: {
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
+    users: User[];
   }) => void;
   setTurnStarted: (data: {
     currentPlayerId: string;
     timeRemaining: number;
   }) => void;
-  setCardsPlayed: (data: {
-    playerId: string;
-    cards: Card[];
-    remainingCards: number;
-  }) => void;
-  setWaitingForDraw: (data: {
-    canDrawDeck: boolean;
-    pickupOptions: Card[];
-  }) => void;
-  setCardDrawn: (data: {card: Card; source: 'deck' | 'pickup'}) => void;
   setRoundEnded: (data: {
-    yanivCaller: string;
-    yanivCallerValue: number;
-    handValues: {[playerId: string]: number};
-    hasAsaf: boolean;
-    asafPlayers: string[];
+    winnerId: string;
+    playersScores: Record<string, number>;
+    yanivCalle: string;
     lowestValue: number;
   }) => void;
   setGameEnded: (data: {
@@ -102,9 +83,15 @@ export interface GameStore {
   setGameError: (data: {message: string}) => void;
 }
 
+export const getHandValue = (hand: Card[]): number => {
+  return hand.reduce((sum, card) => sum + getCardValue(card), 0);
+};
+
 // Helper function to get pickup options based on last played cards
 const getPickupOptions = (cards: Card[]): Card[] => {
-  if (cards.length === 0) return [];
+  if (cards.length === 0) {
+    return [];
+  }
 
   // Single card - can pick it up
   if (cards.length === 1) {
@@ -120,7 +107,9 @@ const getPickupOptions = (cards: Card[]): Card[] => {
   // Check if it's a sequence (consecutive values)
   const sortedCards = [...cards].sort((a, b) => a.value - b.value);
   const isSequence = sortedCards.every((card, index) => {
-    if (index === 0) return true;
+    if (index === 0) {
+      return true;
+    }
     return card.value === sortedCards[index - 1].value + 1;
   });
 
@@ -146,7 +135,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   showYanivCall: false,
   showAsafCall: false,
   roundResults: null,
-
+  callers: [],
+  playersScores: {},
   // Actions
   completeTurn: (
     choice: 'deck' | 'pickup',
@@ -159,13 +149,48 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   callYaniv: () => {
-    const {canCallYaniv} = get();
-    if (!canCallYaniv()) {
-      set({error: 'לא ניתן לקרוא יניב! יש לך יותר מ-7 נקודות.'});
-      return;
-    }
-
     useSocket.getState().emit('call_yaniv');
+  },
+  callAssaf: () => {
+    useSocket.getState().emit('call_assaf');
+  },
+
+  onYaniv: (data: {playerId: string; handValue: number}) => {
+    const {playerId, handValue} = data;
+    const socketId = useSocket.getState().getSocketId();
+
+    set(state => ({
+      ...state,
+      callers: [{type: 'YANIV', calleeId: playerId, value: handValue}],
+      isMyTurn: playerId !== socketId,
+      publicState: state.publicState
+        ? {
+            ...state.publicState,
+            turnStartTime: new Date(),
+          }
+        : null,
+    }));
+  },
+
+  onAssaf: (data: {playerId: string; handValue: number}) => {
+    const {playerId, handValue} = data;
+    const socketId = useSocket.getState().getSocketId();
+    set(state => ({
+      ...state,
+      callers: [
+        ...state.callers,
+        {type: 'ASSAF', calleeId: playerId, value: handValue},
+      ],
+      isMyTurn: ![...state.callers.map(c => c.calleeId), playerId].includes(
+        socketId ?? '',
+      ),
+      publicState: state.publicState
+        ? {
+            ...state.publicState,
+            turnStartTime: new Date(),
+          }
+        : null,
+    }));
   },
 
   toggleCardSelection: (index: number) => {
@@ -192,71 +217,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({error: null});
   },
 
-  getCardValue: (card: Card) => {
-    if (card.isJoker) return 0;
-    if (card.value === 1) return 1; // Ace = 1
-    if (card.value >= 11) return 10; // J, Q, K = 10
-    return card.value; // 2-10 = face value
-  },
-
-  getHandValue: (hand: Card[]) => {
-    const {getCardValue} = get();
-    return hand.reduce((sum, card) => sum + getCardValue(card), 0);
-  },
-
-  isValidPlay: (cards: Card[]) => {
-    if (cards.length === 0) return false;
-    if (cards.length === 1) return true;
-
-    // Check if it's a valid set (same value)
-    const isValidSet = () => {
-      if (cards.length < 2) return false;
-      const nonJokers = cards.filter(c => !c.isJoker);
-      if (nonJokers.length === 0) return false;
-      const targetValue = nonJokers[0].value;
-      return nonJokers.every(card => card.value === targetValue);
-    };
-
-    // Check if it's a valid sequence (consecutive same suit)
-    const isValidSequence = () => {
-      if (cards.length < 3) return false;
-      const realCards = cards.filter(c => !c.isJoker);
-      const jokerCount = cards.length - realCards.length;
-
-      if (realCards.length === 0) return false;
-
-      // All real cards must be same suit
-      const suit = realCards[0].suit;
-      if (!realCards.every(card => card.suit === suit)) return false;
-
-      // Sort real cards by value
-      const sortedValues = realCards.map(c => c.value).sort((a, b) => a - b);
-
-      // Check if sequence is possible with jokers
-      let gapsNeeded = 0;
-      for (let i = 0; i < sortedValues.length - 1; i++) {
-        gapsNeeded += sortedValues[i + 1] - sortedValues[i] - 1;
-      }
-
-      return gapsNeeded <= jokerCount;
-    };
-
-    return isValidSet() || isValidSequence();
-  },
-
-  canCallYaniv: () => {
-    const {playerHand, getHandValue, publicState} = get();
-    if (!publicState || publicState.waitingForDraw) return false;
-    return getHandValue(playerHand) <= 7;
-  },
-
   getRemainingTime: () => {
-    const {publicState} = get();
-    if (!publicState) return 0;
+    const {publicState, callers} = get();
+    if (!publicState) {
+      return 0;
+    }
 
+    const turnTime = callers.length > 0 ? 10 : publicState.timePerPlayer;
     const elapsed =
       (Date.now() - new Date(publicState.turnStartTime).getTime()) / 1000;
-    const remaining = Math.max(0, publicState.timePerPlayer - elapsed);
+    const remaining = Math.max(0, turnTime - elapsed);
     return Math.ceil(remaining);
   },
 
@@ -265,6 +235,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
+    users: User[];
   }) => {
     const socketId = useSocket.getState().getSocketId();
     set({
@@ -272,11 +243,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       playerHand: socketId ? data.playerHands[socketId] || [] : [],
       isGameActive: true,
       selectedCards: [],
-      showYanivCall: false,
-      showAsafCall: false,
       roundResults: null,
       lastPlayedCards: [data.firstCard],
       pickupOptions: [data.firstCard],
+      playersScores: data.users.reduce<Record<string, number>>((obj, user) => {
+        obj[user.id] = 0;
+        return obj;
+      }, {}),
     });
   },
 
@@ -284,6 +257,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const socketId = useSocket.getState().getSocketId();
     set(state => ({
       ...state,
+      currentPlayerTurn: data.currentPlayerId,
       isMyTurn: data.currentPlayerId === socketId,
       publicState: state.publicState
         ? {
@@ -293,51 +267,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         : null,
     }));
   },
-
-  setCardsPlayed: (data: {
-    playerId: string;
-    cards: Card[];
-    remainingCards: number;
-  }) => {
-    set(state => {
-      const {playerId, cards} = data;
-      const currentUserId = useUser.getState().name; // Using name as ID for now
-
-      return {
-        ...state,
-        lastPlayedCards: [...cards],
-        selectedCards: playerId === currentUserId ? [] : state.selectedCards,
-      };
-    });
-  },
-
-  setWaitingForDraw: (data: {canDrawDeck: boolean; pickupOptions: Card[]}) => {
-    set({
-      pickupOptions: data.pickupOptions,
-    });
-  },
-
-  setCardDrawn: (data: {card: Card; source: 'deck' | 'pickup'}) => {
-    set(state => ({
-      ...state,
-      playerHand: [...state.playerHand, data.card],
-      selectedCards: [],
-      pickupOptions: [],
-    }));
-  },
-
   setRoundEnded: (data: {
-    yanivCaller: string;
-    yanivCallerValue: number;
-    handValues: {[playerId: string]: number};
-    hasAsaf: boolean;
-    asafPlayers: string[];
+    winnerId: string;
+    playersScores: Record<string, number>;
+    yanivCalle: string;
     lowestValue: number;
   }) => {
     set({
       roundResults: data,
-      showYanivCall: true,
-      showAsafCall: data.hasAsaf,
     });
   },
 

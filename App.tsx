@@ -82,6 +82,18 @@ const App = () => {
       gameStore.setGameError(data);
     });
 
+    socket.on('yaniv', data => {
+      gameStore.onYaniv(data);
+    });
+
+    socket.on('assaf', data => {
+      gameStore.onAssaf(data);
+    });
+
+    socket.on('round_ended', data => {
+      gameStore.setRoundEnded(data);
+    });
+
     // Cleanup on app unmount
     return () => {
       socket.disconnect();
