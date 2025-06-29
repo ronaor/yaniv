@@ -27,13 +27,11 @@ function GameScreen({navigation}: any) {
     finalScores,
     completeTurn,
     callYaniv,
-    callAssaf,
     clearError,
     getRemainingTime,
     lastPlayedCards,
     pickupOptions,
     roundResults,
-    callers,
     playersScores,
   } = useGameStore();
   const {name: nickname} = useUser();
@@ -43,13 +41,6 @@ function GameScreen({navigation}: any) {
   const canCallYaniv = () => {
     return publicState && getHandValue(playerHand) <= 7;
   };
-
-  const canCallAssaf = useCallback(() => {
-    return (
-      publicState &&
-      getHandValue(playerHand) < callers[callers.length - 1].value
-    );
-  }, [callers, playerHand, publicState]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -265,29 +256,16 @@ function GameScreen({navigation}: any) {
       {/* Game Actions */}
       {isMyTurn && (
         <View style={styles.actionButtons}>
-          {callers.length < 1 ? (
-            <TouchableOpacity
-              style={[
-                styles.actionBtn,
-                styles.yanivBtn,
-                !canCallYaniv() && styles.disabledBtn,
-              ]}
-              onPress={callYaniv}
-              disabled={!canCallYaniv()}>
-              <Text style={styles.actionBtnText}>יניב!</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={[
-                styles.actionBtn,
-                styles.yanivBtn,
-                !canCallAssaf() && styles.disabledBtn,
-              ]}
-              onPress={callAssaf}
-              disabled={!canCallAssaf()}>
-              <Text style={styles.actionBtnText}>אסף!</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={[
+              styles.actionBtn,
+              styles.yanivBtn,
+              !canCallYaniv() && styles.disabledBtn,
+            ]}
+            onPress={callYaniv}
+            disabled={!canCallYaniv()}>
+            <Text style={styles.actionBtnText}>יניב!</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -320,18 +298,15 @@ function GameScreen({navigation}: any) {
 
       {/* Yaniv/Asaf Overlay */}
       <View style={styles.overlay}>
-        {callers.length > 0 && (
-          <Animated.View>
-            <View style={styles.messageContainer}>
-              {callers.map(caller => {
-                return (
-                  <View>
-                    <Text style={styles.yanivText}>{caller.type}</Text>
-                  </View>
-                );
-              })}
-            </View>
-          </Animated.View>
+        {roundResults?.yanivCaller && (
+          <View>
+            <Text style={styles.yanivText}>{'יניב!'}</Text>
+          </View>
+        )}
+        {roundResults?.assafCaller && (
+          <View>
+            <Text style={styles.yanivText}>{'אסף!'}</Text>
+          </View>
         )}
       </View>
     </View>

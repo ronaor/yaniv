@@ -25,14 +25,16 @@ export interface GameStore {
   finalScores: {[playerId: string]: number} | null;
   lastPlayedCards: Card[]; // Cards from the last player's turn
   pickupOptions: Card[];
-  callers: {type: 'YANIV' | 'ASSAF'; calleeId: string; value: number}[];
   currentPlayerTurn?: string;
   playersScores: Record<string, number>;
   roundResults: {
     winnerId: string;
     playersScores: Record<string, number>;
-    yanivCalle: string;
+    yanivCaller: string;
+    assafCaller?: string;
+    yanivCallerDelayedScore?: number;
     lowestValue: number;
+    playerHands: {[playerId: string]: Card[]};
   } | null;
 
   // Actions
@@ -42,9 +44,6 @@ export interface GameStore {
     pickupIndex?: number,
   ) => void;
   callYaniv: () => void;
-  callAssaf: () => void;
-  onYaniv: (data: {playerId: string; handValue: number}) => void;
-  onAssaf: (data: {playerId: string; handValue: number}) => void;
   toggleCardSelection: (index: number) => void;
   clearSelection: () => void;
   clearError: () => void;
@@ -63,8 +62,11 @@ export interface GameStore {
   setRoundEnded: (data: {
     winnerId: string;
     playersScores: Record<string, number>;
-    yanivCalle: string;
+    yanivCaller: string;
+    assafCaller?: string;
+    yanivCallerDelayedScore?: number;
     lowestValue: number;
+    playerHands: {[playerId: string]: Card[]};
   }) => void;
   setGameEnded: (data: {
     winner: string;
@@ -151,47 +153,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   callYaniv: () => {
     useSocket.getState().emit('call_yaniv');
   },
-  callAssaf: () => {
-    useSocket.getState().emit('call_assaf');
-  },
-
-  onYaniv: (data: {playerId: string; handValue: number}) => {
-    const {playerId, handValue} = data;
-    const socketId = useSocket.getState().getSocketId();
-
-    set(state => ({
-      ...state,
-      callers: [{type: 'YANIV', calleeId: playerId, value: handValue}],
-      isMyTurn: playerId !== socketId,
-      publicState: state.publicState
-        ? {
-            ...state.publicState,
-            turnStartTime: new Date(),
-          }
-        : null,
-    }));
-  },
-
-  onAssaf: (data: {playerId: string; handValue: number}) => {
-    const {playerId, handValue} = data;
-    const socketId = useSocket.getState().getSocketId();
-    set(state => ({
-      ...state,
-      callers: [
-        ...state.callers,
-        {type: 'ASSAF', calleeId: playerId, value: handValue},
-      ],
-      isMyTurn: ![...state.callers.map(c => c.calleeId), playerId].includes(
-        socketId ?? '',
-      ),
-      publicState: state.publicState
-        ? {
-            ...state.publicState,
-            turnStartTime: new Date(),
-          }
-        : null,
-    }));
-  },
 
   toggleCardSelection: (index: number) => {
     set(state => {
@@ -218,15 +179,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   getRemainingTime: () => {
-    const {publicState, callers} = get();
+    const {publicState} = get();
     if (!publicState) {
       return 0;
     }
 
-    const turnTime = callers.length > 0 ? 10 : publicState.timePerPlayer;
     const elapsed =
       (Date.now() - new Date(publicState.turnStartTime).getTime()) / 1000;
-    const remaining = Math.max(0, turnTime - elapsed);
+    const remaining = Math.max(0, publicState.timePerPlayer - elapsed);
     return Math.ceil(remaining);
   },
 
@@ -267,14 +227,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
         : null,
     }));
   },
+
   setRoundEnded: (data: {
     winnerId: string;
     playersScores: Record<string, number>;
-    yanivCalle: string;
+    yanivCaller: string;
+    assafCaller?: string;
+    yanivCallerDelayedScore?: number;
     lowestValue: number;
+    playerHands: {[playerId: string]: Card[]};
   }) => {
     set({
       roundResults: data,
+      isMyTurn: false,
     });
   },
 
