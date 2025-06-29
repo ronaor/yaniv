@@ -1,36 +1,71 @@
-import {useGameStore} from './gameStore';
-import {useRoomStore} from './roomStore';
-export type {RoomState} from './roomStore';
-export type {GameState, Card, PublicGameState} from './gameStore';
+import {create} from 'zustand';
+import socket from '../socket';
 
-// For backward compatibility - combined hook that includes both stores
-export const useSocketStore = () => {
-  const roomStore = useRoomStore();
-  const gameStore = useGameStore();
+interface SocketStore {
+  isConnected: boolean;
+  isConnecting: boolean;
+  error: string | null;
+  connect: () => void;
+  disconnect: () => void;
+  emit: (event: string, data?: any) => void;
+  on: (event: string, callback: (data: any) => void) => void;
+  off: (event: string) => void;
+  getSocketId: () => string | null;
+}
 
-  return {
-    // Room management
-    ...roomStore,
+export const useSocket = create<SocketStore>((set, get) => ({
+  isConnected: false,
+  isConnecting: false,
+  error: null,
 
-    // Game management
-    gameState: gameStore.publicState,
-    playerHand: gameStore.playerHand,
-    isMyTurn: gameStore.isMyTurn,
-    selectedCards: gameStore.selectedCards,
-    isGameActive: gameStore.isGameActive,
-    finalScores: gameStore.finalScores,
+  connect: () => {
+    const {isConnected, isConnecting} = get();
 
-    // Game actions
-    drawCard: gameStore.drawCard,
-    playCards: gameStore.playCards,
-    callYaniv: gameStore.callYaniv,
-    toggleCardSelection: gameStore.toggleCardSelection,
-    clearSelection: gameStore.clearSelection,
+    if (isConnected || isConnecting) return;
 
-    // Reset everything when leaving room
-    leaveRoom: () => {
-      roomStore.leaveRoom();
-      gameStore.resetGame();
-    },
-  };
-};
+    set({isConnecting: true, error: null});
+
+    socket.connect();
+
+    socket.on('connect', () => {
+      console.log('Socket connected');
+      set({isConnected: true, isConnecting: false, error: null});
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      set({isConnected: false, isConnecting: false});
+    });
+
+    socket.on('connect_error', error => {
+      console.error('Socket connection error:', error);
+      set({isConnected: false, isConnecting: false, error: error.message});
+    });
+  },
+
+  disconnect: () => {
+    socket.disconnect();
+    set({isConnected: false, isConnecting: false});
+  },
+
+  emit: (event: string, data?: any) => {
+    const {isConnected} = get();
+    if (!isConnected) {
+      console.warn(`Cannot emit ${event}: socket not connected`);
+      return;
+    }
+    socket.emit(event, data);
+  },
+
+  on: (event: string, callback: (data: any) => void) => {
+    socket.on(event, callback);
+  },
+
+  off: (event: string) => {
+    socket.off(event);
+  },
+
+  getSocketId: () => {
+    return socket.id || null;
+  },
+}));

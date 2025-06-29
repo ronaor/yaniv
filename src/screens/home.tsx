@@ -5,10 +5,12 @@ import {HomeScreenProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
+import {useSocket} from '~/store/socketStore';
 import {openNamePromptEdit} from '~/components/namePrompt';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore();
+  const {isConnected, isConnecting} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const gameWithAI = () => {};
   const {name} = useUser();
@@ -34,10 +36,34 @@ function HomeScreen({navigation}: HomeScreenProps) {
           <Text style={styles.changeNameText}>שנה שם</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Connection Status */}
+      <View style={styles.connectionStatus}>
+        <View
+          style={[
+            styles.connectionDot,
+            {
+              backgroundColor: isConnected
+                ? colors.success
+                : isConnecting
+                ? colors.warning
+                : colors.error,
+            },
+          ]}
+        />
+        <Text style={styles.connectionText}>
+          {isConnected ? 'מחובר' : isConnecting ? 'מתחבר...' : 'לא מחובר'}
+        </Text>
+      </View>
+
       <View style={styles.container}>
         <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
         <View style={styles.menuButtons}>
-          <MenuButton text={'משחק מהיר'} onPress={quickGameHandler} />
+          <MenuButton
+            text={'משחק מהיר'}
+            onPress={quickGameHandler}
+            disabled={!isConnected}
+          />
           <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
           <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
         </View>
@@ -62,6 +88,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 10,
+  },
+  connectionStatus: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  connectionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  connectionText: {
+    fontSize: 12,
+    color: colors.textSecondary,
   },
   welcome: {
     ...textStyles.body,

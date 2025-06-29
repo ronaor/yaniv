@@ -1,5 +1,5 @@
 import {create, StateCreator} from 'zustand';
-import socket from '../socket';
+import {useSocket} from './socketStore';
 import {Player, RoomConfig} from '../types/navigation';
 
 export interface RoomState {
@@ -25,6 +25,20 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
   clearError: () => void;
   registerCallback: (event: string, cb: ((data: any) => void) | null) => void;
+  // Event setters
+  setRoomCreated: (data: {
+    roomId: string;
+    players: Player[];
+    config: RoomConfig;
+  }) => void;
+  setPlayersJoined: (data: {players: Player[]; config: RoomConfig}) => void;
+  setPlayerLeft: (data: {players: Player[]}) => void;
+  setGameStarted: (data: {
+    roomId: string;
+    config: RoomConfig;
+    players: Player[];
+  }) => void;
+  setRoomError: (data: {message: string}) => void;
 }
 
 const initialState: RoomState = {
@@ -39,9 +53,39 @@ const initialState: RoomState = {
 };
 
 export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
-  // Register socket listeners once
-  if (!(socket as any)._yanivRoomListenersRegistered) {
-    socket.on('room_created', ({roomId, players, config}) => {
+  return {
+    ...initialState,
+    createRoom: (nickname, numPlayers, timePerPlayer) => {
+      set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      useSocket
+        .getState()
+        .emit('create_room', {nickname, numPlayers, timePerPlayer});
+    },
+    joinRoom: (roomId, nickname) => {
+      set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      useSocket.getState().emit('join_room', {roomId, nickname});
+    },
+    quickGame: (nickname: string) => {
+      set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      useSocket.getState().emit('quick_game', {nickname});
+    },
+    leaveRoom: () => {
+      set({...initialState});
+      useSocket.getState().emit('leave_room');
+    },
+    checkRoomState: (roomId, _cb) => {
+      useSocket.getState().emit('get_room_state', {roomId});
+      // Note: Socket.IO callbacks are handled differently, we'll need to listen for the response
+    },
+    clearError: () => set((state: RoomState) => ({...state, error: null})),
+    registerCallback: (event, cb) => {
+      set((state: RoomState) => ({
+        ...state,
+        callbacks: {...state.callbacks, [event]: cb},
+      }));
+    },
+    // Event setters
+    setRoomCreated: ({roomId, players, config}) => {
       set((state: RoomState) => ({
         ...state,
         roomId,
@@ -51,17 +95,14 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         isInRoom: true,
         isLoading: false,
       }));
-    });
-
-    socket.on('player_joined', ({players, config}) => {
+    },
+    setPlayersJoined: ({players, config}) => {
       set((state: RoomState) => ({...state, players, config}));
-    });
-
-    socket.on('player_left', ({players}) => {
+    },
+    setPlayerLeft: ({players}) => {
       set((state: RoomState) => ({...state, players}));
-    });
-
-    socket.on('start_game', ({roomId, config, players}) => {
+    },
+    setGameStarted: ({roomId, config, players}) => {
       set((state: RoomState) => ({
         ...state,
         roomId,
@@ -70,49 +111,17 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         gameState: 'started',
         isLoading: false,
       }));
+      console.log('start_game');
       const cb = get().callbacks.onGameStarted;
       if (cb) {
         cb({roomId, config, players});
       }
-    });
-
-    socket.on('room_error', ({message}) => {
+    },
+    setRoomError: ({message}) => {
       set((state: RoomState) => ({
         ...state,
         error: message,
         isLoading: false,
-      }));
-    });
-
-    (socket as any)._yanivRoomListenersRegistered = true;
-  }
-
-  return {
-    ...initialState,
-    createRoom: (nickname, numPlayers, timePerPlayer) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      socket.emit('create_room', {nickname, numPlayers, timePerPlayer});
-    },
-    joinRoom: (roomId, nickname) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      socket.emit('join_room', {roomId, nickname});
-    },
-    quickGame: (nickname: string) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      socket.emit('quick_game', {nickname});
-    },
-    leaveRoom: () => {
-      set({...initialState});
-      socket.emit('leave_room');
-    },
-    checkRoomState: (roomId, cb) => {
-      socket.emit('get_room_state', {roomId}, cb);
-    },
-    clearError: () => set((state: RoomState) => ({...state, error: null})),
-    registerCallback: (event, cb) => {
-      set((state: RoomState) => ({
-        ...state,
-        callbacks: {...state.callbacks, [event]: cb},
       }));
     },
   };

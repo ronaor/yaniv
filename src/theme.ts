@@ -12,6 +12,7 @@ export const colors = {
   error: '#D32F2F',
   success: '#388E3C',
   info: '#1976D2',
+  warning: '#FF9800', // Orange for warning state
 };
 
 export const fontSizes = {

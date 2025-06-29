@@ -4,13 +4,21 @@ import BasePressable from './basePressable';
 interface MenuButtonProps {
   text: string;
   onPress: () => void;
+  disabled?: boolean;
 }
 
-const MenuButton = ({text, onPress}: MenuButtonProps): JSX.Element => {
+const MenuButton = ({
+  text,
+  onPress,
+  disabled = false,
+}: MenuButtonProps): JSX.Element => {
   return (
-    <BasePressable onPress={onPress}>
-      <View style={buttonStyles.body}>
-        <Text style={buttonStyles.text}>{text}</Text>
+    <BasePressable onPress={onPress} disabled={disabled}>
+      <View style={[buttonStyles.body, disabled && buttonStyles.disabled]}>
+        <Text
+          style={[buttonStyles.text, disabled && buttonStyles.disabledText]}>
+          {text}
+        </Text>
       </View>
     </BasePressable>
   );
@@ -27,10 +35,16 @@ const buttonStyles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 20,
   },
+  disabled: {
+    backgroundColor: '#CCCCCC',
+  },
   text: {
     fontSize: 20,
     color: 'white',
     padding: 5,
     fontWeight: 'bold',
+  },
+  disabledText: {
+    color: '#999999',
   },
 });
