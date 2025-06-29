@@ -40,7 +40,7 @@ function EnterNumber({value, range, onValueChanged}: EnterNumberProps) {
 
 const styles = StyleSheet.create({
   body: {flexDirection: 'row', alignItems: 'center'},
-  button: {padding: 10, borderRadius: 20},
+  button: {padding: 8, borderRadius: 20},
   text: {color: '#555555FF', fontWeight: '900'},
 });
 

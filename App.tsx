@@ -20,6 +20,10 @@ mobileAds()
   .initialize()
   .then(_ => {});
 
+if (__DEV__) {
+  require('./ReactotronConfig.js');
+}
+
 const App = () => {
   const backgroundStyle = {
     backgroundColor: '#FFFFFF',

@@ -18,9 +18,18 @@ const useSocketIO = () => {
     const gameStore = useGameStore.getState();
 
     // Room events
-    socket.on('room_created', ({roomId, players, config}) => {
-      roomStore.setRoomCreated({roomId, players, config});
-    });
+    socket.on(
+      'room_created',
+      ({roomId, players, config, canStartTheGameIn7Sec}) => {
+        //TODO
+        roomStore.setRoomCreated({
+          roomId,
+          players,
+          config,
+          canStartTheGameIn7Sec,
+        });
+      },
+    );
 
     socket.on('player_joined', ({players, config}) => {
       roomStore.setPlayersJoined({players, config});

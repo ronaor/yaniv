@@ -6,7 +6,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import MenuButton from '~/components/menuButton';
 import Dialog from '~/components/dialog';
 import EnterNumber from '~/components/enterNumber';
@@ -14,13 +14,17 @@ import {GameWithFriendsProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
+import CheckBox from '~/components/checkBox';
+import CircleCheckBox from '~/components/circleCheckBox';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
-  const [numPlayers, setNumPlayers] = useState<number>(3);
-  const [timePerPlayer, setTimePerPlayer] = useState<number>(15);
+  const [timePerPlayer, setTimePerPlayer] = useState<string>('15');
   const [roomCode, setRoomCode] = useState<string>('');
+  const [slapDown, setSlapDown] = useState<boolean>(true);
+  const [canCallYaniv, setCanCallYaniv] = useState<string>('7');
+  const [maxMatchPoints, setMatchMaxPoints] = useState<string>('100');
   const {name} = useUser();
   const {
     createRoom,
@@ -61,7 +65,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן');
       return;
     }
-    createRoom(name, numPlayers, timePerPlayer);
+    createRoom(name, slapDown, timePerPlayer, canCallYaniv, maxMatchPoints);
   };
   const handleJoinRoom = () => {
     if (!name || !roomCode) {
@@ -70,6 +74,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     }
     joinRoom(roomCode, name);
   };
+
   return (
     <View style={styles.body}>
       <View style={styles.container}>
@@ -84,22 +89,49 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
         onBackgroundPress={() => setNewRoomModalOpen(false)}>
         <Text style={textStyles.subtitle}>{'חדר חדש'}</Text>
         <View style={styles.dialogBody}>
-          <View style={styles.row}>
+          <CheckBox
+            title="הדבקות"
+            onChangeSelection={setSlapDown}
+            value={slapDown}
+          />
+
+          {/* <View style={styles.enterNumberContainer}>
+            <Text style={textStyles.body}>{'מספר משתתפים'}</Text>
             <EnterNumber
               value={numPlayers}
               onValueChanged={setNumPlayers}
               range={[2, 6]}
             />
-            <Text style={textStyles.body}>{'מספר משתתפים'}</Text>
           </View>
-          <View style={styles.row}>
+          <View style={styles.enterNumberContainer}>
+            <Text style={textStyles.body}>{'משך תור'}</Text>
             <EnterNumber
               value={timePerPlayer}
               onValueChanged={setTimePerPlayer}
               range={[5, 30]}
             />
-            <Text style={textStyles.body}>{'משך תור'}</Text>
-          </View>
+          </View> */}
+
+          <CircleCheckBox
+            title="משך תור :"
+            choices={['5', '10', '15']}
+            value={timePerPlayer}
+            onChangeSelection={setTimePerPlayer}
+          />
+          <CircleCheckBox
+            title="אפשר להגיד יניב ב :"
+            choices={['3', '5', '7']}
+            value={canCallYaniv}
+            onChangeSelection={setCanCallYaniv}
+          />
+
+          <CircleCheckBox
+            title="מקסימום נקודות למשחק :"
+            choices={['100', '200']}
+            value={maxMatchPoints}
+            onChangeSelection={setMatchMaxPoints}
+          />
+
           <MenuButton onPress={handleCreateRoom} text="צור חדר" />
         </View>
       </Dialog>
@@ -175,10 +207,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 8,
   },
-  row: {
-    flexDirection: 'row',
+  enterNumberContainer: {
     alignItems: 'center',
-    marginBottom: 8,
   },
   input: {
     borderWidth: 1,

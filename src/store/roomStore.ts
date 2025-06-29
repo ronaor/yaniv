@@ -1,13 +1,17 @@
 import {create, StateCreator} from 'zustand';
 import {useSocket} from './socketStore';
 import {Player, RoomConfig} from '~/types/player';
+import {isUndefined} from 'lodash';
 
 export interface RoomState {
   roomId: string | null;
+  nickname: string; //TODO
   players: Player[];
   config: RoomConfig | null;
   gameState: 'waiting' | 'started' | null;
   isInRoom: boolean;
+  isAdminOfPrivateRoom: boolean;
+  canStartTimer: Date | null; //TODO
   isLoading: boolean;
   error: string | null;
   callbacks: {[event: string]: ((data: any) => void) | null};
@@ -16,10 +20,14 @@ export interface RoomState {
 interface RoomStore extends Omit<RoomState, 'callbacks'> {
   createRoom: (
     nickname: string,
-    numPlayers: number,
-    timePerPlayer: number,
+    slapDown: boolean,
+    timePerPlayer: string,
+    canCallYaniv: string,
+    maxMatchPoints: string,
   ) => void;
+  getRemainingTimeToStartGame: () => number;
   joinRoom: (roomId: string, nickname: string) => void;
+  startPrivateGame: (roomId: string) => void;
   quickGame: (nickname: string) => void;
   leaveRoom: () => void;
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
@@ -30,6 +38,7 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
     roomId: string;
     players: Player[];
     config: RoomConfig;
+    canStartTheGameIn7Sec: Date | null;
   }) => void;
   setPlayersJoined: (data: {players: Player[]; config: RoomConfig}) => void;
   setPlayerLeft: (data: {players: Player[]}) => void;
@@ -43,10 +52,13 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
 
 const initialState: RoomState = {
   roomId: null,
+  nickname: '', //TODO
   players: [],
   config: null,
   gameState: null,
   isInRoom: false,
+  isAdminOfPrivateRoom: false,
+  canStartTimer: null, //TODO
   isLoading: false,
   error: null,
   callbacks: {},
@@ -55,18 +67,56 @@ const initialState: RoomState = {
 export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
   return {
     ...initialState,
-    createRoom: (nickname, numPlayers, timePerPlayer) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      useSocket
-        .getState()
-        .emit('create_room', {nickname, numPlayers, timePerPlayer});
+    createRoom: (
+      nickname,
+      slapDown,
+      timePerPlayer,
+      canCallYaniv,
+      maxMatchPoints,
+    ) => {
+      set((state: RoomState) => ({
+        ...state,
+        nickname,
+        isLoading: true,
+        error: null,
+      }));
+      useSocket.getState().emit('create_room', {
+        nickname,
+        slapDown,
+        timePerPlayer,
+        canCallYaniv,
+        maxMatchPoints,
+      });
+    },
+    getRemainingTimeToStartGame: () => {
+      const start = get().canStartTimer;
+      if (!start) return 0;
+
+      const elapsedMs = Date.now() - new Date(start).getTime();
+      const remaining = 7000 - elapsedMs;
+
+      return Math.max(0, Math.floor(remaining / 1000));
     },
     joinRoom: (roomId, nickname) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      set((state: RoomState) => ({
+        ...state,
+        isLoading: true,
+        error: null,
+        nickname,
+      }));
       useSocket.getState().emit('join_room', {roomId, nickname});
     },
-    quickGame: (nickname: string) => {
+    startPrivateGame: roomId => {
       set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      useSocket.getState().emit('start_private_game', {roomId});
+    },
+    quickGame: (nickname: string) => {
+      set((state: RoomState) => ({
+        ...state,
+        isLoading: true,
+        error: null,
+        nickname,
+      }));
       useSocket.getState().emit('quick_game', {nickname});
     },
     leaveRoom: () => {
@@ -84,8 +134,10 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         callbacks: {...state.callbacks, [event]: cb},
       }));
     },
+
     // Event setters
-    setRoomCreated: ({roomId, players, config}) => {
+    setRoomCreated: data => {
+      const {roomId, players, config, canStartTheGameIn7Sec} = data;
       set((state: RoomState) => ({
         ...state,
         roomId,
@@ -93,11 +145,16 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         config,
         gameState: 'waiting',
         isInRoom: true,
+        isAdminOfPrivateRoom: true,
         isLoading: false,
+        canStartTimer: isUndefined(canStartTheGameIn7Sec)
+          ? null
+          : canStartTheGameIn7Sec,
+        error: null,
       }));
     },
     setPlayersJoined: ({players, config}) => {
-      set((state: RoomState) => ({...state, players, config}));
+      set((state: RoomState) => ({...state, players, config, isInRoom: true}));
     },
     setPlayerLeft: ({players}) => {
       set((state: RoomState) => ({...state, players}));
