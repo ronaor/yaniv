@@ -1,18 +1,31 @@
 import React from 'react';
-import {View, TouchableOpacity, Text, StyleSheet, Animated} from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  Animated,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
 
 interface CheckBoxProps {
   value: boolean; // true for Yes, false for No
-  onChangeSelection: (value: boolean) => void;
   title: string;
+  otherVotes?: boolean[];
+  onChangeSelection: (value: boolean) => void;
 }
 
 const CheckBox: React.FC<CheckBoxProps> = ({
   value,
   onChangeSelection,
   title,
+  otherVotes,
 }) => {
   const translateAnim = React.useRef(new Animated.Value(value ? 0 : 1)).current;
+  // Count other players' votes
+  const trueCount = otherVotes?.filter(v => v === true).length || 0;
+  const falseCount = otherVotes?.filter(v => v === false).length || 0;
 
   React.useEffect(() => {
     Animated.timing(translateAnim, {
@@ -28,6 +41,31 @@ const CheckBox: React.FC<CheckBoxProps> = ({
     outputRange: [0, 80], // Adjust this value to match button width
   });
 
+  const renderVoteIcons = (count: number) => {
+    if (count === 0) return null;
+
+    const positions = ['top', 'right', 'left']; // pattern
+    const icons = [];
+
+    for (let i = 0; i < count; i++) {
+      const position = positions[i % positions.length];
+
+      const dynamicStyle: StyleProp<TextStyle> = [
+        styles.voteIcon,
+        position === 'top' && {top: -10},
+        position === 'right' && {right: -10},
+        position === 'left' && {left: -10},
+      ];
+
+      icons.push(
+        <Text key={i} style={dynamicStyle}>
+          ✅
+        </Text>,
+      );
+    }
+
+    return icons;
+  };
   return (
     <View style={styles.wrapper}>
       <Text style={styles.title}>{title} : </Text>
@@ -54,6 +92,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
             ]}
             onPress={() => onChangeSelection(true)}
             activeOpacity={0.8}>
+            {renderVoteIcons(trueCount)}
             <Text style={styles.emoji}>✅</Text>
             <Text style={styles.text}>Yes</Text>
           </TouchableOpacity>
@@ -69,6 +108,7 @@ const CheckBox: React.FC<CheckBoxProps> = ({
             ]}
             onPress={() => onChangeSelection(false)}
             activeOpacity={0.8}>
+            {renderVoteIcons(falseCount)}
             <Text style={styles.emoji}>❌</Text>
             <Text style={styles.text}>No</Text>
           </TouchableOpacity>
@@ -84,6 +124,12 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     gap: 8,
+  },
+  voteIcon: {
+    position: 'absolute',
+    fontSize: 12,
+    zIndex: 5,
+    color: 'white',
   },
   title: {
     fontSize: 16,

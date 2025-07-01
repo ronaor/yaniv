@@ -5,9 +5,10 @@ import {isUndefined} from 'lodash';
 
 export interface RoomState {
   roomId: string | null;
-  nickname: string; //TODO
+  nickName: string; //TODO
   players: Player[];
   config: RoomConfig | null;
+  votes: Record<string, RoomConfig>;
   gameState: 'waiting' | 'started' | null;
   isInRoom: boolean;
   isAdminOfPrivateRoom: boolean;
@@ -18,18 +19,17 @@ export interface RoomState {
 }
 
 interface RoomStore extends Omit<RoomState, 'callbacks'> {
-  createRoom: (
-    nickname: string,
-    slapDown: boolean,
-    timePerPlayer: string,
-    canCallYaniv: string,
-    maxMatchPoints: string,
-  ) => void;
+  createRoom: (nickName: string, config: RoomConfig) => void;
   getRemainingTimeToStartGame: () => number;
-  joinRoom: (roomId: string, nickname: string) => void;
+  joinRoom: (roomId: string, nickName: string) => void;
+  setQuickGameConfig: (
+    roomId: string,
+    nickName: string,
+    config: RoomConfig,
+  ) => void;
   startPrivateGame: (roomId: string) => void;
-  quickGame: (nickname: string) => void;
-  leaveRoom: () => void;
+  quickGame: (nickName: string) => void;
+  leaveRoom: (nickName: string) => void;
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
   clearError: () => void;
   registerCallback: (event: string, cb: ((data: any) => void) | null) => void;
@@ -38,24 +38,34 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
     roomId: string;
     players: Player[];
     config: RoomConfig;
-    canStartTheGameIn7Sec: Date | null;
   }) => void;
-  setPlayersJoined: (data: {players: Player[]; config: RoomConfig}) => void;
-  setPlayerLeft: (data: {players: Player[]}) => void;
+  setRoomConfigVotes: (data: {roomId: string; votes: RoomConfig[]}) => void;
+  setPlayersJoined: (data: {
+    roomId: string;
+    players: Player[];
+    config: RoomConfig;
+    canStartTheGameIn10Sec: Date | null;
+  }) => void;
+  setPlayerLeft: (data: {
+    players: Player[];
+    votes: Record<string, RoomConfig>;
+  }) => void;
   setGameStarted: (data: {
     roomId: string;
     config: RoomConfig;
     players: Player[];
+    votes: Record<string, RoomConfig>;
   }) => void;
   setRoomError: (data: {message: string}) => void;
 }
 
 const initialState: RoomState = {
   roomId: null,
-  nickname: '', //TODO
+  nickName: '', //TODO
   players: [],
   config: null,
   gameState: null,
+  votes: {},
   isInRoom: false,
   isAdminOfPrivateRoom: false,
   canStartTimer: null, //TODO
@@ -67,25 +77,16 @@ const initialState: RoomState = {
 export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
   return {
     ...initialState,
-    createRoom: (
-      nickname,
-      slapDown,
-      timePerPlayer,
-      canCallYaniv,
-      maxMatchPoints,
-    ) => {
+    createRoom: (nickName, config) => {
       set((state: RoomState) => ({
         ...state,
-        nickname,
+        nickName,
         isLoading: true,
         error: null,
       }));
       useSocket.getState().emit('create_room', {
-        nickname,
-        slapDown,
-        timePerPlayer,
-        canCallYaniv,
-        maxMatchPoints,
+        nickName,
+        config,
       });
     },
     getRemainingTimeToStartGame: () => {
@@ -93,51 +94,46 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
       if (!start) return 0;
 
       const elapsedMs = Date.now() - new Date(start).getTime();
-      const remaining = 7000 - elapsedMs;
+      const remaining = 10000 - elapsedMs;
 
       return Math.max(0, Math.floor(remaining / 1000));
     },
-    joinRoom: (roomId, nickname) => {
+    joinRoom: (roomId, nickName) => {
       set((state: RoomState) => ({
         ...state,
         isLoading: true,
         error: null,
-        nickname,
+        nickName,
       }));
-      useSocket.getState().emit('join_room', {roomId, nickname});
+      useSocket.getState().emit('join_room', {roomId, nickName});
     },
-    startPrivateGame: roomId => {
+    quickGame: nickName => {
+      set((state: RoomState) => ({
+        ...state,
+        isLoading: true,
+        error: null,
+        nickName,
+      }));
+      useSocket.getState().emit('quick_game', {
+        nickName,
+      });
+    },
+    setQuickGameConfig: (roomId, nickName, config) => {
       set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      useSocket.getState().emit('start_private_game', {roomId});
+      useSocket
+        .getState()
+        .emit('set_quick_game_config', {roomId, nickName, config});
     },
-    quickGame: (nickname: string) => {
-      set((state: RoomState) => ({
-        ...state,
-        isLoading: true,
-        error: null,
-        nickname,
-      }));
-      useSocket.getState().emit('quick_game', {nickname});
-    },
-    leaveRoom: () => {
+    leaveRoom: nickName => {
       set({...initialState});
-      useSocket.getState().emit('leave_room');
-    },
-    checkRoomState: (roomId, _cb) => {
-      useSocket.getState().emit('get_room_state', {roomId});
-      // Note: Socket.IO callbacks are handled differently, we'll need to listen for the response
-    },
-    clearError: () => set((state: RoomState) => ({...state, error: null})),
-    registerCallback: (event, cb) => {
-      set((state: RoomState) => ({
-        ...state,
-        callbacks: {...state.callbacks, [event]: cb},
-      }));
+      useSocket.getState().emit('leave_room', {nickName});
     },
 
+    clearError: () => set((state: RoomState) => ({...state, error: null})),
     // Event setters
+
     setRoomCreated: data => {
-      const {roomId, players, config, canStartTheGameIn7Sec} = data;
+      const {roomId, players, config} = data;
       set((state: RoomState) => ({
         ...state,
         roomId,
@@ -147,24 +143,40 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         isInRoom: true,
         isAdminOfPrivateRoom: true,
         isLoading: false,
-        canStartTimer: isUndefined(canStartTheGameIn7Sec)
-          ? null
-          : canStartTheGameIn7Sec,
         error: null,
       }));
     },
-    setPlayersJoined: ({players, config}) => {
-      set((state: RoomState) => ({...state, players, config, isInRoom: true}));
+    setRoomConfigVotes: ({roomId, votes}) => {
+      set((state: RoomState) => ({
+        ...state,
+        roomId,
+        votes: votes,
+      }));
     },
-    setPlayerLeft: ({players}) => {
-      set((state: RoomState) => ({...state, players}));
+
+    setPlayersJoined: ({roomId, players, config, canStartTheGameIn10Sec}) => {
+      set((state: RoomState) => ({
+        ...state,
+        roomId,
+        players,
+        config,
+        isInRoom: true,
+        isLoading: false,
+        canStartTimer: isUndefined(canStartTheGameIn10Sec)
+          ? null
+          : canStartTheGameIn10Sec,
+      }));
     },
-    setGameStarted: ({roomId, config, players}) => {
+    setPlayerLeft: ({players, votes}) => {
+      set((state: RoomState) => ({...state, players, votes}));
+    },
+    setGameStarted: ({roomId, config, players, votes}) => {
       set((state: RoomState) => ({
         ...state,
         roomId,
         config,
         players,
+        votes,
         gameState: 'started',
         isLoading: false,
       }));
@@ -173,12 +185,27 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         cb({roomId, config, players});
       }
     },
+    startPrivateGame: roomId => {
+      set((state: RoomState) => ({...state, isLoading: true, error: null}));
+      useSocket.getState().emit('start_private_game', {roomId});
+    },
+
     setRoomError: ({message}) => {
       set((state: RoomState) => ({
         ...state,
         error: message,
         isLoading: false,
       }));
+    },
+    registerCallback: (event, cb) => {
+      set((state: RoomState) => ({
+        ...state,
+        callbacks: {...state.callbacks, [event]: cb},
+      }));
+    },
+    checkRoomState: (roomId, _cb) => {
+      useSocket.getState().emit('get_room_state', {roomId});
+      // Note: Socket.IO callbacks are handled differently, we'll need to listen for the response
     },
   };
 }) as StateCreator<RoomStore>);

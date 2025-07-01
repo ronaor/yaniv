@@ -21,7 +21,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
       return;
     }
     quickGame(name);
-    navigation.navigate('Lobby');
+    navigation.navigate('QuickLobby');
   };
 
   return (

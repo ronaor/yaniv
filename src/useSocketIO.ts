@@ -18,29 +18,37 @@ const useSocketIO = () => {
     const gameStore = useGameStore.getState();
 
     // Room events
+    socket.on('room_created', ({roomId, players, config}) => {
+      //TODO
+      roomStore.setRoomCreated({
+        roomId,
+        players,
+        config,
+      });
+    });
+
     socket.on(
-      'room_created',
-      ({roomId, players, config, canStartTheGameIn7Sec}) => {
-        //TODO
-        roomStore.setRoomCreated({
+      'player_joined',
+      ({roomId, players, config, canStartTheGameIn10Sec}) => {
+        roomStore.setPlayersJoined({
           roomId,
           players,
           config,
-          canStartTheGameIn7Sec,
+          canStartTheGameIn10Sec,
         });
       },
     );
 
-    socket.on('player_joined', ({players, config}) => {
-      roomStore.setPlayersJoined({players, config});
+    socket.on('votes_config', ({roomId, votes}) => {
+      roomStore.setRoomConfigVotes({roomId, votes});
     });
 
-    socket.on('player_left', ({players}) => {
-      roomStore.setPlayerLeft({players});
+    socket.on('player_left', ({players, votes}) => {
+      roomStore.setPlayerLeft({players, votes});
     });
 
-    socket.on('start_game', ({roomId, config, players}) => {
-      roomStore.setGameStarted({roomId, config, players});
+    socket.on('start_game', ({roomId, config, players, votes}) => {
+      roomStore.setGameStarted({roomId, config, players, votes});
     });
 
     socket.on('room_error', ({message}) => {

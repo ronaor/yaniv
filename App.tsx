@@ -13,6 +13,7 @@ import GameScreen from '~/screens/game';
 import NamePrompt from '~/components/namePrompt';
 import useSocketIO from '~/useSocketIO';
 import {useRoomStore} from '~/store/roomStore';
+import QuickGameLobby from '~/screens/quickGameLobby';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -32,7 +33,7 @@ const App = () => {
 
   useSocketIO();
 
-  const {leaveRoom} = useRoomStore();
+  const {leaveRoom, nickName} = useRoomStore();
 
   const onStateChange = useCallback(
     (state: NavigationState | undefined) => {
@@ -48,7 +49,7 @@ const App = () => {
       // Check if we were in lobby and now we're not in game screen
       // This means user navigated away from lobby (back to home or other screen)
       if (previousRouteName === 'Lobby' && currentRouteName !== 'Game') {
-        leaveRoom();
+        leaveRoom(nickName);
       }
     },
     [leaveRoom],
@@ -84,6 +85,13 @@ const App = () => {
           <Stack.Screen
             name="Lobby"
             component={LobbyScreen}
+            options={{
+              animation: 'slide_from_left',
+            }}
+          />
+          <Stack.Screen
+            name="QuickLobby"
+            component={QuickGameLobby}
             options={{
               animation: 'slide_from_left',
             }}

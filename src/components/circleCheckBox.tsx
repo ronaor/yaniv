@@ -4,8 +4,9 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 type CircleCheckBoxProps = {
   title: string;
   choices: string[];
-  value: string;
-  onChangeSelection: (selected: string) => void;
+  value: number;
+  otherVotes?: string[];
+  onChangeSelection: (selected: number) => void;
 };
 
 const getCircleSize = (length: number) => {
@@ -17,20 +18,52 @@ const getCircleSize = (length: number) => {
   return Math.max(minSize, size);
 };
 
+const renderVoteIcons = (count: number) => {
+  if (count === 0) return null;
+
+  const positions = ['top', 'right', 'left'];
+  const icons = [];
+
+  for (let i = 0; i < count; i++) {
+    const position = positions[i % positions.length];
+
+    const style = [
+      styles.voteIcon,
+      position === 'top' && {top: -10},
+      position === 'right' && {right: -10},
+      position === 'left' && {left: -10},
+    ];
+
+    icons.push(
+      <Text key={i} style={style}>
+        ✅
+      </Text>,
+    );
+  }
+
+  return icons;
+};
+
 const CircleCheckBox: React.FC<CircleCheckBoxProps> = ({
   title,
   choices,
   value,
+  otherVotes,
   onChangeSelection,
 }) => {
   const circleSize = getCircleSize(choices.length);
+
+  const stringValue = value.toString();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <View style={styles.choicesContainer}>
         {choices.map(choice => {
-          const selected = value === choice;
+          const selected = stringValue === String(choice);
+          const count =
+            otherVotes?.filter(v => v === String(choice)).length || 0;
+
           return (
             <TouchableOpacity
               key={choice}
@@ -43,8 +76,9 @@ const CircleCheckBox: React.FC<CircleCheckBoxProps> = ({
                   borderColor: selected ? '#388E3C' : '#bbb',
                 },
               ]}
-              onPress={() => onChangeSelection(choice)}
+              onPress={() => onChangeSelection(parseInt(choice))}
               activeOpacity={0.7}>
+              {renderVoteIcons(count)}
               <Text
                 style={[
                   styles.choiceText,
@@ -87,6 +121,12 @@ const styles = StyleSheet.create({
   },
   choiceText: {
     fontWeight: '500',
+  },
+  voteIcon: {
+    position: 'absolute',
+    fontSize: 10,
+    color: '#4CAF50',
+    zIndex: 10,
   },
 });
 

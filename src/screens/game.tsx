@@ -34,7 +34,7 @@ function GameScreen({navigation}: any) {
     roundResults,
     playersScores,
   } = useGameStore();
-  const {name: nickname} = useUser();
+  const {name: nickName} = useUser();
 
   const [timeRemaining, setTimeRemaining] = useState(0);
 
@@ -68,7 +68,7 @@ function GameScreen({navigation}: any) {
         text: 'צא',
         style: 'destructive',
         onPress: () => {
-          leaveRoom();
+          leaveRoom(nickName);
           navigation.reset({index: 0, routes: [{name: 'Home'}]});
         },
       },
@@ -86,7 +86,7 @@ function GameScreen({navigation}: any) {
   useEffect(() => {
     if (publicState?.gameEnded && finalScores) {
       const winnerName =
-        players.find(p => p.id === publicState.winner)?.nickname || 'לא ידוע';
+        players.find(p => p.id === publicState.winner)?.nickName || 'לא ידוע';
       Alert.alert('המשחק הסתיים!', `הזוכה: ${winnerName}`, [
         {
           text: 'חזור לבית',
@@ -283,9 +283,9 @@ function GameScreen({navigation}: any) {
                   players[publicState.currentPlayer]?.id === item.id &&
                   styles.currentPlayer,
               ]}>
-              {item.nickname}
+              {item.nickName}
               {playersScores[item.id]}
-              {item.nickname === nickname ? ' (אתה)' : ''}
+              {item.nickName === nickName ? ' (אתה)' : ''}
               {publicState.currentPlayer !== undefined &&
               players[publicState.currentPlayer]?.id === item.id
                 ? ' 🎯'

@@ -8,23 +8,31 @@ import {
   Alert,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
-import {LobbyProps} from '~/types/navigation';
+import {LobbyProps, QuickGameLobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useRoomStore} from '~/store/roomStore';
 import MenuButton from '~/components/menuButton';
 import Clipboard from '@react-native-clipboard/clipboard';
+import Dialog from '~/components/dialog';
+import StartGameDialog from '~/components/startGameDialog';
 
-function LobbyScreen({navigation}: LobbyProps) {
+function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   const {
     roomId,
     players,
     config,
+    votes,
     gameState,
     nickName,
     isAdminOfPrivateRoom,
+    canStartTimer,
+    getRemainingTimeToStartGame,
     leaveRoom,
     startPrivateGame,
   } = useRoomStore();
+
+  const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
 
   useEffect(() => {
     if (gameState === 'started') {
@@ -41,6 +49,52 @@ function LobbyScreen({navigation}: LobbyProps) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveRoom]);
+
+  useEffect(() => {
+    if (players.length < 2) {
+      setTimeRemaining(0);
+      return;
+    }
+    console.log('PLAyers', players);
+
+    let targetSeconds = 0;
+    if (players.length === 2) targetSeconds = 15;
+    else if (players.length === 3) targetSeconds = 10;
+    else if (players.length >= 4) targetSeconds = 7;
+    console.log('targetSeconds', targetSeconds);
+
+    const startTime = Date.now();
+    const endTime = startTime + targetSeconds * 1000;
+
+    const interval = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+      setTimeRemaining(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        // Let the backend handle game start
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [players.length, canStartTimer]);
+
+  // useEffect(() => {
+  //   if (!canStartTimer) return;
+
+  //   const interval = setInterval(() => {
+  //     const remaining = getRemainingTimeToStartGame();
+  //     setTimeRemaining(remaining);
+
+  //     if (remaining <= 0) {
+  //       if (players[1].nickName === nickName && roomId)
+  //         // startPrivateGame(roomId);
+  //         clearInterval(interval);
+  //     }
+  //   }, 1000);
+
+  //   return () => clearInterval(interval);
+  // }, [canStartTimer, getRemainingTimeToStartGame]); // מאזין לזמן חדש שמגיע מהשרת
 
   const handleLeave = useCallback(() => {
     Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
@@ -61,23 +115,10 @@ function LobbyScreen({navigation}: LobbyProps) {
       <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
         <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
       </TouchableOpacity>
+      <View style={styles.timerContainer}>
+        <Text style={[styles.timer]}>{timeRemaining}s</Text>
+      </View>
 
-      <Pressable
-        onPress={() => {
-          if (roomId) {
-            Clipboard.setString(roomId);
-            alert('קוד החדר הועתק ללוח!');
-          }
-        }}
-        style={{
-          marginBottom: 20,
-          alignItems: 'center',
-          backgroundColor: colors.accent,
-          padding: 10,
-          borderRadius: 16,
-        }}>
-        <Text style={textStyles.title}>{'קוד חדר: ' + (roomId || '')}</Text>
-      </Pressable>
       <Text style={textStyles.subtitle}>{'שחקנים בחדר:'}</Text>
       <View style={styles.playerListContainer}>
         <FlatList
@@ -94,14 +135,13 @@ function LobbyScreen({navigation}: LobbyProps) {
           ? 'המשחק התחיל!'
           : `ממתין לשחקנים... (${players.length}/4)`}
       </Text>
+      <StartGameDialog onCreateRoom={() => {}} isQuickGameLobby />
 
-      {isAdminOfPrivateRoom && (
-        <MenuButton
-          onPress={() => roomId && startPrivateGame(roomId)}
-          text="התחל משחק!"
-          disabled={players.length === 1}
-        />
-      )}
+      {/* <Dialog
+        isModalOpen={newRoomModalOpen}
+        onBackgroundPress={() => setNewRoomModalOpen(false)}>
+        <StartGameDialog onCreateRoom={} />
+      </Dialog> */}
     </View>
   );
 }
@@ -175,4 +215,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LobbyScreen;
+export default QuickGameLobby;

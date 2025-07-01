@@ -6,25 +6,20 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menuButton';
 import Dialog from '~/components/dialog';
-import EnterNumber from '~/components/enterNumber';
 import {GameWithFriendsProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
-import CheckBox from '~/components/checkBox';
-import CircleCheckBox from '~/components/circleCheckBox';
+import StartGameDialog from '~/components/startGameDialog';
+import {RoomConfig} from '~/types/player';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
-  const [timePerPlayer, setTimePerPlayer] = useState<string>('15');
   const [roomCode, setRoomCode] = useState<string>('');
-  const [slapDown, setSlapDown] = useState<boolean>(true);
-  const [canCallYaniv, setCanCallYaniv] = useState<string>('7');
-  const [maxMatchPoints, setMatchMaxPoints] = useState<string>('100');
   const {name} = useUser();
   const {
     createRoom,
@@ -60,13 +55,14 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     setNewRoomModalOpen(false);
     setEnterRoomModalOpen(true);
   };
-  const handleCreateRoom = () => {
+  const handleCreateRoom = (data: RoomConfig) => {
     if (!name) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן');
       return;
     }
-    createRoom(name, slapDown, timePerPlayer, canCallYaniv, maxMatchPoints);
+    createRoom(name, data);
   };
+
   const handleJoinRoom = () => {
     if (!name || !roomCode) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן ומזהה חדר');
@@ -87,53 +83,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
       <Dialog
         isModalOpen={newRoomModalOpen}
         onBackgroundPress={() => setNewRoomModalOpen(false)}>
-        <Text style={textStyles.subtitle}>{'חדר חדש'}</Text>
-        <View style={styles.dialogBody}>
-          <CheckBox
-            title="הדבקות"
-            onChangeSelection={setSlapDown}
-            value={slapDown}
-          />
-
-          {/* <View style={styles.enterNumberContainer}>
-            <Text style={textStyles.body}>{'מספר משתתפים'}</Text>
-            <EnterNumber
-              value={numPlayers}
-              onValueChanged={setNumPlayers}
-              range={[2, 6]}
-            />
-          </View>
-          <View style={styles.enterNumberContainer}>
-            <Text style={textStyles.body}>{'משך תור'}</Text>
-            <EnterNumber
-              value={timePerPlayer}
-              onValueChanged={setTimePerPlayer}
-              range={[5, 30]}
-            />
-          </View> */}
-
-          <CircleCheckBox
-            title="משך תור :"
-            choices={['5', '10', '15']}
-            value={timePerPlayer}
-            onChangeSelection={setTimePerPlayer}
-          />
-          <CircleCheckBox
-            title="אפשר להגיד יניב ב :"
-            choices={['3', '5', '7']}
-            value={canCallYaniv}
-            onChangeSelection={setCanCallYaniv}
-          />
-
-          <CircleCheckBox
-            title="מקסימום נקודות למשחק :"
-            choices={['100', '200']}
-            value={maxMatchPoints}
-            onChangeSelection={setMatchMaxPoints}
-          />
-
-          <MenuButton onPress={handleCreateRoom} text="צור חדר" />
-        </View>
+        <StartGameDialog onCreateRoom={handleCreateRoom} />
       </Dialog>
       <Dialog
         isModalOpen={enterRoomModalOpen}

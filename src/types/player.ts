@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  nickname: string;
+  nickName: string;
 }
 
 export interface Player extends User {
@@ -16,6 +16,8 @@ export interface Room {
 }
 
 export interface RoomConfig {
-  numPlayers: number;
-  timePerPlayer: number; // in seconds
+  slapDown: boolean;
+  timePerPlayer: number;
+  canCallYaniv: number;
+  maxMatchPoints: number;
 }
