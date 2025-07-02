@@ -1,7 +1,7 @@
 import {create} from 'zustand';
-import {useSocket} from './socketStore';
 import {Card, getCardValue} from '~/types/cards';
 import {Player, User} from '~/types/player';
+import {useSocket} from './socketStore';
 
 export interface PublicGameState {
   currentPlayer: number;
@@ -87,40 +87,6 @@ export interface GameStore {
 
 export const getHandValue = (hand: Card[]): number => {
   return hand.reduce((sum, card) => sum + getCardValue(card), 0);
-};
-
-// Helper function to get pickup options based on last played cards
-const getPickupOptions = (cards: Card[]): Card[] => {
-  if (cards.length === 0) {
-    return [];
-  }
-
-  // Single card - can pick it up
-  if (cards.length === 1) {
-    return [cards[0]];
-  }
-
-  // Check if it's a set (same value)
-  const isSet = cards.every(card => card.value === cards[0].value);
-  if (isSet) {
-    return [...cards];
-  }
-
-  // Check if it's a sequence (consecutive values)
-  const sortedCards = [...cards].sort((a, b) => a.value - b.value);
-  const isSequence = sortedCards.every((card, index) => {
-    if (index === 0) {
-      return true;
-    }
-    return card.value === sortedCards[index - 1].value + 1;
-  });
-
-  if (isSequence) {
-    // Sequence - can only pick first or last card
-    return [sortedCards[0], sortedCards[sortedCards.length - 1]];
-  }
-
-  return [];
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -287,13 +253,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
           updatedPublicState.lastPickedCard = data.card;
         }
       }
-
       return {
         ...state,
         playerHand: playerHand,
         publicState: updatedPublicState,
         lastPlayedCards,
-        pickupOptions: getPickupOptions(lastPlayedCards),
+        pickupOptions: lastPlayedCards,
       };
     });
   },
