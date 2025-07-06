@@ -16,6 +16,7 @@ export interface PublicGameState {
 }
 export interface GameStore {
   // State
+  playerId: string;
   publicState: PublicGameState | null;
   playerHand: Card[];
   selectedCards: number[];
@@ -50,6 +51,14 @@ export interface GameStore {
   getRemainingTime: () => number;
   // Event setters
   setGameInitialized: (data: {
+    playersScores: Record<string, number>;
+    gameState: PublicGameState;
+    playerHands: {[playerId: string]: Card[]};
+    firstCard: Card;
+    users: User[];
+  }) => void;
+  setNewRound: (data: {
+    playersScores: Record<string, number>;
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
@@ -91,6 +100,7 @@ export const getHandValue = (hand: Card[]): number => {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
+  playerId: '',
   publicState: null,
   playerHand: [],
   selectedCards: [],
@@ -165,6 +175,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   }) => {
     const socketId = useSocket.getState().getSocketId();
     set({
+      playerId: socketId ?? '',
       publicState: data.gameState,
       playerHand: socketId ? data.playerHands[socketId] || [] : [],
       isGameActive: true,
@@ -176,6 +187,24 @@ export const useGameStore = create<GameStore>((set, get) => ({
         obj[user.id] = 0;
         return obj;
       }, {}),
+    });
+  },
+  setNewRound: (data: {
+    playersScores: Record<string, number>;
+    gameState: PublicGameState;
+    playerHands: {[playerId: string]: Card[]};
+    firstCard: Card;
+    users: User[];
+  }) => {
+    const socketId = useSocket.getState().getSocketId();
+    set({
+      publicState: data.gameState,
+      playerHand: socketId ? data.playerHands[socketId] || [] : [],
+      isGameActive: true,
+      selectedCards: [],
+      lastPlayedCards: [data.firstCard],
+      pickupOptions: [data.firstCard],
+      playersScores: data.playersScores,
     });
   },
 
@@ -207,6 +236,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       roundResults: data,
       isMyTurn: false,
     });
+    setTimeout(() => {
+      set({
+        roundResults: null,
+      });
+    }, 3000);
   },
 
   setGameEnded: (data: {

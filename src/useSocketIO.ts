@@ -60,6 +60,9 @@ const useSocketIO = () => {
       gameStore.setGameInitialized(data);
     });
 
+    socket.on('new_round', data => {
+      gameStore.setNewRound(data);
+    });
     socket.on('turn_started', data => {
       gameStore.setTurnStarted(data);
     });

@@ -1,12 +1,13 @@
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import MenuButton from '~/components/menuButton';
-import {HomeScreenProps} from '~/types/navigation';
-import {colors, textStyles} from '~/theme';
-import {useUser} from '~/store/userStore';
+import {openNamePromptEdit} from '~/components/namePrompt';
 import {useRoomStore} from '~/store/roomStore';
 import {useSocket} from '~/store/socketStore';
-import {openNamePromptEdit} from '~/components/namePrompt';
+import {useUser} from '~/store/userStore';
+import {colors, textStyles} from '~/theme';
+import {HomeScreenProps} from '~/types/navigation';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore();
@@ -25,50 +26,52 @@ function HomeScreen({navigation}: HomeScreenProps) {
   };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.header}>
-        <Text style={styles.welcome}>
-          {name ? `שלום ${name}! ברוך הבא` : ''}
-        </Text>
-        <TouchableOpacity
-          onPress={() => openNamePromptEdit(name)}
-          style={styles.changeNameBtn}>
-          <Text style={styles.changeNameText}>שנה שם</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.body}>
+        <View style={styles.header}>
+          <Text style={styles.welcome}>
+            {name ? `שלום ${name}! ברוך הבא` : ''}
+          </Text>
+          <TouchableOpacity
+            onPress={() => openNamePromptEdit(name)}
+            style={styles.changeNameBtn}>
+            <Text style={styles.changeNameText}>שנה שם</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Connection Status */}
-      <View style={styles.connectionStatus}>
-        <View
-          style={[
-            styles.connectionDot,
-            {
-              backgroundColor: isConnected
-                ? colors.success
-                : isConnecting
-                ? colors.warning
-                : colors.error,
-            },
-          ]}
-        />
-        <Text style={styles.connectionText}>
-          {isConnected ? 'מחובר' : isConnecting ? 'מתחבר...' : 'לא מחובר'}
-        </Text>
-      </View>
-
-      <View style={styles.container}>
-        <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
-        <View style={styles.menuButtons}>
-          <MenuButton
-            text={'משחק מהיר'}
-            onPress={quickGameHandler}
-            disabled={!isConnected}
+        {/* Connection Status */}
+        <View style={styles.connectionStatus}>
+          <View
+            style={[
+              styles.connectionDot,
+              {
+                backgroundColor: isConnected
+                  ? colors.success
+                  : isConnecting
+                  ? colors.warning
+                  : colors.error,
+              },
+            ]}
           />
-          <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
-          <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
+          <Text style={styles.connectionText}>
+            {isConnected ? 'מחובר' : isConnecting ? 'מתחבר...' : 'לא מחובר'}
+          </Text>
+        </View>
+
+        <View style={styles.container}>
+          <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
+          <View style={styles.menuButtons}>
+            <MenuButton
+              text={'משחק מהיר'}
+              onPress={quickGameHandler}
+              disabled={!isConnected}
+            />
+            <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
+            <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

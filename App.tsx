@@ -1,19 +1,18 @@
-import React, {useCallback} from 'react';
-import {SafeAreaView, StatusBar} from 'react-native';
-import mobileAds from 'react-native-google-mobile-ads';
 import {NavigationContainer, NavigationState} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import HomeScreen from '~/screens/home';
-import {RootStackParamList} from '~/types/navigation';
+import React, {useCallback} from 'react';
 import {I18nManager} from 'react-native';
+import mobileAds from 'react-native-google-mobile-ads';
 import GameBannerAd from '~/ads/banner';
-import GameWithFriendsScreen from '~/screens/gameWithFriends';
-import LobbyScreen from '~/screens/lobby';
-import GameScreen from '~/screens/game';
 import NamePrompt from '~/components/namePrompt';
-import useSocketIO from '~/useSocketIO';
-import {useRoomStore} from '~/store/roomStore';
+import GameScreen from '~/screens/game';
+import GameWithFriendsScreen from '~/screens/gameWithFriends';
+import HomeScreen from '~/screens/home';
+import LobbyScreen from '~/screens/lobby';
 import QuickGameLobby from '~/screens/quickGameLobby';
+import {useRoomStore} from '~/store/roomStore';
+import {RootStackParamList} from '~/types/navigation';
+import useSocketIO from '~/useSocketIO';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -27,7 +26,7 @@ if (__DEV__) {
 
 const App = () => {
   const backgroundStyle = {
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
   };
   I18nManager.allowRTL(false);
 
@@ -57,8 +56,6 @@ const App = () => {
 
   return (
     <>
-      <SafeAreaView style={backgroundStyle} />
-      <StatusBar backgroundColor={'#FFFFFF'} />
       <NavigationContainer onStateChange={onStateChange}>
         <Stack.Navigator
           initialRouteName="Home"

@@ -2,6 +2,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   FlatList,
+  ImageBackground,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,6 +15,9 @@ import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {Card, getCardValue} from '~/types/cards';
 import {getCardDisplayValue, getSuitSymbol} from '~/utils/visuals';
+
+import {SafeAreaView} from 'react-native-safe-area-context';
+import backgroundImg from '../assets/images/yaniv_background.png'; // adjust path as needed
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -32,6 +37,7 @@ function GameScreen({navigation}: any) {
     pickupOptions,
     roundResults,
     playersScores,
+    playerId,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -267,6 +273,7 @@ function GameScreen({navigation}: any) {
       }
     });
   };
+
   if (!isGameActive || !publicState) {
     return (
       <View style={styles.body}>
@@ -276,181 +283,214 @@ function GameScreen({navigation}: any) {
   }
 
   return (
-    <View style={styles.body}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-          <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-        </TouchableOpacity>
-        <Text style={styles.roomTitle}>חדר: {roomId}</Text>
-        {isMyTurn && (
-          <View style={styles.timerContainer}>
-            <Text style={[styles.timer]}>{timeRemaining}s</Text>
-          </View>
-        )}
-      </View>
+    <>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
+      />
+      <ImageBackground
+        source={backgroundImg}
+        style={styles.backgroundImage}
+        resizeMode="cover">
+        <SafeAreaView style={{flex: 1}}>
+          <View style={styles.body}>
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
+                <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
+              </TouchableOpacity>
+              <Text style={styles.roomTitle}>חדר: {roomId}</Text>
+              {isMyTurn && (
+                <View style={styles.timerContainer}>
+                  <Text style={[styles.timer]}>{timeRemaining}s</Text>
+                </View>
+              )}
+            </View>
 
-      {/* Game Status */}
-      <View style={styles.gameStatus}>
-        <Text style={styles.turnInfo}>
-          {isMyTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
-        </Text>
-        <Text style={styles.handValue}>
-          הקלפים שלך: {getHandValue(playerHand)} נקודות
-        </Text>
-      </View>
+            {/* Game Status */}
+            <View style={styles.gameStatus}>
+              <Text style={styles.turnInfo}>
+                {isMyTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
+              </Text>
+              <Text style={styles.handValue}>
+                הקלפים שלך: {playersScores[playerId]} נקודות
+              </Text>
+            </View>
 
-      {/* Game Area */}
-      <View style={styles.gameArea}>
-        {/* Deck and Discard Pile */}
-        <View style={styles.centerArea}>
-          <TouchableOpacity
-            style={[styles.deck, isMyTurn && styles.deckHighlighted]}
-            onPress={handleDrawFromDeck}
-            disabled={!isMyTurn || selectedCards.length === 0}>
-            <Text style={styles.deckText}>{'קופה'}</Text>
-          </TouchableOpacity>
-
-          <View style={styles.discardPile}>
-            <Text style={styles.discardTitle}>קלפים:</Text>
-            <View style={styles.discardCards}>
-              {lastPlayedCards.map((card, index) => (
+            {/* Game Area */}
+            <View style={styles.gameArea}>
+              {/* Deck and Discard Pile */}
+              <View style={styles.centerArea}>
                 <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.discardCard,
-                    isMyTurn &&
-                      pickupOptions.includes(card) &&
-                      isCanPickupCard(pickupOptions.length, index) &&
-                      styles.pickupableCard,
-                  ]}
-                  onPress={() =>
-                    handlePickupCard(lastPlayedCards.indexOf(card))
-                  }
-                  disabled={selectedCards.length === 0 || !isMyTurn}>
-                  <Text
-                    style={[styles.cardText, {color: getSuitColor(card.suit)}]}>
-                    {getCardDisplayValue(card)}
-                  </Text>
-                  <Text style={styles.suitText}>
-                    {getSuitSymbol(card.suit)}
-                  </Text>
+                  style={[styles.deck, isMyTurn && styles.deckHighlighted]}
+                  onPress={handleDrawFromDeck}
+                  disabled={!isMyTurn || selectedCards.length === 0}>
+                  <Text style={styles.deckText}>{'קופה'}</Text>
                 </TouchableOpacity>
-              ))}
+
+                <View style={styles.discardPile}>
+                  <Text style={styles.discardTitle}>קלפים:</Text>
+                  <View style={styles.discardCards}>
+                    {lastPlayedCards.map((card, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.discardCard,
+                          isMyTurn &&
+                            pickupOptions.includes(card) &&
+                            isCanPickupCard(pickupOptions.length, index) &&
+                            styles.pickupableCard,
+                        ]}
+                        onPress={() =>
+                          handlePickupCard(lastPlayedCards.indexOf(card))
+                        }
+                        disabled={selectedCards.length === 0 || !isMyTurn}>
+                        <Text
+                          style={[
+                            styles.cardText,
+                            {color: getSuitColor(card.suit)},
+                          ]}>
+                          {getCardDisplayValue(card)}
+                        </Text>
+                        <Text style={styles.suitText}>
+                          {getSuitSymbol(card.suit)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              {/* Draw Instructions */}
+              {isMyTurn && (
+                <View style={styles.drawInstructions}>
+                  <Text style={styles.drawInstructionsText}>
+                    בחר קלף לשליפה - מהערימה או מהקלפים שנזרקו
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* Player's Hand */}
+            <View style={styles.handSection}>
+              <Text style={styles.handTitle}>
+                <Text style={styles.handTitle}>
+                  {getHandValue(playerHand)} נקודות
+                </Text>
+              </Text>
+              <FlatList
+                data={playerHand}
+                horizontal
+                keyExtractor={(item, index) =>
+                  `${item.suit}-${item.value}-${index}`
+                }
+                renderItem={({item, index}) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.card,
+                      item.isJoker && styles.jokerCard,
+                      selectedCards.includes(index) && styles.selectedCard,
+                    ]}
+                    onPress={() => toggleCardSelection(index)}
+                    disabled={!isMyTurn}>
+                    <Text
+                      style={[
+                        styles.cardText,
+                        {
+                          color: item.isJoker
+                            ? '#8B4513'
+                            : getSuitColor(item.suit),
+                        },
+                      ]}>
+                      {getCardDisplayValue(item)}
+                    </Text>
+                    <Text style={styles.suitText}>
+                      {item.isJoker ? '🃏' : getSuitSymbol(item.suit)}
+                    </Text>
+                    <Text style={styles.cardValue}>{getCardValue(item)}</Text>
+                  </TouchableOpacity>
+                )}
+                showsHorizontalScrollIndicator={false}
+                style={styles.handList}
+              />
+            </View>
+
+            {/* Game Actions */}
+            {isMyTurn && (
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.actionBtn,
+                    styles.yanivBtn,
+                    !canCallYaniv() && styles.disabledBtn,
+                  ]}
+                  onPress={callYaniv}
+                  disabled={!canCallYaniv()}>
+                  <Text style={styles.actionBtnText}>יניב!</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Players List */}
+            <View style={styles.playersSection}>
+              <Text style={styles.playersTitle}>שחקנים:</Text>
+              <FlatList
+                data={players}
+                keyExtractor={item => item.id}
+                renderItem={({item}) => (
+                  <Text
+                    style={[
+                      styles.player,
+                      publicState.currentPlayer !== undefined &&
+                        players[publicState.currentPlayer]?.id === item.id &&
+                        styles.currentPlayer,
+                    ]}>
+                    {item.nickName} - {playersScores[item.id]}
+                    {item.nickName === nickName ? ' (אתה)' : ''}
+                    {publicState.currentPlayer !== undefined &&
+                    players[publicState.currentPlayer]?.id === item.id
+                      ? ' 🎯'
+                      : ''}
+                  </Text>
+                )}
+                style={styles.playerList}
+              />
+            </View>
+
+            {/* Yaniv/Asaf Overlay */}
+            <View style={styles.overlay}>
+              {roundResults?.yanivCaller && (
+                <View>
+                  <Text style={styles.yanivText}>{'יניב!'}</Text>
+                </View>
+              )}
+              {roundResults?.assafCaller && (
+                <View>
+                  <Text style={styles.yanivText}>{'אסף!'}</Text>
+                </View>
+              )}
             </View>
           </View>
-        </View>
-
-        {/* Draw Instructions */}
-        {isMyTurn && (
-          <View style={styles.drawInstructions}>
-            <Text style={styles.drawInstructionsText}>
-              בחר קלף לשליפה - מהערימה או מהקלפים שנזרקו
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Player's Hand */}
-      <View style={styles.handSection}>
-        <Text style={styles.handTitle}>{getHandValue(playerHand)} נקודות</Text>
-        <FlatList
-          data={playerHand}
-          horizontal
-          keyExtractor={(item, index) => `${item.suit}-${item.value}-${index}`}
-          renderItem={({item, index}) => (
-            <TouchableOpacity
-              style={[
-                styles.card,
-                item.isJoker && styles.jokerCard,
-                selectedCards.includes(index) && styles.selectedCard,
-              ]}
-              onPress={() => toggleCardSelection(index)}
-              disabled={!isMyTurn}>
-              <Text
-                style={[
-                  styles.cardText,
-                  {color: item.isJoker ? '#8B4513' : getSuitColor(item.suit)},
-                ]}>
-                {getCardDisplayValue(item)}
-              </Text>
-              <Text style={styles.suitText}>
-                {item.isJoker ? '🃏' : getSuitSymbol(item.suit)}
-              </Text>
-              <Text style={styles.cardValue}>{getCardValue(item)}</Text>
-            </TouchableOpacity>
-          )}
-          showsHorizontalScrollIndicator={false}
-          style={styles.handList}
-        />
-      </View>
-
-      {/* Game Actions */}
-      {isMyTurn && (
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={[
-              styles.actionBtn,
-              styles.yanivBtn,
-              !canCallYaniv() && styles.disabledBtn,
-            ]}
-            onPress={callYaniv}
-            disabled={!canCallYaniv()}>
-            <Text style={styles.actionBtnText}>יניב!</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Players List */}
-      <View style={styles.playersSection}>
-        <Text style={styles.playersTitle}>שחקנים:</Text>
-        <FlatList
-          data={players}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <Text
-              style={[
-                styles.player,
-                publicState.currentPlayer !== undefined &&
-                  players[publicState.currentPlayer]?.id === item.id &&
-                  styles.currentPlayer,
-              ]}>
-              {item.nickName}
-              {playersScores[item.id]}
-              {item.nickName === nickName ? ' (אתה)' : ''}
-              {publicState.currentPlayer !== undefined &&
-              players[publicState.currentPlayer]?.id === item.id
-                ? ' 🎯'
-                : ''}
-            </Text>
-          )}
-          style={styles.playerList}
-        />
-      </View>
-
-      {/* Yaniv/Asaf Overlay */}
-      <View style={styles.overlay}>
-        {roundResults?.yanivCaller && (
-          <View>
-            <Text style={styles.yanivText}>{'יניב!'}</Text>
-          </View>
-        )}
-        {roundResults?.assafCaller && (
-          <View>
-            <Text style={styles.yanivText}>{'אסף!'}</Text>
-          </View>
-        )}
-      </View>
-    </View>
+        </SafeAreaView>
+      </ImageBackground>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    // width: '100%',
+    // height: '100%',
+    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
   body: {
     flex: 1,
-    backgroundColor: colors.background,
+    // backgroundColor: 'rgba(0, 0, 0, 0.1)', // semi-transparent background
     padding: 12,
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -505,7 +545,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   gameArea: {
-    backgroundColor: colors.card,
+    // backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -569,7 +609,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   handSection: {
-    backgroundColor: colors.card,
+    // backgroundColor: colors.card,
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
@@ -662,7 +702,7 @@ const styles = StyleSheet.create({
   },
   playersSection: {
     flex: 1,
-    backgroundColor: colors.card,
+    // backgroundColor: colors.card,
     borderRadius: 8,
     padding: 12,
   },
