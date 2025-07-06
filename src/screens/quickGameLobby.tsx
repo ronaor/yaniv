@@ -55,13 +55,11 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
       setTimeRemaining(0);
       return;
     }
-    console.log('PLAyers', players);
 
     let targetSeconds = 0;
     if (players.length === 2) targetSeconds = 15;
     else if (players.length === 3) targetSeconds = 10;
     else if (players.length >= 4) targetSeconds = 7;
-    console.log('targetSeconds', targetSeconds);
 
     const startTime = Date.now();
     const endTime = startTime + targetSeconds * 1000;
