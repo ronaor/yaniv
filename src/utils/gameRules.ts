@@ -1,6 +1,6 @@
 import {Card} from '~/types/cards';
 
-export const isValidYanivSet = (
+export const isValidCardSet = (
   cards: Card[],
   beforePickup?: boolean,
 ): boolean => {

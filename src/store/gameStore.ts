@@ -2,10 +2,10 @@ import {create} from 'zustand';
 import {Card, getCardValue} from '~/types/cards';
 import {Player, User} from '~/types/player';
 import {useSocket} from './socketStore';
+import {TurnAction} from 'server/cards';
 
 export interface PublicGameState {
   currentPlayer: number;
-  cardsInDeck: number;
   gameStartTime: Date;
   turnStartTime: Date;
   gameEnded: boolean;
@@ -39,11 +39,7 @@ export interface GameStore {
   } | null;
 
   // Actions
-  completeTurn: (
-    choice: 'deck' | 'pickup',
-    selectedCards: Card[],
-    pickupIndex?: number,
-  ) => void;
+  completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
   callYaniv: () => void;
   toggleCardSelection: (index: number) => void;
   clearSelection: () => void;
@@ -86,10 +82,7 @@ export interface GameStore {
       playerId: string;
       hands: Card[];
       lastPlayedCards: Card[];
-    } & (
-      | {source: 'deck'; cardsInDeck: number}
-      | {source: 'pickup'; card: Card}
-    ),
+    } & ({source: 'deck'} | {source: 'pickup'; card: Card}),
   ) => void;
   setGameError: (data: {message: string}) => void;
 }
@@ -116,14 +109,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   callers: [],
   playersScores: {},
   // Actions
-  completeTurn: (
-    choice: 'deck' | 'pickup',
-    selectedCards: Card[],
-    pickupIndex?: number,
-  ) => {
-    useSocket
-      .getState()
-      .emit('complete_turn', {choice, selectedCards, pickupIndex});
+  completeTurn: (action: TurnAction, selectedCards: Card[]) => {
+    useSocket.getState().emit('complete_turn', {action, selectedCards});
   },
 
   callYaniv: () => {
@@ -262,10 +249,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       playerId: string;
       hands: Card[];
       lastPlayedCards: Card[];
-    } & (
-      | {source: 'deck'; cardsInDeck: number}
-      | {source: 'pickup'; card: Card}
-    ),
+    } & ({source: 'deck'} | {source: 'pickup'; card: Card}),
   ) => {
     set(state => {
       const socketId = useSocket.getState().getSocketId();
@@ -281,7 +265,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       if (updatedPublicState) {
         if (source === 'deck') {
-          updatedPublicState.cardsInDeck = data.cardsInDeck;
           updatedPublicState.lastPickedCard = undefined;
         } else {
           updatedPublicState.lastPickedCard = data.card;

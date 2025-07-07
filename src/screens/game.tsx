@@ -18,7 +18,7 @@ import {getCardDisplayValue, getSuitSymbol} from '~/utils/visuals';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '../assets/images/yaniv_background.png'; // adjust path as needed
-import {isCanPickupCard, isValidYanivSet} from '~/utils/gameRules';
+import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -111,11 +111,11 @@ function GameScreen({navigation}: any) {
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
-    if (!isValidYanivSet(selected, true)) {
+    if (!isValidCardSet(selected, true)) {
       return false;
     }
     completeTurn(
-      'deck',
+      {choice: 'deck'},
       selectedCards.map(i => playerHand[i]),
     );
   };
@@ -124,15 +124,14 @@ function GameScreen({navigation}: any) {
     const selected = selectedCards.map(i => playerHand[i]);
     if (
       !isCanPickupCard(pickupOptions.length, pickupIndex) ||
-      !isValidYanivSet(selected, true)
+      !isValidCardSet(selected, true)
     ) {
       return false;
     }
 
     completeTurn(
-      'pickup',
+      {choice: 'pickup', pickupIndex},
       selectedCards.map(i => playerHand[i]),
-      pickupIndex,
     );
   };
 

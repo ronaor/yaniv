@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useRoomStore} from '~/store/roomStore';
@@ -61,7 +61,7 @@ function LobbyScreen({navigation}: LobbyProps) {
         },
       },
     ]);
-  }, [navigation, leaveRoom]);
+  }, [leaveRoom, nickName, navigation]);
 
   return (
     <View style={styles.body}>
