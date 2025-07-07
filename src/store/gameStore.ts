@@ -27,6 +27,7 @@ export interface GameStore {
   lastPlayedCards: Card[]; // Cards from the last player's turn
   pickupOptions: Card[];
   currentPlayerTurn?: string;
+  slapDownAvailable: boolean;
   playersScores: Record<string, number>;
   roundResults: {
     winnerId: string;
@@ -77,13 +78,16 @@ export interface GameStore {
     winner: string;
     finalScores: {[playerId: string]: number};
   }) => void;
-  playerDrew: (
-    data: {
-      playerId: string;
-      hands: Card[];
-      lastPlayedCards: Card[];
-    } & ({source: 'deck'} | {source: 'pickup'; card: Card}),
-  ) => void;
+  playerDrew: (data: {
+    playerId: string;
+    hands: Card[];
+    lastPlayedCards: Card[];
+    slapDownActiveFor: string | undefined;
+    source: 'pickup' | 'deck';
+    card: Card;
+    isSlappedDown: boolean;
+  }) => void;
+  slapDown: (card: Card) => void;
   setGameError: (data: {message: string}) => void;
 }
 
@@ -108,6 +112,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   roundResults: null,
   callers: [],
   playersScores: {},
+  slapDownAvailable: false,
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
     useSocket.getState().emit('complete_turn', {action, selectedCards});
@@ -243,17 +248,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setGameError: (data: {message: string}) => {
     set({error: data.message});
   },
-
-  playerDrew: (
-    data: {
-      playerId: string;
-      hands: Card[];
-      lastPlayedCards: Card[];
-    } & ({source: 'deck'} | {source: 'pickup'; card: Card}),
-  ) => {
+  slapDown: (card: Card) => {
+    useSocket.getState().emit('slap_down', {card});
+  },
+  playerDrew: (data: {
+    playerId: string;
+    hands: Card[];
+    lastPlayedCards: Card[];
+    slapDownActiveFor: string | undefined;
+    source: 'pickup' | 'deck'; // different animation for each source
+    card: Card;
+    isSlappedDown: boolean;
+  }) => {
     set(state => {
       const socketId = useSocket.getState().getSocketId();
-      const {source, playerId, hands, lastPlayedCards} = data;
+      const {
+        playerId,
+        hands,
+        lastPlayedCards,
+        slapDownActiveFor,
+        isSlappedDown,
+      } = data;
 
       let playerHand = state.playerHand;
       let updatedPublicState = state.publicState
@@ -264,11 +279,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       if (updatedPublicState) {
-        if (source === 'deck') {
-          updatedPublicState.lastPickedCard = undefined;
-        } else {
-          updatedPublicState.lastPickedCard = data.card;
-        }
+        updatedPublicState.lastPickedCard = data.card;
       }
       return {
         ...state,
@@ -276,6 +287,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         publicState: updatedPublicState,
         lastPlayedCards,
         pickupOptions: lastPlayedCards,
+        slapDownAvailable: slapDownActiveFor === socketId,
+        isSlapDown: isSlappedDown, // when updating state do it with an effect of slap-down
       };
     });
   },

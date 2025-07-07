@@ -39,6 +39,8 @@ function GameScreen({navigation}: any) {
     roundResults,
     playersScores,
     playerId,
+    slapDownAvailable,
+    slapDown,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -147,6 +149,12 @@ function GameScreen({navigation}: any) {
       }
       return [...prev, index];
     });
+  };
+
+  const onSlapCard = () => {
+    if (publicState?.lastPickedCard) {
+      slapDown(publicState?.lastPickedCard);
+    }
   };
 
   if (!isGameActive || !publicState) {
@@ -266,8 +274,13 @@ function GameScreen({navigation}: any) {
                       styles.card,
                       item.isJoker && styles.jokerCard,
                       selectedCards.includes(index) && styles.selectedCard,
+                      slapDownAvailable && styles.slappableCard,
                     ]}
-                    onPress={() => toggleCardSelection(index)}>
+                    onPress={() =>
+                      slapDownAvailable && publicState.lastPickedCard === item
+                        ? onSlapCard()
+                        : toggleCardSelection(index)
+                    }>
                     <Text
                       style={[
                         styles.cardText,
@@ -519,6 +532,10 @@ const styles = StyleSheet.create({
   },
   selectedCard: {
     transform: [{translateY: -8}],
+  },
+  slappableCard: {
+    borderColor: 'white',
+    borderWidth: 3,
   },
   cardText: {
     fontSize: 16,
