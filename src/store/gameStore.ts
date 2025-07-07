@@ -42,8 +42,6 @@ export interface GameStore {
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
   callYaniv: () => void;
-  toggleCardSelection: (index: number) => void;
-  clearSelection: () => void;
   clearError: () => void;
   getRemainingTime: () => number;
   // Event setters
@@ -120,26 +118,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   callYaniv: () => {
     useSocket.getState().emit('call_yaniv');
-  },
-
-  toggleCardSelection: (index: number) => {
-    set(state => {
-      const isSelected = state.selectedCards.includes(index);
-
-      if (isSelected) {
-        return {
-          selectedCards: state.selectedCards.filter(i => i !== index),
-        };
-      } else {
-        return {
-          selectedCards: [...state.selectedCards, index],
-        };
-      }
-    });
-  },
-
-  clearSelection: () => {
-    set({selectedCards: []});
   },
 
   clearError: () => {
