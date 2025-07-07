@@ -146,15 +146,7 @@ function GameScreen({navigation}: any) {
       if (isSelected) {
         return prev.filter(i => i !== index);
       }
-
-      const newSelection = [...prev, index];
-      const selected = newSelection.map(i => playerHand[i]);
-
-      if (isValidYanivSet(selected)) {
-        return newSelection;
-      } else {
-        return prev; // לא מוסיף אם לא חוקי
-      }
+      return [...prev, index];
     });
   };
 
@@ -276,8 +268,7 @@ function GameScreen({navigation}: any) {
                       item.isJoker && styles.jokerCard,
                       selectedCards.includes(index) && styles.selectedCard,
                     ]}
-                    onPress={() => toggleCardSelection(index)}
-                    disabled={!isMyTurn}>
+                    onPress={() => toggleCardSelection(index)}>
                     <Text
                       style={[
                         styles.cardText,
@@ -528,8 +519,6 @@ const styles = StyleSheet.create({
     borderColor: '#8B4513',
   },
   selectedCard: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
     transform: [{translateY: -8}],
   },
   cardText: {
@@ -698,7 +687,6 @@ const styles = StyleSheet.create({
   pickupCard: {
     borderColor: colors.primary,
     backgroundColor: colors.primaryLight,
-    transform: [{translateY: -8}],
     borderWidth: 3,
   },
 });
