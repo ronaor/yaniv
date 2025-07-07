@@ -47,6 +47,10 @@ const useSocketIO = () => {
       roomStore.setPlayerLeft({players, votes});
     });
 
+    socket.on('kick_out_from_room', ({roomId}) =>
+      roomStore.triggerCallback('kickout', roomId),
+    );
+
     socket.on('start_game', ({roomId, config, players, votes}) => {
       roomStore.setGameStarted({roomId, config, players, votes});
     });

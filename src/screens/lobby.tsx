@@ -24,7 +24,14 @@ function LobbyScreen({navigation}: LobbyProps) {
     isAdminOfPrivateRoom,
     leaveRoom,
     startPrivateGame,
+    registerCallback,
   } = useRoomStore();
+
+  useEffect(() => {
+    registerCallback('kickout', () => {
+      navigation.goBack();
+    });
+  }, [navigation, registerCallback]);
 
   useEffect(() => {
     if (gameState === 'started') {

@@ -33,6 +33,7 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
   clearError: () => void;
   registerCallback: (event: string, cb: ((data: any) => void) | null) => void;
+  triggerCallback: (event: string, data: any) => void;
   // Event setters
   setRoomCreated: (data: {
     roomId: string;
@@ -124,9 +125,13 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         .getState()
         .emit('set_quick_game_config', {roomId, nickName, config});
     },
-    leaveRoom: nickName => {
-      set({...initialState});
-      useSocket.getState().emit('leave_room', {nickName});
+    leaveRoom: (nickName: string) => {
+      set((state: RoomState) => {
+        useSocket
+          .getState()
+          .emit('leave_room', {nickName, isAdmin: state.isAdminOfPrivateRoom});
+        return {...initialState};
+      });
     },
 
     clearError: () => set((state: RoomState) => ({...state, error: null})),
@@ -202,6 +207,12 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         ...state,
         callbacks: {...state.callbacks, [event]: cb},
       }));
+    },
+    triggerCallback: (event, data) => {
+      const cb = get().callbacks[event];
+      if (cb) {
+        cb(data);
+      }
     },
     checkRoomState: (roomId, _cb) => {
       useSocket.getState().emit('get_room_state', {roomId});

@@ -51,7 +51,7 @@ const App = () => {
         leaveRoom(nickName);
       }
     },
-    [leaveRoom],
+    [leaveRoom, nickName],
   );
 
   return (
