@@ -1,7 +1,7 @@
 import {Card} from '~/types/cards';
 
 export const getCardDisplayValue = (card: Card): string => {
-  if (card.isJoker) return 'J';
+  if (card.isJoker) return '🃏';
   if (card.value === 1) return 'A';
   if (card.value === 11) return 'J';
   if (card.value === 12) return 'Q';

@@ -21,7 +21,7 @@ import {
 } from '~/utils/visuals';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import backgroundImg from '../assets/images/yaniv_background.png'; // adjust path as needed
+import backgroundImg from '~/assets/images/yaniv_background.png';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 function GameScreen({navigation}: any) {
@@ -287,16 +287,12 @@ function GameScreen({navigation}: any) {
                     <Text
                       style={[
                         styles.cardText,
-                        {
-                          color: item.isJoker
-                            ? '#8B4513'
-                            : getSuitColor(item.suit),
-                        },
+                        {color: getSuitColor(item.suit)},
                       ]}>
                       {getCardDisplayValue(item)}
                     </Text>
                     <Text style={styles.suitText}>
-                      {item.isJoker ? '🃏' : getSuitSymbol(item.suit)}
+                      {getSuitSymbol(item.suit)}
                     </Text>
                     <Text style={styles.cardValue}>{getCardValue(item)}</Text>
                   </TouchableOpacity>
