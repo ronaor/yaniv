@@ -86,8 +86,9 @@ const WaveMemory: React.FC<WaveMemoryProps> = React.memo(({path, opacity}) => {
   );
 });
 
-const waveColors = ['#67e0d4', '#17A5C3'];
-const surfColors = ['#e5e2a9', '#ABE8D0'];
+const waveColors = ['#67e0d4', '#46c8e2'];
+const surfColors = ['#e5e2a9', '#88ead8'];
+const seaColor = '#17A5C3';
 
 const WaveAnimationScreen = ({navigation}: any) => {
   const verticalOffset = useSharedValue(initialVerticalOffset);
@@ -209,7 +210,7 @@ const WaveAnimationScreen = ({navigation}: any) => {
   const gradientColors = useDerivedValue(() => [
     surfColor.value,
     waveColor.value,
-    waveColors[1],
+    seaColor,
   ]);
 
   return (
