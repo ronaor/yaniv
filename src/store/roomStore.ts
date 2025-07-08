@@ -1,12 +1,12 @@
 import {create, StateCreator} from 'zustand';
 import {useSocket} from './socketStore';
-import {Player, RoomConfig} from '~/types/player';
+import {RoomConfig, User} from '~/types/player';
 import {isUndefined} from 'lodash';
 
 export interface RoomState {
   roomId: string | null;
   nickName: string; //TODO
-  players: Player[];
+  players: User[];
   config: RoomConfig | null;
   votes: Record<string, RoomConfig>;
   gameState: 'waiting' | 'started' | null;
@@ -37,24 +37,24 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
   // Event setters
   setRoomCreated: (data: {
     roomId: string;
-    players: Player[];
+    players: User[];
     config: RoomConfig;
   }) => void;
   setRoomConfigVotes: (data: {roomId: string; votes: RoomConfig[]}) => void;
   setPlayersJoined: (data: {
     roomId: string;
-    players: Player[];
+    players: User[];
     config: RoomConfig;
     canStartTheGameIn10Sec: Date | null;
   }) => void;
   setPlayerLeft: (data: {
-    players: Player[];
+    players: User[];
     votes: Record<string, RoomConfig>;
   }) => void;
   setGameStarted: (data: {
     roomId: string;
     config: RoomConfig;
-    players: Player[];
+    players: User[];
     votes: Record<string, RoomConfig>;
   }) => void;
   setRoomError: (data: {message: string}) => void;
@@ -92,7 +92,9 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
     },
     getRemainingTimeToStartGame: () => {
       const start = get().canStartTimer;
-      if (!start) return 0;
+      if (!start) {
+        return 0;
+      }
 
       const elapsedMs = Date.now() - new Date(start).getTime();
       const remaining = 10000 - elapsedMs;

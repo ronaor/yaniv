@@ -40,7 +40,6 @@ function GameScreen({navigation}: any) {
     getRemainingTime,
     pickupCards,
     roundResults,
-    playersScores,
     playerId,
     slapDownAvailable,
     slapDown,
@@ -200,7 +199,7 @@ function GameScreen({navigation}: any) {
                 {isMyTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
               </Text>
               <Text style={styles.handValue}>
-                הקלפים שלך: {playersScores[playerId]} נקודות
+                הקלפים שלך: {publicState.playersStats[playerId].score} נקודות
               </Text>
             </View>
 
@@ -331,8 +330,9 @@ function GameScreen({navigation}: any) {
                       publicState.currentPlayer !== undefined &&
                         players[publicState.currentPlayer]?.id === item.id &&
                         styles.currentPlayer,
+                      publicState.playersStats[item.id].lost && {opacity: 0.5},
                     ]}>
-                    {item.nickName} - {playersScores[item.id]}
+                    {item.nickName} - {publicState.playersStats[item.id].score}
                     {item.nickName === nickName ? ' (אתה)' : ''}
                     {publicState.currentPlayer !== undefined &&
                     players[publicState.currentPlayer]?.id === item.id

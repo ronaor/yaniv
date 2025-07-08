@@ -1,8 +1,8 @@
 import {create} from 'zustand';
 import {Card, getCardValue} from '~/types/cards';
-import {Player, User} from '~/types/player';
 import {useSocket} from './socketStore';
 import {TurnAction} from 'server/cards';
+import {PlayerStatus} from '~/types/player';
 
 export interface PublicGameState {
   currentPlayer: number;
@@ -11,7 +11,7 @@ export interface PublicGameState {
   gameEnded: boolean;
   winner?: string;
   timePerPlayer: number;
-  players: Player[];
+  playersStats: Record<string, PlayerStatus>;
 }
 export interface GameStore {
   // State
@@ -27,10 +27,9 @@ export interface GameStore {
   currentPlayerTurn?: string;
   slapDownAvailable: boolean;
   lastPickedCard?: Card;
-  playersScores: Record<string, number>;
   roundResults: {
     winnerId: string;
-    playersScores: Record<string, number>;
+    playersStats: Record<string, PlayerStatus>;
     yanivCaller: string;
     assafCaller?: string;
     yanivCallerDelayedScore?: number;
@@ -45,18 +44,14 @@ export interface GameStore {
   getRemainingTime: () => number;
   // Event setters
   setGameInitialized: (data: {
-    playersScores: Record<string, number>;
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
-    users: User[];
   }) => void;
   setNewRound: (data: {
-    playersScores: Record<string, number>;
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
-    users: User[];
   }) => void;
   setTurnStarted: (data: {
     currentPlayerId: string;
@@ -64,7 +59,7 @@ export interface GameStore {
   }) => void;
   setRoundEnded: (data: {
     winnerId: string;
-    playersScores: Record<string, number>;
+    playersStats: Record<string, PlayerStatus>;
     yanivCaller: string;
     assafCaller?: string;
     yanivCallerDelayedScore?: number;
@@ -107,7 +102,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   showAsafCall: false,
   roundResults: null,
   callers: [],
-  playersScores: {},
+  playersStats: {},
   slapDownAvailable: false,
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
@@ -139,7 +134,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
-    users: User[];
   }) => {
     const socketId = useSocket.getState().getSocketId();
     set({
@@ -150,18 +144,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       selectedCards: [],
       roundResults: null,
       pickupCards: [data.firstCard],
-      playersScores: data.users.reduce<Record<string, number>>((obj, user) => {
-        obj[user.id] = 0;
-        return obj;
-      }, {}),
     });
   },
   setNewRound: (data: {
-    playersScores: Record<string, number>;
     gameState: PublicGameState;
     playerHands: {[playerId: string]: Card[]};
     firstCard: Card;
-    users: User[];
   }) => {
     const socketId = useSocket.getState().getSocketId();
     set({
@@ -170,7 +158,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       isGameActive: true,
       selectedCards: [],
       pickupCards: [data.firstCard],
-      playersScores: data.playersScores,
+      roundResults: null,
     });
   },
 
@@ -191,7 +179,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setRoundEnded: (data: {
     winnerId: string;
-    playersScores: Record<string, number>;
+    playersStats: Record<string, PlayerStatus>;
     yanivCaller: string;
     assafCaller?: string;
     yanivCallerDelayedScore?: number;
@@ -202,11 +190,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       roundResults: data,
       isMyTurn: false,
     });
-    setTimeout(() => {
-      set({
-        roundResults: null,
-      });
-    }, 3000);
   },
 
   setGameEnded: (data: {

@@ -3,17 +3,10 @@ export interface User {
   nickName: string;
 }
 
-export interface Player extends User {
+export type PlayerStatus = {
   score: number;
-  isActive: boolean;
-}
-
-export interface Room {
-  players: Player[];
-  config: RoomConfig;
-  gameState: 'waiting' | 'started';
-  createdAt: Date;
-}
+  lost: boolean;
+};
 
 export interface RoomConfig {
   slapDown: boolean;
