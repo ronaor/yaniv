@@ -13,8 +13,12 @@ import {getHandValue, useGameStore} from '~/store/gameStore';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
-import {getCardValue} from '~/types/cards';
-import {getCardDisplayValue, getSuitSymbol} from '~/utils/visuals';
+import {Card, getCardValue} from '~/types/cards';
+import {
+  getCardDisplayValue,
+  getSuitColor,
+  getSuitSymbol,
+} from '~/utils/visuals';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '../assets/images/yaniv_background.png'; // adjust path as needed
@@ -34,13 +38,13 @@ function GameScreen({navigation}: any) {
     callYaniv,
     clearError,
     getRemainingTime,
-    lastPlayedCards,
-    pickupOptions,
+    pickupCards,
     roundResults,
     playersScores,
     playerId,
     slapDownAvailable,
     slapDown,
+    lastPickedCard,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -125,7 +129,7 @@ function GameScreen({navigation}: any) {
   const handlePickupCard = (pickupIndex: number) => {
     const selected = selectedCards.map(i => playerHand[i]);
     if (
-      !isCanPickupCard(pickupOptions.length, pickupIndex) ||
+      !isCanPickupCard(pickupCards.length, pickupIndex) ||
       !isValidCardSet(selected, true)
     ) {
       return false;
@@ -135,10 +139,6 @@ function GameScreen({navigation}: any) {
       {choice: 'pickup', pickupIndex},
       selectedCards.map(i => playerHand[i]),
     );
-  };
-
-  const getSuitColor = (suit: string): string => {
-    return suit === 'hearts' || suit === 'diamonds' ? '#FF0000' : '#000000';
   };
 
   const toggleCardSelection = (index: number) => {
@@ -151,11 +151,14 @@ function GameScreen({navigation}: any) {
     });
   };
 
-  const onSlapCard = () => {
-    if (publicState?.lastPickedCard) {
-      slapDown(publicState?.lastPickedCard);
-    }
-  };
+  const onSlapCard = useCallback(
+    (cardToSlap: Card) => {
+      if (cardToSlap) {
+        slapDown(cardToSlap);
+      }
+    },
+    [slapDown],
+  );
 
   if (!isGameActive || !publicState) {
     return (
@@ -215,18 +218,18 @@ function GameScreen({navigation}: any) {
                 <View style={styles.discardPile}>
                   <Text style={styles.discardTitle}>קלפים:</Text>
                   <View style={styles.discardCards}>
-                    {lastPlayedCards.map((card, index) => (
+                    {pickupCards.map((card, index) => (
                       <TouchableOpacity
                         key={index}
                         style={[
                           styles.discardCard,
                           isMyTurn &&
-                            pickupOptions.includes(card) &&
-                            isCanPickupCard(pickupOptions.length, index) &&
+                            pickupCards.includes(card) &&
+                            isCanPickupCard(pickupCards.length, index) &&
                             styles.pickupableCard,
                         ]}
                         onPress={() =>
-                          handlePickupCard(lastPlayedCards.indexOf(card))
+                          handlePickupCard(pickupCards.indexOf(card))
                         }
                         disabled={selectedCards.length === 0 || !isMyTurn}>
                         <Text
@@ -277,8 +280,8 @@ function GameScreen({navigation}: any) {
                       slapDownAvailable && styles.slappableCard,
                     ]}
                     onPress={() =>
-                      slapDownAvailable && publicState.lastPickedCard === item
-                        ? onSlapCard()
+                      slapDownAvailable && lastPickedCard === item
+                        ? onSlapCard(lastPickedCard)
                         : toggleCardSelection(index)
                     }>
                     <Text

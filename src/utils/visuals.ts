@@ -23,3 +23,7 @@ export const getSuitSymbol = (suit: string): string => {
       return '';
   }
 };
+
+export const getSuitColor = (suit: string): string => {
+  return suit === 'hearts' || suit === 'diamonds' ? '#FF0000' : '#000000';
+};
