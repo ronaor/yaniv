@@ -42,6 +42,7 @@ function GameScreen({navigation}: any) {
     roundResults,
     playerId,
     slapDownAvailable,
+    resetSlapDown,
     slapDown,
     lastPickedCard,
   } = useGameStore();
@@ -93,6 +94,14 @@ function GameScreen({navigation}: any) {
       Alert.alert('שגיאת משחק', error, [{text: 'סגור', onPress: clearError}]);
     }
   }, [error, clearError]);
+
+  useEffect(() => {
+    if (!slapDownAvailable) {
+      return;
+    }
+    const timer = setTimeout(resetSlapDown, 3000);
+    return () => clearTimeout(timer);
+  }, [resetSlapDown, slapDownAvailable]);
 
   // Handle game end
   useEffect(() => {
@@ -161,9 +170,23 @@ function GameScreen({navigation}: any) {
 
   if (!isGameActive || !publicState) {
     return (
-      <View style={styles.body}>
-        <Text style={textStyles.title}>טוען משחק...</Text>
-      </View>
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.body}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
+              <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
+            </TouchableOpacity>
+            <Text style={styles.roomTitle}>חדר: {roomId}</Text>
+            {isMyTurn && (
+              <View style={styles.timerContainer}>
+                <Text style={[styles.timer]}>{timeRemaining}s</Text>
+              </View>
+            )}
+          </View>
+          <Text style={textStyles.title}>טוען משחק...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -274,12 +297,16 @@ function GameScreen({navigation}: any) {
                   <TouchableOpacity
                     style={[
                       styles.card,
-                      item.isJoker && styles.jokerCard,
                       selectedCards.includes(index) && styles.selectedCard,
-                      slapDownAvailable && styles.slappableCard,
+                      slapDownAvailable &&
+                        lastPickedCard?.suit === item.suit &&
+                        lastPickedCard?.value === item.value &&
+                        styles.slappableCard,
                     ]}
                     onPress={() =>
-                      slapDownAvailable && lastPickedCard === item
+                      slapDownAvailable &&
+                      lastPickedCard?.suit === item.suit &&
+                      lastPickedCard?.value === item.value
                         ? onSlapCard(lastPickedCard)
                         : toggleCardSelection(index)
                     }>
@@ -330,9 +357,10 @@ function GameScreen({navigation}: any) {
                       publicState.currentPlayer !== undefined &&
                         players[publicState.currentPlayer]?.id === item.id &&
                         styles.currentPlayer,
-                      publicState.playersStats[item.id].lost && {opacity: 0.5},
+                      publicState.playersStats[item.id]?.lost && {opacity: 0.5},
                     ]}>
-                    {item.nickName} - {publicState.playersStats[item.id].score}
+                    {`${item.nickName} - `}
+                    {publicState.playersStats[item.id]?.score ?? 0}
                     {item.nickName === nickName ? ' (אתה)' : ''}
                     {publicState.currentPlayer !== undefined &&
                     players[publicState.currentPlayer]?.id === item.id
@@ -525,15 +553,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  jokerCard: {
-    backgroundColor: '#FFF8DC',
-    borderColor: '#8B4513',
-  },
   selectedCard: {
     transform: [{translateY: -8}],
   },
   slappableCard: {
-    borderColor: 'white',
+    borderColor: 'red',
     borderWidth: 3,
   },
   cardText: {

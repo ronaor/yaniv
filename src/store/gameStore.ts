@@ -75,12 +75,12 @@ export interface GameStore {
     hands: Card[];
     pickupCards: Card[];
     slapDownActiveFor: string | undefined;
-    source: 'pickup' | 'deck';
+    source: 'pickup' | 'deck' | 'slap';
     card: Card;
-    isSlappedDown: boolean;
   }) => void;
   slapDown: (card: Card) => void;
   setGameError: (data: {message: string}) => void;
+  resetSlapDown: () => void;
 }
 
 export const getHandValue = (hand: Card[]): number => {
@@ -115,6 +115,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   clearError: () => {
     set({error: null});
+  },
+
+  resetSlapDown: () => {
+    set({slapDownAvailable: false});
   },
 
   getRemainingTime: () => {
@@ -213,14 +217,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     hands: Card[];
     pickupCards: Card[];
     slapDownActiveFor: string | undefined;
-    source: 'pickup' | 'deck'; // different animation for each source
+    source: 'pickup' | 'deck' | 'slap'; // different animation for each source
     card: Card;
-    isSlappedDown: boolean;
   }) => {
     set(state => {
       const socketId = useSocket.getState().getSocketId();
-      const {playerId, hands, pickupCards, slapDownActiveFor, isSlappedDown} =
-        data;
+      const {playerId, hands, pickupCards, slapDownActiveFor} = data;
 
       let playerHand = state.playerHand;
       let updatedPublicState = state.publicState
@@ -236,7 +238,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         publicState: updatedPublicState,
         pickupCards,
         slapDownAvailable: slapDownActiveFor === socketId,
-        isSlapDown: isSlappedDown, // when updating state do it with an effect of slap-down
         lastPickedCard: data.card,
       };
     });
