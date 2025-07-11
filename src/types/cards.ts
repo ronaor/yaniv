@@ -1,8 +1,10 @@
 export interface Card {
-  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
+  suit: CardSuit;
   value: number; // 1-13 (1=Ace, 11=Jack, 12=Queen, 13=King)
   isJoker?: boolean;
 }
+
+export type CardSuit = 'spade' | 'club' | 'diamond' | 'heart';
 
 export const getCardValue = (card: Card) => {
   if (card.isJoker) {
