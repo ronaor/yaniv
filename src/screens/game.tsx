@@ -13,16 +13,12 @@ import {getHandValue, useGameStore} from '~/store/gameStore';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
-import {Card, getCardValue} from '~/types/cards';
-import {
-  getCardDisplayValue,
-  getSuitColor,
-  getSuitSymbol,
-} from '~/utils/visuals';
+import {Card} from '~/types/cards';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '~/assets/images/yaniv_background.png';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {CardComponent} from '~/components/cards/cardVisual';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -254,16 +250,7 @@ function GameScreen({navigation}: any) {
                           handlePickupCard(pickupCards.indexOf(card))
                         }
                         disabled={selectedCards.length === 0 || !isMyTurn}>
-                        <Text
-                          style={[
-                            styles.cardText,
-                            {color: getSuitColor(card.suit)},
-                          ]}>
-                          {getCardDisplayValue(card)}
-                        </Text>
-                        <Text style={styles.suitText}>
-                          {getSuitSymbol(card.suit)}
-                        </Text>
+                        <CardComponent card={card} />
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -310,17 +297,7 @@ function GameScreen({navigation}: any) {
                         ? onSlapCard(lastPickedCard)
                         : toggleCardSelection(index)
                     }>
-                    <Text
-                      style={[
-                        styles.cardText,
-                        {color: getSuitColor(item.suit)},
-                      ]}>
-                      {getCardDisplayValue(item)}
-                    </Text>
-                    <Text style={styles.suitText}>
-                      {getSuitSymbol(item.suit)}
-                    </Text>
-                    <Text style={styles.cardValue}>{getCardValue(item)}</Text>
+                    <CardComponent card={item} />
                   </TouchableOpacity>
                 )}
                 showsHorizontalScrollIndicator={false}

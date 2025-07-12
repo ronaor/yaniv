@@ -1,10 +1,9 @@
 import React from 'react';
 import {Canvas, RoundedRect, Path, Group} from '@shopify/react-native-skia';
-import {CardSuit} from '~/types/cards';
+import {Card, CardSuit} from '~/types/cards';
 
 interface CardProps {
-  type: CardSuit;
-  value: number;
+  card: Card;
   width?: number;
   height?: number;
 }
@@ -15,10 +14,10 @@ interface SuitProps {
 }
 
 const CARD_COLORS: Record<CardSuit, string> = {
-  club: '#000000',
-  diamond: '#E53E3E',
-  heart: '#E53E3E',
-  spade: '#000000',
+  clubs: '#000000',
+  diamonds: '#E53E3E',
+  hearts: '#E53E3E',
+  spades: '#000000',
 };
 
 // SVG path data for card values
@@ -122,10 +121,10 @@ const SpadeSuit: React.FC<SuitProps> = ({size, color}) => {
 
 // suits mapper:
 const cardToSuit: Record<CardSuit, React.FC<SuitProps>> = {
-  club: ClubSuit,
-  diamond: DiamondSuit,
-  heart: HeartSuit,
-  spade: SpadeSuit,
+  clubs: ClubSuit,
+  diamonds: DiamondSuit,
+  hearts: HeartSuit,
+  spades: SpadeSuit,
 };
 
 // Card background
@@ -144,15 +143,15 @@ const Background: React.FC<{width: number; height: number}> = ({
 );
 
 // Main card component
-export const Card: React.FC<CardProps> = ({
-  type,
-  value,
+export const CardComponent: React.FC<CardProps> = ({
+  card,
   width = 50,
   height = 70,
 }) => {
-  const color = CARD_COLORS[type];
+  const {suit, value} = card;
+  const color = CARD_COLORS[suit];
   const suitSize = value > 10 ? 'small' : 'normal';
-  const Suit = cardToSuit[type];
+  const Suit = cardToSuit[suit];
 
   return (
     <Canvas style={{width, height}}>

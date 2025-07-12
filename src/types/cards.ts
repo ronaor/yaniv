@@ -4,7 +4,7 @@ export interface Card {
   isJoker?: boolean;
 }
 
-export type CardSuit = 'spade' | 'club' | 'diamond' | 'heart';
+export type CardSuit = 'spades' | 'clubs' | 'diamonds' | 'hearts';
 
 export const getCardValue = (card: Card) => {
   if (card.isJoker) {
