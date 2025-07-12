@@ -132,14 +132,26 @@ const Background: React.FC<{width: number; height: number}> = ({
   width,
   height,
 }) => (
-  <RoundedRect
-    x={0}
-    y={0}
-    width={width}
-    height={height}
-    r={8}
-    color="#FFF8E6"
-  />
+  <>
+    <RoundedRect
+      x={0}
+      y={0}
+      width={width}
+      height={height}
+      r={8}
+      color="#FFF8E6"
+    />
+    <RoundedRect
+      x={0.5}
+      y={0.5}
+      width={width - 1}
+      height={height - 1}
+      r={7.5}
+      style="stroke"
+      strokeWidth={1}
+      color="#E6D9B7"
+    />
+  </>
 );
 
 // Main card component

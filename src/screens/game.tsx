@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Alert,
   FlatList,
@@ -13,12 +13,13 @@ import {getHandValue, useGameStore} from '~/store/gameStore';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
-import {Card} from '~/types/cards';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '~/assets/images/yaniv_background.png';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 import {CardComponent} from '~/components/cards/cardVisual';
+import CardBack from '~/components/cards/cardBack';
+import CardPointsList from '~/components/cards/cardsPoint';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -155,14 +156,24 @@ function GameScreen({navigation}: any) {
     });
   };
 
-  const onSlapCard = useCallback(
-    (cardToSlap: Card) => {
-      if (cardToSlap) {
-        slapDown(cardToSlap);
-      }
-    },
-    [slapDown],
+  const slapCardIndex = useMemo(
+    () =>
+      slapDownAvailable && lastPickedCard
+        ? playerHand.findIndex(
+            card =>
+              lastPickedCard?.suit === card.suit &&
+              lastPickedCard?.value === card.value,
+          )
+        : -1,
+    [lastPickedCard, playerHand, slapDownAvailable],
   );
+
+  const onSlapCard = useCallback(() => {
+    const cardToSlap = playerHand[slapCardIndex];
+    if (cardToSlap) {
+      slapDown(cardToSlap);
+    }
+  }, [playerHand, slapCardIndex, slapDown]);
 
   if (!isGameActive || !publicState) {
     return (
@@ -226,12 +237,16 @@ function GameScreen({navigation}: any) {
             <View style={styles.gameArea}>
               {/* Deck and Discard Pile */}
               <View style={styles.centerArea}>
-                <TouchableOpacity
-                  style={[styles.deck, isMyTurn && styles.deckHighlighted]}
-                  onPress={handleDrawFromDeck}
-                  disabled={!isMyTurn || selectedCards.length === 0}>
-                  <Text style={styles.deckText}>{'קופה'}</Text>
-                </TouchableOpacity>
+                <View style={styles.discardPile}>
+                  <Text style={styles.discardTitle}>קופה:</Text>
+
+                  <TouchableOpacity
+                    style={[styles.deck, isMyTurn && styles.deckHighlighted]}
+                    onPress={handleDrawFromDeck}
+                    disabled={!isMyTurn || selectedCards.length === 0}>
+                    <CardBack />
+                  </TouchableOpacity>
+                </View>
 
                 <View style={styles.discardPile}>
                   <Text style={styles.discardTitle}>קלפים:</Text>
@@ -274,34 +289,12 @@ function GameScreen({navigation}: any) {
                   {getHandValue(playerHand)} נקודות
                 </Text>
               </Text>
-              <FlatList
-                data={playerHand}
-                horizontal
-                keyExtractor={(item, index) =>
-                  `${item.suit}-${item.value}-${index}`
-                }
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.card,
-                      selectedCards.includes(index) && styles.selectedCard,
-                      slapDownAvailable &&
-                        lastPickedCard?.suit === item.suit &&
-                        lastPickedCard?.value === item.value &&
-                        styles.slappableCard,
-                    ]}
-                    onPress={() =>
-                      slapDownAvailable &&
-                      lastPickedCard?.suit === item.suit &&
-                      lastPickedCard?.value === item.value
-                        ? onSlapCard(lastPickedCard)
-                        : toggleCardSelection(index)
-                    }>
-                    <CardComponent card={item} />
-                  </TouchableOpacity>
-                )}
-                showsHorizontalScrollIndicator={false}
-                style={styles.handList}
+              <CardPointsList
+                cards={playerHand}
+                onCardSelect={toggleCardSelection}
+                slapCardIndex={slapCardIndex}
+                selectedCardsIndexes={selectedCards}
+                onCardSlapped={onSlapCard}
               />
             </View>
 
@@ -449,18 +442,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   deck: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#dddddd',
     borderRadius: 8,
-    width: 60,
+
     height: 80,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  deckHighlighted: {
-    backgroundColor: colors.accent,
-    borderWidth: 3,
-    borderColor: colors.primary,
-  },
+  deckHighlighted: {},
   deckText: {
     fontSize: 24,
     marginBottom: 4,
