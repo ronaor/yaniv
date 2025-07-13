@@ -5,7 +5,6 @@ import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
@@ -101,14 +100,10 @@ const CardPointer = ({
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
-      translateY.value = withSpring(isSelected ? cardTrY - 20 : cardTrY);
+      translateY.value = withTiming(isSelected ? cardTrY - 20 : cardTrY); //no using withSpring temporary until will fix this
       prevStateSelection.current = isSelected;
     }
   }, [cardTrY, isSelected, translateY]);
-
-  useEffect(() => {
-    prevStateSelection.current = false;
-  }, [pick?.position]);
 
   // Animate to target position
   useEffect(() => {

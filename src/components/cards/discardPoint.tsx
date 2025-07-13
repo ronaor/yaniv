@@ -176,7 +176,6 @@ const PickupPointer = ({
   const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
   const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
 
-  console.log('fromTarget', fromTarget);
   useEffect(() => {
     translateX.value = withTiming(targetX);
     translateY.value = withTiming(0);

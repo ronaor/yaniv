@@ -24,7 +24,7 @@ import CardPointsList from '~/components/cards/cardsPoint';
 import {ActionSource, Card, Position} from '~/types/cards';
 import DiscardCardPointers from '~/components/cards/discardPoint';
 
-const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
+const {height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -49,8 +49,8 @@ function GameScreen({navigation}: any) {
     lastPickedCard,
     source,
     selectedCardsPositions,
-    playersNumCards,
     currentPlayerTurn,
+    amountBefore,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -187,24 +187,23 @@ function GameScreen({navigation}: any) {
   const activeTargets = useMemo(() => {
     let res;
 
-    const cardsLen = previousPlayer.current
-      ? playersNumCards[previousPlayer.current]
-      : 0;
+    const cardsLen = amountBefore;
 
     const centerIndex = (cardsLen - 1) / 2;
 
     res = selectedCardsPositions.map(index => {
       const shift = index - centerIndex;
-      const cardTrY = screenHeight + Math.pow(shift, 2) * 2 - 150;
+      const cardTrY =
+        screenHeight + Math.pow(shift, 2) * 2 - 150 - deckPos.current.y;
 
-      const targetX = screenWidth / 2 - (cardsLen / 2) * 54 + index * 54;
+      const targetX = (index - 1) * 54 - deckPos.current.x;
       return {x: targetX, y: cardTrY, deg: shift * 3};
     });
 
     previousPlayer.current = currentPlayerTurn;
 
     return res;
-  }, [selectedCardsPositions, playersNumCards, currentPlayerTurn]);
+  }, [selectedCardsPositions, amountBefore, currentPlayerTurn]);
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);

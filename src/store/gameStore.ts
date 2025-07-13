@@ -38,6 +38,7 @@ export interface GameStore {
   } | null;
   source: ActionSource;
   selectedCardsPositions: number[];
+  amountBefore: number;
   playersNumCards: Record<string, number>;
 
   // Actions
@@ -81,6 +82,7 @@ export interface GameStore {
     source: ActionSource;
     card: Card;
     selectedCardsPositions: number[];
+    amountBefore: number;
   }) => void;
   slapDown: (card: Card) => void;
   setGameError: (data: {message: string}) => void;
@@ -110,6 +112,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   slapDownAvailable: false,
   source: 'deck',
   selectedCardsPositions: [],
+  amountBefore: 0,
   playersNumCards: {},
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
@@ -233,6 +236,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     source: ActionSource;
     card: Card;
     selectedCardsPositions: number[];
+    amountBefore: number;
   }) => {
     set(state => {
       const socketId = useSocket.getState().getSocketId();
@@ -245,6 +249,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (playerId === socketId) {
         playerHand = hands;
       }
+
       return {
         ...state,
         playerHand: playerHand,
@@ -254,6 +259,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         lastPickedCard: data.card,
         source: data.source,
         selectedCardsPositions: data.selectedCardsPositions,
+        amountBefore: data.amountBefore,
         playersNumCards: {...state.playersNumCards, playerId: hands.length},
       };
     });
