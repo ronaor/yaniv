@@ -36,6 +36,7 @@ export interface GameStore {
     lowestValue: number;
     playerHands: {[playerId: string]: Card[]};
   } | null;
+  source: 'pickup' | 'deck' | 'slap';
 
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
@@ -104,6 +105,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   callers: [],
   playersStats: {},
   slapDownAvailable: false,
+  source: 'deck',
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
     useSocket.getState().emit('complete_turn', {action, selectedCards});
@@ -239,6 +241,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         pickupCards,
         slapDownAvailable: slapDownActiveFor === socketId,
         lastPickedCard: data.card,
+        source: data.source,
       };
     });
   },

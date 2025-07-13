@@ -3,7 +3,6 @@ import {Card} from '~/types/cards';
 import {CardComponent} from './cardVisual';
 import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
-  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -12,13 +11,24 @@ import Animated, {
 
 const {width, height} = Dimensions.get('screen');
 
+type Position = {x: number; y: number};
 interface CardPointsListProps {
   cards: Card[];
   onCardSelect: (index: number) => void;
   slapCardIndex?: number;
   selectedCardsIndexes: number[];
   onCardSlapped: () => void;
+  tablePositions?: {
+    deck: Position;
+    bank: Position;
+  };
+  pick: {
+    pickedCard?: Card;
+    source: 'pickup' | 'deck' | 'slap';
+  };
 }
+
+const getCardKey = (card: Card) => `${card.suit}-${card.value}`;
 
 const CardPointsList = ({
   cards,
@@ -26,37 +36,48 @@ const CardPointsList = ({
   slapCardIndex = -1,
   selectedCardsIndexes,
   onCardSlapped,
+  tablePositions,
+  pick,
 }: CardPointsListProps) => {
-  const prevState = useRef<Card[]>([]);
+  const prevStateOfCards = useRef<Card[]>([]);
 
   useEffect(() => {
-    // update points
+    prevStateOfCards.current = cards;
   }, [cards]);
 
   return (
-    <View style={styles.body}>
-      {cards.map((card, index) => (
-        <CardPointer
-          key={`${card.suit}-${card.value}`}
-          cardsLen={cards.length}
-          index={index}
-          onCardSelect={() => onCardSelect(index)}
-          card={card}
-          isSelected={selectedCardsIndexes.includes(index)}
-          isSlap={index === slapCardIndex}
-          onCardSlapped={onCardSlapped}
-        />
-      ))}
+    <View style={styles.body} pointerEvents="box-none">
+      {tablePositions &&
+        cards.map((card, index) => (
+          <CardPointer
+            key={getCardKey(card)}
+            cardsLen={cards.length}
+            index={index}
+            onCardSelect={() => onCardSelect(index)}
+            card={card}
+            isSelected={selectedCardsIndexes.includes(index)}
+            isSlap={index === slapCardIndex}
+            onCardSlapped={onCardSlapped}
+            deckPos={tablePositions.deck}
+            bankPos={tablePositions.bank}
+            pickedFrom={
+              pick &&
+              pick.pickedCard &&
+              getCardKey(pick.pickedCard) === getCardKey(card)
+                ? pick.source
+                : undefined
+            }
+          />
+        ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   body: {
-    height: 100,
+    height: height,
     width: width,
-    justifyContent: 'center',
-    alignItems: 'center',
+    position: 'absolute',
   },
   pointers: {
     position: 'absolute',
@@ -71,6 +92,9 @@ interface CardPointerProps {
   isSelected: boolean;
   isSlap: boolean;
   onCardSlapped: () => void;
+  deckPos: Position;
+  bankPos: Position;
+  pickedFrom?: 'pickup' | 'deck' | 'slap';
 }
 
 const CardPointer = ({
@@ -81,32 +105,54 @@ const CardPointer = ({
   isSelected,
   isSlap,
   onCardSlapped,
+  pickedFrom,
+  deckPos,
+  bankPos,
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
-  const prevStateIndex = useRef<boolean>(false);
+
+  const cardKey = `${card.suit}-${card.value}`;
   const centerIndex = (cardsLen - 1) / 2;
   const shift = index - centerIndex;
-  // Rotation: each card rotates based on distance from center
-  //   const cardDeg = shift * 3;
+  const cardTrY = height + Math.pow(shift, 2) * 2 - 150;
 
-  // Vertical offset: create arc effect, but keep center card at baseline
-  const cardTrY = Math.pow(shift, 2) * 2;
+  const targetX = width / 2 - (cardsLen / 2) * 54 + index * 54;
 
-  const translateY = useSharedValue<number>(0);
-  const translateX = useSharedValue<number>(0);
-  const cardDeg = useSharedValue<number>(shift * 3);
+  const translateY = useSharedValue<number>(
+    pickedFrom ? (pickedFrom === 'deck' ? deckPos.y : bankPos.y) : cardTrY,
+  );
+  const translateX = useSharedValue<number>(
+    pickedFrom ? (pickedFrom === 'deck' ? deckPos.x : bankPos.x) : targetX,
+  );
+  const cardDeg = useSharedValue<number>(pickedFrom ? 0 : shift * 3);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
-      translateY.value = withSpring(isSelected ? 1 : 0);
+      translateY.value = withSpring(isSelected ? cardTrY - 20 : cardTrY);
       prevStateSelection.current = isSelected;
     }
-  });
+  }, [cardTrY, isSelected, translateY]);
 
   useEffect(() => {
-    translateX.value = withTiming((index - cardsLen / 2) * 54);
-    cardDeg.value = withTiming(shift * 3);
-  }, [cardDeg, cardsLen, index, shift, translateX]);
+    prevStateSelection.current = false;
+  }, [pickedFrom]);
+
+  // Animate to target position
+  useEffect(() => {
+    const targetRotation = shift * 3;
+    translateX.value = withTiming(targetX);
+    translateY.value = withTiming(cardTrY);
+    cardDeg.value = withTiming(targetRotation);
+  }, [
+    cardsLen,
+    shift,
+    cardTrY,
+    pickedFrom,
+    translateX,
+    translateY,
+    cardDeg,
+    targetX,
+  ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],
@@ -114,13 +160,11 @@ const CardPointer = ({
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
-      {translateY: cardTrY - translateY.value * 20},
+      {translateY: translateY.value},
       {rotate: `${cardDeg.value}deg`},
     ],
     zIndex: index,
   }));
-
-  const cardKey = `${card.suit}-${card.value}`;
 
   return (
     <Animated.View

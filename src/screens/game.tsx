@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
   FlatList,
@@ -42,6 +42,7 @@ function GameScreen({navigation}: any) {
     resetSlapDown,
     slapDown,
     lastPickedCard,
+    source,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -119,6 +120,22 @@ function GameScreen({navigation}: any) {
     navigation,
     publicState?.winner,
   ]);
+
+  const [deckPos, setDeckPos] = useState<{x: number; y: number}>();
+  const deckRef = useRef<View>(null);
+  const measureDeckPos = () => {
+    deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      setDeckPos({x: pageX + width / 2, y: pageY + height / 2});
+    });
+  };
+
+  const [bankPos, setBankPos] = useState<{x: number; y: number}>();
+  const bankRef = useRef<TouchableOpacity>(null);
+  const measureBankPos = () => {
+    deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      setBankPos({x: pageX + width / 2, y: pageY + height / 2});
+    });
+  };
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
@@ -204,6 +221,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
+
       <ImageBackground
         source={backgroundImg}
         style={styles.backgroundImage}
@@ -239,8 +257,9 @@ function GameScreen({navigation}: any) {
               <View style={styles.centerArea}>
                 <View style={styles.discardPile}>
                   <Text style={styles.discardTitle}>קופה:</Text>
-
                   <TouchableOpacity
+                    ref={bankRef}
+                    onLayout={measureBankPos}
                     style={[styles.deck, isMyTurn && styles.deckHighlighted]}
                     onPress={handleDrawFromDeck}
                     disabled={!isMyTurn || selectedCards.length === 0}>
@@ -250,7 +269,10 @@ function GameScreen({navigation}: any) {
 
                 <View style={styles.discardPile}>
                   <Text style={styles.discardTitle}>קלפים:</Text>
-                  <View style={styles.discardCards}>
+                  <View
+                    style={styles.discardCards}
+                    ref={deckRef}
+                    onLayout={measureDeckPos}>
                     {pickupCards.map((card, index) => (
                       <TouchableOpacity
                         key={index}
@@ -289,13 +311,6 @@ function GameScreen({navigation}: any) {
                   {getHandValue(playerHand)} נקודות
                 </Text>
               </Text>
-              <CardPointsList
-                cards={playerHand}
-                onCardSelect={toggleCardSelection}
-                slapCardIndex={slapCardIndex}
-                selectedCardsIndexes={selectedCards}
-                onCardSlapped={onSlapCard}
-              />
             </View>
 
             {/* Game Actions */}
@@ -356,6 +371,24 @@ function GameScreen({navigation}: any) {
               )}
             </View>
           </View>
+          <CardPointsList
+            cards={playerHand}
+            onCardSelect={toggleCardSelection}
+            slapCardIndex={slapCardIndex}
+            selectedCardsIndexes={selectedCards}
+            onCardSlapped={onSlapCard}
+            tablePositions={
+              deckPos &&
+              bankPos && {
+                deck: deckPos,
+                bank: bankPos,
+              }
+            }
+            pick={{
+              pickedCard: lastPickedCard,
+              source,
+            }}
+          />
         </SafeAreaView>
       </ImageBackground>
     </>
@@ -472,19 +505,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   discardCard: {
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 6,
-    width: 55,
-    height: 70,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pickupableCard: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
-    transform: [{translateY: -8}],
+    borderColor: '#FFFFFF70',
+    borderRadius: 12,
     borderWidth: 3,
   },
   handSection: {
@@ -688,11 +714,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
   },
-  pickupCard: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
-    borderWidth: 3,
-  },
+  pickupCard: {},
 });
 
 export default GameScreen;
