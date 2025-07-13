@@ -11,3 +11,7 @@ export const getCardValue = (card: Card) => {
   }
   return card.value; // 0-10 = face value
 };
+
+export type Position = {x: number; y: number};
+
+export type ActionSource = 'pickup' | 'deck' | 'slap';

@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
   ImageBackground,
   StatusBar,
@@ -16,10 +17,14 @@ import {colors, textStyles} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '~/assets/images/yaniv_background.png';
-import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
-import {CardComponent} from '~/components/cards/cardVisual';
+import {getCardKey, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
+import {ActionSource, Card, Position} from '~/types/cards';
+import DiscardCardPointers from '~/components/cards/discardPoint';
+
+const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -43,6 +48,9 @@ function GameScreen({navigation}: any) {
     slapDown,
     lastPickedCard,
     source,
+    selectedCardsPositions,
+    playersNumCards,
+    currentPlayerTurn,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -121,21 +129,82 @@ function GameScreen({navigation}: any) {
     publicState?.winner,
   ]);
 
-  const [deckPos, setDeckPos] = useState<{x: number; y: number}>();
-  const deckRef = useRef<View>(null);
-  const measureDeckPos = () => {
-    deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setDeckPos({x: pageX + width / 2, y: pageY + height / 2});
+  const pickupRef = useRef<View>(null);
+  const pickupPos = useRef<Position>({x: 0, y: 0});
+  const measurePickupPos = () => {
+    pickupRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      pickupPos.current = {x: pageX + width / 2, y: pageY + height / 2};
     });
   };
 
-  const [bankPos, setBankPos] = useState<{x: number; y: number}>();
-  const bankRef = useRef<TouchableOpacity>(null);
-  const measureBankPos = () => {
+  const deckPos = useRef<Position>({x: 0, y: 0});
+  const deckRef = useRef<TouchableOpacity>(null);
+  const measureDeckPos = () => {
     deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setBankPos({x: pageX + width / 2, y: pageY + height / 2});
+      deckPos.current = {x: pageX, y: pageY + height / 2};
     });
   };
+
+  const previousPickupCards = useRef<Card[]>(pickupCards);
+
+  const previousPlayer = useRef<string>(undefined);
+
+  const drawCardAction = useMemo<
+    | {
+        source: ActionSource;
+        position: Position;
+      }
+    | undefined
+  >(() => {
+    let result;
+    switch (source) {
+      case 'deck': {
+        result = {source, position: deckPos.current};
+        break;
+      }
+      case 'pickup': {
+        const pCard = lastPickedCard!!;
+        const i = previousPickupCards?.current.findIndex(
+          card => getCardKey(card) === getCardKey(pCard),
+        );
+        result = {
+          source,
+          position: {
+            x: pickupPos.current.x + i * 54,
+            y: pickupPos.current.y,
+          },
+        };
+        break;
+      }
+      case 'slap': {
+        break;
+      }
+    }
+    previousPickupCards.current = pickupCards;
+    return result;
+  }, [lastPickedCard, pickupCards, source]);
+
+  const activeTargets = useMemo(() => {
+    let res;
+
+    const cardsLen = previousPlayer.current
+      ? playersNumCards[previousPlayer.current]
+      : 0;
+
+    const centerIndex = (cardsLen - 1) / 2;
+
+    res = selectedCardsPositions.map(index => {
+      const shift = index - centerIndex;
+      const cardTrY = screenHeight + Math.pow(shift, 2) * 2 - 150;
+
+      const targetX = screenWidth / 2 - (cardsLen / 2) * 54 + index * 54;
+      return {x: targetX, y: cardTrY, deg: shift * 3};
+    });
+
+    previousPlayer.current = currentPlayerTurn;
+
+    return res;
+  }, [selectedCardsPositions, playersNumCards, currentPlayerTurn]);
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
@@ -258,8 +327,8 @@ function GameScreen({navigation}: any) {
                 <View style={styles.discardPile}>
                   <Text style={styles.discardTitle}>קופה:</Text>
                   <TouchableOpacity
-                    ref={bankRef}
-                    onLayout={measureBankPos}
+                    ref={deckRef}
+                    onLayout={measureDeckPos}
                     style={[styles.deck, isMyTurn && styles.deckHighlighted]}
                     onPress={handleDrawFromDeck}
                     disabled={!isMyTurn || selectedCards.length === 0}>
@@ -271,37 +340,17 @@ function GameScreen({navigation}: any) {
                   <Text style={styles.discardTitle}>קלפים:</Text>
                   <View
                     style={styles.discardCards}
-                    ref={deckRef}
-                    onLayout={measureDeckPos}>
-                    {pickupCards.map((card, index) => (
-                      <TouchableOpacity
-                        key={index}
-                        style={[
-                          styles.discardCard,
-                          isMyTurn &&
-                            pickupCards.includes(card) &&
-                            isCanPickupCard(pickupCards.length, index) &&
-                            styles.pickupableCard,
-                        ]}
-                        onPress={() =>
-                          handlePickupCard(pickupCards.indexOf(card))
-                        }
-                        disabled={selectedCards.length === 0 || !isMyTurn}>
-                        <CardComponent card={card} />
-                      </TouchableOpacity>
-                    ))}
+                    ref={pickupRef}
+                    onLayout={measurePickupPos}>
+                    <DiscardCardPointers
+                      cards={pickupCards}
+                      onPickUp={handlePickupCard}
+                      pickedCard={lastPickedCard}
+                      fromTargets={activeTargets}
+                    />
                   </View>
                 </View>
               </View>
-
-              {/* Draw Instructions */}
-              {isMyTurn && (
-                <View style={styles.drawInstructions}>
-                  <Text style={styles.drawInstructionsText}>
-                    בחר קלף לשליפה - מהערימה או מהקלפים שנזרקו
-                  </Text>
-                </View>
-              )}
             </View>
 
             {/* Player's Hand */}
@@ -347,10 +396,6 @@ function GameScreen({navigation}: any) {
                     {`${item.nickName} - `}
                     {publicState.playersStats[item.id]?.score ?? 0}
                     {item.nickName === nickName ? ' (אתה)' : ''}
-                    {publicState.currentPlayer !== undefined &&
-                    players[publicState.currentPlayer]?.id === item.id
-                      ? ' 🎯'
-                      : ''}
                   </Text>
                 )}
                 style={styles.playerList}
@@ -377,17 +422,7 @@ function GameScreen({navigation}: any) {
             slapCardIndex={slapCardIndex}
             selectedCardsIndexes={selectedCards}
             onCardSlapped={onSlapCard}
-            tablePositions={
-              deckPos &&
-              bankPos && {
-                deck: deckPos,
-                bank: bankPos,
-              }
-            }
-            pick={{
-              pickedCard: lastPickedCard,
-              source,
-            }}
+            pick={drawCardAction}
           />
         </SafeAreaView>
       </ImageBackground>
@@ -467,12 +502,13 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     minHeight: 120,
+    alignItems: 'center',
   },
   centerArea: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
     marginBottom: 12,
+    gap: 54,
   },
   deck: {
     backgroundColor: '#dddddd',
@@ -500,10 +536,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 4,
   },
-  discardCards: {
-    flexDirection: 'row',
-    gap: 8,
-  },
+  discardCards: {},
   discardCard: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -514,7 +547,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
   },
   handSection: {
-    // backgroundColor: colors.card,
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,

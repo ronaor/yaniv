@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {Card, getCardValue} from '~/types/cards';
+import {ActionSource, Card, getCardValue} from '~/types/cards';
 import {useSocket} from './socketStore';
 import {TurnAction} from 'server/cards';
 import {PlayerStatus} from '~/types/player';
@@ -36,7 +36,9 @@ export interface GameStore {
     lowestValue: number;
     playerHands: {[playerId: string]: Card[]};
   } | null;
-  source: 'pickup' | 'deck' | 'slap';
+  source: ActionSource;
+  selectedCardsPositions: number[];
+  playersNumCards: Record<string, number>;
 
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
@@ -76,8 +78,9 @@ export interface GameStore {
     hands: Card[];
     pickupCards: Card[];
     slapDownActiveFor: string | undefined;
-    source: 'pickup' | 'deck' | 'slap';
+    source: ActionSource;
     card: Card;
+    selectedCardsPositions: number[];
   }) => void;
   slapDown: (card: Card) => void;
   setGameError: (data: {message: string}) => void;
@@ -106,6 +109,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   playersStats: {},
   slapDownAvailable: false,
   source: 'deck',
+  selectedCardsPositions: [],
+  playersNumCards: {},
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
     useSocket.getState().emit('complete_turn', {action, selectedCards});
@@ -150,6 +155,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
       selectedCards: [],
       roundResults: null,
       pickupCards: [data.firstCard],
+      playersNumCards: Object.entries(data.playerHands).reduce<
+        Record<string, number>
+      >((res, [playerId, cards]) => {
+        res[playerId] = cards.length;
+        return res;
+      }, {}),
     });
   },
   setNewRound: (data: {
@@ -219,8 +230,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     hands: Card[];
     pickupCards: Card[];
     slapDownActiveFor: string | undefined;
-    source: 'pickup' | 'deck' | 'slap'; // different animation for each source
+    source: ActionSource;
     card: Card;
+    selectedCardsPositions: number[];
   }) => {
     set(state => {
       const socketId = useSocket.getState().getSocketId();
@@ -233,7 +245,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (playerId === socketId) {
         playerHand = hands;
       }
-
       return {
         ...state,
         playerHand: playerHand,
@@ -242,6 +253,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         slapDownAvailable: slapDownActiveFor === socketId,
         lastPickedCard: data.card,
         source: data.source,
+        selectedCardsPositions: data.selectedCardsPositions,
+        playersNumCards: {...state.playersNumCards, playerId: hands.length},
       };
     });
   },
