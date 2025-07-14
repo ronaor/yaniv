@@ -19,10 +19,11 @@ import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
-import {Location} from '~/types/cards';
+import {DirectionName, Location} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_WIDTH} from '~/utils/constants';
 import {useYanivGameStore} from '~/store/yanivGameStore';
+import HiddenCardPointsList from '~/components/cards/hiddenCards';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -39,6 +40,7 @@ function GameScreen({navigation}: any) {
     setUI,
     clearGame,
     clearError,
+    playersHands,
     resetSlapDown,
   } = useYanivGameStore();
 
@@ -208,6 +210,14 @@ function GameScreen({navigation}: any) {
     }
   }, [playerHand, slapCardIndex, emit]);
 
+  const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
+  const orderedPlayers = [
+    thisPlayer.playerId,
+    ...players
+      .map(p => p.id)
+      .filter(playerId => playerId !== thisPlayer.playerId),
+  ];
+
   return (
     <>
       <StatusBar
@@ -341,15 +351,40 @@ function GameScreen({navigation}: any) {
               )}
             </View>
           </View>
-          <CardPointsList
-            cards={playerHand}
-            onCardSelect={toggleCardSelection}
-            slapCardIndex={slapCardIndex}
-            selectedCardsIndexes={selectedCards}
-            onCardSlapped={onSlapCard}
-            fromPosition={mainState.prevTurn?.draw?.cardPosition}
-            direction={'up'}
-          />
+
+          {orderedPlayers.map((playerId, i) => {
+            if (thisPlayer.playerId === playerId) {
+              return (
+                <CardPointsList
+                  key={playerId}
+                  cards={playerHand}
+                  onCardSelect={toggleCardSelection}
+                  slapCardIndex={slapCardIndex}
+                  selectedCardsIndexes={selectedCards}
+                  onCardSlapped={onSlapCard}
+                  fromPosition={
+                    playerId === mainState.prevTurn?.playerId
+                      ? mainState.prevTurn?.draw?.cardPosition
+                      : undefined
+                  }
+                  direction={directions[i]}
+                />
+              );
+            } else {
+              return (
+                <HiddenCardPointsList
+                  key={playerId}
+                  cards={playersHands[playerId]}
+                  direction={directions[i]}
+                  fromPosition={
+                    playerId === mainState.prevTurn?.playerId
+                      ? mainState.prevTurn?.draw?.cardPosition
+                      : undefined
+                  }
+                />
+              );
+            }
+          })}
         </SafeAreaView>
       </ImageBackground>
     </>

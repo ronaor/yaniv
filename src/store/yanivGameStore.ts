@@ -77,7 +77,7 @@ type YanivGameFields = {
   playersStats: Record<PlayerId, PlayerStatus>;
   thisPlayer: PlayerInfo;
   pickupCards: Card[];
-  playersNumCards: Record<PlayerId, number>;
+  playersHands: {[playerId: string]: Card[]};
   playersCardsPositions: Record<PlayerId, Position[]>;
   config: {
     players: PlayerId[];
@@ -162,7 +162,7 @@ const initialGameFields: YanivGameFields = {
     turnStartTime: null,
   },
   playersStats: {},
-  playersNumCards: {},
+  playersHands: {},
   playersCardsPositions: {},
   round: 0,
   thisPlayer: {
@@ -280,12 +280,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             roundResults: null,
             turnStartTime: new Date(),
           },
-          playersNumCards: Object.entries(data.playerHands).reduce<
-            Record<string, number>
-          >((res, [playerId, cards]) => {
-            res[playerId] = cards.length;
-            return res;
-          }, {}),
+          playersHands: data.playerHands,
           config: {
             players: Object.keys(playerHands),
             timePerPlayer: data.gameState.timePerPlayer,
@@ -307,7 +302,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       const socketId = useSocket.getState().getSocketId();
       set(state => {
-        console.log('step1');
         const {playerId, source, pickupCards, hands, slapDownActiveFor} = data;
 
         const deckPos = state.mainState.ui?.deckLocation ?? {
@@ -357,9 +351,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             break;
           }
         }
-        console.log('step2');
-        const playersNumCards = {...state.playersNumCards};
-        playersNumCards[playerId] = hands.length;
+        const playersHands = {...state.playersHands};
+        playersHands[playerId] = hands;
 
         const prevTurn: TurnState = {
           round: state.round,
@@ -381,8 +374,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           action: actionType,
         };
 
-        console.log('hands', hands);
-
         const thisPlayer: PlayerInfo = {
           ...state.thisPlayer,
           ...(playerId === socketId
@@ -395,10 +386,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           slapDownAvailable: slapDownActiveFor === socketId,
         };
 
-        console.log('step3');
         return {
           ...state,
-          playersNumCards,
+          playersHands,
           mainState: {
             ...state.mainState,
             ui: state.mainState.ui!!,
@@ -443,12 +433,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             roundResults: null,
             turnStartTime: new Date(),
           },
-          playersNumCards: Object.entries(data.playerHands).reduce<
-            Record<string, number>
-          >((res, [playerId, cards]) => {
-            res[playerId] = cards.length;
-            return res;
-          }, {}),
+          playersHands: data.playerHands,
         };
       });
     },
