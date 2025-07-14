@@ -40,7 +40,6 @@ const DeckCardPointers = ({
 
   useEffect(() => {
     if (!isEqual(newCards.current, cards)) {
-      console.log('newCards.current', newCards.current, cards);
       setThrownCards(newCards.current);
     }
 

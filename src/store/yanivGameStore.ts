@@ -203,12 +203,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       return {
         ...state,
         mainState: {
+          ...state.mainState,
           ui: gameUI,
-          prevTurn: null,
-          playerTurn: null,
-          state: 'loading',
-          roundResults: null,
-          turnStartTime: null,
         },
         playersCardsPositions,
       };
@@ -255,7 +251,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const {currentPlayerId, playerHands} = data;
       const socketId = useSocket.getState().getSocketId();
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
-      console.log('start', data);
       set(state => {
         return {
           ...state,

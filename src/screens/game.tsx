@@ -98,6 +98,8 @@ function GameScreen({navigation}: any) {
         clearInterval(interval);
       }
     }, 1000);
+
+    setTimeRemaining(config.timePerPlayer);
     return () => clearInterval(interval);
   }, [myTurn, turnStartTime, config, mainState.state]);
 
