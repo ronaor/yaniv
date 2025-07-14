@@ -1,8 +1,9 @@
 import {create} from 'zustand';
-import {ActionSource, Card, getCardValue} from '~/types/cards';
+import {ActionSource, Card, Position, TurnAction} from '~/types/cards';
 import {useSocket} from './socketStore';
-import {TurnAction} from 'server/cards';
+
 import {PlayerStatus} from '~/types/player';
+import {getCardValue} from '~/utils/gameRules';
 
 export interface PublicGameState {
   currentPlayer: number;
@@ -94,6 +95,7 @@ interface GameVariables {
   amountBefore: number;
   playersNumCards: Record<string, number>;
   round: number;
+  gameUI: GameUI | null;
 }
 
 const initialState: GameVariables = {
@@ -113,11 +115,25 @@ const initialState: GameVariables = {
   amountBefore: 0,
   playersNumCards: {},
   round: 0,
+  gameUI: null,
+};
+
+type GameUI = {
+  deckPosition: Position;
+  pickupPosition: Position;
+  playersPosition: Record<string, Position>;
+  playersDirection: Record<string, Position>;
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
   ...initialState,
+  initializeUI: (gameUI: GameUI) => {
+    set(state => ({
+      ...state,
+      gameUI,
+    }));
+  },
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
     useSocket.getState().emit('complete_turn', {action, selectedCards});

@@ -147,3 +147,14 @@ export const isCanPickupCard = (
 };
 
 export const getCardKey = (card: Card) => `${card.suit}-${card.value}`;
+
+export const getCardValue = (card: Card) => {
+  if (card.value >= 11) {
+    return 10; // J, Q, K = 10
+  }
+  return card.value; // 0-10 = face value
+};
+
+export const getHandValue = (hand: Card[]): number => {
+  return hand.reduce((sum, card) => sum + getCardValue(card), 0);
+};

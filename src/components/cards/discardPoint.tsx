@@ -4,97 +4,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {CardComponent} from './cardVisual';
-import {Pressable, StyleSheet, View} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import {Pressable, StyleSheet} from 'react-native';
+import React, {useEffect} from 'react';
 import {Card, Position} from '~/types/cards';
-import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
-
-// This Component is responsible for managing the state of the discard pile.
-// it includes:
-// 1. display the discard cards
-// 2. animate them when a new state come's up
-//    2.1. animate the cards that are moved to trash
-//    2.2. remove the card that is picked
-
-interface DiscardCardPointersProps {
-  cards: Card[];
-  pickedCard?: Card;
-  onPickUp: (index: number) => void;
-  fromTargets?: (Position & {deg: number})[];
-  round: number;
-}
-
-const DiscardCardPointers = ({
-  cards,
-  pickedCard,
-  onPickUp,
-  fromTargets,
-  round,
-}: DiscardCardPointersProps) => {
-  const [thrownCards, setThrownCards] = useState<Card[]>([]);
-  const newCards = useRef<Card[]>([]);
-
-  useEffect(() => {
-    newCards.current = [];
-    return () => {
-      newCards.current = [];
-    };
-  }, [round]);
-
-  useEffect(() => {
-    setThrownCards(newCards.current);
-    newCards.current = cards;
-  }, [cards]);
-
-  return (
-    <>
-      <View style={styles.body} pointerEvents="none">
-        {thrownCards.map((card, index) => (
-          <DiscardPointer
-            isThrown={
-              pickedCard ? getCardKey(pickedCard) !== getCardKey(card) : false
-            }
-            card={card}
-            index={index}
-            throwTarget={{x: 0, y: 2 * 54}}
-            key={getCardKey(card)}
-          />
-        ))}
-      </View>
-      <View style={styles.body}>
-        {cards.map((card, index) => (
-          <PickupPointer
-            disabled={!isCanPickupCard(cards.length, index)}
-            onPress={() => onPickUp(index)}
-            index={index}
-            card={card}
-            fromTarget={fromTargets?.[index]}
-            key={getCardKey(card)}
-          />
-        ))}
-      </View>
-      <View style={styles.trash} />
-    </>
-  );
-};
-
-export default DiscardCardPointers;
-
-const styles = StyleSheet.create({
-  body: {
-    position: 'absolute',
-    flexDirection: 'row',
-  },
-  pointers: {
-    position: 'absolute',
-  },
-  trash: {
-    width: 54,
-    height: 70,
-    position: 'absolute',
-    top: 54 * 2,
-  },
-});
 
 interface DiscardPointerProps {
   index: number;
@@ -103,7 +15,7 @@ interface DiscardPointerProps {
   throwTarget: Position;
 }
 
-const DiscardPointer = ({
+export const DiscardPointer = ({
   isThrown,
   index,
   card,
@@ -167,7 +79,7 @@ interface PickupPointerProps {
   disabled: boolean;
 }
 
-const PickupPointer = ({
+export const PickupPointer = ({
   index,
   card,
   fromTarget,
@@ -207,3 +119,9 @@ const PickupPointer = ({
     </Animated.View>
   );
 };
+
+const styles = StyleSheet.create({
+  pointers: {
+    position: 'absolute',
+  },
+});

@@ -22,7 +22,7 @@ import {getCardKey, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
 import {ActionSource, Card, Position} from '~/types/cards';
-import DiscardCardPointers from '~/components/cards/discardPoint';
+import DeckCardPointers from '~/components/cards/deckCardPoint';
 
 const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
 
@@ -192,7 +192,6 @@ function GameScreen({navigation}: any) {
   }, [lastPickedCard, pickupCards, source]);
 
   useEffect(() => {
-    console.log('new round!');
     previousPlayer.current = undefined;
   }, [roundResults]);
 
@@ -363,7 +362,7 @@ function GameScreen({navigation}: any) {
                     style={styles.discardCards}
                     ref={pickupRef}
                     onLayout={measurePickupPos}>
-                    <DiscardCardPointers
+                    <DeckCardPointers
                       cards={pickupCards}
                       onPickUp={handlePickupCard}
                       pickedCard={lastPickedCard}

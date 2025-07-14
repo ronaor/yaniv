@@ -27,3 +27,5 @@ export const getSuitSymbol = (suit: string): string => {
 export const getSuitColor = (suit: string): string => {
   return suit === 'hearts' || suit === 'diamonds' ? '#FF0000' : '#000000';
 };
+
+export const CARD_WIDTH = 54;
