@@ -35,14 +35,14 @@ function GameScreen({navigation}: any) {
     pickupCards,
     playersStats,
     round,
-    setUi,
+    config,
+    setUI,
     clearGame,
     clearError,
     resetSlapDown,
-    getRemainingTime,
   } = useYanivGameStore();
 
-  const {roundResults} = mainState;
+  const {roundResults, turnStartTime} = mainState;
 
   const {myTurn, slapDownAvailable, handCards: playerHand} = thisPlayer;
 
@@ -66,12 +66,15 @@ function GameScreen({navigation}: any) {
 
   useEffect(() => {
     if (!mainState.ui && uiData.deckLocation && uiData.pickupLocation) {
-      setUi({
-        deckLocation: uiData.deckLocation,
-        pickupLocation: uiData.pickupLocation,
-      });
+      setUI(
+        {
+          deckLocation: uiData.deckLocation,
+          pickupLocation: uiData.pickupLocation,
+        },
+        players.map(p => p.id),
+      );
     }
-  }, [setUi, players, uiData, mainState.ui]);
+  }, [setUI, players, uiData, mainState.ui]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -79,17 +82,24 @@ function GameScreen({navigation}: any) {
       setSelectedCards([]);
       return;
     }
+    if (mainState.state !== 'begin' && mainState.state !== 'playing') {
+      return;
+    }
 
     const interval = setInterval(() => {
-      const remaining = getRemainingTime();
+      const elapsed =
+        (Date.now() -
+          new Date(turnStartTime ?? config.timePerPlayer).getTime()) /
+        1000;
+      const remaining = config.timePerPlayer - Math.floor(Math.abs(elapsed));
+
       setTimeRemaining(remaining);
       if (remaining <= 0) {
         clearInterval(interval);
       }
     }, 1000);
-
     return () => clearInterval(interval);
-  }, [myTurn, getRemainingTime, mainState.turnStartTime]);
+  }, [myTurn, turnStartTime, config, mainState.state]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {
@@ -126,7 +136,7 @@ function GameScreen({navigation}: any) {
     pickupRef.current?.measure((x, y, width, height, pageX, pageY) => {
       setUiData(prev => ({
         ...prev,
-        pickupPosition: {x: pageX + width / 2, y: pageY + height / 2, deg: 0},
+        pickupLocation: {x: pageX + width / 2, y: pageY + height / 2, deg: 0},
       }));
     });
   };
@@ -135,7 +145,7 @@ function GameScreen({navigation}: any) {
     deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
       setUiData(prev => ({
         ...prev,
-        deckPosition: {x: pageX, y: pageY + height / 2, deg: 0},
+        deckLocation: {x: pageX, y: pageY + height / 2, deg: 0},
       }));
     });
   };

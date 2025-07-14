@@ -1,16 +1,14 @@
 import {Dimensions} from 'react-native';
-import {Card, Position} from '~/types/cards';
+import {DirectionName, Position} from '~/types/cards';
 import {CARD_WIDTH} from './constants';
 
 const {width, height} = Dimensions.get('screen');
 
 export const calculateCardsPositions = (
-  cards: Card[],
-  direction: 'up' | 'right' | 'down' | 'left',
+  cardsLen: number,
+  direction: DirectionName,
 ): (Position & {deg: number})[] => {
-  const cardsLen = cards.length;
-
-  return cards.map((_, index) => {
+  return Array.from({length: cardsLen}, (_, index) => {
     const centerIndex = (cardsLen - 1) / 2;
     const shift = index - centerIndex;
 

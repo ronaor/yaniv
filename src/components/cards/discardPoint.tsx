@@ -30,10 +30,9 @@ export const DiscardPointer = ({
 
   useEffect(() => {
     if (isThrown) {
-      const targetRotation = Math.random() * 20;
       translateX.value = withTiming(throwTarget.x);
       translateY.value = withTiming(throwTarget.y);
-      cardDeg.value = withTiming(targetRotation);
+      cardDeg.value = withTiming(throwTarget.deg);
       opacity.value = withTiming(0.75);
     }
   }, [
@@ -42,6 +41,7 @@ export const DiscardPointer = ({
     cardDeg,
     throwTarget.x,
     throwTarget.y,
+    throwTarget.deg,
     isThrown,
     card,
     opacity,
@@ -92,7 +92,6 @@ export const PickupPointer = ({
   const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
   const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
 
-  console.log('fromTarget', fromTarget);
   useEffect(() => {
     translateX.value = withTiming(targetX);
     translateY.value = withTiming(0);

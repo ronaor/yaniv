@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
 import {DiscardPointer, PickupPointer} from './discardPoint';
@@ -47,6 +47,11 @@ const DeckCardPointers = ({
     newCards.current = cards;
   }, [cards]);
 
+  const targetsDegrees = useMemo(
+    () => Array.from({length: thrownCards.length}).map(_ => Math.random() * 20),
+    [thrownCards.length],
+  );
+
   return (
     <>
       <View style={styles.body} pointerEvents="none">
@@ -57,7 +62,7 @@ const DeckCardPointers = ({
             }
             card={card}
             index={index}
-            throwTarget={{x: 0, y: 2 * CARD_WIDTH}}
+            throwTarget={{x: 0, y: 2 * CARD_WIDTH, deg: targetsDegrees[index]}}
             key={getCardKey(card)}
           />
         ))}

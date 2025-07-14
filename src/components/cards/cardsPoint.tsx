@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef} from 'react';
-import {Card, Position} from '~/types/cards';
+import {Card, DirectionName, Position} from '~/types/cards';
 import {CardComponent} from './cardVisual';
 import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
@@ -19,7 +19,7 @@ interface CardPointsListProps {
   selectedCardsIndexes: number[];
   onCardSlapped: () => void;
   fromPosition?: Position;
-  direction: 'up' | 'right' | 'down' | 'left';
+  direction: DirectionName;
 }
 
 const CardPointsList = ({
@@ -32,8 +32,8 @@ const CardPointsList = ({
   direction,
 }: CardPointsListProps) => {
   const cardsPositions = useMemo(
-    () => calculateCardsPositions(cards, direction),
-    [cards, direction],
+    () => calculateCardsPositions(cards.length, direction),
+    [cards.length, direction],
   );
 
   return (
@@ -48,7 +48,7 @@ const CardPointsList = ({
           isSlap={index === slapCardIndex}
           onCardSlapped={onCardSlapped}
           from={fromPosition}
-          dest={cardsPositions[index]}
+          dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
         />
       ))}
     </View>

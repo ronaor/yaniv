@@ -7,6 +7,7 @@ export type CardSuit = 'spades' | 'clubs' | 'diamonds' | 'hearts';
 
 export type Location = {x: number; y: number};
 export type Position = Location & {deg: number};
+export type DirectionName = 'up' | 'right' | 'down' | 'left';
 
 export type ActionSource = 'pickup' | 'deck' | 'slap';
 

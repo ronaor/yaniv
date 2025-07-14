@@ -3,6 +3,7 @@ import {useSocket} from './socketStore';
 import {
   ActionSource,
   Card,
+  DirectionName,
   Location,
   Position,
   TurnAction,
@@ -12,6 +13,7 @@ import {PlayerStatus} from '~/types/player';
 // import {Dimensions} from 'react-native';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
+import {calculateCardsPositions} from '~/utils/logic';
 
 //region Server Types
 interface PublicGameState {
@@ -86,8 +88,8 @@ type YanivGameFields = {
 };
 
 type YanivGameMethods = {
-  setUi: (gameUi: GameUI) => void;
-  updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
+  setUI: (gameUI: GameUI, players: PlayerId[]) => void;
+  // updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
   clearGame: () => void;
   clearError: () => void;
   resetSlapDown: () => void;
@@ -182,7 +184,21 @@ const initialGameFields: YanivGameFields = {
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
-  setUi: (gameUI: GameUI) => {
+  setUI: (gameUI: GameUI, players: PlayerId[]) => {
+    const socketId = `${useSocket.getState().getSocketId()}`;
+    const orderedPlayers = [
+      socketId,
+      ...players.filter(playerId => playerId !== socketId),
+    ];
+    const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
+    const playersCardsPositions = directions
+      .slice(0, players.length)
+      .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
+        const playerId = orderedPlayers[i];
+        res[playerId] = calculateCardsPositions(7, direction);
+        return res;
+      }, {});
+
     set(state => {
       return {
         ...state,
@@ -194,18 +210,19 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           roundResults: null,
           turnStartTime: null,
         },
+        playersCardsPositions,
       };
     });
   },
-  updateUI: (playerId: PlayerId, playerPos: Position[]) => {
-    set(state => {
-      const playersCardsPositions = state.playersCardsPositions;
-      playersCardsPositions[playerId] = playerPos;
-      return {...state, playersCardsPositions};
-    });
-  },
+  // updateUI: (playerId: PlayerId, playerPos: Position[]) => {
+  //   set(state => {
+  //     const playersCardsPositions = state.playersCardsPositions;
+  //     playersCardsPositions[playerId] = playerPos;
+  //     return {...state, playersCardsPositions};
+  //   });
+  // },
   clearGame: () => {
-    set(state => ({...state, initialGameFields}));
+    set(state => ({...state, ...initialGameFields}));
   },
   clearError: () => {
     set({error: undefined});
@@ -216,7 +233,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       config,
     } = get();
     if (!turnStartTime) {
-      return 0;
+      return config.timePerPlayer;
     }
     const elapsed = (Date.now() - new Date(turnStartTime).getTime()) / 1000;
     const remaining = Math.max(0, config.timePerPlayer - elapsed);
@@ -274,6 +291,11 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             res[playerId] = cards.length;
             return res;
           }, {}),
+          config: {
+            players: Object.keys(playerHands),
+            timePerPlayer: data.gameState.timePerPlayer,
+            slapDownAllowed: true,
+          },
         };
       });
     },
@@ -290,6 +312,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       const socketId = useSocket.getState().getSocketId();
       set(state => {
+        console.log('step1');
         const {playerId, source, pickupCards, hands, slapDownActiveFor} = data;
 
         const deckPos = state.mainState.ui?.deckLocation ?? {
@@ -301,21 +324,14 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           y: 0,
         };
 
-        // const cardsLen = data.amountBefore;
-        // const centerIndex = (cardsLen - 1) / 2;
-        // const cardsPositions = data.selectedCardsPositions.map(index => {
-        //   const shift = index - centerIndex;
-        //   const cardTrY =
-        //     screenHeight + Math.pow(shift, 2) * 2 - 150 - deckPos.y;
-
-        //   const targetX =
-        //     screenWidth / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH - deckPos.x * 2;
-        //   return {x: targetX, y: cardTrY, deg: shift * 3};
-        // });
-
-        const cardsPositions = state.playersCardsPositions[playerId].filter(
-          (_, i) => data.selectedCardsPositions.includes(i),
-        );
+        const cardsPositions =
+          state.playersCardsPositions[playerId]
+            ?.filter((_, i) => data.selectedCardsPositions.includes(i))
+            .map(pos => ({
+              x: pos.x - deckPos.x * 1.5,
+              y: pos.y - deckPos.y,
+              deg: pos.deg,
+            })) ?? [];
 
         let cardPosition: Position | undefined;
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
@@ -346,6 +362,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             break;
           }
         }
+        console.log('step2');
         const playersNumCards = {...state.playersNumCards};
         playersNumCards[playerId] = hands.length;
 
@@ -369,17 +386,21 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           action: actionType,
         };
 
-        const thisPlayer: PlayerInfo =
-          playerId === socketId
+        console.log('hands', hands);
+
+        const thisPlayer: PlayerInfo = {
+          ...state.thisPlayer,
+          ...(playerId === socketId
             ? {
-                playerId,
                 roundScore: getHandValue(hands),
                 handCards: hands,
-                slapDownAvailable: slapDownActiveFor === socketId,
-                myTurn: playerId === socketId,
               }
-            : {...state.thisPlayer, myTurn: false};
+            : {}),
+          myTurn: data.currentPlayerId === socketId,
+          slapDownAvailable: slapDownActiveFor === socketId,
+        };
 
+        console.log('step3');
         return {
           ...state,
           playersNumCards,
