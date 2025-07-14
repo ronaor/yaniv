@@ -51,6 +51,8 @@ function GameScreen({navigation}: any) {
     selectedCardsPositions,
     currentPlayerTurn,
     amountBefore,
+    clearGame,
+    round,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -60,6 +62,11 @@ function GameScreen({navigation}: any) {
   const canCallYaniv = () => {
     return publicState && getHandValue(playerHand) <= 7;
   };
+
+  useEffect(() => {
+    return clearGame;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Timer for remaining time
   useEffect(() => {
@@ -184,7 +191,17 @@ function GameScreen({navigation}: any) {
     return result;
   }, [lastPickedCard, pickupCards, source]);
 
+  useEffect(() => {
+    console.log('new round!');
+    previousPlayer.current = undefined;
+  }, [roundResults]);
+
   const activeTargets = useMemo(() => {
+    if (!previousPlayer.current) {
+      previousPlayer.current = currentPlayerTurn;
+      return undefined;
+    }
+
     let res;
 
     const cardsLen = amountBefore;
@@ -207,7 +224,8 @@ function GameScreen({navigation}: any) {
     previousPlayer.current = currentPlayerTurn;
 
     return res;
-  }, [selectedCardsPositions, amountBefore, currentPlayerTurn]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCardsPositions, amountBefore, currentPlayerTurn, roundResults]);
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
@@ -350,6 +368,7 @@ function GameScreen({navigation}: any) {
                       onPickUp={handlePickupCard}
                       pickedCard={lastPickedCard}
                       fromTargets={activeTargets}
+                      round={round}
                     />
                   </View>
                 </View>

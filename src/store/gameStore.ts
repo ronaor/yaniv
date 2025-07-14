@@ -13,34 +13,7 @@ export interface PublicGameState {
   timePerPlayer: number;
   playersStats: Record<string, PlayerStatus>;
 }
-export interface GameStore {
-  // State
-  playerId: string;
-  publicState: PublicGameState | null;
-  playerHand: Card[];
-  selectedCards: number[];
-  isGameActive: boolean;
-  isMyTurn: boolean;
-  error: string | null;
-  finalScores: {[playerId: string]: number} | null;
-  pickupCards: Card[]; // Cards from the last player's turn
-  currentPlayerTurn?: string;
-  slapDownAvailable: boolean;
-  lastPickedCard?: Card;
-  roundResults: {
-    winnerId: string;
-    playersStats: Record<string, PlayerStatus>;
-    yanivCaller: string;
-    assafCaller?: string;
-    yanivCallerDelayedScore?: number;
-    lowestValue: number;
-    playerHands: {[playerId: string]: Card[]};
-  } | null;
-  source: ActionSource;
-  selectedCardsPositions: number[];
-  amountBefore: number;
-  playersNumCards: Record<string, number>;
-
+export interface GameStore extends GameVariables {
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
   callYaniv: () => void;
@@ -87,14 +60,43 @@ export interface GameStore {
   slapDown: (card: Card) => void;
   setGameError: (data: {message: string}) => void;
   resetSlapDown: () => void;
+  clearGame: () => void;
 }
 
 export const getHandValue = (hand: Card[]): number => {
   return hand.reduce((sum, card) => sum + getCardValue(card), 0);
 };
 
-export const useGameStore = create<GameStore>((set, get) => ({
-  // Initial state
+interface GameVariables {
+  playerId: string;
+  publicState: PublicGameState | null;
+  playerHand: Card[];
+  selectedCards: number[];
+  isGameActive: boolean;
+  isMyTurn: boolean;
+  error: string | null;
+  finalScores: {[playerId: string]: number} | null;
+  pickupCards: Card[]; // Cards from the last player's turn
+  currentPlayerTurn?: string;
+  slapDownAvailable: boolean;
+  lastPickedCard?: Card;
+  roundResults: {
+    winnerId: string;
+    playersStats: Record<string, PlayerStatus>;
+    yanivCaller: string;
+    assafCaller?: string;
+    yanivCallerDelayedScore?: number;
+    lowestValue: number;
+    playerHands: {[playerId: string]: Card[]};
+  } | null;
+  source: ActionSource;
+  selectedCardsPositions: number[];
+  amountBefore: number;
+  playersNumCards: Record<string, number>;
+  round: number;
+}
+
+const initialState: GameVariables = {
   playerId: '',
   publicState: null,
   playerHand: [],
@@ -104,16 +106,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   error: null,
   finalScores: null,
   pickupCards: [],
-  showYanivCall: false,
-  showAsafCall: false,
   roundResults: null,
-  callers: [],
-  playersStats: {},
   slapDownAvailable: false,
   source: 'deck',
   selectedCardsPositions: [],
   amountBefore: 0,
   playersNumCards: {},
+  round: 0,
+};
+
+export const useGameStore = create<GameStore>((set, get) => ({
+  // Initial state
+  ...initialState,
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => {
     useSocket.getState().emit('complete_turn', {action, selectedCards});
@@ -172,14 +176,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     firstCard: Card;
   }) => {
     const socketId = useSocket.getState().getSocketId();
-    set({
+    set(state => ({
       publicState: data.gameState,
       playerHand: socketId ? data.playerHands[socketId] || [] : [],
       isGameActive: true,
       selectedCards: [],
       pickupCards: [data.firstCard],
       roundResults: null,
-    });
+      round: state.round + 1,
+    }));
   },
 
   setTurnStarted: (data: {currentPlayerId: string; timeRemaining: number}) => {
@@ -263,5 +268,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         playersNumCards: {...state.playersNumCards, playerId: hands.length},
       };
     });
+  },
+  clearGame: () => {
+    set(state => ({...state, initialState}));
   },
 }));
