@@ -5,7 +5,8 @@ export interface Card {
 
 export type CardSuit = 'spades' | 'clubs' | 'diamonds' | 'hearts';
 
-export type Position = {x: number; y: number};
+export type Location = {x: number; y: number};
+export type Position = Location & {deg: number};
 
 export type ActionSource = 'pickup' | 'deck' | 'slap';
 

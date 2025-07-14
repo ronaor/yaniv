@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
+  Dimensions,
   FlatList,
   ImageBackground,
   StatusBar,
@@ -9,49 +10,63 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useGameStore} from '~/store/gameStore';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
-import {colors} from '~/theme';
+import {colors, textStyles} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '~/assets/images/yaniv_background.png';
-import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {
+  getCardKey,
+  getHandValue,
+  isCanPickupCard,
+  isValidCardSet,
+} from '~/utils/gameRules';
 
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
-import {Location} from '~/types/cards';
+import {ActionSource, Card, Position} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_WIDTH} from '~/utils/constants';
-import {useYanivGameStore} from '~/store/yanivGameStore';
+
+const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const {
-    thisPlayer,
-    emit,
-    mainState,
+    publicState,
+    playerHand,
+    isGameActive,
+    isMyTurn,
     error,
+    finalScores,
     pickupCards,
-    playersStats,
+    roundResults,
+    playerId,
+    slapDownAvailable,
+    lastPickedCard,
+    source,
+    selectedCardsPositions,
+    currentPlayerTurn,
+    amountBefore,
     round,
-    setUi,
-    clearGame,
+    completeTurn,
+    callYaniv,
     clearError,
-    resetSlapDown,
     getRemainingTime,
-  } = useYanivGameStore();
-
-  const {roundResults} = mainState;
-
-  const {myTurn, slapDownAvailable, handCards: playerHand} = thisPlayer;
+    resetSlapDown,
+    slapDown,
+    clearGame,
+  } = useGameStore();
 
   const {name: nickName} = useUser();
 
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   const canCallYaniv = () => {
-    return getHandValue(playerHand) <= 7;
+    return publicState && getHandValue(playerHand) <= 7;
   };
 
   useEffect(() => {
@@ -59,23 +74,9 @@ function GameScreen({navigation}: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [uiData, setUiData] = useState<{
-    deckLocation?: Location;
-    pickupLocation?: Location;
-  }>({});
-
-  useEffect(() => {
-    if (!mainState.ui && uiData.deckLocation && uiData.pickupLocation) {
-      setUi({
-        deckLocation: uiData.deckLocation,
-        pickupLocation: uiData.pickupLocation,
-      });
-    }
-  }, [setUi, players, uiData, mainState.ui]);
-
   // Timer for remaining time
   useEffect(() => {
-    if (!myTurn) {
+    if (!isMyTurn) {
       setSelectedCards([]);
       return;
     }
@@ -89,7 +90,7 @@ function GameScreen({navigation}: any) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [myTurn, getRemainingTime, mainState.turnStartTime]);
+  }, [isMyTurn, getRemainingTime, publicState?.turnStartTime]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {
@@ -121,31 +122,122 @@ function GameScreen({navigation}: any) {
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
 
+  // Handle game end
+  useEffect(() => {
+    if (publicState?.gameEnded && finalScores) {
+      const winnerName =
+        players.find(p => p.id === publicState.winner)?.nickName || 'לא ידוע';
+      Alert.alert('המשחק הסתיים!', `הזוכה: ${winnerName}`, [
+        {
+          text: 'חזור לבית',
+          onPress: () => navigation.reset({index: 0, routes: [{name: 'Home'}]}),
+        },
+      ]);
+    }
+  }, [
+    publicState?.gameEnded,
+    finalScores,
+    players,
+    navigation,
+    publicState?.winner,
+  ]);
+
   const pickupRef = useRef<View>(null);
+  const pickupPos = useRef<Position>({x: 0, y: 0});
   const measurePickupPos = () => {
     pickupRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setUiData(prev => ({
-        ...prev,
-        pickupPosition: {x: pageX + width / 2, y: pageY + height / 2, deg: 0},
-      }));
+      pickupPos.current = {x: pageX + width / 2, y: pageY + height / 2};
     });
   };
+
+  const deckPos = useRef<Position>({x: 0, y: 0});
   const deckRef = useRef<TouchableOpacity>(null);
   const measureDeckPos = () => {
     deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setUiData(prev => ({
-        ...prev,
-        deckPosition: {x: pageX, y: pageY + height / 2, deg: 0},
-      }));
+      deckPos.current = {x: pageX, y: pageY + height / 2};
     });
   };
+
+  const previousPickupCards = useRef<Card[]>(pickupCards);
+
+  const previousPlayer = useRef<string>(undefined);
+
+  const drawCardAction = useMemo<
+    | {
+        source: ActionSource;
+        position: Position;
+      }
+    | undefined
+  >(() => {
+    let result;
+    switch (source) {
+      case 'deck': {
+        result = {source, position: deckPos.current};
+        break;
+      }
+      case 'pickup': {
+        const pCard = lastPickedCard!!;
+        const i = previousPickupCards?.current.findIndex(
+          card => getCardKey(card) === getCardKey(pCard),
+        );
+        result = {
+          source,
+          position: {
+            x: pickupPos.current.x + i * CARD_WIDTH,
+            y: pickupPos.current.y,
+          },
+        };
+        break;
+      }
+      case 'slap': {
+        break;
+      }
+    }
+    previousPickupCards.current = pickupCards;
+    return result;
+  }, [lastPickedCard, pickupCards, source]);
+
+  useEffect(() => {
+    previousPlayer.current = undefined;
+  }, [roundResults]);
+
+  const activeTargets = useMemo(() => {
+    if (!previousPlayer.current) {
+      previousPlayer.current = currentPlayerTurn;
+      return undefined;
+    }
+
+    let res;
+
+    const cardsLen = amountBefore;
+
+    const centerIndex = (cardsLen - 1) / 2;
+
+    res = selectedCardsPositions.map(index => {
+      const shift = index - centerIndex;
+      const cardTrY =
+        screenHeight + Math.pow(shift, 2) * 2 - 150 - deckPos.current.y;
+
+      const targetX =
+        screenWidth / 2 -
+        (cardsLen / 2) * CARD_WIDTH +
+        index * CARD_WIDTH -
+        deckPos.current.x * 2;
+      return {x: targetX, y: cardTrY, deg: shift * 3};
+    });
+
+    previousPlayer.current = currentPlayerTurn;
+
+    return res;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCardsPositions, amountBefore, currentPlayerTurn, roundResults]);
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
     if (!isValidCardSet(selected, true)) {
       return false;
     }
-    emit.completeTurn(
+    completeTurn(
       {choice: 'deck'},
       selectedCards.map(i => playerHand[i]),
     );
@@ -160,7 +252,7 @@ function GameScreen({navigation}: any) {
       return false;
     }
 
-    emit.completeTurn(
+    completeTurn(
       {choice: 'pickup', pickupIndex},
       selectedCards.map(i => playerHand[i]),
     );
@@ -176,7 +268,6 @@ function GameScreen({navigation}: any) {
     });
   };
 
-  const lastPickedCard = mainState.prevTurn?.draw?.card;
   const slapCardIndex = useMemo(
     () =>
       slapDownAvailable && lastPickedCard
@@ -192,9 +283,31 @@ function GameScreen({navigation}: any) {
   const onSlapCard = useCallback(() => {
     const cardToSlap = playerHand[slapCardIndex];
     if (cardToSlap) {
-      emit.slapDown(cardToSlap);
+      slapDown(cardToSlap);
     }
-  }, [playerHand, slapCardIndex, emit]);
+  }, [playerHand, slapCardIndex, slapDown]);
+
+  if (!isGameActive || !publicState) {
+    return (
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.body}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
+              <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
+            </TouchableOpacity>
+            <Text style={styles.roomTitle}>חדר: {roomId}</Text>
+            {isMyTurn && (
+              <View style={styles.timerContainer}>
+                <Text style={[styles.timer]}>{timeRemaining}s</Text>
+              </View>
+            )}
+          </View>
+          <Text style={textStyles.title}>טוען משחק...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <>
@@ -216,7 +329,7 @@ function GameScreen({navigation}: any) {
                 <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
               </TouchableOpacity>
               <Text style={styles.roomTitle}>חדר: {roomId}</Text>
-              {myTurn && (
+              {isMyTurn && (
                 <View style={styles.timerContainer}>
                   <Text style={[styles.timer]}>{timeRemaining}s</Text>
                 </View>
@@ -226,11 +339,10 @@ function GameScreen({navigation}: any) {
             {/* Game Status */}
             <View style={styles.gameStatus}>
               <Text style={styles.turnInfo}>
-                {myTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
+                {isMyTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
               </Text>
               <Text style={styles.handValue}>
-                הקלפים שלך: {playersStats[thisPlayer.playerId]?.score ?? 0}{' '}
-                נקודות
+                הקלפים שלך: {publicState.playersStats[playerId].score} נקודות
               </Text>
             </View>
 
@@ -245,7 +357,7 @@ function GameScreen({navigation}: any) {
                     onLayout={measureDeckPos}
                     style={styles.deck}
                     onPress={handleDrawFromDeck}
-                    disabled={!myTurn || selectedCards.length === 0}>
+                    disabled={!isMyTurn || selectedCards.length === 0}>
                     <CardBack />
                   </TouchableOpacity>
                 </View>
@@ -260,7 +372,7 @@ function GameScreen({navigation}: any) {
                       cards={pickupCards}
                       onPickUp={handlePickupCard}
                       pickedCard={lastPickedCard}
-                      fromTargets={mainState.prevTurn?.discard.cardsPositions}
+                      fromTargets={activeTargets}
                       round={round}
                     />
                   </View>
@@ -278,7 +390,7 @@ function GameScreen({navigation}: any) {
             </View>
 
             {/* Game Actions */}
-            {myTurn && (
+            {isMyTurn && (
               <View style={styles.actionButtons}>
                 <TouchableOpacity
                   style={[
@@ -286,7 +398,7 @@ function GameScreen({navigation}: any) {
                     styles.yanivBtn,
                     !canCallYaniv() && styles.disabledBtn,
                   ]}
-                  onPress={emit.callYaniv}
+                  onPress={callYaniv}
                   disabled={!canCallYaniv()}>
                   <Text style={styles.actionBtnText}>יניב!</Text>
                 </TouchableOpacity>
@@ -303,11 +415,13 @@ function GameScreen({navigation}: any) {
                   <Text
                     style={[
                       styles.player,
-                      mainState.playerTurn === item.id && styles.currentPlayer,
-                      playersStats[item.id]?.lost && {opacity: 0.5},
+                      publicState.currentPlayer !== undefined &&
+                        players[publicState.currentPlayer]?.id === item.id &&
+                        styles.currentPlayer,
+                      publicState.playersStats[item.id]?.lost && {opacity: 0.5},
                     ]}>
                     {`${item.nickName} - `}
-                    {playersStats[item.id]?.score ?? 0}
+                    {publicState.playersStats[item.id]?.score ?? 0}
                     {item.nickName === nickName ? ' (אתה)' : ''}
                   </Text>
                 )}
@@ -335,8 +449,7 @@ function GameScreen({navigation}: any) {
             slapCardIndex={slapCardIndex}
             selectedCardsIndexes={selectedCards}
             onCardSlapped={onSlapCard}
-            fromPosition={mainState.prevTurn?.draw?.cardPosition}
-            direction={'up'}
+            pick={drawCardAction}
           />
         </SafeAreaView>
       </ImageBackground>

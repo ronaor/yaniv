@@ -1,6 +1,12 @@
 import {create} from 'zustand';
 import {useSocket} from './socketStore';
-import {ActionSource, Card, Position, TurnAction} from '~/types/cards';
+import {
+  ActionSource,
+  Card,
+  Location,
+  Position,
+  TurnAction,
+} from '~/types/cards';
 import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
 // import {Dimensions} from 'react-native';
@@ -19,7 +25,7 @@ interface PublicGameState {
 }
 //#endregion
 
-type PlayerId = string;
+export type PlayerId = string;
 type MainState =
   | {
       ui: GameUI | null;
@@ -76,11 +82,16 @@ type YanivGameFields = {
     timePerPlayer: number;
     slapDownAllowed: boolean;
   };
+  error?: string;
 };
 
 type YanivGameMethods = {
   setUi: (gameUi: GameUI) => void;
   updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
+  clearGame: () => void;
+  clearError: () => void;
+  resetSlapDown: () => void;
+  getRemainingTime: () => number;
   subscribed: {
     gameInitialized: (data: {
       gameState: PublicGameState;
@@ -114,24 +125,21 @@ type YanivGameMethods = {
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
     }) => void;
+    gameEnded: () => void;
+    setGameError: (data: {message: string}) => void;
   };
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
     callYaniv: () => void;
-    getRemainingTime: () => number;
-    resetSlapDown: () => void;
     slapDown: (card: Card) => void;
-    clearGame: () => void;
   };
 };
 
 type YanivGameStore = YanivGameFields & YanivGameMethods;
 
-type GameUI = {
-  deckPosition: Position;
-  pickupPosition: Position;
-  playersPosition: Record<string, Position>;
-  playersDirection: Record<string, Position>;
+export type GameUI = {
+  deckLocation: Location;
+  pickupLocation: Location;
 };
 
 type RoundResults = {
@@ -196,6 +204,30 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       return {...state, playersCardsPositions};
     });
   },
+  clearGame: () => {
+    set(state => ({...state, initialGameFields}));
+  },
+  clearError: () => {
+    set({error: undefined});
+  },
+  getRemainingTime: () => {
+    const {
+      mainState: {turnStartTime},
+      config,
+    } = get();
+    if (!turnStartTime) {
+      return 0;
+    }
+    const elapsed = (Date.now() - new Date(turnStartTime).getTime()) / 1000;
+    const remaining = Math.max(0, config.timePerPlayer - elapsed);
+    return Math.ceil(remaining);
+  },
+  resetSlapDown: () => {
+    set(state => ({
+      ...state,
+      thisPlayer: {...state.thisPlayer, slapDownAvailable: false},
+    }));
+  },
   subscribed: {
     gameInitialized: (data: {
       gameState: PublicGameState;
@@ -206,6 +238,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const {currentPlayerId, playerHands} = data;
       const socketId = useSocket.getState().getSocketId();
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
+      console.log('start', data);
       set(state => {
         return {
           ...state,
@@ -259,8 +292,14 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       set(state => {
         const {playerId, source, pickupCards, hands, slapDownActiveFor} = data;
 
-        const deckPos = state.mainState.ui?.deckPosition ?? {x: 0, y: 0};
-        const pickupPos = state.mainState.ui?.pickupPosition ?? {x: 0, y: 0};
+        const deckPos = state.mainState.ui?.deckLocation ?? {
+          x: 0,
+          y: 0,
+        };
+        const pickupPos = state.mainState.ui?.pickupLocation ?? {
+          x: 0,
+          y: 0,
+        };
 
         // const cardsLen = data.amountBefore;
         // const centerIndex = (cardsLen - 1) / 2;
@@ -282,7 +321,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
         switch (source) {
           case 'deck': {
-            cardPosition = deckPos;
+            cardPosition = {...deckPos, deg: 0};
             actionType = 'DRAG_FROM_DECK';
             break;
           }
@@ -296,6 +335,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             cardPosition = {
               x: pickupPos.x + indexOfPickedCard * CARD_WIDTH,
               y: pickupPos.y,
+              deg: 0,
             };
             actionType = 'DRAG_FROM_PICKUP';
             break;
@@ -432,6 +472,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         };
       });
     },
+    gameEnded: () => {},
+    setGameError: (data: {message: string}) => {
+      set({error: data.message});
+    },
   },
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => {
@@ -440,30 +484,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     callYaniv: () => {
       useSocket.getState().emit('call_yaniv');
     },
-    getRemainingTime: () => {
-      const {
-        mainState: {turnStartTime},
-        config,
-      } = get();
-      if (!turnStartTime) {
-        return 0;
-      }
-
-      const elapsed = (Date.now() - new Date(turnStartTime).getTime()) / 1000;
-      const remaining = Math.max(0, config.timePerPlayer - elapsed);
-      return Math.ceil(remaining);
-    },
-    resetSlapDown: () => {
-      set(state => ({
-        ...state,
-        thisPlayer: {...state.thisPlayer, slapDownAvailable: false},
-      }));
-    },
     slapDown: (card: Card) => {
       useSocket.getState().emit('slap_down', {card});
-    },
-    clearGame: () => {
-      set(state => ({...state, initialGameFields}));
     },
   },
 }));

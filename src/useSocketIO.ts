@@ -1,8 +1,8 @@
 import {useEffect} from 'react';
-import {useGameStore} from './store/gameStore';
 import {useRoomStore} from './store/roomStore';
 import {useSocket} from './store/socketStore';
 import {useUser} from './store/userStore';
+import {useYanivGameStore} from './store/yanivGameStore';
 
 const useSocketIO = () => {
   useEffect(() => {
@@ -15,7 +15,7 @@ const useSocketIO = () => {
 
     // Register all socket event listeners
     const roomStore = useRoomStore.getState();
-    const gameStore = useGameStore.getState();
+    const gameStore = useYanivGameStore.getState();
 
     // Room events
     socket.on('room_created', ({roomId, players, config}) => {
@@ -61,30 +61,27 @@ const useSocketIO = () => {
 
     // Game events
     socket.on('game_initialized', data => {
-      gameStore.setGameInitialized(data);
+      gameStore.subscribed.gameInitialized(data);
     });
 
     socket.on('new_round', data => {
-      gameStore.setNewRound(data);
-    });
-    socket.on('turn_started', data => {
-      gameStore.setTurnStarted(data);
+      gameStore.subscribed.newRound(data);
     });
 
     socket.on('player_drew', data => {
-      gameStore.playerDrew(data);
+      gameStore.subscribed.playerDrew(data);
     });
 
-    socket.on('game_ended', data => {
-      gameStore.setGameEnded(data);
+    socket.on('game_ended', () => {
+      gameStore.subscribed.gameEnded();
     });
 
     socket.on('game_error', data => {
-      gameStore.setGameError(data);
+      gameStore.subscribed.setGameError(data);
     });
 
     socket.on('round_ended', data => {
-      gameStore.setRoundEnded(data);
+      gameStore.subscribed.roundEnded(data);
     });
 
     // Cleanup on app unmount

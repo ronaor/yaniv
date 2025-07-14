@@ -1,5 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import {ActionSource, Card, Position} from '~/types/cards';
+import React, {useEffect, useMemo, useRef} from 'react';
+import {Card, Position} from '~/types/cards';
 import {CardComponent} from './cardVisual';
 import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
-import {CARD_WIDTH} from '~/utils/constants';
+import {calculateCardsPositions} from '~/utils/logic';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -18,10 +18,8 @@ interface CardPointsListProps {
   slapCardIndex?: number;
   selectedCardsIndexes: number[];
   onCardSlapped: () => void;
-  pick?: {
-    source: ActionSource;
-    position: Position;
-  };
+  fromPosition?: Position;
+  direction: 'up' | 'right' | 'down' | 'left';
 }
 
 const CardPointsList = ({
@@ -30,21 +28,27 @@ const CardPointsList = ({
   slapCardIndex = -1,
   selectedCardsIndexes,
   onCardSlapped,
-  pick,
+  fromPosition,
+  direction,
 }: CardPointsListProps) => {
+  const cardsPositions = useMemo(
+    () => calculateCardsPositions(cards, direction),
+    [cards, direction],
+  );
+
   return (
     <View style={styles.body} pointerEvents="box-none">
       {cards.map((card, index) => (
         <CardPointer
           key={getCardKey(card)}
-          cardsLen={cards.length}
           index={index}
           onCardSelect={() => onCardSelect(index)}
           card={card}
           isSelected={selectedCardsIndexes.includes(index)}
           isSlap={index === slapCardIndex}
           onCardSlapped={onCardSlapped}
-          pick={pick}
+          from={fromPosition}
+          dest={cardsPositions[index]}
         />
       ))}
     </View>
@@ -63,56 +67,45 @@ const styles = StyleSheet.create({
 });
 
 interface CardPointerProps {
-  cardsLen: number;
   index: number;
   onCardSelect: () => void;
   card: Card;
   isSelected: boolean;
   isSlap: boolean;
   onCardSlapped: () => void;
-  pick?: {
-    source: ActionSource;
-    position: Position;
-  };
+  from?: Position;
+  dest: Position & {deg: number};
 }
 
 const CardPointer = ({
   index,
-  cardsLen,
   onCardSelect,
   card,
   isSelected,
   isSlap,
   onCardSlapped,
-  pick,
+  from,
+  dest,
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
-
-  const cardKey = `${card.suit}-${card.value}`;
-  const centerIndex = (cardsLen - 1) / 2;
-  const shift = index - centerIndex;
-  const cardTrY = height + Math.pow(shift, 2) * 2 - 150;
-
-  const targetX = width / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH;
-
-  const translateY = useSharedValue<number>(pick?.position?.y ?? cardTrY);
-  const translateX = useSharedValue<number>(pick?.position?.x ?? targetX);
-  const cardDeg = useSharedValue<number>(shift * 3);
+  const translateY = useSharedValue<number>(from?.y ?? dest.y);
+  const translateX = useSharedValue<number>(from?.x ?? dest.x);
+  const cardDeg = useSharedValue<number>(dest.deg);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
-      translateY.value = withTiming(isSelected ? cardTrY - 20 : cardTrY); //no using withSpring temporary until will fix this
+      translateY.value = withTiming(isSelected ? dest.y - 20 : dest.y); //no using withSpring temporary until will fix this
       prevStateSelection.current = isSelected;
     }
-  }, [cardTrY, isSelected, translateY]);
+  }, [dest.y, isSelected, translateY]);
 
   // Animate to target position
   useEffect(() => {
-    const targetRotation = shift * 3;
-    translateX.value = withTiming(targetX);
-    translateY.value = withTiming(cardTrY);
+    const targetRotation = dest.deg;
+    translateX.value = withTiming(dest.x);
+    translateY.value = withTiming(dest.y);
     cardDeg.value = withTiming(targetRotation);
-  }, [cardsLen, shift, cardTrY, translateX, translateY, cardDeg, targetX]);
+  }, [translateX, translateY, cardDeg, dest.deg, dest.x, dest.y]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],
@@ -127,9 +120,7 @@ const CardPointer = ({
   }));
 
   return (
-    <Animated.View
-      key={cardKey}
-      style={[styles.pointers, animatedPointerStyle]}>
+    <Animated.View style={[styles.pointers, animatedPointerStyle]}>
       <Animated.View style={animatedStyle}>
         <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
           <CardComponent card={card} />
