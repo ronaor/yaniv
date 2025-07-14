@@ -10,19 +10,25 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {getHandValue, useGameStore} from '~/store/gameStore';
+import {useGameStore} from '~/store/gameStore';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
 import backgroundImg from '~/assets/images/yaniv_background.png';
-import {getCardKey, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {
+  getCardKey,
+  getHandValue,
+  isCanPickupCard,
+  isValidCardSet,
+} from '~/utils/gameRules';
 
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
 import {ActionSource, Card, Position} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
+import {CARD_WIDTH} from '~/utils/constants';
 
 const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
 
@@ -36,23 +42,23 @@ function GameScreen({navigation}: any) {
     isMyTurn,
     error,
     finalScores,
-    completeTurn,
-    callYaniv,
-    clearError,
-    getRemainingTime,
     pickupCards,
     roundResults,
     playerId,
     slapDownAvailable,
-    resetSlapDown,
-    slapDown,
     lastPickedCard,
     source,
     selectedCardsPositions,
     currentPlayerTurn,
     amountBefore,
-    clearGame,
     round,
+    completeTurn,
+    callYaniv,
+    clearError,
+    getRemainingTime,
+    resetSlapDown,
+    slapDown,
+    clearGame,
   } = useGameStore();
 
   const {name: nickName} = useUser();
@@ -177,7 +183,7 @@ function GameScreen({navigation}: any) {
         result = {
           source,
           position: {
-            x: pickupPos.current.x + i * 54,
+            x: pickupPos.current.x + i * CARD_WIDTH,
             y: pickupPos.current.y,
           },
         };
@@ -214,8 +220,8 @@ function GameScreen({navigation}: any) {
 
       const targetX =
         screenWidth / 2 -
-        (cardsLen / 2) * 54 +
-        index * 54 -
+        (cardsLen / 2) * CARD_WIDTH +
+        index * CARD_WIDTH -
         deckPos.current.x * 2;
       return {x: targetX, y: cardTrY, deg: shift * 3};
     });
@@ -349,7 +355,7 @@ function GameScreen({navigation}: any) {
                   <TouchableOpacity
                     ref={deckRef}
                     onLayout={measureDeckPos}
-                    style={[styles.deck, isMyTurn && styles.deckHighlighted]}
+                    style={styles.deck}
                     onPress={handleDrawFromDeck}
                     disabled={!isMyTurn || selectedCards.length === 0}>
                     <CardBack />
@@ -529,7 +535,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 12,
-    gap: 54,
+    gap: CARD_WIDTH,
   },
   deck: {
     backgroundColor: '#dddddd',
@@ -600,23 +606,6 @@ const styles = StyleSheet.create({
   selectedCard: {
     transform: [{translateY: -8}],
   },
-  slappableCard: {
-    borderColor: 'red',
-    borderWidth: 3,
-  },
-  cardText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  suitText: {
-    fontSize: 18,
-    marginTop: 2,
-  },
-  cardValue: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -630,9 +619,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  playBtn: {
-    backgroundColor: colors.primary,
-  },
   yanivBtn: {
     backgroundColor: colors.success,
   },
@@ -643,18 +629,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 14,
-  },
-  clearBtn: {
-    alignSelf: 'center',
-    backgroundColor: colors.error,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  clearBtnText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
   playersSection: {
     flex: 1,

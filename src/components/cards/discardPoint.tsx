@@ -7,6 +7,7 @@ import {CardComponent} from './cardVisual';
 import {Pressable, StyleSheet} from 'react-native';
 import React, {useEffect} from 'react';
 import {Card, Position} from '~/types/cards';
+import {CARD_WIDTH} from '~/utils/constants';
 
 interface DiscardPointerProps {
   index: number;
@@ -21,7 +22,7 @@ export const DiscardPointer = ({
   card,
   throwTarget,
 }: DiscardPointerProps) => {
-  const targetX = index * 54;
+  const targetX = index * CARD_WIDTH;
   const translateY = useSharedValue<number>(0);
   const translateX = useSharedValue<number>(targetX);
   const cardDeg = useSharedValue<number>(0);
@@ -86,7 +87,7 @@ export const PickupPointer = ({
   onPress,
   disabled,
 }: PickupPointerProps) => {
-  const targetX = index * 54;
+  const targetX = index * CARD_WIDTH;
   const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
   const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
   const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);

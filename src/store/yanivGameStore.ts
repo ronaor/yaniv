@@ -1,14 +1,14 @@
 import {create} from 'zustand';
 import {useSocket} from './socketStore';
-import {ActionSource, Card, Position} from '~/types/cards';
+import {ActionSource, Card, Position, TurnAction} from '~/types/cards';
 import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
 // import {Dimensions} from 'react-native';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
-import {CARD_WIDTH} from '~/utils/visuals';
+import {CARD_WIDTH} from '~/utils/constants';
 
 //region Server Types
-export interface PublicGameState {
+interface PublicGameState {
   currentPlayer: number;
   gameStartTime: Date;
   turnStartTime: Date;
@@ -71,12 +71,17 @@ type YanivGameFields = {
   pickupCards: Card[];
   playersNumCards: Record<PlayerId, number>;
   playersCardsPositions: Record<PlayerId, Position[]>;
+  config: {
+    players: PlayerId[];
+    timePerPlayer: number;
+    slapDownAllowed: boolean;
+  };
 };
 
 type YanivGameMethods = {
   setUi: (gameUi: GameUI) => void;
   updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
-  socket: {
+  subscribed: {
     gameInitialized: (data: {
       gameState: PublicGameState;
       playerHands: {[playerId: string]: Card[]};
@@ -94,6 +99,29 @@ type YanivGameMethods = {
       amountBefore: number;
       currentPlayerId: PlayerId;
     }) => void;
+    newRound: (data: {
+      gameState: PublicGameState;
+      playerHands: {[playerId: string]: Card[]};
+      firstCard: Card;
+      currentPlayerId: PlayerId;
+    }) => void;
+    roundEnded: (data: {
+      winnerId: string;
+      playersStats: Record<string, PlayerStatus>;
+      yanivCaller: string;
+      assafCaller?: string;
+      yanivCallerDelayedScore?: number;
+      lowestValue: number;
+      playerHands: {[playerId: string]: Card[]};
+    }) => void;
+  };
+  emit: {
+    completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
+    callYaniv: () => void;
+    getRemainingTime: () => number;
+    resetSlapDown: () => void;
+    slapDown: (card: Card) => void;
+    clearGame: () => void;
   };
 };
 
@@ -135,6 +163,11 @@ const initialGameFields: YanivGameFields = {
     slapDownAvailable: false,
   },
   pickupCards: [],
+  config: {
+    players: [],
+    timePerPlayer: 0,
+    slapDownAllowed: false,
+  },
 };
 
 // const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
@@ -163,7 +196,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       return {...state, playersCardsPositions};
     });
   },
-  socket: {
+  subscribed: {
     gameInitialized: (data: {
       gameState: PublicGameState;
       playerHands: {[playerId: string]: Card[]};
@@ -172,6 +205,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       const {currentPlayerId, playerHands} = data;
       const socketId = useSocket.getState().getSocketId();
+      const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
       set(state => {
         return {
           ...state,
@@ -187,8 +221,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           }, {}),
           thisPlayer: {
             playerId: socketId ?? '',
-            roundScore: 0,
-            handCards: socketId ? playerHands[socketId] || [] : [],
+            roundScore: getHandValue(thisPlayerHands),
+            handCards: thisPlayerHands,
             myTurn: currentPlayerId === socketId,
             slapDownAvailable: false,
           },
@@ -236,7 +270,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         //     screenHeight + Math.pow(shift, 2) * 2 - 150 - deckPos.y;
 
         //   const targetX =
-        //     screenWidth / 2 - (cardsLen / 2) * 54 + index * 54 - deckPos.x * 2;
+        //     screenWidth / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH - deckPos.x * 2;
         //   return {x: targetX, y: cardTrY, deg: shift * 3};
         // });
 
@@ -322,6 +356,114 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           thisPlayer,
         };
       });
+    },
+    newRound: (data: {
+      gameState: PublicGameState;
+      playerHands: {[playerId: string]: Card[]};
+      firstCard: Card;
+      currentPlayerId: PlayerId;
+    }) => {
+      const socketId = useSocket.getState().getSocketId();
+      const {currentPlayerId, playerHands, gameState} = data;
+      const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
+      set(state => {
+        return {
+          ...state,
+          round: state.round + 1,
+          playersStats: gameState.playersStats,
+          thisPlayer: {
+            ...state.thisPlayer,
+            roundScore: getHandValue(thisPlayerHands),
+            handCards: thisPlayerHands,
+            myTurn: currentPlayerId === socketId,
+            slapDownAvailable: false,
+          },
+          pickupCards: [data.firstCard],
+          mainState: {
+            state: 'begin',
+            ui: state.mainState.ui!!,
+            prevTurn: null,
+            playerTurn: data.currentPlayerId,
+            roundResults: null,
+            turnStartTime: new Date(),
+          },
+          playersNumCards: Object.entries(data.playerHands).reduce<
+            Record<string, number>
+          >((res, [playerId, cards]) => {
+            res[playerId] = cards.length;
+            return res;
+          }, {}),
+        };
+      });
+    },
+    roundEnded: (data: {
+      winnerId: string;
+      playersStats: Record<string, PlayerStatus>;
+      yanivCaller: string;
+      assafCaller?: string;
+      yanivCallerDelayedScore?: number;
+      lowestValue: number;
+      playerHands: {[playerId: string]: Card[]};
+    }) => {
+      set(state => {
+        const thisPlayer: PlayerInfo = {
+          ...state.thisPlayer,
+          myTurn: false,
+        };
+
+        return {
+          ...state,
+          mainState: {
+            ...state.mainState,
+            ui: state.mainState.ui!!,
+            prevTurn: null,
+            playerTurn: null,
+            state: 'end',
+            roundResults: {
+              winnerId: data.winnerId,
+              playersStats: data.playersStats,
+              playersHands: data.playerHands,
+              yanivCaller: data.yanivCaller,
+              assafCaller: data.assafCaller,
+            },
+            turnStartTime: null,
+          },
+          thisPlayer,
+        };
+      });
+    },
+  },
+  emit: {
+    completeTurn: (action: TurnAction, selectedCards: Card[]) => {
+      useSocket.getState().emit('complete_turn', {action, selectedCards});
+    },
+    callYaniv: () => {
+      useSocket.getState().emit('call_yaniv');
+    },
+    getRemainingTime: () => {
+      const {
+        mainState: {turnStartTime},
+        config,
+      } = get();
+      if (!turnStartTime) {
+        return 0;
+      }
+
+      const elapsed = (Date.now() - new Date(turnStartTime).getTime()) / 1000;
+      const remaining = Math.max(0, config.timePerPlayer - elapsed);
+      return Math.ceil(remaining);
+    },
+    resetSlapDown: () => {
+      set(state => ({
+        ...state,
+        thisPlayer: {...state.thisPlayer, slapDownAvailable: false},
+      }));
+    },
+    slapDown: (card: Card) => {
+      useSocket.getState().emit('slap_down', {card});
+    },
+    clearGame: () => {
+      set(state => ({...state, initialGameFields}));
     },
   },
 }));

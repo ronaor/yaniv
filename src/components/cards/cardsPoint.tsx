@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
+import {CARD_WIDTH} from '~/utils/constants';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -92,7 +93,7 @@ const CardPointer = ({
   const shift = index - centerIndex;
   const cardTrY = height + Math.pow(shift, 2) * 2 - 150;
 
-  const targetX = width / 2 - (cardsLen / 2) * 54 + index * 54;
+  const targetX = width / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH;
 
   const translateY = useSharedValue<number>(pick?.position?.y ?? cardTrY);
   const translateX = useSharedValue<number>(pick?.position?.x ?? targetX);

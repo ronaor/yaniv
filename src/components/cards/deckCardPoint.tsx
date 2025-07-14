@@ -4,6 +4,7 @@ import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
 import {DiscardPointer, PickupPointer} from './discardPoint';
 import {isEqual} from 'lodash';
+import {CARD_WIDTH} from '~/utils/constants';
 
 // This Component is responsible for managing the state of the discard pile.
 // it includes:
@@ -56,7 +57,7 @@ const DeckCardPointers = ({
             }
             card={card}
             index={index}
-            throwTarget={{x: 0, y: 2 * 54}}
+            throwTarget={{x: 0, y: 2 * CARD_WIDTH}}
             key={getCardKey(card)}
           />
         ))}
@@ -86,9 +87,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   discard: {
-    width: 54,
+    width: CARD_WIDTH,
     height: 70,
     position: 'absolute',
-    top: 54 * 2,
+    top: CARD_WIDTH * 2,
   },
 });

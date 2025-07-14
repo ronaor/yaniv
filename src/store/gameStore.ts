@@ -3,7 +3,6 @@ import {ActionSource, Card, Position, TurnAction} from '~/types/cards';
 import {useSocket} from './socketStore';
 
 import {PlayerStatus} from '~/types/player';
-import {getCardValue} from '~/utils/gameRules';
 
 export interface PublicGameState {
   currentPlayer: number;
@@ -14,6 +13,7 @@ export interface PublicGameState {
   timePerPlayer: number;
   playersStats: Record<string, PlayerStatus>;
 }
+
 export interface GameStore extends GameVariables {
   // Actions
   completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
@@ -63,10 +63,6 @@ export interface GameStore extends GameVariables {
   resetSlapDown: () => void;
   clearGame: () => void;
 }
-
-export const getHandValue = (hand: Card[]): number => {
-  return hand.reduce((sum, card) => sum + getCardValue(card), 0);
-};
 
 interface GameVariables {
   playerId: string;
