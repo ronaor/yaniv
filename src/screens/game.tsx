@@ -374,7 +374,7 @@ function GameScreen({navigation}: any) {
               return (
                 <HiddenCardPointsList
                   key={playerId}
-                  cards={playersHands[playerId]}
+                  cards={playersHands[playerId] ?? []}
                   direction={directions[i]}
                   fromPosition={
                     playerId === mainState.prevTurn?.playerId
