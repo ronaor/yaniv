@@ -9,6 +9,7 @@ import Animated, {
 import {calculateCardsPositions} from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
+import {MOVE_DURATION} from '~/utils/constants';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -69,9 +70,9 @@ const HiddenCardPointer = ({index, from, dest}: HiddenCardPointerProps) => {
   // Animate to target position
   useEffect(() => {
     const targetRotation = dest.deg;
-    translateX.value = withTiming(dest.x);
-    translateY.value = withTiming(dest.y);
-    cardDeg.value = withTiming(targetRotation);
+    translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
+    translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
+    cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
   }, [translateX, translateY, cardDeg, dest.deg, dest.x, dest.y]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({

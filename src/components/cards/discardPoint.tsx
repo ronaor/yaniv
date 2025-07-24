@@ -7,7 +7,7 @@ import {CardComponent} from './cardVisual';
 import {Pressable, StyleSheet} from 'react-native';
 import React, {useEffect} from 'react';
 import {Card, Position} from '~/types/cards';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_WIDTH, MOVE_DURATION} from '~/utils/constants';
 
 interface DiscardPointerProps {
   index: number;
@@ -30,9 +30,9 @@ export const DiscardPointer = ({
 
   useEffect(() => {
     if (isThrown) {
-      translateX.value = withTiming(throwTarget.x);
-      translateY.value = withTiming(throwTarget.y);
-      cardDeg.value = withTiming(throwTarget.deg);
+      translateX.value = withTiming(throwTarget.x, {duration: MOVE_DURATION});
+      translateY.value = withTiming(throwTarget.y, {duration: MOVE_DURATION});
+      cardDeg.value = withTiming(throwTarget.deg, {duration: MOVE_DURATION});
       opacity.value = withTiming(0.75);
     }
   }, [
@@ -75,7 +75,7 @@ export const DiscardPointer = ({
 interface PickupPointerProps {
   index: number;
   card: Card;
-  fromTarget?: Position & {deg: number};
+  fromTarget: Position;
   onPress: () => void;
   disabled: boolean;
 }
@@ -88,14 +88,14 @@ export const PickupPointer = ({
   disabled,
 }: PickupPointerProps) => {
   const targetX = index * CARD_WIDTH;
-  const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
-  const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
-  const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
+  const translateY = useSharedValue<number>(fromTarget.y);
+  const translateX = useSharedValue<number>(fromTarget.x);
+  const cardDeg = useSharedValue<number>(fromTarget.deg);
 
   useEffect(() => {
-    translateX.value = withTiming(targetX);
-    translateY.value = withTiming(0);
-    cardDeg.value = withTiming(0);
+    translateX.value = withTiming(targetX, {duration: MOVE_DURATION});
+    translateY.value = withTiming(0, {duration: MOVE_DURATION});
+    cardDeg.value = withTiming(0, {duration: MOVE_DURATION});
   }, [translateX, translateY, cardDeg, card, targetX]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({

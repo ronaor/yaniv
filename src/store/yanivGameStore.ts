@@ -322,6 +322,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               deg: pos.deg,
             })) ?? [];
 
+        if (socketId === playerId) {
+          console.log('cardsPositions', cardsPositions, deckPos.x);
+        }
+
         let cardPosition: Position | undefined;
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
         switch (source) {

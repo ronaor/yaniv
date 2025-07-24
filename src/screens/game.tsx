@@ -282,7 +282,9 @@ function GameScreen({navigation}: any) {
                       cards={pickupCards}
                       onPickUp={handlePickupCard}
                       pickedCard={lastPickedCard}
-                      fromTargets={mainState.prevTurn?.discard.cardsPositions}
+                      fromTargets={
+                        mainState.prevTurn?.discard.cardsPositions ?? []
+                      }
                       round={round}
                     />
                   </View>

@@ -5,10 +5,12 @@ import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
 import {calculateCardsPositions} from '~/utils/logic';
+import {MOVE_DURATION} from '~/utils/constants';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -89,23 +91,37 @@ const CardPointer = ({
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
+  const translateInternalY = useSharedValue<number>(0);
   const translateX = useSharedValue<number>(from?.x ?? dest.x);
   const cardDeg = useSharedValue<number>(dest.deg);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
-      translateY.value = withTiming(isSelected ? dest.y - 20 : dest.y); //no using withSpring temporary until will fix this
+      translateInternalY.value = withSpring(isSelected ? -20 : 0); //no using withSpring temporary until will fix this
       prevStateSelection.current = isSelected;
     }
-  }, [dest.y, isSelected, translateY]);
+  }, [dest.y, isSelected, translateInternalY]);
 
   // Animate to target position
   useEffect(() => {
     const targetRotation = dest.deg;
-    translateX.value = withTiming(dest.x);
-    translateY.value = withTiming(dest.y);
-    cardDeg.value = withTiming(targetRotation);
-  }, [translateX, translateY, cardDeg, dest.deg, dest.x, dest.y]);
+    const timer = setTimeout(() => {
+      translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
+      translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
+      cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
+      translateInternalY.value = withSpring(0);
+    }, MOVE_DURATION / 2);
+
+    return () => clearTimeout(timer);
+  }, [
+    translateX,
+    translateY,
+    translateInternalY,
+    cardDeg,
+    dest.deg,
+    dest.x,
+    dest.y,
+  ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],
@@ -119,12 +135,17 @@ const CardPointer = ({
     zIndex: index,
   }));
 
+  const animatedSelectionStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: translateInternalY.value}],
+  }));
   return (
     <Animated.View style={[styles.pointers, animatedPointerStyle]}>
       <Animated.View style={animatedStyle}>
-        <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
-          <CardComponent card={card} />
-        </Pressable>
+        <Animated.View style={animatedSelectionStyle}>
+          <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
+            <CardComponent card={card} />
+          </Pressable>
+        </Animated.View>
       </Animated.View>
     </Animated.View>
   );
