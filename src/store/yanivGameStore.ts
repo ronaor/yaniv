@@ -10,7 +10,6 @@ import {
 } from '~/types/cards';
 import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
-// import {Dimensions} from 'react-native';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
 import {calculateCardsPositions} from '~/utils/logic';
@@ -326,7 +325,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
         switch (source) {
           case 'deck': {
-            cardPosition = {...deckPos, deg: 0};
+            cardPosition = {
+              ...deckPos,
+              x: deckPos.x,
+              y: deckPos.y + 15,
+              deg: 0,
+            };
             actionType = 'DRAG_FROM_DECK';
             break;
           }
@@ -339,7 +343,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             );
             cardPosition = {
               x: pickupPos.x + indexOfPickedCard * CARD_WIDTH,
-              y: pickupPos.y,
+              y: pickupPos.y + 55,
               deg: 0,
             };
             actionType = 'DRAG_FROM_PICKUP';

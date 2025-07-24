@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
 import {calculateCardsPositions} from '~/utils/logic';
-import {MOVE_DURATION} from '~/utils/constants';
+import {CARD_SELECT_OFFSET, MOVE_DURATION} from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 
@@ -100,13 +100,15 @@ const CardPointer = ({
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
   const translateInternalY = useSharedValue<number>(0);
   const translateX = useSharedValue<number>(from?.x ?? dest.x);
-  const cardDeg = useSharedValue<number>(dest.deg);
+  const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
 
   const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
-      translateInternalY.value = withSpring(isSelected ? -20 : 0); //no using withSpring temporary until will fix this
+      translateInternalY.value = withSpring(
+        isSelected ? -CARD_SELECT_OFFSET : 0,
+      ); //no using withSpring temporary until will fix this
       prevStateSelection.current = isSelected;
     }
   }, [dest.y, isSelected, translateInternalY]);

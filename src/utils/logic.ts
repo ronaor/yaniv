@@ -33,8 +33,8 @@ export const calculateCardsPositions = (
       case 'right': // Cards at right side, pointing left
         return {
           x: width - 150 + arcOffset + CARD_WIDTH * 1.5,
-          y: height / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH,
-          deg: -90 - shift * 3,
+          y: height / 2 + (cardsLen / 2) * CARD_WIDTH - index * CARD_WIDTH,
+          deg: -90 + shift * 3,
         };
 
       case 'left': // Cards at left side, pointing right

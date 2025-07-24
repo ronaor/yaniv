@@ -20,6 +20,7 @@ interface HiddenCardPointsListProps {
   fromPosition?: Position;
   direction: DirectionName;
   action?: TurnState['action'];
+  reveal: boolean;
 }
 
 const HiddenCardPointsList = ({
@@ -27,6 +28,7 @@ const HiddenCardPointsList = ({
   fromPosition,
   direction,
   action,
+  reveal,
 }: HiddenCardPointsListProps) => {
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
@@ -43,6 +45,7 @@ const HiddenCardPointsList = ({
           dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
           card={card}
           action={action}
+          reveal={reveal}
         />
       ))}
     </View>
@@ -66,6 +69,7 @@ interface HiddenCardPointerProps {
   dest: Position & {deg: number};
   card: Card;
   action?: TurnState['action'];
+  reveal: boolean;
 }
 
 const HiddenCardPointer = ({
@@ -74,10 +78,11 @@ const HiddenCardPointer = ({
   dest,
   card,
   action,
+  reveal,
 }: HiddenCardPointerProps) => {
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
   const translateX = useSharedValue<number>(from?.x ?? dest.x);
-  const cardDeg = useSharedValue<number>(dest.deg);
+  const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
 
   const flipRotation = useSharedValue(action === 'DRAG_FROM_PICKUP' ? 0 : 1);
 
@@ -89,6 +94,14 @@ const HiddenCardPointer = ({
     cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
     flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
   }, [translateX, translateY, cardDeg, dest.deg, dest.x, dest.y, flipRotation]);
+
+  useEffect(() => {
+    if (reveal) {
+      flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
+    } else {
+      flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
+    }
+  }, [reveal, flipRotation]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],

@@ -24,6 +24,7 @@ import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_WIDTH} from '~/utils/constants';
 import {useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
+import {isNil} from 'lodash';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -385,6 +386,7 @@ function GameScreen({navigation}: any) {
                       : undefined
                   }
                   action={mainState.prevTurn?.action}
+                  reveal={!isNil(mainState.roundResults)}
                 />
               );
             }
