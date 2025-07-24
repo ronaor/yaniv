@@ -384,6 +384,7 @@ function GameScreen({navigation}: any) {
                       ? mainState.prevTurn?.draw?.cardPosition
                       : undefined
                   }
+                  action={mainState.prevTurn?.action}
                 />
               );
             }
