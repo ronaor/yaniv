@@ -25,6 +25,7 @@ import {CARD_WIDTH} from '~/utils/constants';
 import {useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {isNil} from 'lodash';
+import WaveAnimationBackground from './waveScreen';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -226,173 +227,167 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-
-      <ImageBackground
-        source={backgroundImg}
-        style={styles.backgroundImage}
-        resizeMode="cover">
-        <SafeAreaView style={{flex: 1}}>
-          <View style={styles.body}>
-            {/* Header */}
-            <View style={styles.header}>
-              <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-                <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-              </TouchableOpacity>
-              <Text style={styles.roomTitle}>חדר: {roomId}</Text>
-              {myTurn && (
-                <View style={styles.timerContainer}>
-                  <Text style={[styles.timer]}>{timeRemaining}s</Text>
-                </View>
-              )}
-            </View>
-
-            {/* Game Status */}
-            <View style={styles.gameStatus}>
-              <Text style={styles.turnInfo}>
-                {myTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
-              </Text>
-              <Text style={styles.handValue}>
-                הקלפים שלך: {playersStats[thisPlayer.playerId]?.score ?? 0}{' '}
-                נקודות
-              </Text>
-            </View>
-
-            {/* Game Area */}
-            <View style={styles.gameArea}>
-              {/* Deck and Discard Pile */}
-              <View style={styles.centerArea}>
-                <View style={styles.discardPile}>
-                  <Text style={styles.discardTitle}>קופה:</Text>
-                  <TouchableOpacity
-                    ref={deckRef}
-                    onLayout={measureDeckPos}
-                    style={styles.deck}
-                    onPress={handleDrawFromDeck}
-                    disabled={!myTurn || selectedCards.length === 0}>
-                    <CardBack />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.discardPile}>
-                  <Text style={styles.discardTitle}>קלפים:</Text>
-                  <View
-                    style={styles.discardCards}
-                    ref={pickupRef}
-                    onLayout={measurePickupPos}>
-                    <DeckCardPointers
-                      cards={pickupCards}
-                      onPickUp={handlePickupCard}
-                      pickedCard={lastPickedCard}
-                      fromTargets={
-                        mainState.prevTurn?.discard.cardsPositions ?? []
-                      }
-                      round={round}
-                    />
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {/* Player's Hand */}
-            <View style={styles.handSection}>
-              <Text style={styles.handTitle}>
-                <Text style={styles.handTitle}>
-                  {getHandValue(playerHand)} נקודות
-                </Text>
-              </Text>
-            </View>
-
-            {/* Game Actions */}
+      <WaveAnimationBackground />
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.body}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
+              <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
+            </TouchableOpacity>
+            <Text style={styles.roomTitle}>חדר: {roomId}</Text>
             {myTurn && (
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={[
-                    styles.actionBtn,
-                    styles.yanivBtn,
-                    !canCallYaniv() && styles.disabledBtn,
-                  ]}
-                  onPress={emit.callYaniv}
-                  disabled={!canCallYaniv()}>
-                  <Text style={styles.actionBtnText}>יניב!</Text>
-                </TouchableOpacity>
+              <View style={styles.timerContainer}>
+                <Text style={[styles.timer]}>{timeRemaining}s</Text>
               </View>
             )}
+          </View>
 
-            {/* Players List */}
-            <View style={styles.playersSection}>
-              <Text style={styles.playersTitle}>שחקנים:</Text>
-              <FlatList
-                data={players}
-                keyExtractor={item => item.id}
-                renderItem={({item}) => (
-                  <Text
-                    style={[
-                      styles.player,
-                      mainState.playerTurn === item.id && styles.currentPlayer,
-                      playersStats[item.id]?.lost && {opacity: 0.5},
-                    ]}>
-                    {`${item.nickName} - `}
-                    {playersStats[item.id]?.score ?? 0}
-                    {item.nickName === nickName ? ' (אתה)' : ''}
-                  </Text>
-                )}
-                style={styles.playerList}
-              />
-            </View>
+          {/* Game Status */}
+          <View style={styles.gameStatus}>
+            <Text style={styles.turnInfo}>
+              {myTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
+            </Text>
+            <Text style={styles.handValue}>
+              הקלפים שלך: {playersStats[thisPlayer.playerId]?.score ?? 0} נקודות
+            </Text>
+          </View>
 
-            {/* Yaniv/Asaf Overlay */}
-            <View style={styles.overlay}>
-              {roundResults?.yanivCaller && (
-                <View>
-                  <Text style={styles.yanivText}>{'יניב!'}</Text>
+          {/* Game Area */}
+          <View style={styles.gameArea}>
+            {/* Deck and Discard Pile */}
+            <View style={styles.centerArea}>
+              <View style={styles.discardPile}>
+                <Text style={styles.discardTitle}>קופה:</Text>
+                <TouchableOpacity
+                  ref={deckRef}
+                  onLayout={measureDeckPos}
+                  style={styles.deck}
+                  onPress={handleDrawFromDeck}
+                  disabled={!myTurn || selectedCards.length === 0}>
+                  <CardBack />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.discardPile}>
+                <Text style={styles.discardTitle}>קלפים:</Text>
+                <View
+                  style={styles.discardCards}
+                  ref={pickupRef}
+                  onLayout={measurePickupPos}>
+                  <DeckCardPointers
+                    cards={pickupCards}
+                    onPickUp={handlePickupCard}
+                    pickedCard={lastPickedCard}
+                    fromTargets={
+                      mainState.prevTurn?.discard.cardsPositions ?? []
+                    }
+                    round={round}
+                  />
                 </View>
-              )}
-              {roundResults?.assafCaller && (
-                <View>
-                  <Text style={styles.yanivText}>{'אסף!'}</Text>
-                </View>
-              )}
+              </View>
             </View>
           </View>
 
-          {orderedPlayers.map((playerId, i) => {
-            if (thisPlayer.playerId === playerId) {
-              return (
-                <CardPointsList
-                  key={playerId}
-                  cards={playerHand}
-                  onCardSelect={toggleCardSelection}
-                  slapCardIndex={slapCardIndex}
-                  selectedCardsIndexes={selectedCards}
-                  onCardSlapped={onSlapCard}
-                  fromPosition={
-                    playerId === mainState.prevTurn?.playerId
-                      ? mainState.prevTurn?.draw?.cardPosition
-                      : undefined
-                  }
-                  action={mainState.prevTurn?.action}
-                  direction={directions[i]}
-                />
-              );
-            } else {
-              return (
-                <HiddenCardPointsList
-                  key={playerId}
-                  cards={playersHands[playerId] ?? []}
-                  direction={directions[i]}
-                  fromPosition={
-                    playerId === mainState.prevTurn?.playerId
-                      ? mainState.prevTurn?.draw?.cardPosition
-                      : undefined
-                  }
-                  action={mainState.prevTurn?.action}
-                  reveal={!isNil(mainState.roundResults)}
-                />
-              );
-            }
-          })}
-        </SafeAreaView>
-      </ImageBackground>
+          {/* Player's Hand */}
+          <View style={styles.handSection}>
+            <Text style={styles.handTitle}>
+              <Text style={styles.handTitle}>
+                {getHandValue(playerHand)} נקודות
+              </Text>
+            </Text>
+          </View>
+
+          {/* Game Actions */}
+          {myTurn && (
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.actionBtn,
+                  styles.yanivBtn,
+                  !canCallYaniv() && styles.disabledBtn,
+                ]}
+                onPress={emit.callYaniv}
+                disabled={!canCallYaniv()}>
+                <Text style={styles.actionBtnText}>יניב!</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Players List */}
+          <View style={styles.playersSection}>
+            <Text style={styles.playersTitle}>שחקנים:</Text>
+            <FlatList
+              data={players}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <Text
+                  style={[
+                    styles.player,
+                    mainState.playerTurn === item.id && styles.currentPlayer,
+                    playersStats[item.id]?.lost && {opacity: 0.5},
+                  ]}>
+                  {`${item.nickName} - `}
+                  {playersStats[item.id]?.score ?? 0}
+                  {item.nickName === nickName ? ' (אתה)' : ''}
+                </Text>
+              )}
+              style={styles.playerList}
+            />
+          </View>
+
+          {/* Yaniv/Asaf Overlay */}
+          <View style={styles.overlay}>
+            {roundResults?.yanivCaller && (
+              <View>
+                <Text style={styles.yanivText}>{'יניב!'}</Text>
+              </View>
+            )}
+            {roundResults?.assafCaller && (
+              <View>
+                <Text style={styles.yanivText}>{'אסף!'}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {orderedPlayers.map((playerId, i) => {
+          if (thisPlayer.playerId === playerId) {
+            return (
+              <CardPointsList
+                key={playerId}
+                cards={playerHand}
+                onCardSelect={toggleCardSelection}
+                slapCardIndex={slapCardIndex}
+                selectedCardsIndexes={selectedCards}
+                onCardSlapped={onSlapCard}
+                fromPosition={
+                  playerId === mainState.prevTurn?.playerId
+                    ? mainState.prevTurn?.draw?.cardPosition
+                    : undefined
+                }
+                action={mainState.prevTurn?.action}
+                direction={directions[i]}
+              />
+            );
+          } else {
+            return (
+              <HiddenCardPointsList
+                key={playerId}
+                cards={playersHands[playerId] ?? []}
+                direction={directions[i]}
+                fromPosition={
+                  playerId === mainState.prevTurn?.playerId
+                    ? mainState.prevTurn?.draw?.cardPosition
+                    : undefined
+                }
+                action={mainState.prevTurn?.action}
+                reveal={!isNil(mainState.roundResults)}
+              />
+            );
+          }
+        })}
+      </SafeAreaView>
     </>
   );
 }

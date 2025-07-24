@@ -26,14 +26,12 @@ export const DiscardPointer = ({
   const translateY = useSharedValue<number>(0);
   const translateX = useSharedValue<number>(targetX);
   const cardDeg = useSharedValue<number>(0);
-  const opacity = useSharedValue<number>(1);
 
   useEffect(() => {
     if (isThrown) {
       translateX.value = withTiming(throwTarget.x, {duration: MOVE_DURATION});
       translateY.value = withTiming(throwTarget.y, {duration: MOVE_DURATION});
       cardDeg.value = withTiming(throwTarget.deg, {duration: MOVE_DURATION});
-      opacity.value = withTiming(0.75);
     }
   }, [
     translateX,
@@ -44,7 +42,6 @@ export const DiscardPointer = ({
     throwTarget.deg,
     isThrown,
     card,
-    opacity,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
@@ -56,7 +53,6 @@ export const DiscardPointer = ({
       {translateY: translateY.value},
       {rotate: `${cardDeg.value}deg`},
     ],
-    opacity: opacity.value,
   }));
 
   if (!isThrown) {

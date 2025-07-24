@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useMemo} from 'react';
-import {Dimensions, StyleSheet, TouchableOpacity, Text} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {Dimensions, StyleSheet} from 'react-native';
+
 import {
   Canvas,
   LinearGradient,
@@ -22,20 +22,30 @@ import {
 
 const dimension = Dimensions.get('screen');
 const width = dimension.width;
-const padding = 200;
+
 const height = dimension.height;
 const frequency = 2;
 const initialAmplitude = 10;
 const initialVerticalOffset = 100;
 
 // Pre-calculate wave points indices for performance
-const WAVE_POINTS = Math.floor(width / 4); // Keep your original value
+const WAVE_POINTS = Math.floor(width / 4);
 const waveIndices = Array.from({length: WAVE_POINTS}, (_, i) => i);
 
-// Pre-generate ellipses once - keep your original
+// Wave range configuration
+const waveMaxY = height - 100; // Fixed bottom position
+const minYRange = [height - 500, height - 200]; // Range for random minY values
+
+// Function to generate random minY
+const generateRandomMinY = () => {
+  'worklet';
+  return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
+};
+
+// Pre-generate ellipses once
 const ellipses = (() => {
   const $ellipses = [];
-  const cols = Math.ceil(Math.sqrt(15)); // Keep original
+  const cols = Math.ceil(Math.sqrt(15));
   const rows = Math.ceil(15 / cols);
   const cellWidth = width / cols;
   const cellHeight = height / rows;
@@ -86,11 +96,11 @@ const WaveMemory: React.FC<WaveMemoryProps> = React.memo(({path, opacity}) => {
   );
 });
 
-const waveColors = ['#67e0d4', '#46c8e2'];
+const waveColors = ['#D0DCAC', '#46c8e2'];
 const surfColors = ['#e5e2a9', '#88ead8'];
 const seaColor = '#17A5C3';
 
-const WaveAnimationScreen = ({navigation}: any) => {
+const WaveAnimationBackground = () => {
   const verticalOffset = useSharedValue(initialVerticalOffset);
   const amplitude = useSharedValue(initialAmplitude);
   const time = useSharedValue(0);
@@ -98,6 +108,9 @@ const WaveAnimationScreen = ({navigation}: any) => {
   const direction = useSharedValue(0);
   const surfColor = useSharedValue<string>(surfColors[0]);
   const waveColor = useSharedValue<string>(waveColors[0]);
+
+  // Dynamic minY value
+  const waveMinY = useSharedValue(generateRandomMinY());
 
   // State for single wave snapshot
   const [waveSnapshot, setWaveSnapshot] = useState<SkPath | null>(null);
@@ -124,10 +137,10 @@ const WaveAnimationScreen = ({navigation}: any) => {
     if (snapshotOpacity > 0) {
       const interval = setInterval(() => {
         setSnapshotOpacity(prev => {
-          const newOpacity = Math.max(0, prev - 0.015); // Slightly faster fade
+          const newOpacity = Math.max(0, prev - 0.015);
           return newOpacity;
         });
-      }, 100); // Less frequent updates (100ms instead of 50ms)
+      }, 100);
 
       return () => clearInterval(interval);
     }
@@ -137,7 +150,7 @@ const WaveAnimationScreen = ({navigation}: any) => {
   useDerivedValue(() => {
     if (direction.value !== lastDirection.value) {
       if (direction.value > 0) {
-        surfColor.value = withTiming(surfColors[0], {duration: 3000}); // Reduced duration
+        surfColor.value = withTiming(surfColors[0], {duration: 3000});
         waveColor.value = withTiming(waveColors[0], {duration: 3000});
       }
       if (direction.value < 0) {
@@ -148,20 +161,25 @@ const WaveAnimationScreen = ({navigation}: any) => {
           shouldCaptureSnapshot.value = true;
         }
       }
+
+      // Generate new random minY when wave reaches bottom (changes from down to up)
+      if (direction.value > 0 && lastDirection.value < 0) {
+        waveMinY.value = generateRandomMinY();
+      }
     }
   }, [direction.value]);
 
-  // Keep your original frame callback
+  // Frame callback
   useFrameCallback(frameInfo => {
     time.value = frameInfo.timestamp;
 
-    // Optimize tidal cycle calculation
+    // Tidal cycle calculation
     const cycle = interpolate(
       Math.sin((frameInfo.timestamp / 750) * 0.5),
       [-1, 1],
       [0, 1],
     );
-    const newYOffset = padding + cycle * (height - 3 * padding);
+    const newYOffset = waveMinY.value + cycle * (waveMaxY - waveMinY.value);
 
     const prevY = verticalOffset.value;
     lastDirection.value = direction.value;
@@ -169,32 +187,29 @@ const WaveAnimationScreen = ({navigation}: any) => {
 
     verticalOffset.value = newYOffset;
 
-    // Optimize amplitude calculation
+    // Amplitude calculation
     const distanceFromMiddle = Math.abs(cycle - 0.5) * 2;
-    const baseAmplitude = 5 + (1 - distanceFromMiddle) * 15; // Reduced amplitude range
+    const baseAmplitude = 5 + (1 - distanceFromMiddle) * 15;
     amplitude.value = baseAmplitude;
   });
 
-  // ONLY CHANGE: Store the path once instead of calculating twice
+  // Wave path calculation
   const wavePath = useDerivedValue(() => {
     'worklet';
     const current = (time.value / 1000) % 1000;
 
-    // Keep your exact same logic
     const points = waveIndices.map(i => {
       const x = (i / WAVE_POINTS) * width;
       const angle = (x / width) * (Math.PI * frequency) + current;
       return [x, amplitude.value * Math.sin(angle) + verticalOffset.value];
     });
 
-    // Keep your exact same path building
     let pathString = `M${points[0][0]},${points[0][1]}`;
     for (let i = 1; i < points.length; i++) {
       pathString += ` L${points[i][0]},${points[i][1]}`;
     }
     pathString += ` L${width},${height} L0,${height} Z`;
 
-    // Capture snapshot if needed
     if (shouldCaptureSnapshot.value) {
       shouldCaptureSnapshot.value = false;
       runOnJS(captureWaveSnapshot)(pathString);
@@ -203,7 +218,7 @@ const WaveAnimationScreen = ({navigation}: any) => {
     return Skia.Path.MakeFromSVGString(pathString) || Skia.Path.Make();
   }, [time, verticalOffset, amplitude]);
 
-  // Keep your original gradient calculations
+  // Gradient calculations
   const gradientStart = useDerivedValue(() => vec(0, verticalOffset.value));
   const gradientEnd = useDerivedValue(() => vec(0, verticalOffset.value + 400));
 
@@ -214,59 +229,47 @@ const WaveAnimationScreen = ({navigation}: any) => {
   ]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-
-      <Canvas style={styles.canvas}>
-        {/* Keep your exact same ellipses */}
-        {ellipses.map(ellipse => (
-          <Group
-            key={ellipse.id}
-            transform={[
-              {rotate: ellipse.angle},
-              {translateX: ellipse.cx},
-              {translateY: ellipse.cy},
-            ]}>
-            <Oval
-              x={-ellipse.rx}
-              y={-ellipse.ry}
-              width={ellipse.rx * 2}
-              height={ellipse.ry * 2}
-              color={`#fbc15f${Math.floor(ellipse.opacity * 255)
-                .toString(16)
-                .padStart(2, '0')}`}
-            />
-          </Group>
-        ))}
-
-        {/* Wave memory snapshot */}
-        <WaveMemory path={waveSnapshot} opacity={snapshotOpacity} />
-
-        {/* Main wave - use stored path */}
-        <Path path={wavePath} style="fill">
-          <LinearGradient
-            start={gradientStart}
-            end={gradientEnd}
-            colors={gradientColors}
+    <Canvas style={styles.canvas}>
+      {/* Ellipses */}
+      {ellipses.map(ellipse => (
+        <Group
+          key={ellipse.id}
+          transform={[
+            {rotate: ellipse.angle},
+            {translateX: ellipse.cx},
+            {translateY: ellipse.cy},
+          ]}>
+          <Oval
+            x={-ellipse.rx}
+            y={-ellipse.ry}
+            width={ellipse.rx * 2}
+            height={ellipse.ry * 2}
+            color={`#fbc15f${Math.floor(ellipse.opacity * 255)
+              .toString(16)
+              .padStart(2, '0')}`}
           />
-        </Path>
+        </Group>
+      ))}
 
-        {/* Wave stroke - REUSE the same path instead of recalculating */}
-        <Path path={wavePath} style="stroke" strokeWidth={15} color="white" />
-      </Canvas>
-    </SafeAreaView>
+      {/* Wave memory snapshot */}
+      <WaveMemory path={waveSnapshot} opacity={snapshotOpacity} />
+
+      {/* Main wave */}
+      <Path path={wavePath} style="fill">
+        <LinearGradient
+          start={gradientStart}
+          end={gradientEnd}
+          colors={gradientColors}
+        />
+      </Path>
+
+      {/* Wave stroke */}
+      <Path path={wavePath} style="stroke" strokeWidth={15} color="white" />
+    </Canvas>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FDDA87',
-  },
   backButton: {
     position: 'absolute',
     top: 60,
@@ -283,9 +286,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   canvas: {
-    flex: 1,
-    transform: [{scaleX: 1.1}],
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    transform: [{scaleX: 1.05}],
+    backgroundColor: '#FDDA87',
   },
 });
 
-export default WaveAnimationScreen;
+export default WaveAnimationBackground;
