@@ -11,6 +11,8 @@ import Animated, {
 import {getCardKey} from '~/utils/gameRules';
 import {calculateCardsPositions} from '~/utils/logic';
 import {MOVE_DURATION} from '~/utils/constants';
+import CardBack from './cardBack';
+import {TurnState} from '~/types/turnState';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -22,6 +24,7 @@ interface CardPointsListProps {
   onCardSlapped: () => void;
   fromPosition?: Position;
   direction: DirectionName;
+  action?: TurnState['action'];
 }
 
 const CardPointsList = ({
@@ -32,6 +35,7 @@ const CardPointsList = ({
   onCardSlapped,
   fromPosition,
   direction,
+  action,
 }: CardPointsListProps) => {
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
@@ -51,6 +55,7 @@ const CardPointsList = ({
           onCardSlapped={onCardSlapped}
           from={fromPosition}
           dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+          action={action}
         />
       ))}
     </View>
@@ -77,6 +82,7 @@ interface CardPointerProps {
   onCardSlapped: () => void;
   from?: Position;
   dest: Position;
+  action?: TurnState['action'];
 }
 
 const CardPointer = ({
@@ -88,12 +94,15 @@ const CardPointer = ({
   onCardSlapped,
   from,
   dest,
+  action,
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
   const translateInternalY = useSharedValue<number>(0);
   const translateX = useSharedValue<number>(from?.x ?? dest.x);
   const cardDeg = useSharedValue<number>(dest.deg);
+
+  const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
@@ -109,6 +118,7 @@ const CardPointer = ({
       translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
       translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
       cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
+      flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
       translateInternalY.value = withSpring(0);
     }, MOVE_DURATION / 2);
 
@@ -121,6 +131,7 @@ const CardPointer = ({
     dest.deg,
     dest.x,
     dest.y,
+    flipRotation,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
@@ -138,12 +149,35 @@ const CardPointer = ({
   const animatedSelectionStyle = useAnimatedStyle(() => ({
     transform: [{translateY: translateInternalY.value}],
   }));
+
+  const animatedFrontFlipStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
+      },
+    ],
+  }));
+
+  const animatedBackFlipStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
+      },
+    ],
+    position: 'absolute',
+  }));
+
   return (
     <Animated.View style={[styles.pointers, animatedPointerStyle]}>
       <Animated.View style={animatedStyle}>
         <Animated.View style={animatedSelectionStyle}>
           <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
-            <CardComponent card={card} />
+            <Animated.View style={animatedFrontFlipStyle}>
+              <CardComponent card={card} />
+            </Animated.View>
+            <Animated.View style={animatedBackFlipStyle}>
+              <CardBack />
+            </Animated.View>
           </Pressable>
         </Animated.View>
       </Animated.View>

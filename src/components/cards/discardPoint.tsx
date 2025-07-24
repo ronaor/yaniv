@@ -75,7 +75,7 @@ export const DiscardPointer = ({
 interface PickupPointerProps {
   index: number;
   card: Card;
-  fromTarget: Position;
+  fromTarget?: Position;
   onPress: () => void;
   disabled: boolean;
 }
@@ -88,9 +88,9 @@ export const PickupPointer = ({
   disabled,
 }: PickupPointerProps) => {
   const targetX = index * CARD_WIDTH;
-  const translateY = useSharedValue<number>(fromTarget.y);
-  const translateX = useSharedValue<number>(fromTarget.x);
-  const cardDeg = useSharedValue<number>(fromTarget.deg);
+  const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
+  const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
+  const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
 
   useEffect(() => {
     translateX.value = withTiming(targetX, {duration: MOVE_DURATION});

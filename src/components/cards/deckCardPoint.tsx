@@ -17,7 +17,7 @@ interface DeckCardPointersProps {
   cards: Card[];
   pickedCard?: Card;
   onPickUp: (index: number) => void;
-  fromTargets: Position[];
+  fromTargets?: (Position & {deg: number})[];
   round: number;
 }
 
@@ -67,19 +67,16 @@ const DeckCardPointers = ({
         ))}
       </View>
       <View style={styles.body}>
-        {cards.map(
-          (card, index) =>
-            fromTargets[index] && (
-              <PickupPointer
-                disabled={!isCanPickupCard(cards.length, index)}
-                onPress={() => onPickUp(index)}
-                index={index}
-                card={card}
-                fromTarget={fromTargets[index]}
-                key={getCardKey(card)}
-              />
-            ),
-        )}
+        {cards.map((card, index) => (
+          <PickupPointer
+            disabled={!isCanPickupCard(cards.length, index)}
+            onPress={() => onPickUp(index)}
+            index={index}
+            card={card}
+            fromTarget={fromTargets?.[index]}
+            key={getCardKey(card)}
+          />
+        ))}
       </View>
       <View style={styles.discard} />
     </>
