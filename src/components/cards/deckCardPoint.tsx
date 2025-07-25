@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef} from 'react';
 import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
 import {DiscardPointer, PickupPointer} from './discardPoint';
@@ -28,8 +28,9 @@ const DeckCardPointers = ({
   fromTargets,
   round,
 }: DeckCardPointersProps) => {
-  const [thrownCards, setThrownCards] = useState<Card[]>([]);
+  // const [thrownCards, setThrownCards] = useState<Card[]>([]);
   const newCards = useRef<Card[]>([]);
+  const pThrownCards = useRef<Card[]>([]);
 
   useEffect(() => {
     newCards.current = [];
@@ -38,12 +39,15 @@ const DeckCardPointers = ({
     };
   }, [round]);
 
-  useEffect(() => {
+  const thrownCards = useMemo(() => {
+    let newVal = pThrownCards.current;
     if (!isEqual(newCards.current, cards)) {
-      setThrownCards(newCards.current);
+      newVal = newCards.current;
+    } else {
+      newVal = pThrownCards.current;
     }
-
     newCards.current = cards;
+    return newVal;
   }, [cards]);
 
   const targetsDegrees = useMemo(

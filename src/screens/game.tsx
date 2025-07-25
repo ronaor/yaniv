@@ -17,7 +17,7 @@ import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
-import {DirectionName, Location} from '~/types/cards';
+import {DirectionName} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_WIDTH} from '~/utils/constants';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
@@ -71,22 +71,34 @@ function GameScreen({navigation}: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [uiData, setUiData] = useState<{
-    deckLocation?: Location;
-    pickupLocation?: Location;
-  }>({});
+  const [uiReady, setUiReady] = useState<{
+    deckLocation: boolean;
+    pickupLocation: boolean;
+  }>({deckLocation: false, pickupLocation: false});
 
   useEffect(() => {
-    if (!mainState.ui && uiData.deckLocation && uiData.pickupLocation) {
-      setUI(
-        {
-          deckLocation: uiData.deckLocation,
-          pickupLocation: uiData.pickupLocation,
-        },
-        players.map(p => p.id),
-      );
+    if (mainState.ui || !uiReady.deckLocation || !uiReady.pickupLocation) {
+      return;
     }
-  }, [setUI, players, uiData, mainState.ui]);
+
+    const timer = setTimeout(() => {
+      deckRef.current?.measure((_, __, ___, lH, lPX, lPY) => {
+        const deckLocation = {x: lPX, y: lPY + lH / 2, deg: 0};
+        pickupRef.current?.measure((____, _____, ______, pH, pPX, pPY) => {
+          const pickupLocation = {x: pPX, y: pPY + pH / 2, deg: 0};
+          setUI(
+            {
+              deckLocation,
+              pickupLocation,
+            },
+            players.map(p => p.id),
+          );
+        });
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [setUI, players, mainState.ui, uiReady]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -147,21 +159,17 @@ function GameScreen({navigation}: any) {
 
   const pickupRef = useRef<View>(null);
   const measurePickupPos = () => {
-    pickupRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setUiData(prev => ({
-        ...prev,
-        pickupLocation: {x: pageX, y: pageY + height / 2, deg: 0},
-      }));
-    });
+    setUiReady(prev => ({
+      ...prev,
+      pickupLocation: true,
+    }));
   };
   const deckRef = useRef<TouchableOpacity>(null);
   const measureDeckPos = () => {
-    deckRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setUiData(prev => ({
-        ...prev,
-        deckLocation: {x: pageX, y: pageY + height / 2, deg: 0},
-      }));
-    });
+    setUiReady(prev => ({
+      ...prev,
+      deckLocation: true,
+    }));
   };
 
   const handleDrawFromDeck = () => {

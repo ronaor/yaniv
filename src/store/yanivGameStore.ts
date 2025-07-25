@@ -336,8 +336,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           case 'deck': {
             cardPosition = {
               ...deckPos,
-              x: deckPos.x,
-              y: deckPos.y + 15,
+              x: deckPos.x + 2,
+              y: deckPos.y - 41,
               deg: 0,
             };
             actionType = 'DRAG_FROM_DECK';
@@ -352,7 +352,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             );
             cardPosition = {
               x: pickupPos.x + indexOfPickedCard * CARD_WIDTH,
-              y: pickupPos.y + 55,
+              y: pickupPos.y - 35,
               deg: 0,
             };
             actionType = 'DRAG_FROM_PICKUP';

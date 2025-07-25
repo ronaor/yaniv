@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
 import {CardComponent} from './cardVisual';
-import {Dimensions, Pressable, StyleSheet, View} from 'react-native';
+import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -86,6 +86,8 @@ interface CardPointerProps {
   action?: TurnState['action'];
 }
 
+const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
+
 const CardPointer = ({
   index,
   onCardSelect,
@@ -123,7 +125,7 @@ const CardPointer = ({
       cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
       flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
       translateInternalY.value = withSpring(0);
-    }, MOVE_DURATION / 2);
+    }, DELAY);
 
     return () => clearTimeout(timer);
   }, [
