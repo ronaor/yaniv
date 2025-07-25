@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
   gameArea: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: screenHeight - 200,
+    top: screenHeight / 5,
   },
   centerArea: {
     flexDirection: 'column',
     marginBottom: 12,
-    gap: CARD_WIDTH,
+    gap: CARD_WIDTH / 2,
   },
   deck: {
     backgroundColor: '#dddddd',
