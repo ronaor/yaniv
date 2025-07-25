@@ -88,14 +88,14 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
       <View style={styles.log}>
         <LinearGradient
           style={styles.gradientLeft}
-          colors={['#E57D21', '#923701', '#821601']}>
+          colors={['#E9872A', '#821601', '#821601']}>
           <View style={styles.logLeft}>
             <Text style={styles.name}>{name}</Text>
           </View>
         </LinearGradient>
         <LinearGradient
           style={styles.gradientRight}
-          colors={['#E78229', '#E57D21', '#821601']}>
+          colors={['#E9872A', '#E57D21', '#821601']}>
           <View style={styles.logRight}>
             <Text style={styles.score}>{score}</Text>
           </View>
@@ -149,6 +149,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderTopEndRadius: 20,
     borderBottomEndRadius: 20,
+    overflow: 'hidden',
   },
   logRight: {
     borderTopEndRadius: 22,
@@ -161,6 +162,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderTopStartRadius: 20,
     borderBottomStartRadius: 20,
+    overflow: 'hidden',
   },
   logLeft: {
     backgroundColor: '#BB550C',

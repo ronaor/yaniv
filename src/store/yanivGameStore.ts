@@ -13,6 +13,7 @@ import {PlayerStatus} from '~/types/player';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
 import {calculateCardsPositions} from '~/utils/logic';
+import {useRoomStore} from './roomStore';
 
 //region Server Types
 interface PublicGameState {
@@ -82,6 +83,7 @@ type YanivGameFields = {
     players: PlayerId[];
     timePerPlayer: number;
     slapDownAllowed: boolean;
+    canCallYaniv: number;
   };
   error?: string;
 };
@@ -176,6 +178,7 @@ const initialGameFields: YanivGameFields = {
     players: [],
     timePerPlayer: 0,
     slapDownAllowed: false,
+    canCallYaniv: 7,
   },
 };
 
@@ -204,6 +207,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         mainState: {
           ...state.mainState,
           ui: gameUI,
+        },
+        config: {
+          ...state.config,
+          players: orderedPlayers,
         },
         playersCardsPositions,
       };
@@ -247,6 +254,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       firstCard: Card;
       currentPlayerId: PlayerId;
     }) => {
+      const {config} = useRoomStore.getState();
       const {currentPlayerId, playerHands} = data;
       const socketId = useSocket.getState().getSocketId();
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
@@ -283,7 +291,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           config: {
             players: Object.keys(playerHands),
             timePerPlayer: data.gameState.timePerPlayer,
-            slapDownAllowed: true,
+            slapDownAllowed: config?.slapDown ?? false,
+            canCallYaniv: config?.canCallYaniv ?? 7,
           },
         };
       });

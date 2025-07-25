@@ -31,7 +31,7 @@ import LightAround from '~/components/user/lightAround';
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
-  const {players, leaveRoom, config} = useRoomStore();
+  const {players, leaveRoom} = useRoomStore();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const {
     thisPlayer,
@@ -46,6 +46,7 @@ function GameScreen({navigation}: any) {
     clearError,
     playersHands,
     resetSlapDown,
+    config,
   } = useYanivGameStore();
 
   const {roundResults, turnStartTime} = mainState;
@@ -100,9 +101,9 @@ function GameScreen({navigation}: any) {
     const interval = setInterval(() => {
       const elapsed =
         (Date.now() -
-          new Date(turnStartTime ?? config!.timePerPlayer).getTime()) /
+          new Date(turnStartTime ?? config.timePerPlayer).getTime()) /
         1000;
-      const remaining = config!.timePerPlayer - Math.floor(Math.abs(elapsed));
+      const remaining = config.timePerPlayer - Math.floor(Math.abs(elapsed));
 
       setTimeRemaining(remaining);
       if (remaining <= 0) {
@@ -110,7 +111,7 @@ function GameScreen({navigation}: any) {
       }
     }, 1000);
 
-    setTimeRemaining(config!.timePerPlayer);
+    setTimeRemaining(config.timePerPlayer);
     return () => clearInterval(interval);
   }, [myTurn, turnStartTime, config, mainState.state]);
 
@@ -220,12 +221,6 @@ function GameScreen({navigation}: any) {
   }, [playerHand, slapCardIndex, emit]);
 
   const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
-  const orderedPlayers = [
-    thisPlayer.playerId,
-    ...players
-      .map(p => p.id)
-      .filter(playerId => playerId !== thisPlayer.playerId),
-  ];
 
   return (
     <>
@@ -288,7 +283,7 @@ function GameScreen({navigation}: any) {
             )}
           </View>
         </View>
-        {orderedPlayers.map((playerId, i) => (
+        {config.players.map((playerId, i) => (
           <LightAround
             key={`light-${playerId}`}
             direction={directions[i]}
@@ -300,17 +295,17 @@ function GameScreen({navigation}: any) {
             name={playersName[thisPlayer.playerId]}
             score={playersStats[thisPlayer.playerId]?.score ?? 0}
             isActive={myTurn}
-            timePerPlayer={config!.timePerPlayer}
+            timePerPlayer={config.timePerPlayer}
           />
           <View style={styles.handSection}>
             <Text style={styles.handTitle}>{handValue} נקודות</Text>
           </View>
           <YanivButton
             onPress={emit.callYaniv}
-            disabled={handValue > config!.canCallYaniv || !myTurn}
+            disabled={handValue > config.canCallYaniv || !myTurn}
           />
         </View>
-        {orderedPlayers.map((playerId, i) => {
+        {config.players.map((playerId, i) => {
           if (thisPlayer.playerId === playerId) {
             return (
               <CardPointsList
@@ -366,7 +361,7 @@ function GameScreen({navigation}: any) {
                     name={playersName[playerId]}
                     score={playersStats[playerId]?.score ?? 0}
                     isActive={mainState.playerTurn === playerId}
-                    timePerPlayer={config!.timePerPlayer}
+                    timePerPlayer={config.timePerPlayer}
                   />
                 </View>
               </View>
