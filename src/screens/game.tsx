@@ -272,6 +272,7 @@ function GameScreen({navigation}: any) {
                   pickedCard={lastPickedCard}
                   fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
                   round={round}
+                  disabled={!myTurn}
                 />
               </View>
             </View>
@@ -414,7 +415,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: screenHeight - 200,
-    zIndex: 1,
   },
   centerArea: {
     flexDirection: 'column',

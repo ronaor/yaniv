@@ -19,6 +19,7 @@ interface DeckCardPointersProps {
   onPickUp: (index: number) => void;
   fromTargets?: (Position & {deg: number})[];
   round: number;
+  disabled?: boolean;
 }
 
 const DeckCardPointers = ({
@@ -27,6 +28,7 @@ const DeckCardPointers = ({
   onPickUp,
   fromTargets,
   round,
+  disabled = false,
 }: DeckCardPointersProps) => {
   // const [thrownCards, setThrownCards] = useState<Card[]>([]);
   const newCards = useRef<Card[]>([]);
@@ -88,7 +90,7 @@ const DeckCardPointers = ({
         ]}>
         {cards.map((card, index) => (
           <PickupPointer
-            disabled={!isCanPickupCard(cards.length, index)}
+            disabled={disabled || !isCanPickupCard(cards.length, index)}
             onPress={() => onPickUp(index)}
             index={index}
             card={card}
