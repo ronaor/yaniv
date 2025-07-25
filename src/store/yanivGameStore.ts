@@ -384,7 +384,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               card => getCardKey(card) === getCardKey(pCard),
             );
             cardPosition = {
-              x: pickupPos.x + indexOfPickedCard * CARD_WIDTH,
+              x:
+                pickupPos.x +
+                indexOfPickedCard * CARD_WIDTH -
+                ((state.pickupCards.length - 1) * CARD_WIDTH) / 2,
               y: pickupPos.y - 35,
               deg: 0,
             };

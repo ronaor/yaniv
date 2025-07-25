@@ -357,12 +357,12 @@ function GameScreen({navigation}: any) {
                       position: 'absolute',
                     },
                     directions[i] === 'up' ? {top: 0, left: 10} : {},
-                    directions[i] === 'down' ? {top: 30, left: 10} : {},
+                    directions[i] === 'down' ? {top: 80, left: 30} : {},
                     directions[i] === 'left'
-                      ? {left: 10, top: screenHeight / 2 - 190}
+                      ? {left: 10, top: screenHeight / 2 - 140}
                       : {},
                     directions[i] === 'right'
-                      ? {right: 10, top: screenHeight / 2 - 190}
+                      ? {right: 10, top: screenHeight / 2 - 140}
                       : {},
                   ]}>
                   <UserAvatar
@@ -455,7 +455,6 @@ const styles = StyleSheet.create({
   },
   centerArea: {
     flexDirection: 'column',
-    justifyContent: 'space-around',
     marginBottom: 12,
     gap: CARD_WIDTH,
   },

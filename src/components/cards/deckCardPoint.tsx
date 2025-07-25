@@ -57,7 +57,16 @@ const DeckCardPointers = ({
 
   return (
     <>
-      <View style={styles.body} pointerEvents="none">
+      <View
+        style={[
+          styles.body,
+          {
+            transform: [
+              {translateX: -((thrownCards.length - 1) * CARD_WIDTH) / 2},
+            ],
+          },
+        ]}
+        pointerEvents="none">
         {thrownCards.map((card, index) => (
           <DiscardPointer
             isThrown={
@@ -70,7 +79,13 @@ const DeckCardPointers = ({
           />
         ))}
       </View>
-      <View style={styles.body}>
+      <View
+        style={[
+          styles.body,
+          {
+            transform: [{translateX: -((cards.length - 1) * CARD_WIDTH) / 2}],
+          },
+        ]}>
         {cards.map((card, index) => (
           <PickupPointer
             disabled={!isCanPickupCard(cards.length, index)}
