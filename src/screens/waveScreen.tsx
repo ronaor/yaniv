@@ -97,7 +97,7 @@ const WaveMemory: React.FC<WaveMemoryProps> = React.memo(({path, opacity}) => {
 });
 
 const waveColors = ['#D0DCAC', '#46c8e2'];
-const surfColors = ['#e5e2a9', '#88ead8'];
+const surfColors = ['#e5e2a9', '#91F7D5'];
 const seaColor = '#17A5C3';
 
 const WaveAnimationBackground = () => {
@@ -264,7 +264,13 @@ const WaveAnimationBackground = () => {
       </Path>
 
       {/* Wave stroke */}
-      <Path path={wavePath} style="stroke" strokeWidth={15} color="white" />
+      <Path
+        path={wavePath}
+        style="stroke"
+        transform={[{translateY: -8}]}
+        strokeWidth={15}
+        color="#FFFFFFF0"
+      />
     </Canvas>
   );
 };

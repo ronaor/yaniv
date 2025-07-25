@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
   FlatList,
-  ImageBackground,
   StatusBar,
   StyleSheet,
   Text,
@@ -14,7 +13,6 @@ import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import backgroundImg from '~/assets/images/yaniv_background.png';
 import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 import CardBack from '~/components/cards/cardBack';
@@ -26,6 +24,7 @@ import {useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {isNil} from 'lodash';
 import WaveAnimationBackground from './waveScreen';
+import YanivButton from '~/components/yanivButton';
 
 function GameScreen({navigation}: any) {
   const {roomId, players, leaveRoom} = useRoomStore();
@@ -299,20 +298,6 @@ function GameScreen({navigation}: any) {
           </View>
 
           {/* Game Actions */}
-          {myTurn && (
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.actionBtn,
-                  styles.yanivBtn,
-                  !canCallYaniv() && styles.disabledBtn,
-                ]}
-                onPress={emit.callYaniv}
-                disabled={!canCallYaniv()}>
-                <Text style={styles.actionBtnText}>יניב!</Text>
-              </TouchableOpacity>
-            </View>
-          )}
 
           {/* Players List */}
           <View style={styles.playersSection}>
@@ -351,6 +336,9 @@ function GameScreen({navigation}: any) {
           </View>
         </View>
 
+        <View style={styles.actionButtons}>
+          <YanivButton onPress={emit.callYaniv} disabled={!canCallYaniv()} />
+        </View>
         {orderedPlayers.map((playerId, i) => {
           if (thisPlayer.playerId === playerId) {
             return (
@@ -543,8 +531,8 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 12,
+    justifyContent: 'flex-end',
+    marginBottom: 100,
     paddingHorizontal: 8,
   },
   actionBtn: {

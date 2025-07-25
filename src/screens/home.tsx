@@ -3,6 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import MenuButton from '~/components/menuButton';
 import {openNamePromptEdit} from '~/components/namePrompt';
+
 import {useRoomStore} from '~/store/roomStore';
 import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';

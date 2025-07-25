@@ -34,25 +34,13 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
         color="#FFF8E6"
       />
 
-      {/* Inner card with border */}
-      <RoundedRect
-        x={4.5}
-        y={4.5}
-        width={width - 9}
-        height={height - 9}
-        r={4.5}
-        color="#038DBB"
-        style="stroke"
-        strokeWidth={1}
-      />
-
       <RoundedRect
         x={5}
         y={5}
         width={width - 10}
         height={height - 10}
         r={5}
-        color="#038DBB"
+        color="#26A2C5"
       />
 
       {/* Mask for the wave patterns */}
@@ -74,8 +62,8 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
               key={index}
               path={createWavePath(x)}
               style="stroke"
-              strokeWidth={3}
-              color="#05A8D1"
+              strokeWidth={2}
+              color="#34accdff"
               strokeCap="round"
             />
           ))}

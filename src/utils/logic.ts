@@ -19,7 +19,7 @@ export const calculateCardsPositions = (
       case 'up': // Cards at bottom, pointing up (original behavior)
         return {
           x: width / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH,
-          y: height - 150 + arcOffset,
+          y: height - 145 + arcOffset,
           deg: shift * 3,
         };
 
