@@ -334,12 +334,7 @@ function GameScreen({navigation}: any) {
             );
           } else {
             return (
-              <View
-                key={playerId}
-                style={{
-                  position: 'absolute',
-                  width: screenWidth,
-                }}>
+              <View key={playerId} style={styles.absolute}>
                 <HiddenCardPointsList
                   cards={playersHands[playerId] ?? []}
                   direction={directions[i]}
@@ -382,15 +377,8 @@ function GameScreen({navigation}: any) {
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    // width: '100%',
-    // height: '100%',
-    // paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
   body: {
     flex: 1,
-    // backgroundColor: 'rgba(0, 0, 0, 0.1)', // semi-transparent background
     padding: 12,
   },
 
@@ -411,11 +399,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  roomTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
   timerContainer: {
     backgroundColor: colors.primary,
     borderRadius: 20,
@@ -426,26 +409,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  timerUrgent: {
-    color: '#FF6B6B',
-  },
-  gameStatus: {
-    backgroundColor: colors.card,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    alignItems: 'center',
-  },
-  turnInfo: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.primary,
-    marginBottom: 4,
-  },
-  handValue: {
-    fontSize: 14,
-    color: colors.textSecondary,
   },
   gameArea: {
     justifyContent: 'center',
@@ -464,28 +427,6 @@ const styles = StyleSheet.create({
     height: 80,
     alignItems: 'center',
   },
-  deckHighlighted: {},
-  deckText: {
-    fontSize: 24,
-    marginBottom: 4,
-    color: 'white',
-  },
-  deckCount: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  discardPile: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flexDirection: 'column',
-    gap: 8,
-  },
-  pickupableCard: {
-    borderColor: '#FFFFFF70',
-    borderRadius: 12,
-    borderWidth: 3,
-  },
   handSection: {
     padding: 12,
     borderRadius: 8,
@@ -497,9 +438,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
-  },
-  handList: {
-    flexGrow: 0,
   },
   card: {
     backgroundColor: colors.background,
@@ -516,62 +454,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  selectedCard: {
-    transform: [{translateY: -8}],
-  },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     marginBottom: 100,
     paddingHorizontal: 8,
-  },
-  actionBtn: {
-    flex: 1,
-    marginHorizontal: 4,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  yanivBtn: {
-    backgroundColor: colors.success,
-  },
-  disabledBtn: {
-    backgroundColor: colors.border,
-  },
-  actionBtnText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  playersSection: {
-    flex: 1,
-    // backgroundColor: colors.card,
-    borderRadius: 8,
-    padding: 12,
-  },
-  playersTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  playerList: {
-    flex: 1,
-  },
-  player: {
-    fontSize: 14,
-    color: colors.text,
-    padding: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    textAlign: 'center',
-  },
-  currentPlayer: {
-    backgroundColor: colors.accent,
-    fontWeight: 'bold',
-    borderRadius: 4,
   },
   overlay: {
     position: 'absolute',
@@ -582,80 +470,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1000,
   },
-  messageContainer: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    padding: 30,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
-  },
   yanivText: {
     fontSize: 48,
     fontWeight: 'bold',
     color: colors.success,
     marginBottom: 10,
   },
-  asafText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: colors.error,
-    marginBottom: 10,
-  },
-  roundResults: {
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  resultText: {
-    fontSize: 16,
-    color: colors.text,
-    marginBottom: 5,
-    textAlign: 'center',
-  },
-  drawInstructions: {
-    backgroundColor: colors.card,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-  },
-  drawInstructionsText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  selectionInfo: {
-    fontSize: 12,
-    color: colors.primary,
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  discardInfo: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  section: {
-    backgroundColor: colors.card,
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  cardsContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  pickupCard: {},
+  absolute: {position: 'absolute', width: screenWidth},
 });
 
 export default GameScreen;
