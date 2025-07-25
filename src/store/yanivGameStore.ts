@@ -14,6 +14,7 @@ import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
 import {calculateCardsPositions} from '~/utils/logic';
 import {useRoomStore} from './roomStore';
+import {Dimensions} from 'react-native';
 
 //region Server Types
 interface PublicGameState {
@@ -182,7 +183,9 @@ const initialGameFields: YanivGameFields = {
   },
 };
 
-// const {height: screenHeight, width: screenWidth} = Dimensions.get('screen');
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+// const {height: windowHeight, width: windowWidth} = Dimensions.get('window');
+const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
@@ -192,12 +195,11 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       socketId,
       ...players.filter(playerId => playerId !== socketId),
     ];
-    const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
     const playersCardsPositions = directions
       .slice(0, players.length)
       .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
         const playerId = orderedPlayers[i];
-        res[playerId] = calculateCardsPositions(7, direction);
+        res[playerId] = calculateCardsPositions(5, direction);
         return res;
       }, {});
 
@@ -325,11 +327,18 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           state.playersCardsPositions[playerId]
             ?.filter((_, i) => data.selectedCardsPositions.includes(i))
             .map(pos => ({
-              x: pos.x - deckPos.x * 1.5,
-              y: pos.y - deckPos.y,
+              x: pos.x - screenWidth / 2 + 35,
+              y: pos.y - screenHeight / 2 - 45,
               deg: pos.deg,
             })) ?? [];
 
+        const playerIndex = state.config.players.indexOf(playerId);
+        if (playerIndex > -1) {
+          state.playersCardsPositions[playerId] = calculateCardsPositions(
+            data.amountBefore,
+            directions[playerIndex],
+          );
+        }
         let cardPosition: Position | undefined;
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
         switch (source) {
@@ -425,7 +434,16 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const socketId = useSocket.getState().getSocketId();
       const {currentPlayerId, playerHands, gameState} = data;
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
+
       set(state => {
+        const playersCardsPositions = directions
+          .slice(0, state.config.players.length)
+          .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
+            const playerId = state.config.players[i];
+            res[playerId] = calculateCardsPositions(5, direction);
+            return res;
+          }, {});
+
         return {
           ...state,
           round: state.round + 1,
@@ -447,6 +465,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             turnStartTime: new Date(),
           },
           playersHands: data.playerHands,
+          playersCardsPositions,
         };
       });
     },
