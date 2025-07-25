@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     height: height,
     width: width,
     position: 'absolute',
+    zIndex: 1,
   },
   pointers: {
     position: 'absolute',

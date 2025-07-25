@@ -1,6 +1,5 @@
 import React from 'react';
-import Svg, {Text} from 'react-native-svg';
-import {Platform} from 'react-native';
+import Svg, {FontWeight, Text} from 'react-native-svg';
 
 interface OutlinedTextProps {
   text: string;
@@ -10,6 +9,8 @@ interface OutlinedTextProps {
   fillColor: string;
   strokeColor: string;
   strokeWidth?: number;
+  fontFamily?: string;
+  fontWeight?: FontWeight;
 }
 
 export const OutlinedText = ({
@@ -20,22 +21,17 @@ export const OutlinedText = ({
   fillColor,
   strokeColor,
   strokeWidth = 3,
+  fontFamily,
+  fontWeight,
 }: OutlinedTextProps) => {
   const centerX = width / 2;
   const centerY = height / 2;
 
-  // Safe font family with fallbacks
-  const fontFamily = Platform.select({
-    ios: 'LuckiestGuy-Regular',
-    android: 'LuckiestGuy-Regular',
-    default: 'Arial-BoldMT', // Fallback
-  });
-
   const textProps = {
     fontSize,
-    fontWeight: 'bold' as const,
+    fontWeight,
     x: centerX,
-    y: centerY + 5,
+    y: centerY + 2.5,
     textAnchor: 'middle' as const,
     alignmentBaseline: 'central' as const,
     fontFamily,

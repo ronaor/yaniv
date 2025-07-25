@@ -87,13 +87,11 @@ export default DeckCardPointers;
 
 const styles = StyleSheet.create({
   body: {
-    position: 'absolute',
     flexDirection: 'row',
   },
   discard: {
     width: CARD_WIDTH,
     height: 70,
-    position: 'absolute',
     top: CARD_WIDTH * 2,
   },
 });

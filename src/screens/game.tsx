@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
-  FlatList,
+  Dimensions,
   StatusBar,
   StyleSheet,
   Text,
@@ -20,14 +20,18 @@ import CardPointsList from '~/components/cards/cardsPoint';
 import {DirectionName, Location} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_WIDTH} from '~/utils/constants';
-import {useYanivGameStore} from '~/store/yanivGameStore';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {isNil} from 'lodash';
 import WaveAnimationBackground from './waveScreen';
 import YanivButton from '~/components/yanivButton';
+import UserAvatar from '~/components/user/userAvatar';
+import LightAround from '~/components/user/lightAround';
+
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
-  const {roomId, players, leaveRoom} = useRoomStore();
+  const {roomId, players, leaveRoom, config} = useRoomStore();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const {
     thisPlayer,
@@ -37,7 +41,6 @@ function GameScreen({navigation}: any) {
     pickupCards,
     playersStats,
     round,
-    config,
     setUI,
     clearGame,
     clearError,
@@ -51,11 +54,16 @@ function GameScreen({navigation}: any) {
 
   const {name: nickName} = useUser();
 
+  const playersName = useMemo(() => {
+    return players.reduce<Record<PlayerId, string>>((res, user) => {
+      res[user.id] = user.nickName;
+      return res;
+    }, {});
+  }, [players]);
+
   const [timeRemaining, setTimeRemaining] = useState(0);
 
-  const canCallYaniv = () => {
-    return getHandValue(playerHand) <= 7;
-  };
+  const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
   useEffect(() => {
     return clearGame;
@@ -92,9 +100,9 @@ function GameScreen({navigation}: any) {
     const interval = setInterval(() => {
       const elapsed =
         (Date.now() -
-          new Date(turnStartTime ?? config.timePerPlayer).getTime()) /
+          new Date(turnStartTime ?? config!.timePerPlayer).getTime()) /
         1000;
-      const remaining = config.timePerPlayer - Math.floor(Math.abs(elapsed));
+      const remaining = config!.timePerPlayer - Math.floor(Math.abs(elapsed));
 
       setTimeRemaining(remaining);
       if (remaining <= 0) {
@@ -102,7 +110,7 @@ function GameScreen({navigation}: any) {
       }
     }, 1000);
 
-    setTimeRemaining(config.timePerPlayer);
+    setTimeRemaining(config!.timePerPlayer);
     return () => clearInterval(interval);
   }, [myTurn, turnStartTime, config, mainState.state]);
 
@@ -141,7 +149,7 @@ function GameScreen({navigation}: any) {
     pickupRef.current?.measure((x, y, width, height, pageX, pageY) => {
       setUiData(prev => ({
         ...prev,
-        pickupLocation: {x: pageX + width / 2, y: pageY + height / 2, deg: 0},
+        pickupLocation: {x: pageX, y: pageY + height / 2, deg: 0},
       }));
     });
   };
@@ -242,83 +250,29 @@ function GameScreen({navigation}: any) {
             )}
           </View>
 
-          {/* Game Status */}
-          <View style={styles.gameStatus}>
-            <Text style={styles.turnInfo}>
-              {myTurn ? 'בחר קלף לשליפה' : 'ממתין לשחקן אחר...'}
-            </Text>
-            <Text style={styles.handValue}>
-              הקלפים שלך: {playersStats[thisPlayer.playerId]?.score ?? 0} נקודות
-            </Text>
-          </View>
-
           {/* Game Area */}
           <View style={styles.gameArea}>
             {/* Deck and Discard Pile */}
             <View style={styles.centerArea}>
-              <View style={styles.discardPile}>
-                <Text style={styles.discardTitle}>קופה:</Text>
-                <TouchableOpacity
-                  ref={deckRef}
-                  onLayout={measureDeckPos}
-                  style={styles.deck}
-                  onPress={handleDrawFromDeck}
-                  disabled={!myTurn || selectedCards.length === 0}>
-                  <CardBack />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                ref={deckRef}
+                onLayout={measureDeckPos}
+                style={styles.deck}
+                onPress={handleDrawFromDeck}
+                disabled={!myTurn || selectedCards.length === 0}>
+                <CardBack />
+              </TouchableOpacity>
 
-              <View style={styles.discardPile}>
-                <Text style={styles.discardTitle}>קלפים:</Text>
-                <View
-                  style={styles.discardCards}
-                  ref={pickupRef}
-                  onLayout={measurePickupPos}>
-                  <DeckCardPointers
-                    cards={pickupCards}
-                    onPickUp={handlePickupCard}
-                    pickedCard={lastPickedCard}
-                    fromTargets={
-                      mainState.prevTurn?.discard.cardsPositions ?? []
-                    }
-                    round={round}
-                  />
-                </View>
+              <View ref={pickupRef} onLayout={measurePickupPos}>
+                <DeckCardPointers
+                  cards={pickupCards}
+                  onPickUp={handlePickupCard}
+                  pickedCard={lastPickedCard}
+                  fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
+                  round={round}
+                />
               </View>
             </View>
-          </View>
-
-          {/* Player's Hand */}
-          <View style={styles.handSection}>
-            <Text style={styles.handTitle}>
-              <Text style={styles.handTitle}>
-                {getHandValue(playerHand)} נקודות
-              </Text>
-            </Text>
-          </View>
-
-          {/* Game Actions */}
-
-          {/* Players List */}
-          <View style={styles.playersSection}>
-            <Text style={styles.playersTitle}>שחקנים:</Text>
-            <FlatList
-              data={players}
-              keyExtractor={item => item.id}
-              renderItem={({item}) => (
-                <Text
-                  style={[
-                    styles.player,
-                    mainState.playerTurn === item.id && styles.currentPlayer,
-                    playersStats[item.id]?.lost && {opacity: 0.5},
-                  ]}>
-                  {`${item.nickName} - `}
-                  {playersStats[item.id]?.score ?? 0}
-                  {item.nickName === nickName ? ' (אתה)' : ''}
-                </Text>
-              )}
-              style={styles.playerList}
-            />
           </View>
 
           {/* Yaniv/Asaf Overlay */}
@@ -337,7 +291,18 @@ function GameScreen({navigation}: any) {
         </View>
 
         <View style={styles.actionButtons}>
-          <YanivButton onPress={emit.callYaniv} disabled={!canCallYaniv()} />
+          <UserAvatar
+            name={playersName[thisPlayer.playerId]}
+            score={playersStats[thisPlayer.playerId]?.score ?? 0}
+          />
+          <LightAround direction={'up'} isActive={myTurn} />
+          <View style={styles.handSection}>
+            <Text style={styles.handTitle}>{handValue} נקודות</Text>
+          </View>
+          <YanivButton
+            onPress={emit.callYaniv}
+            disabled={handValue > config!.canCallYaniv || !myTurn}
+          />
         </View>
         {orderedPlayers.map((playerId, i) => {
           if (thisPlayer.playerId === playerId) {
@@ -360,18 +325,47 @@ function GameScreen({navigation}: any) {
             );
           } else {
             return (
-              <HiddenCardPointsList
+              <View
                 key={playerId}
-                cards={playersHands[playerId] ?? []}
-                direction={directions[i]}
-                fromPosition={
-                  playerId === mainState.prevTurn?.playerId
-                    ? mainState.prevTurn?.draw?.cardPosition
-                    : undefined
-                }
-                action={mainState.prevTurn?.action}
-                reveal={!isNil(mainState.roundResults)}
-              />
+                style={{
+                  position: 'absolute',
+                  width: screenWidth,
+                }}>
+                <HiddenCardPointsList
+                  cards={playersHands[playerId] ?? []}
+                  direction={directions[i]}
+                  fromPosition={
+                    playerId === mainState.prevTurn?.playerId
+                      ? mainState.prevTurn?.draw?.cardPosition
+                      : undefined
+                  }
+                  action={mainState.prevTurn?.action}
+                  reveal={!isNil(mainState.roundResults)}
+                />
+                <View
+                  style={[
+                    {
+                      position: 'absolute',
+                    },
+                    directions[i] === 'up' ? {top: 0} : {},
+                    directions[i] === 'down' ? {bottom: 0} : {},
+                    directions[i] === 'left'
+                      ? {left: 10, top: screenHeight / 2 - 190}
+                      : {},
+                    directions[i] === 'right'
+                      ? {right: 10, top: screenHeight / 2 - 190}
+                      : {},
+                  ]}>
+                  <UserAvatar
+                    name={playersName[playerId]}
+                    score={playersStats[playerId]?.score ?? 0}
+                  />
+                </View>
+                <LightAround
+                  direction={directions[i]}
+                  isActive={mainState.playerTurn === playerId}
+                />
+              </View>
             );
           }
         })}
@@ -447,15 +441,12 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   gameArea: {
-    // backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    minHeight: 120,
+    justifyContent: 'center',
     alignItems: 'center',
+    height: screenHeight - 200,
   },
   centerArea: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: 12,
     gap: CARD_WIDTH,
@@ -463,7 +454,6 @@ const styles = StyleSheet.create({
   deck: {
     backgroundColor: '#dddddd',
     borderRadius: 8,
-
     height: 80,
     alignItems: 'center',
   },
@@ -479,17 +469,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   discardPile: {
+    justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  discardTitle: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  discardCards: {},
-  discardCard: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    gap: 8,
   },
   pickupableCard: {
     borderColor: '#FFFFFF70',
@@ -531,7 +514,8 @@ const styles = StyleSheet.create({
   },
   actionButtons: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
     marginBottom: 100,
     paddingHorizontal: 8,
   },

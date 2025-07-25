@@ -41,6 +41,7 @@ const YanivButton = ({onPress, disabled = false}: MenuButtonProps) => {
               fillColor={disabled ? '#F0F0F0' : '#FEF3C7'}
               strokeColor={disabled ? '#888888' : '#A9490A'}
               strokeWidth={5}
+              fontFamily="LuckiestGuy-Regular"
             />
           </View>
         </View>
@@ -56,7 +57,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#A9490A',
     paddingBottom: 5,
-    alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
