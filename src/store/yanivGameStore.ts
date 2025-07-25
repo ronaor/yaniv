@@ -14,7 +14,7 @@ import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
 import {calculateCardsPositions} from '~/utils/logic';
 import {useRoomStore} from './roomStore';
-import {Dimensions} from 'react-native';
+import {Dimensions, Platform} from 'react-native';
 
 //region Server Types
 interface PublicGameState {
@@ -184,7 +184,9 @@ const initialGameFields: YanivGameFields = {
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-// const {height: windowHeight, width: windowWidth} = Dimensions.get('window');
+const normalizedHeight =
+  Platform.OS === 'ios' ? screenHeight + 30 : screenHeight - 30;
+
 const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
@@ -323,15 +325,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           y: 0,
         };
 
-        const cardsPositions =
-          state.playersCardsPositions[playerId]
-            ?.filter((_, i) => data.selectedCardsPositions.includes(i))
-            .map(pos => ({
-              x: pos.x - screenWidth / 2 + 35,
-              y: pos.y - screenHeight / 2 - 45,
-              deg: pos.deg,
-            })) ?? [];
-
+        // ✅ קודם עדכן את המיקומים החדשים
         const playerIndex = state.config.players.indexOf(playerId);
         if (playerIndex > -1) {
           state.playersCardsPositions[playerId] = calculateCardsPositions(
@@ -339,6 +333,17 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             directions[playerIndex],
           );
         }
+
+        // ✅ אחר כך חשב cardsPositions מהמיקומים המעודכנים
+        const cardsPositions =
+          state.playersCardsPositions[playerId]
+            ?.filter((_, i) => data.selectedCardsPositions.includes(i))
+            .map(pos => ({
+              x: pos.x - screenWidth / 2 + 29,
+              y: pos.y - normalizedHeight / 2 - 45,
+              deg: pos.deg,
+            })) ?? [];
+
         let cardPosition: Position | undefined;
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
         switch (source) {

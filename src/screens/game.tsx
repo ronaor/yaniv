@@ -451,6 +451,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: screenHeight - 200,
+    zIndex: 1,
   },
   centerArea: {
     flexDirection: 'column',

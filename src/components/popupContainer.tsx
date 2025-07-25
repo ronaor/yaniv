@@ -8,7 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-const {width: wWidth, height: wHeight} = Dimensions.get('window');
+const {width: wWidth, height: wHeight} = Dimensions.get('screen');
 
 export interface PopUpContainerProps {
   isModalOpen: boolean;
