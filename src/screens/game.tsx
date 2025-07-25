@@ -31,7 +31,7 @@ import LightAround from '~/components/user/lightAround';
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
-  const {roomId, players, leaveRoom, config} = useRoomStore();
+  const {players, leaveRoom, config} = useRoomStore();
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const {
     thisPlayer,
@@ -242,7 +242,6 @@ function GameScreen({navigation}: any) {
             <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
               <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
             </TouchableOpacity>
-            <Text style={styles.roomTitle}>חדר: {roomId}</Text>
             {myTurn && (
               <View style={styles.timerContainer}>
                 <Text style={[styles.timer]}>{timeRemaining}s</Text>
@@ -289,13 +288,20 @@ function GameScreen({navigation}: any) {
             )}
           </View>
         </View>
-
+        {orderedPlayers.map((playerId, i) => (
+          <LightAround
+            key={`light-${playerId}`}
+            direction={directions[i]}
+            isActive={mainState.playerTurn === playerId}
+          />
+        ))}
         <View style={styles.actionButtons}>
           <UserAvatar
             name={playersName[thisPlayer.playerId]}
             score={playersStats[thisPlayer.playerId]?.score ?? 0}
+            isActive={myTurn}
+            timePerPlayer={config!.timePerPlayer}
           />
-          <LightAround direction={'up'} isActive={myTurn} />
           <View style={styles.handSection}>
             <Text style={styles.handTitle}>{handValue} נקודות</Text>
           </View>
@@ -359,12 +365,10 @@ function GameScreen({navigation}: any) {
                   <UserAvatar
                     name={playersName[playerId]}
                     score={playersStats[playerId]?.score ?? 0}
+                    isActive={mainState.playerTurn === playerId}
+                    timePerPlayer={config!.timePerPlayer}
                   />
                 </View>
-                <LightAround
-                  direction={directions[i]}
-                  isActive={mainState.playerTurn === playerId}
-                />
               </View>
             );
           }
