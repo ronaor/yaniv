@@ -12,7 +12,10 @@ import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {CARD_WIDTH} from '~/utils/constants';
-import {calculateCardsPositions} from '~/utils/logic';
+import {
+  calculateCardsPositions,
+  calculateHiddenCardsPositions,
+} from '~/utils/logic';
 import {useRoomStore} from './roomStore';
 import {Dimensions, Platform} from 'react-native';
 
@@ -193,15 +196,23 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
   setUI: (gameUI: GameUI, players: PlayerId[]) => {
     const socketId = `${useSocket.getState().getSocketId()}`;
-    const orderedPlayers = [
-      socketId,
-      ...players.filter(playerId => playerId !== socketId),
-    ];
+    const currentPlayerIndex = players.findIndex(id => id === socketId);
+
+    const orderedPlayers: PlayerId[] = [];
+    for (let i = 0; i < players.length; i++) {
+      const index = (currentPlayerIndex + i) % players.length;
+      orderedPlayers.push(players[index]);
+    }
+
     const playersCardsPositions = directions
       .slice(0, players.length)
       .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
         const playerId = orderedPlayers[i];
-        res[playerId] = calculateCardsPositions(5, direction);
+        if (socketId === playerId) {
+          res[playerId] = calculateCardsPositions(5, direction);
+        } else {
+          res[playerId] = calculateHiddenCardsPositions(5, direction);
+        }
         return res;
       }, {});
 
@@ -328,10 +339,18 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         // ✅ קודם עדכן את המיקומים החדשים
         const playerIndex = state.config.players.indexOf(playerId);
         if (playerIndex > -1) {
-          state.playersCardsPositions[playerId] = calculateCardsPositions(
-            data.amountBefore,
-            directions[playerIndex],
-          );
+          if (socketId === playerId) {
+            state.playersCardsPositions[playerId] = calculateCardsPositions(
+              data.amountBefore,
+              directions[playerIndex],
+            );
+          } else {
+            state.playersCardsPositions[playerId] =
+              calculateHiddenCardsPositions(
+                data.amountBefore,
+                directions[playerIndex],
+              );
+          }
         }
 
         // ✅ אחר כך חשב cardsPositions מהמיקומים המעודכנים
@@ -445,7 +464,11 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           .slice(0, state.config.players.length)
           .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
             const playerId = state.config.players[i];
-            res[playerId] = calculateCardsPositions(5, direction);
+            if (socketId === playerId) {
+              res[playerId] = calculateCardsPositions(5, direction);
+            } else {
+              res[playerId] = calculateHiddenCardsPositions(5, direction);
+            }
             return res;
           }, {});
 

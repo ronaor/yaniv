@@ -356,8 +356,8 @@ function GameScreen({navigation}: any) {
                     {
                       position: 'absolute',
                     },
-                    directions[i] === 'up' ? {top: 0} : {},
-                    directions[i] === 'down' ? {bottom: 0} : {},
+                    directions[i] === 'up' ? {top: 0, left: 10} : {},
+                    directions[i] === 'down' ? {top: 30, left: 10} : {},
                     directions[i] === 'left'
                       ? {left: 10, top: screenHeight / 2 - 190}
                       : {},

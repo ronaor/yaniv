@@ -6,7 +6,10 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import {calculateCardsPositions} from '~/utils/logic';
+import {
+  calculateCardsPositions,
+  calculateHiddenCardsPositions,
+} from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
 import {MOVE_DURATION} from '~/utils/constants';
@@ -30,6 +33,11 @@ const HiddenCardPointsList = ({
   action,
   reveal,
 }: HiddenCardPointsListProps) => {
+  const cardsHiddenPositions = useMemo(
+    () => calculateHiddenCardsPositions(cards.length, direction),
+    [cards.length, direction],
+  );
+
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
     [cards.length, direction],
@@ -42,7 +50,13 @@ const HiddenCardPointsList = ({
           key={getCardKey(card)}
           index={index}
           from={fromPosition}
-          dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+          dest={
+            (reveal ? cardsPositions[index] : cardsHiddenPositions[index]) ?? {
+              x: 0,
+              y: 0,
+              deg: 0,
+            }
+          }
           card={card}
           action={action}
           reveal={reveal}
