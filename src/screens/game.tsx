@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
@@ -238,7 +239,7 @@ function GameScreen({navigation}: any) {
         barStyle="light-content"
       />
       <WaveAnimationBackground />
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={styles.surface}>
         <View style={styles.body}>
           {/* Header */}
           <View style={styles.header}>
@@ -306,9 +307,7 @@ function GameScreen({navigation}: any) {
             isActive={myTurn}
             timePerPlayer={config.timePerPlayer}
           />
-          <View style={styles.handSection}>
-            <Text style={styles.handTitle}>{handValue} נקודות</Text>
-          </View>
+          <Text style={styles.handTitle}>SCORE: {handValue}</Text>
           <YanivButton
             onPress={emit.callYaniv}
             disabled={handValue > config.canCallYaniv || !myTurn}
@@ -347,20 +346,7 @@ function GameScreen({navigation}: any) {
                   action={mainState.prevTurn?.action}
                   reveal={!isNil(mainState.roundResults)}
                 />
-                <View
-                  style={[
-                    {
-                      position: 'absolute',
-                    },
-                    directions[i] === 'up' ? {top: 0, left: 10} : {},
-                    directions[i] === 'down' ? {top: 80, left: 30} : {},
-                    directions[i] === 'left'
-                      ? {left: 10, top: screenHeight / 2 - 140}
-                      : {},
-                    directions[i] === 'right'
-                      ? {right: 10, top: screenHeight / 2 - 140}
-                      : {},
-                  ]}>
+                <View style={recordStyle[directions[i]]}>
                   <UserAvatar
                     name={playersName[playerId]}
                     score={playersStats[playerId]?.score ?? 0}
@@ -378,11 +364,11 @@ function GameScreen({navigation}: any) {
 }
 
 const styles = StyleSheet.create({
+  surface: {flex: 1},
   body: {
     flex: 1,
     padding: 12,
   },
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -427,17 +413,14 @@ const styles = StyleSheet.create({
     height: 80,
     alignItems: 'center',
   },
-  handSection: {
+  handTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#612602',
+    textAlign: 'center',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
-  },
-  handTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
   },
   card: {
     backgroundColor: colors.background,
@@ -478,5 +461,20 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
 });
+
+const recordStyle: Record<DirectionName, ViewStyle> = {
+  up: {position: 'absolute', top: 0, left: 10},
+  down: {position: 'absolute', top: 80, left: 30},
+  left: {
+    position: 'absolute',
+    left: 10,
+    top: screenHeight / 2 - 140,
+  },
+  right: {
+    position: 'absolute',
+    right: 10,
+    top: screenHeight / 2 - 140,
+  },
+};
 
 export default GameScreen;

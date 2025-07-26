@@ -33,7 +33,7 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
   }, [circleProgress, isActive, timePerPlayer]);
 
   const progressPath = useDerivedValue(() => {
-    const radius = 32.5; // (75 - 5*2) / 2 = circle radius minus border
+    const radius = 35; // (75 - 5*2) / 2 = circle radius minus border
     const centerX = 37.5; // 75 / 2
     const centerY = 37.5; // 75 / 2
     const sweepAngle = circleProgress.value * 360;
@@ -65,41 +65,38 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
     );
   });
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    borderColor: isActive ? 'transparent' : 'white',
-  }));
+  const circleStyle = useAnimatedStyle(
+    () => ({borderColor: isActive ? '#0c7599' : 'white'}),
+    [],
+  );
 
   return (
     <View style={styles.container}>
       <View style={styles.circleContainer}>
-        <Animated.View style={[animatedStyle, styles.circle]} />
+        <Animated.View style={[circleStyle, styles.circle]} />
         {isActive && (
           <Canvas style={styles.progressCanvas}>
             <Path
               path={progressPath}
               style="stroke"
-              strokeWidth={5}
+              strokeWidth={6}
               strokeCap="round"
               color={progressColor}
             />
           </Canvas>
         )}
       </View>
-      <View style={styles.log}>
+      <View style={styles.gradientWrap}>
         <LinearGradient
-          style={styles.gradientLeft}
-          colors={['#E9872A', '#821601', '#821601']}>
-          <View style={styles.logLeft}>
+          style={styles.gradient}
+          colors={['#E05F0B', '#AE4906', '#AE4906']}>
+          <View style={styles.log}>
             <Text style={styles.name}>{name}</Text>
           </View>
         </LinearGradient>
-        <LinearGradient
-          style={styles.gradientRight}
-          colors={['#E9872A', '#E57D21', '#821601']}>
-          <View style={styles.logRight}>
-            <Text style={styles.score}>{score}</Text>
-          </View>
-        </LinearGradient>
+      </View>
+      <View style={styles.gradientScore}>
+        <Text style={styles.score}>{score}</Text>
       </View>
     </View>
   );
@@ -114,6 +111,11 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     borderWidth: 5,
     backgroundColor: '#139AC8',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   circleContainer: {
     marginBottom: -8,
@@ -131,50 +133,53 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    padding: 5,
-    paddingEnd: 7.5,
-    fontSize: 15,
-    fontWeight: 'bold',
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    fontSize: 17,
+    fontWeight: '900',
     color: '#FDEBC0',
   },
   score: {
-    padding: 5,
-    paddingStart: 7.5,
-    fontSize: 15,
-    fontWeight: 'bold',
+    paddingVertical: 2,
+    paddingHorizontal: 3,
+    fontSize: 13,
+    fontWeight: '900',
     color: '#FDEBC0',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  gradientRight: {
-    paddingEnd: 3,
+  gradientWrap: {
+    borderWidth: 1,
+    borderColor: '#732C03',
+    backgroundColor: '#732C03',
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  gradient: {
     paddingVertical: 3,
-    borderTopEndRadius: 20,
-    borderBottomEndRadius: 20,
-    overflow: 'hidden',
-  },
-  logRight: {
-    borderTopEndRadius: 22,
-    borderBottomEndRadius: 22,
-    backgroundColor: '#ef8e2df0',
-    flexDirection: 'row',
-  },
-  gradientLeft: {
-    paddingStart: 3,
-    paddingVertical: 3,
-    borderTopStartRadius: 20,
-    borderBottomStartRadius: 20,
-    overflow: 'hidden',
-  },
-  logLeft: {
-    backgroundColor: '#BB550C',
-    flexDirection: 'row',
-    borderTopStartRadius: 22,
-    borderBottomStartRadius: 22,
+    borderRadius: 13,
   },
   log: {
+    backgroundColor: '#BB550C',
     flexDirection: 'row',
-    backgroundColor: '#821601',
+    borderRadius: 13,
+  },
+  gradientScore: {
+    marginTop: -6,
+    alignSelf: 'flex-end',
+    marginEnd: 10,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    textAlign: 'center',
+    borderColor: '#732C03',
+    borderWidth: 1,
+    backgroundColor: '#E9872A',
+    minWidth: 23,
   },
 });
