@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gradientWrap: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#732C03',
     backgroundColor: '#732C03',
     borderRadius: 15,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     textAlign: 'center',
     borderColor: '#732C03',
-    borderWidth: 1,
+    borderWidth: 2,
     backgroundColor: '#E9872A',
     minWidth: 23,
   },

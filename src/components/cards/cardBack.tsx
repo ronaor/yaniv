@@ -5,6 +5,7 @@ import {
   RoundedRect,
   Mask,
   Group,
+  Shadow,
 } from '@shopify/react-native-skia';
 
 interface CardBackProps {
@@ -13,30 +14,45 @@ interface CardBackProps {
 }
 
 const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
+  // Shadow padding to prevent cropping
+  const shadowPadding = 8;
+  const canvasWidth = width + shadowPadding * 2;
+  const canvasHeight = height + shadowPadding * 2;
+
+  // Offset card position to center it in the larger canvas
+  const cardX = shadowPadding;
+  const cardY = shadowPadding;
+
   // Create the wave path data for each vertical line
   const createWavePath = (x: number) => {
-    return `M${x} 66C${x} 66 ${x + 4.76} 59.28 ${x} 50.75C${
-      x - 4.76
-    } 42.22 ${x} 35.5 ${x} 35.5C${x} 35.5 ${x + 5.62} 28.26 ${x} 20.25C${
-      x - 5.62
-    } 12.24 ${x} 5 ${x} 5`;
+    const adjustedX = x + cardX; // Adjust for card offset
+    return `M${adjustedX} ${66 + cardY}C${adjustedX} ${66 + cardY} ${
+      adjustedX + 4.76
+    } ${59.28 + cardY} ${adjustedX} ${50.75 + cardY}C${adjustedX - 4.76} ${
+      42.22 + cardY
+    } ${adjustedX} ${35.5 + cardY} ${adjustedX} ${35.5 + cardY}C${adjustedX} ${
+      35.5 + cardY
+    } ${adjustedX + 5.62} ${28.26 + cardY} ${adjustedX} ${20.25 + cardY}C${
+      adjustedX - 5.62
+    } ${12.24 + cardY} ${adjustedX} ${5 + cardY} ${adjustedX} ${5 + cardY}`;
   };
 
   return (
-    <Canvas style={{width, height}}>
-      {/* Outer card background */}
+    <Canvas style={{width: canvasWidth, height: canvasHeight}}>
+      {/* Outer card background with shadow */}
       <RoundedRect
-        x={0}
-        y={0}
+        x={cardX}
+        y={cardY}
         width={width}
         height={height}
         r={8}
-        color="#FFF8E6"
-      />
+        color="#FFF8E6">
+        <Shadow dx={0} dy={2} blur={4} color="rgba(0, 0, 0, 0.25)" />
+      </RoundedRect>
 
       <RoundedRect
-        x={5}
-        y={5}
+        x={cardX + 5}
+        y={cardY + 5}
         width={width - 10}
         height={height - 10}
         r={5}
@@ -47,8 +63,8 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
       <Mask
         mask={
           <RoundedRect
-            x={5}
-            y={5}
+            x={cardX + 5}
+            y={cardY + 5}
             width={width - 10}
             height={height - 10}
             r={5}

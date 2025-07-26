@@ -28,8 +28,15 @@ import WaveAnimationBackground from './waveScreen';
 import YanivButton from '~/components/yanivButton';
 import UserAvatar from '~/components/user/userAvatar';
 import LightAround from '~/components/user/lightAround';
+import {OutlinedText} from '~/components/cartoonText';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+
+const CardBackRotated = ({rotation}: {rotation: number}) => (
+  <View style={{position: 'absolute', transform: [{rotate: `${rotation}deg`}]}}>
+    <CardBack />
+  </View>
+);
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
@@ -263,7 +270,10 @@ function GameScreen({navigation}: any) {
                 style={styles.deck}
                 onPress={handleDrawFromDeck}
                 disabled={!myTurn || selectedCards.length === 0}>
-                <CardBack />
+                <>
+                  <CardBackRotated rotation={10} />
+                  <CardBackRotated rotation={3} />
+                </>
               </TouchableOpacity>
 
               <View ref={pickupRef} onLayout={measurePickupPos}>
@@ -307,7 +317,17 @@ function GameScreen({navigation}: any) {
             isActive={myTurn}
             timePerPlayer={config.timePerPlayer}
           />
-          <Text style={styles.handTitle}>SCORE: {handValue}</Text>
+          <OutlinedText
+            text={`${handValue}  Points`}
+            fontSize={20}
+            width={125}
+            height={100}
+            fillColor={'#FFD61B'}
+            strokeColor={'#6A3900'}
+            strokeWidth={5}
+            fontWeight={'900'}
+          />
+          {/* <Text style={styles.handTitle}>{handValue} Points</Text> */}
           <YanivButton
             onPress={emit.callYaniv}
             disabled={handValue > config.canCallYaniv || !myTurn}
@@ -408,7 +428,6 @@ const styles = StyleSheet.create({
     gap: CARD_WIDTH / 2,
   },
   deck: {
-    backgroundColor: '#dddddd',
     borderRadius: 8,
     height: 80,
     alignItems: 'center',

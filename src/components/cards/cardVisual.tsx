@@ -1,5 +1,11 @@
 import React from 'react';
-import {Canvas, RoundedRect, Path, Group} from '@shopify/react-native-skia';
+import {
+  Canvas,
+  RoundedRect,
+  Path,
+  Group,
+  Shadow,
+} from '@shopify/react-native-skia';
 import {Card, CardSuit} from '~/types/cards';
 
 interface CardProps {
@@ -11,6 +17,8 @@ interface CardProps {
 interface SuitProps {
   size: 'small' | 'normal';
   color: string;
+  cardX?: number;
+  cardY?: number;
 }
 
 const CARD_COLORS: Record<CardSuit, string> = {
@@ -89,10 +97,10 @@ const SUIT_PATHS = {
 };
 
 // Card Suit
-const ClubSuit: React.FC<SuitProps> = ({size, color}) => {
+const ClubSuit: React.FC<SuitProps> = ({size, color, cardX = 0, cardY = 0}) => {
   const paths = SUIT_PATHS.club[size];
   return (
-    <Group>
+    <Group transform={[{translateX: cardX}, {translateY: cardY}]}>
       <Path path={paths.topCircle} color={color} />
       <Path path={paths.leftCircle} color={color} />
       <Path path={paths.rightCircle} color={color} />
@@ -101,18 +109,46 @@ const ClubSuit: React.FC<SuitProps> = ({size, color}) => {
     </Group>
   );
 };
-const DiamondSuit: React.FC<SuitProps> = ({size, color}) => {
+
+const DiamondSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const path = SUIT_PATHS.diamond[size];
-  return <Path path={path} color={color} />;
+  return (
+    <Path
+      path={path}
+      color={color}
+      transform={[{translateX: cardX}, {translateY: cardY}]}
+    />
+  );
 };
-const HeartSuit: React.FC<SuitProps> = ({size, color}) => {
+const HeartSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const path = SUIT_PATHS.heart[size];
-  return <Path path={path} color={color} />;
+  return (
+    <Path
+      path={path}
+      color={color}
+      transform={[{translateX: cardX}, {translateY: cardY}]}
+    />
+  );
 };
-const SpadeSuit: React.FC<SuitProps> = ({size, color}) => {
+const SpadeSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const paths = SUIT_PATHS.spade[size];
   return (
-    <Group>
+    <Group transform={[{translateX: cardX}, {translateY: cardY}]}>
       <Path path={paths.suit} color={color} />
       <Path path={paths.stem} color={color} />
     </Group>
@@ -128,22 +164,25 @@ const cardToSuit: Record<CardSuit, React.FC<SuitProps>> = {
 };
 
 // Card background
-const Background: React.FC<{width: number; height: number}> = ({
-  width,
-  height,
-}) => (
+const Background: React.FC<{
+  width: number;
+  height: number;
+  cardX: number;
+  cardY: number;
+}> = ({width, height, cardX, cardY}) => (
   <>
     <RoundedRect
-      x={0}
-      y={0}
+      x={cardX}
+      y={cardY}
       width={width}
       height={height}
       r={8}
-      color="#FFF8E6"
-    />
+      color="#FFF8E6">
+      <Shadow dx={0} dy={2} blur={4} color="rgba(0, 0, 0, 0.25)" />
+    </RoundedRect>
     <RoundedRect
-      x={0.5}
-      y={0.5}
+      x={cardX + 0.5}
+      y={cardY + 0.5}
       width={width - 1}
       height={height - 1}
       r={7.5}
@@ -165,11 +204,26 @@ export const CardComponent: React.FC<CardProps> = ({
   const suitSize = value > 10 ? 'small' : 'normal';
   const Suit = cardToSuit[suit];
 
+  // Shadow padding to prevent cropping
+  const shadowPadding = 8;
+  const canvasWidth = width + shadowPadding * 2;
+  const canvasHeight = height + shadowPadding * 2;
+
+  // Offset card position to center it in the larger canvas
+  const cardX = shadowPadding;
+  const cardY = shadowPadding;
+
   return (
-    <Canvas style={{width, height}}>
-      <Background width={width} height={height} />
-      {value > 0 && <Suit size={suitSize} color={color} />}
-      <Path path={VALUE_PATHS[value]} color={color} />
+    <Canvas style={{width: canvasWidth, height: canvasHeight}}>
+      <Background width={width} height={height} cardX={cardX} cardY={cardY} />
+      {value > 0 && (
+        <Suit size={suitSize} color={color} cardX={cardX} cardY={cardY} />
+      )}
+      <Path
+        path={VALUE_PATHS[value]}
+        color={color}
+        transform={[{translateX: cardX}, {translateY: cardY}]}
+      />
     </Canvas>
   );
 };
