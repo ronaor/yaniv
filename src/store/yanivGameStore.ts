@@ -132,7 +132,10 @@ type YanivGameMethods = {
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
     }) => void;
-    gameEnded: () => void;
+    gameEnded: (data: {
+      winnerId: string;
+      finalScores: Record<string, number>;
+    }) => void;
     setGameError: (data: {message: string}) => void;
   };
   emit: {
@@ -269,6 +272,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       firstCard: Card;
       currentPlayerId: PlayerId;
     }) => {
+      console.log('Game Init');
       const {config} = useRoomStore.getState();
       const {currentPlayerId, playerHands} = data;
       const socketId = useSocket.getState().getSocketId();
@@ -461,6 +465,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const socketId = useSocket.getState().getSocketId();
       const {currentPlayerId, playerHands, gameState} = data;
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
+      console.log('NEW ROUND - - ', gameState.playersStats);
 
       set(state => {
         const playersCardsPositions = directions
@@ -509,6 +514,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
     }) => {
+      console.log('Round Ended ,', data.playersStats);
       set(state => {
         const thisPlayer: PlayerInfo = {
           ...state.thisPlayer,
@@ -536,7 +542,16 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         };
       });
     },
-    gameEnded: () => {},
+    gameEnded: (data: {
+      winnerId: string;
+      finalScores: Record<string, number>;
+    }) => {
+      set(state => {
+        return {
+          ...state,
+        };
+      });
+    },
     setGameError: (data: {message: string}) => {
       set({error: data.message});
     },

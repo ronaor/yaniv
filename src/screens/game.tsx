@@ -27,6 +27,7 @@ import WaveAnimationBackground from './waveScreen';
 import YanivButton from '~/components/yanivButton';
 import UserAvatar from '~/components/user/userAvatar';
 import LightAround from '~/components/user/lightAround';
+import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -50,6 +51,7 @@ function GameScreen({navigation}: any) {
   } = useYanivGameStore();
 
   const {roundResults, turnStartTime} = mainState;
+  console.log('?playersStats', mainState.roundResults?.playersStats);
 
   const {myTurn, slapDownAvailable, handCards: playerHand} = thisPlayer;
 
@@ -67,10 +69,29 @@ function GameScreen({navigation}: any) {
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
   useEffect(() => {
+    openEndGameDialog(
+      'finish',
+      thisPlayer.playerId,
+      config.players,
+      mainState.roundResults?.playersStats ?? {},
+    );
     return clearGame;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    console.log('RRRR', mainState.state);
+
+    if (mainState.state === 'end') {
+      console.log('FFFF', mainState.state);
+      openEndGameDialog(
+        'finish',
+        thisPlayer.playerId,
+        config.players,
+        mainState.roundResults?.playersStats ?? {},
+      );
+    }
+  }, [mainState.state]);
   const [uiReady, setUiReady] = useState<{
     deckLocation: boolean;
     pickupLocation: boolean;
@@ -104,9 +125,6 @@ function GameScreen({navigation}: any) {
   useEffect(() => {
     if (!myTurn) {
       setSelectedCards([]);
-      return;
-    }
-    if (mainState.state !== 'begin' && mainState.state !== 'playing') {
       return;
     }
 

@@ -18,14 +18,14 @@ interface UserAvatarProps {
   name: string;
   score: number;
   isActive: boolean;
-  timePerPlayer: number;
+  timePerPlayer?: number;
 }
 
 function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
 
   useEffect(() => {
-    if (isActive) {
+    if (timePerPlayer && isActive) {
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
