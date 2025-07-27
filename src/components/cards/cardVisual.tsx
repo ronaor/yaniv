@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Canvas,
-  RoundedRect,
-  Path,
-  Group,
-  Shadow,
-} from '@shopify/react-native-skia';
+import {Canvas, RoundedRect, Path, Group} from '@shopify/react-native-skia';
 import {Card, CardSuit} from '~/types/cards';
 
 interface CardProps {
@@ -162,8 +156,6 @@ const cardToSuit: Record<CardSuit, React.FC<SuitProps>> = {
   hearts: HeartSuit,
   spades: SpadeSuit,
 };
-
-// Card background
 const Background: React.FC<{
   width: number;
   height: number;
@@ -171,15 +163,27 @@ const Background: React.FC<{
   cardY: number;
 }> = ({width, height, cardX, cardY}) => (
   <>
+    {/* Cartoonish shadow - offset and darker */}
+    <RoundedRect
+      x={0}
+      y={0}
+      width={width + cardX * 2}
+      height={height + cardY * 2}
+      r={8}
+      color="#b8a08218"
+    />
+
+    {/* Main card */}
     <RoundedRect
       x={cardX}
       y={cardY}
       width={width}
       height={height}
       r={8}
-      color="#FFF8E6">
-      <Shadow dx={0} dy={2} blur={4} color="rgba(0, 0, 0, 0.25)" />
-    </RoundedRect>
+      color="#FFF8E6"
+    />
+
+    {/* Card border */}
     <RoundedRect
       x={cardX + 0.5}
       y={cardY + 0.5}
@@ -205,7 +209,7 @@ export const CardComponent: React.FC<CardProps> = ({
   const Suit = cardToSuit[suit];
 
   // Shadow padding to prevent cropping
-  const shadowPadding = 8;
+  const shadowPadding = 2;
   const canvasWidth = width + shadowPadding * 2;
   const canvasHeight = height + shadowPadding * 2;
 

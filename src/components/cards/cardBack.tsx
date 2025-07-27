@@ -5,7 +5,6 @@ import {
   RoundedRect,
   Mask,
   Group,
-  Shadow,
 } from '@shopify/react-native-skia';
 
 interface CardBackProps {
@@ -15,7 +14,7 @@ interface CardBackProps {
 
 const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
   // Shadow padding to prevent cropping
-  const shadowPadding = 8;
+  const shadowPadding = 2;
   const canvasWidth = width + shadowPadding * 2;
   const canvasHeight = height + shadowPadding * 2;
 
@@ -39,6 +38,15 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
 
   return (
     <Canvas style={{width: canvasWidth, height: canvasHeight}}>
+      {/* Cartoonish shadow - offset and darker */}
+      <RoundedRect
+        x={0}
+        y={0}
+        width={width + cardX * 2}
+        height={height + cardY * 2}
+        r={8}
+        color="#b8a08218"
+      />
       {/* Outer card background with shadow */}
       <RoundedRect
         x={cardX}
@@ -46,9 +54,8 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
         width={width}
         height={height}
         r={8}
-        color="#FFF8E6">
-        <Shadow dx={0} dy={2} blur={4} color="rgba(0, 0, 0, 0.25)" />
-      </RoundedRect>
+        color="#FFF8E6"
+      />
 
       <RoundedRect
         x={cardX + 5}
