@@ -1,11 +1,19 @@
 import React from 'react';
-import {Canvas, RoundedRect, Path, Group} from '@shopify/react-native-skia';
+import {
+  Canvas,
+  RoundedRect,
+  Path,
+  Group,
+  Shadow,
+} from '@shopify/react-native-skia';
 import {Card, CardSuit} from '~/types/cards';
+import {useSharedValue, withRepeat, withTiming} from 'react-native-reanimated';
 
 interface CardProps {
   card: Card;
   width?: number;
   height?: number;
+  glowing?: boolean;
 }
 
 interface SuitProps {
@@ -156,70 +164,107 @@ const cardToSuit: Record<CardSuit, React.FC<SuitProps>> = {
   hearts: HeartSuit,
   spades: SpadeSuit,
 };
+
+// Enhanced Background with glow support
 const Background: React.FC<{
   width: number;
   height: number;
   cardX: number;
   cardY: number;
-}> = ({width, height, cardX, cardY}) => (
-  <>
-    {/* Cartoonish shadow - offset and darker */}
-    <RoundedRect
-      x={0}
-      y={0}
-      width={width + cardX * 2}
-      height={height + cardY * 2}
-      r={8}
-      color="#b8a08218"
-    />
+  glowing?: boolean;
+}> = ({width, height, cardX, cardY, glowing = false}) => {
+  // Continuous glow animation - always pulsing up and down
+  const glowProgress = useSharedValue(0);
 
-    {/* Main card */}
-    <RoundedRect
-      x={cardX}
-      y={cardY}
-      width={width}
-      height={height}
-      r={8}
-      color="#FFF8E6"
-    />
+  React.useEffect(() => {
+    if (glowing) {
+      glowProgress.value = withRepeat(withTiming(1, {duration: 300}), -1, true);
+    } else {
+      glowProgress.value = 0;
+    }
+  }, [glowProgress, glowing]);
 
-    {/* Card border */}
-    <RoundedRect
-      x={cardX + 0.5}
-      y={cardY + 0.5}
-      width={width - 1}
-      height={height - 1}
-      r={7.5}
-      style="stroke"
-      strokeWidth={1}
-      color="#E6D9B7"
-    />
-  </>
-);
+  return (
+    <>
+      {/* Cartoonish shadow - offset and darker / Glow effect */}
+
+      {!glowing && (
+        <RoundedRect
+          x={0}
+          y={0}
+          width={width + cardX * 2}
+          height={height + cardY * 2}
+          r={8}
+          color={'#b8a08218'}
+        />
+      )}
+
+      {glowing && (
+        <RoundedRect
+          x={cardX}
+          y={cardY}
+          width={width}
+          height={height}
+          r={8}
+          color="#FFF8E6"
+          opacity={glowProgress}>
+          <Shadow dx={0} dy={0} blur={2} color="#FFD700" />
+        </RoundedRect>
+      )}
+
+      {/* Main card */}
+      <RoundedRect
+        x={cardX}
+        y={cardY}
+        width={width}
+        height={height}
+        r={8}
+        color={glowing ? '#fff9ecff' : '#FFF8E6'}
+      />
+
+      {/* Card border */}
+      <RoundedRect
+        x={cardX + 0.5}
+        y={cardY + 0.5}
+        width={width - 1}
+        height={height - 1}
+        r={7.5}
+        style="stroke"
+        strokeWidth={1}
+        color="#E6D9B7"
+      />
+    </>
+  );
+};
 
 // Main card component
 export const CardComponent: React.FC<CardProps> = ({
   card,
   width = 50,
   height = 70,
+  glowing = false,
 }) => {
   const {suit, value} = card;
   const color = CARD_COLORS[suit];
   const suitSize = value > 10 ? 'small' : 'normal';
   const Suit = cardToSuit[suit];
 
-  // Shadow padding to prevent cropping
   const shadowPadding = 2;
   const canvasWidth = width + shadowPadding * 2;
   const canvasHeight = height + shadowPadding * 2;
 
-  // Offset card position to center it in the larger canvas
   const cardX = shadowPadding;
   const cardY = shadowPadding;
 
   return (
     <Canvas style={{width: canvasWidth, height: canvasHeight}}>
-      <Background width={width} height={height} cardX={cardX} cardY={cardY} />
+      <Background
+        width={width}
+        height={height}
+        cardX={cardX}
+        cardY={cardY}
+        glowing={glowing}
+      />
       {value > 0 && (
         <Suit size={suitSize} color={color} cardX={cardX} cardY={cardY} />
       )}
