@@ -279,8 +279,8 @@ function GameScreen({navigation}: any) {
           <View style={styles.pickup}>
             <DeckCardPointers
               cards={pickupCards}
-              onPickUp={handlePickupCard}
               pickedCard={lastPickedCard}
+              onPickUp={handlePickupCard}
               fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
               round={round}
               disabled={!myTurn}
