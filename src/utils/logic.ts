@@ -1,5 +1,5 @@
 import {Dimensions} from 'react-native';
-import {DirectionName, Position} from '~/types/cards';
+import {Card, DirectionName, Position} from '~/types/cards';
 import {CARD_WIDTH, OVERLAP_AMOUNT} from './constants';
 
 const {width, height} = Dimensions.get('screen');
@@ -120,3 +120,55 @@ export const calculateHiddenCardsPositions = (
     }
   });
 };
+
+const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
+
+export function calculateAllPlayerPositions(
+  players: string[],
+  currentPlayerId: string,
+) {
+  return directions
+    .slice(0, players.length)
+    .reduce<Record<string, Position[]>>((res, direction, i) => {
+      const playerId = players[i];
+      if (currentPlayerId === playerId) {
+        res[playerId] = calculateCardsPositions(5, direction);
+      } else {
+        res[playerId] = calculateHiddenCardsPositions(5, direction);
+      }
+      return res;
+    }, {});
+}
+
+export const createPlayersData = (
+  playerHands: Record<string, Card[]>,
+  activePlayerId: string,
+) => {
+  return Object.entries(playerHands).reduce<any>((res, [playerId, hand]) => {
+    res[playerId] = {
+      stats: {
+        score: 0,
+        lost: false,
+      },
+      hand,
+      isMyTurn: activePlayerId === playerId,
+      roundScore: 0,
+      slapDownAvailable: false,
+    };
+    return res;
+  }, {});
+};
+
+export function createPlayerOrder(
+  playerIds: string[],
+  currentPlayerId: string,
+) {
+  const currentPlayerIndex = playerIds.findIndex(id => id === currentPlayerId);
+
+  const orderedPlayers: string[] = [];
+  for (let i = 0; i < playerIds.length; i++) {
+    const index = (currentPlayerIndex + i) % playerIds.length;
+    orderedPlayers.push(playerIds[index]);
+  }
+  return orderedPlayers;
+}

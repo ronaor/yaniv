@@ -86,7 +86,7 @@ const DeckCardPointers = ({
   return (
     <>
       <View
-        style={cardsShifterStyle(layerHistory.layer1.length)}
+        style={cardsShifterStyle(layerHistory.layer3.length)}
         pointerEvents="none">
         {layerHistory.layer3.map(
           card =>
