@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   pickup: {
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
-    top: screenHeight / 2 - CARD_HEIGHT,
+    top: screenHeight / 2 - 1.5 * CARD_HEIGHT,
     left: screenWidth / 2 - CARD_WIDTH * 0.5,
   },
   handTitle: {

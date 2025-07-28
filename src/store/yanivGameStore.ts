@@ -301,8 +301,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           x: screenWidth / 2 - CARD_WIDTH * 0.5,
         };
         const pickupPos = {
-          y: screenHeight / 2 + CARD_HEIGHT * 0.5,
-          x: screenWidth / 2,
+          y: screenHeight / 2,
+          x: screenWidth / 2 - CARD_WIDTH * 0.5,
         };
 
         // ✅ קודם עדכן את המיקומים החדשים
@@ -334,7 +334,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
                 (CARD_WIDTH * (data.selectedCardsPositions.length - 1)) / 2,
               y:
                 pos.y -
-                screenHeight / 2 -
+                screenHeight / 2 +
+                CARD_HEIGHT / 2 -
                 (socketId === playerId ? CARD_SELECT_OFFSET : 0),
               deg: pos.deg,
             })) ?? [];
