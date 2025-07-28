@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Alert,
   Dimensions,
@@ -20,7 +20,7 @@ import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
 import {DirectionName} from '~/types/cards';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {isNil} from 'lodash';
@@ -32,11 +32,17 @@ import {OutlinedText} from '~/components/cartoonText';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({rotation}: {rotation: number}) => (
-  <View style={{position: 'absolute', transform: [{rotate: `${rotation}deg`}]}}>
-    <CardBack />
-  </View>
-);
+const CardBackRotated = ({rotation}: {rotation: number}) => {
+  const rotationStyle: ViewStyle = {
+    position: 'absolute',
+    transform: [{rotate: `${rotation}deg`}],
+  };
+  return (
+    <View style={rotationStyle}>
+      <CardBack />
+    </View>
+  );
+};
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
@@ -49,7 +55,6 @@ function GameScreen({navigation}: any) {
     pickupCards,
     playersStats,
     round,
-    setUI,
     clearGame,
     clearError,
     playersHands,
@@ -78,35 +83,6 @@ function GameScreen({navigation}: any) {
     return clearGame;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const [uiReady, setUiReady] = useState<{
-    deckLocation: boolean;
-    pickupLocation: boolean;
-  }>({deckLocation: false, pickupLocation: false});
-
-  useEffect(() => {
-    if (mainState.ui || !uiReady.deckLocation || !uiReady.pickupLocation) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      deckRef.current?.measure((_, __, ___, lH, lPX, lPY) => {
-        const deckLocation = {x: lPX, y: lPY + lH / 2, deg: 0};
-        pickupRef.current?.measure((____, _____, ______, pH, pPX, pPY) => {
-          const pickupLocation = {x: pPX, y: pPY + pH / 2, deg: 0};
-          setUI(
-            {
-              deckLocation,
-              pickupLocation,
-            },
-            players.map(p => p.id),
-          );
-        });
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [setUI, players, mainState.ui, uiReady]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -164,21 +140,6 @@ function GameScreen({navigation}: any) {
     const timer = setTimeout(resetSlapDown, 3000);
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
-
-  const pickupRef = useRef<View>(null);
-  const measurePickupPos = () => {
-    setUiReady(prev => ({
-      ...prev,
-      pickupLocation: true,
-    }));
-  };
-  const deckRef = useRef<TouchableOpacity>(null);
-  const measureDeckPos = () => {
-    setUiReady(prev => ({
-      ...prev,
-      deckLocation: true,
-    }));
-  };
 
   const handleDrawFromDeck = () => {
     const selected = selectedCards.map(i => playerHand[i]);
@@ -260,35 +221,6 @@ function GameScreen({navigation}: any) {
             )}
           </View>
 
-          {/* Game Area */}
-          <View style={styles.gameArea}>
-            {/* Deck and Discard Pile */}
-            <View style={styles.centerArea}>
-              <TouchableOpacity
-                ref={deckRef}
-                onLayout={measureDeckPos}
-                style={styles.deck}
-                onPress={handleDrawFromDeck}
-                disabled={!myTurn || selectedCards.length === 0}>
-                <>
-                  <CardBackRotated rotation={10} />
-                  <CardBackRotated rotation={3} />
-                </>
-              </TouchableOpacity>
-
-              <View ref={pickupRef} onLayout={measurePickupPos}>
-                <DeckCardPointers
-                  cards={pickupCards}
-                  onPickUp={handlePickupCard}
-                  pickedCard={lastPickedCard}
-                  fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
-                  round={round}
-                  disabled={!myTurn}
-                />
-              </View>
-            </View>
-          </View>
-
           {/* Yaniv/Asaf Overlay */}
           <View style={styles.overlay}>
             {roundResults?.yanivCaller && (
@@ -332,6 +264,28 @@ function GameScreen({navigation}: any) {
             onPress={emit.callYaniv}
             disabled={handValue > config.canCallYaniv || !myTurn}
           />
+        </View>
+        {/* Game Area */}
+        <View style={styles.gameArea}>
+          <TouchableOpacity
+            style={styles.deck}
+            onPress={handleDrawFromDeck}
+            disabled={!myTurn || selectedCards.length === 0}>
+            <>
+              <CardBackRotated rotation={10} />
+              <CardBackRotated rotation={3} />
+            </>
+          </TouchableOpacity>
+          <View style={styles.pickup}>
+            <DeckCardPointers
+              cards={pickupCards}
+              onPickUp={handlePickupCard}
+              pickedCard={lastPickedCard}
+              fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
+              round={round}
+              disabled={!myTurn}
+            />
+          </View>
         </View>
         {config.players.map((playerId, i) => {
           if (thisPlayer.playerId === playerId) {
@@ -418,9 +372,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   gameArea: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: screenHeight / 5,
+    position: 'absolute',
   },
   centerArea: {
     flexDirection: 'column',
@@ -428,9 +380,17 @@ const styles = StyleSheet.create({
     gap: CARD_WIDTH / 2,
   },
   deck: {
-    borderRadius: 8,
-    height: 80,
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
     alignItems: 'center',
+    top: screenHeight / 2 - 2 * CARD_HEIGHT,
+    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+  },
+  pickup: {
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    top: screenHeight / 2 - CARD_HEIGHT,
+    left: screenWidth / 2 - CARD_WIDTH * 0.5,
   },
   handTitle: {
     fontSize: 18,

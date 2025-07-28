@@ -11,13 +11,13 @@ import {
 import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_HEIGHT, CARD_SELECT_OFFSET, CARD_WIDTH} from '~/utils/constants';
 import {
   calculateCardsPositions,
   calculateHiddenCardsPositions,
 } from '~/utils/logic';
 import {useRoomStore} from './roomStore';
-import {Dimensions, Platform} from 'react-native';
+import {Dimensions} from 'react-native';
 
 //region Server Types
 interface PublicGameState {
@@ -34,7 +34,6 @@ interface PublicGameState {
 export type PlayerId = string;
 type MainState =
   | {
-      ui: GameUI | null;
       prevTurn: null;
       playerTurn: null;
       state: 'loading';
@@ -42,7 +41,6 @@ type MainState =
       turnStartTime: null;
     }
   | {
-      ui: GameUI;
       prevTurn: null;
       playerTurn: PlayerId;
       state: 'begin';
@@ -50,7 +48,6 @@ type MainState =
       turnStartTime: Date;
     }
   | {
-      ui: GameUI;
       prevTurn: TurnState;
       playerTurn: PlayerId;
       state: 'playing';
@@ -58,7 +55,6 @@ type MainState =
       turnStartTime: Date;
     }
   | {
-      ui: GameUI;
       prevTurn: null;
       playerTurn: null;
       state: 'end';
@@ -93,8 +89,6 @@ type YanivGameFields = {
 };
 
 type YanivGameMethods = {
-  setUI: (gameUI: GameUI, players: PlayerId[]) => void;
-  // updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
   clearGame: () => void;
   clearError: () => void;
   resetSlapDown: () => void;
@@ -160,7 +154,6 @@ type RoundResults = {
 const initialGameFields: YanivGameFields = {
   mainState: {
     state: 'loading',
-    ui: null,
     prevTurn: null,
     playerTurn: null,
     roundResults: null,
@@ -187,57 +180,11 @@ const initialGameFields: YanivGameFields = {
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-const normalizedHeight =
-  Platform.OS === 'ios' ? screenHeight + 30 : screenHeight - 30;
 
 const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
-  setUI: (gameUI: GameUI, players: PlayerId[]) => {
-    const socketId = `${useSocket.getState().getSocketId()}`;
-    const currentPlayerIndex = players.findIndex(id => id === socketId);
-
-    const orderedPlayers: PlayerId[] = [];
-    for (let i = 0; i < players.length; i++) {
-      const index = (currentPlayerIndex + i) % players.length;
-      orderedPlayers.push(players[index]);
-    }
-
-    const playersCardsPositions = directions
-      .slice(0, players.length)
-      .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
-        const playerId = orderedPlayers[i];
-        if (socketId === playerId) {
-          res[playerId] = calculateCardsPositions(5, direction);
-        } else {
-          res[playerId] = calculateHiddenCardsPositions(5, direction);
-        }
-        return res;
-      }, {});
-
-    set(state => {
-      return {
-        ...state,
-        mainState: {
-          ...state.mainState,
-          ui: gameUI,
-        },
-        config: {
-          ...state.config,
-          players: orderedPlayers,
-        },
-        playersCardsPositions,
-      };
-    });
-  },
-  // updateUI: (playerId: PlayerId, playerPos: Position[]) => {
-  //   set(state => {
-  //     const playersCardsPositions = state.playersCardsPositions;
-  //     playersCardsPositions[playerId] = playerPos;
-  //     return {...state, playersCardsPositions};
-  //   });
-  // },
   clearGame: () => {
     set(state => ({...state, ...initialGameFields}));
   },
@@ -269,9 +216,31 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       firstCard: Card;
       currentPlayerId: PlayerId;
     }) => {
-      const {config} = useRoomStore.getState();
+      const {config, players} = useRoomStore.getState();
+      const playerIds = players.map(player => player.id);
       const {currentPlayerId, playerHands} = data;
-      const socketId = useSocket.getState().getSocketId();
+
+      const socketId = `${useSocket.getState().getSocketId()}`;
+      const currentPlayerIndex = playerIds.findIndex(id => id === socketId);
+
+      const orderedPlayers: PlayerId[] = [];
+      for (let i = 0; i < playerIds.length; i++) {
+        const index = (currentPlayerIndex + i) % playerIds.length;
+        orderedPlayers.push(playerIds[index]);
+      }
+
+      const playersCardsPositions = directions
+        .slice(0, players.length)
+        .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
+          const playerId = orderedPlayers[i];
+          if (socketId === playerId) {
+            res[playerId] = calculateCardsPositions(5, direction);
+          } else {
+            res[playerId] = calculateHiddenCardsPositions(5, direction);
+          }
+          return res;
+        }, {});
+
       const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
       set(state => {
         return {
@@ -296,7 +265,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           pickupCards: [data.firstCard],
           mainState: {
             state: 'begin',
-            ui: state.mainState.ui!!,
             prevTurn: null,
             playerTurn: data.currentPlayerId,
             roundResults: null,
@@ -304,11 +272,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           playersHands: data.playerHands,
           config: {
-            players: Object.keys(playerHands),
+            players: orderedPlayers,
             timePerPlayer: data.gameState.timePerPlayer,
             slapDownAllowed: config?.slapDown ?? false,
             canCallYaniv: config?.canCallYaniv ?? 7,
           },
+          playersCardsPositions,
         };
       });
     },
@@ -327,13 +296,13 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       set(state => {
         const {playerId, source, pickupCards, hands, slapDownActiveFor} = data;
 
-        const deckPos = state.mainState.ui?.deckLocation ?? {
-          x: 0,
-          y: 0,
+        const deckPos = {
+          y: screenHeight / 2 - 2 * CARD_HEIGHT,
+          x: screenWidth / 2 - CARD_WIDTH * 0.5,
         };
-        const pickupPos = state.mainState.ui?.pickupLocation ?? {
-          x: 0,
-          y: 0,
+        const pickupPos = {
+          y: screenHeight / 2 + CARD_HEIGHT * 0.5,
+          x: screenWidth / 2,
         };
 
         // ✅ קודם עדכן את המיקומים החדשים
@@ -358,8 +327,15 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           state.playersCardsPositions[playerId]
             ?.filter((_, i) => data.selectedCardsPositions.includes(i))
             .map(pos => ({
-              x: pos.x - screenWidth / 2 + 29,
-              y: pos.y - normalizedHeight / 2 - 45,
+              x:
+                pos.x -
+                screenWidth / 2 +
+                CARD_WIDTH / 2 +
+                (CARD_WIDTH * (data.selectedCardsPositions.length - 1)) / 2,
+              y:
+                pos.y -
+                screenHeight / 2 -
+                (socketId === playerId ? CARD_SELECT_OFFSET : 0),
               deg: pos.deg,
             })) ?? [];
 
@@ -369,8 +345,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           case 'deck': {
             cardPosition = {
               ...deckPos,
-              x: deckPos.x + 2,
-              y: deckPos.y - 41,
+              x: deckPos.x,
+              y: deckPos.y,
               deg: 0,
             };
             actionType = 'DRAG_FROM_DECK';
@@ -440,7 +416,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           playersHands,
           mainState: {
             ...state.mainState,
-            ui: state.mainState.ui!!,
             state: 'playing',
             prevTurn,
             playerTurn: data.currentPlayerId,
@@ -489,7 +464,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           pickupCards: [data.firstCard],
           mainState: {
             state: 'begin',
-            ui: state.mainState.ui!!,
             prevTurn: null,
             playerTurn: data.currentPlayerId,
             roundResults: null,
@@ -519,7 +493,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           ...state,
           mainState: {
             ...state.mainState,
-            ui: state.mainState.ui!!,
             prevTurn: null,
             playerTurn: null,
             state: 'end',
