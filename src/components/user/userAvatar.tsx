@@ -21,7 +21,7 @@ interface UserAvatarProps {
   timePerPlayer: number;
 }
 
-const CIRCLE_SIZE = 70;
+const CIRCLE_SIZE = 75;
 
 function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
@@ -81,7 +81,7 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
             <Path
               path={progressPath}
               style="stroke"
-              strokeWidth={6}
+              strokeWidth={5}
               strokeCap="round"
               color={progressColor}
             />
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   progressCanvas: {
     position: 'absolute',
     width: CIRCLE_SIZE,
-    aspectRatio: 1,
+    height: CIRCLE_SIZE,
     top: 0,
     left: 0,
   },

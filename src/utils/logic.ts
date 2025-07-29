@@ -74,7 +74,7 @@ export const calculateHiddenCardsPositions = (
             (cardsLen / 2) * OVERLAP_AMOUNT +
             index * OVERLAP_AMOUNT,
           y: height - 145 + arcOffset,
-          deg: shift * 3,
+          deg: shift * 20,
         };
 
       case 'down': // Cards at top, pointing down
@@ -84,7 +84,7 @@ export const calculateHiddenCardsPositions = (
             (cardsLen / 2) * OVERLAP_AMOUNT +
             index * OVERLAP_AMOUNT,
           y: 125 - arcOffset,
-          deg: 180 - shift * 3,
+          deg: 180 - shift * 20,
         };
 
       case 'right': // Cards at right side, pointing left
@@ -94,7 +94,7 @@ export const calculateHiddenCardsPositions = (
             height / 2 +
             (cardsLen / 2) * OVERLAP_AMOUNT -
             index * OVERLAP_AMOUNT,
-          deg: -90 + shift * 3,
+          deg: -90 + shift * 20,
         };
 
       case 'left': // Cards at left side, pointing right
@@ -104,7 +104,7 @@ export const calculateHiddenCardsPositions = (
             height / 2 -
             (cardsLen / 2) * OVERLAP_AMOUNT +
             index * OVERLAP_AMOUNT,
-          deg: 90 + shift * 3,
+          deg: 90 + shift * 20,
         };
 
       default:
@@ -115,7 +115,7 @@ export const calculateHiddenCardsPositions = (
             (cardsLen / 2) * OVERLAP_AMOUNT +
             index * OVERLAP_AMOUNT,
           y: height - 150 + arcOffset,
-          deg: shift * 3,
+          deg: shift * 20,
         };
     }
   });
