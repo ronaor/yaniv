@@ -306,10 +306,9 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    gap: 8,
     marginBottom: 12,
+    alignItems: 'flex-end',
   },
   leaveBtn: {
     backgroundColor: colors.primaryLight,
@@ -417,5 +416,4 @@ const recordStyle: Record<DirectionName, ViewStyle> = {
     top: screenHeight / 2 - 140,
   },
 };
-
 export default GameScreen;
