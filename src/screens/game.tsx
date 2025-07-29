@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Alert,
   Dimensions,
@@ -7,56 +7,66 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {getHandValue} from '~/utils/gameRules';
 
-import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
 import {DirectionName} from '~/types/cards';
-import DeckCardPointers from '~/components/cards/deckCardPoint';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
-import {isNil} from 'lodash';
 import WaveAnimationBackground from './waveScreen';
 import YanivButton from '~/components/yanivButton';
 import UserAvatar from '~/components/user/userAvatar';
 import LightAround from '~/components/user/lightAround';
 import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
+import {OutlinedText} from '~/components/cartoonText';
+import GameBoard from '~/components/game/board';
+import {isNil} from 'lodash';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
-  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [selectedCardsIndexes, setSelectedCardsIndexes] = useState<number[]>(
+    [],
+  );
+
   const {
-    thisPlayer,
-    emit,
-    mainState,
+    game,
+    players: gamePlayers,
+    board,
+    roundResults,
     error,
-    pickupCards,
-    playersStats,
-    round,
-    setUI,
     clearGame,
     clearError,
-    playersHands,
     resetSlapDown,
-    config,
+    emit,
   } = useYanivGameStore();
 
-  const {roundResults, turnStartTime} = mainState;
-  console.log('?playersStats', mainState.roundResults?.playersStats);
-
-  console.log('config.players', config.players);
-  const {myTurn, slapDownAvailable, handCards: playerHand} = thisPlayer;
-
   const {name: nickName} = useUser();
+
+  const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
+    const $currentPlayer = gamePlayers.all[gamePlayers.current];
+
+    return {
+      currentPlayer: $currentPlayer,
+      playerHand: $currentPlayer?.hand || [],
+      myTurn: $currentPlayer?.isMyTurn || false,
+      slapDownAvailable: $currentPlayer?.slapDownAvailable || false,
+    };
+  }, [gamePlayers]);
+
+  const selectedCards = useMemo(
+    () => selectedCardsIndexes.map(i => playerHand[i]),
+    [playerHand, selectedCardsIndexes],
+  );
 
   const playersName = useMemo(() => {
     return players.reduce<Record<PlayerId, string>>((res, user) => {
@@ -125,16 +135,21 @@ function GameScreen({navigation}: any) {
   // Timer for remaining time
   useEffect(() => {
     if (!myTurn) {
-      setSelectedCards([]);
+      setSelectedCardsIndexes([]);
+      return;
+    }
+    if (game.phase !== 'active') {
       return;
     }
 
     const interval = setInterval(() => {
-      const elapsed =
-        (Date.now() -
-          new Date(turnStartTime ?? config.timePerPlayer).getTime()) /
-        1000;
-      const remaining = config.timePerPlayer - Math.floor(Math.abs(elapsed));
+      const startTime = game.currentTurn?.startTime;
+      if (!startTime) {
+        return;
+      }
+
+      const elapsed = (Date.now() - new Date(startTime).getTime()) / 1000;
+      const remaining = game.rules.timePerPlayer - Math.floor(elapsed);
 
       setTimeRemaining(remaining);
       if (remaining <= 0) {
@@ -142,9 +157,14 @@ function GameScreen({navigation}: any) {
       }
     }, 1000);
 
-    setTimeRemaining(config.timePerPlayer);
+    setTimeRemaining(game.rules.timePerPlayer);
     return () => clearInterval(interval);
-  }, [myTurn, turnStartTime, config, mainState.state]);
+  }, [
+    myTurn,
+    game.currentTurn?.startTime,
+    game.rules.timePerPlayer,
+    game.phase,
+  ]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {
@@ -176,49 +196,8 @@ function GameScreen({navigation}: any) {
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
 
-  const pickupRef = useRef<View>(null);
-  const measurePickupPos = () => {
-    setUiReady(prev => ({
-      ...prev,
-      pickupLocation: true,
-    }));
-  };
-  const deckRef = useRef<TouchableOpacity>(null);
-  const measureDeckPos = () => {
-    setUiReady(prev => ({
-      ...prev,
-      deckLocation: true,
-    }));
-  };
-
-  const handleDrawFromDeck = () => {
-    const selected = selectedCards.map(i => playerHand[i]);
-    if (!isValidCardSet(selected, true)) {
-      return false;
-    }
-    emit.completeTurn(
-      {choice: 'deck'},
-      selectedCards.map(i => playerHand[i]),
-    );
-  };
-
-  const handlePickupCard = (pickupIndex: number) => {
-    const selected = selectedCards.map(i => playerHand[i]);
-    if (
-      !isCanPickupCard(pickupCards.length, pickupIndex) ||
-      !isValidCardSet(selected, true)
-    ) {
-      return false;
-    }
-
-    emit.completeTurn(
-      {choice: 'pickup', pickupIndex},
-      selectedCards.map(i => playerHand[i]),
-    );
-  };
-
   const toggleCardSelection = (index: number) => {
-    setSelectedCards(prev => {
+    setSelectedCardsIndexes(prev => {
       const isSelected = prev.includes(index);
       if (isSelected) {
         return prev.filter(i => i !== index);
@@ -227,7 +206,7 @@ function GameScreen({navigation}: any) {
     });
   };
 
-  const lastPickedCard = mainState.prevTurn?.draw?.card;
+  const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
   const slapCardIndex = useMemo(
     () =>
       slapDownAvailable && lastPickedCard
@@ -257,7 +236,7 @@ function GameScreen({navigation}: any) {
         barStyle="light-content"
       />
       <WaveAnimationBackground />
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={styles.surface}>
         <View style={styles.body}>
           {/* Header */}
           <View style={styles.header}>
@@ -269,32 +248,6 @@ function GameScreen({navigation}: any) {
                 <Text style={[styles.timer]}>{timeRemaining}s</Text>
               </View>
             )}
-          </View>
-
-          {/* Game Area */}
-          <View style={styles.gameArea}>
-            {/* Deck and Discard Pile */}
-            <View style={styles.centerArea}>
-              <TouchableOpacity
-                ref={deckRef}
-                onLayout={measureDeckPos}
-                style={styles.deck}
-                onPress={handleDrawFromDeck}
-                disabled={!myTurn || selectedCards.length === 0}>
-                <CardBack />
-              </TouchableOpacity>
-
-              <View ref={pickupRef} onLayout={measurePickupPos}>
-                <DeckCardPointers
-                  cards={pickupCards}
-                  onPickUp={handlePickupCard}
-                  pickedCard={lastPickedCard}
-                  fromTargets={mainState.prevTurn?.discard.cardsPositions ?? []}
-                  round={round}
-                  disabled={!myTurn}
-                />
-              </View>
-            </View>
           </View>
 
           {/* Yaniv/Asaf Overlay */}
@@ -311,44 +264,63 @@ function GameScreen({navigation}: any) {
             )}
           </View>
         </View>
-        {config.players.map((playerId, i) => (
+        {gamePlayers.order.map((playerId, i) => (
           <LightAround
             key={`light-${playerId}`}
             direction={directions[i]}
-            isActive={mainState.playerTurn === playerId}
+            isActive={game.currentTurn?.playerId === playerId}
           />
         ))}
         <View style={styles.actionButtons}>
           <UserAvatar
-            name={playersName[thisPlayer.playerId]}
-            score={playersStats[thisPlayer.playerId]?.score ?? 0}
+            name={playersName[gamePlayers.current]}
+            score={currentPlayer?.stats?.score ?? 0}
             isActive={myTurn}
-            timePerPlayer={config.timePerPlayer}
+            timePerPlayer={game.rules.timePerPlayer}
           />
-          <View style={styles.handSection}>
-            <Text style={styles.handTitle}>{handValue} נקודות</Text>
-          </View>
+          <OutlinedText
+            text={`${handValue}  Points`}
+            fontSize={20}
+            width={125}
+            height={100}
+            fillColor={'#FFD61B'}
+            strokeColor={'#6A3900'}
+            strokeWidth={5}
+            fontWeight={'900'}
+          />
+          {/* <Text style={styles.handTitle}>{handValue} Points</Text> */}
           <YanivButton
             onPress={emit.callYaniv}
-            disabled={handValue > config.canCallYaniv || !myTurn}
+            disabled={handValue > game.rules.canCallYaniv || !myTurn}
           />
         </View>
-        {config.players.map((playerId, i) => {
-          if (thisPlayer.playerId === playerId) {
+        {/* Game Area */}
+        <GameBoard
+          pickup={{
+            pickupPile: board.pickupPile,
+            lastPickedCard,
+            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+          }}
+          round={game.round}
+          selectedCards={selectedCards}
+          disabled={!myTurn}
+        />
+        {gamePlayers.order.map((playerId, i) => {
+          if (gamePlayers.current === playerId) {
             return (
               <CardPointsList
                 key={playerId}
                 cards={playerHand}
                 onCardSelect={toggleCardSelection}
                 slapCardIndex={slapCardIndex}
-                selectedCardsIndexes={selectedCards}
+                selectedCardsIndexes={selectedCardsIndexes}
                 onCardSlapped={onSlapCard}
                 fromPosition={
-                  playerId === mainState.prevTurn?.playerId
-                    ? mainState.prevTurn?.draw?.cardPosition
+                  playerId === game.currentTurn?.prevTurn?.playerId
+                    ? game.currentTurn?.prevTurn?.draw?.cardPosition
                     : undefined
                 }
-                action={mainState.prevTurn?.action}
+                action={game.currentTurn?.prevTurn?.action}
                 direction={directions[i]}
               />
             );
@@ -356,35 +328,22 @@ function GameScreen({navigation}: any) {
             return (
               <View key={playerId} style={styles.absolute}>
                 <HiddenCardPointsList
-                  cards={playersHands[playerId] ?? []}
+                  cards={gamePlayers.all[playerId]?.hand ?? []}
                   direction={directions[i]}
                   fromPosition={
-                    playerId === mainState.prevTurn?.playerId
-                      ? mainState.prevTurn?.draw?.cardPosition
+                    playerId === game.currentTurn?.prevTurn?.playerId
+                      ? game.currentTurn?.prevTurn?.draw?.cardPosition
                       : undefined
                   }
-                  action={mainState.prevTurn?.action}
-                  reveal={!isNil(mainState.roundResults)}
+                  action={game.currentTurn?.prevTurn?.action}
+                  reveal={!isNil(roundResults)}
                 />
-                <View
-                  style={[
-                    {
-                      position: 'absolute',
-                    },
-                    directions[i] === 'up' ? {top: 0, left: 10} : {},
-                    directions[i] === 'down' ? {top: 80, left: 30} : {},
-                    directions[i] === 'left'
-                      ? {left: 10, top: screenHeight / 2 - 140}
-                      : {},
-                    directions[i] === 'right'
-                      ? {right: 10, top: screenHeight / 2 - 140}
-                      : {},
-                  ]}>
+                <View style={recordStyle[directions[i]]}>
                   <UserAvatar
                     name={playersName[playerId]}
-                    score={playersStats[playerId]?.score ?? 0}
-                    isActive={mainState.playerTurn === playerId}
-                    timePerPlayer={config.timePerPlayer}
+                    score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+                    isActive={game.currentTurn?.playerId === playerId}
+                    timePerPlayer={game.rules.timePerPlayer}
                   />
                 </View>
               </View>
@@ -397,11 +356,11 @@ function GameScreen({navigation}: any) {
 }
 
 const styles = StyleSheet.create({
+  surface: {flex: 1},
   body: {
     flex: 1,
     padding: 12,
   },
-
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -431,9 +390,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   gameArea: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: screenHeight / 5,
+    position: 'absolute',
   },
   centerArea: {
     flexDirection: 'column',
@@ -441,22 +398,26 @@ const styles = StyleSheet.create({
     gap: CARD_WIDTH / 2,
   },
   deck: {
-    backgroundColor: '#dddddd',
-    borderRadius: 8,
-    height: 80,
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
     alignItems: 'center',
+    top: screenHeight / 2 - 2 * CARD_HEIGHT,
+    left: screenWidth / 2 - CARD_WIDTH * 0.5,
   },
-  handSection: {
+  pickup: {
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    top: screenHeight / 2 - 1.5 * CARD_HEIGHT,
+    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+  },
+  handTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#612602',
+    textAlign: 'center',
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
-  },
-  handTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
   },
   card: {
     backgroundColor: colors.background,
@@ -497,5 +458,20 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
 });
+
+const recordStyle: Record<DirectionName, ViewStyle> = {
+  up: {position: 'absolute', top: 0, left: 10},
+  down: {position: 'absolute', top: 80, left: 30},
+  left: {
+    position: 'absolute',
+    left: 10,
+    top: screenHeight / 2 - 140,
+  },
+  right: {
+    position: 'absolute',
+    right: 10,
+    top: screenHeight / 2 - 140,
+  },
+};
 
 export default GameScreen;

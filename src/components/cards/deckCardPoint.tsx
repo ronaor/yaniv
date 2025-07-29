@@ -1,10 +1,11 @@
-import {StyleSheet, View} from 'react-native';
-import React, {useEffect, useMemo, useRef} from 'react';
+import {StyleSheet, View, ViewStyle} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
-import {DiscardPointer, PickupPointer} from './discardPoint';
+import {DiscardedPointer, DiscardPointer} from './discardPoint';
 import {isEqual} from 'lodash';
 import {CARD_WIDTH} from '~/utils/constants';
+import PickupPointer from './pickupPoint';
 
 // This Component is responsible for managing the state of the discard pile.
 // it includes:
@@ -12,6 +13,15 @@ import {CARD_WIDTH} from '~/utils/constants';
 // 2. animate them when a new state come's up
 //    2.1. animate the cards that are moved to trash
 //    2.2. remove the card that is picked
+
+const cardsShifterStyle = (cardsLen: number): ViewStyle => ({
+  flexDirection: 'row',
+  transform: [
+    {
+      translateX: -((cardsLen - 1) * CARD_WIDTH) / 2,
+    },
+  ],
+});
 
 interface DeckCardPointersProps {
   cards: Card[];
@@ -30,64 +40,108 @@ const DeckCardPointers = ({
   round,
   disabled = false,
 }: DeckCardPointersProps) => {
-  // const [thrownCards, setThrownCards] = useState<Card[]>([]);
   const newCards = useRef<Card[]>([]);
-  const pThrownCards = useRef<Card[]>([]);
+  const [layerHistory, setLayerHistory] = useState<{
+    layer1: (Card & {deg: number; picked: boolean})[];
+    layer2: (Card & {deg: number; picked: boolean})[];
+    layer3: (Card & {deg: number; picked: boolean})[];
+  }>({
+    layer1: [],
+    layer2: [],
+    layer3: [],
+  });
 
   useEffect(() => {
     newCards.current = [];
+    setLayerHistory({
+      layer1: [],
+      layer2: [],
+      layer3: [],
+    });
     return () => {
       newCards.current = [];
     };
   }, [round]);
 
-  const thrownCards = useMemo(() => {
-    let newVal = pThrownCards.current;
+  useEffect(() => {
     if (!isEqual(newCards.current, cards)) {
-      newVal = newCards.current;
-    } else {
-      newVal = pThrownCards.current;
+      const newLayer = [
+        ...newCards.current.map(card => ({
+          ...card,
+          deg: Math.random() * 20,
+          picked: pickedCard
+            ? getCardKey(pickedCard) === getCardKey(card)
+            : false,
+        })),
+      ];
+      setLayerHistory(prev => ({
+        layer3: [...prev.layer2],
+        layer2: [...prev.layer1],
+        layer1: newLayer,
+      }));
     }
     newCards.current = cards;
-    return newVal;
-  }, [cards]);
-
-  const targetsDegrees = useMemo(
-    () => Array.from({length: thrownCards.length}).map(_ => Math.random() * 20),
-    [thrownCards.length],
-  );
+  }, [cards, pickedCard]);
 
   return (
     <>
       <View
-        style={[
-          styles.body,
-          {
-            transform: [
-              {translateX: -((thrownCards.length - 1) * CARD_WIDTH) / 2},
-            ],
-          },
-        ]}
+        style={cardsShifterStyle(layerHistory.layer3.length)}
         pointerEvents="none">
-        {thrownCards.map((card, index) => (
-          <DiscardPointer
-            isThrown={
-              pickedCard ? getCardKey(pickedCard) !== getCardKey(card) : false
-            }
-            card={card}
-            index={index}
-            throwTarget={{x: 0, y: 2 * CARD_WIDTH, deg: targetsDegrees[index]}}
-            key={getCardKey(card)}
-          />
-        ))}
+        {layerHistory.layer3.map(
+          card =>
+            !card.picked && (
+              <DiscardedPointer
+                card={card}
+                throwTarget={{
+                  x: ((layerHistory.layer3.length - 1) * CARD_WIDTH) / 2,
+                  y: 2 * CARD_WIDTH,
+                  deg: card.deg,
+                }}
+                key={getCardKey(card)}
+                opacity={{from: 0.4, to: 0.15}}
+              />
+            ),
+        )}
       </View>
       <View
-        style={[
-          styles.body,
-          {
-            transform: [{translateX: -((cards.length - 1) * CARD_WIDTH) / 2}],
-          },
-        ]}>
+        style={cardsShifterStyle(layerHistory.layer2.length)}
+        pointerEvents="none">
+        {layerHistory.layer2.map(
+          card =>
+            !card.picked && (
+              <DiscardedPointer
+                card={card}
+                throwTarget={{
+                  x: ((layerHistory.layer2.length - 1) * CARD_WIDTH) / 2,
+                  y: 2 * CARD_WIDTH,
+                  deg: card.deg,
+                }}
+                key={getCardKey(card)}
+                opacity={{from: 0.7, to: 0.4}}
+              />
+            ),
+        )}
+      </View>
+      <View style={cardsShifterStyle(layerHistory.layer1.length)}>
+        {layerHistory.layer1.map(
+          (card, index) =>
+            !card.picked && (
+              <DiscardPointer
+                card={card}
+                index={index}
+                throwTarget={{
+                  x: ((layerHistory.layer1.length - 1) * CARD_WIDTH) / 2,
+                  y: 2 * CARD_WIDTH,
+                  deg: card.deg,
+                }}
+                key={getCardKey(card)}
+                opacity={0.7}
+              />
+            ),
+        )}
+      </View>
+      <View style={cardsShifterStyle(cards.length)}>
         {cards.map((card, index) => (
           <PickupPointer
             disabled={disabled || !isCanPickupCard(cards.length, index)}
@@ -107,9 +161,6 @@ const DeckCardPointers = ({
 export default DeckCardPointers;
 
 const styles = StyleSheet.create({
-  body: {
-    flexDirection: 'row',
-  },
   discard: {
     width: CARD_WIDTH,
     height: 70,

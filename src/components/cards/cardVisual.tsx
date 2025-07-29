@@ -1,16 +1,26 @@
 import React from 'react';
-import {Canvas, RoundedRect, Path, Group} from '@shopify/react-native-skia';
+import {
+  Canvas,
+  RoundedRect,
+  Path,
+  Group,
+  Shadow,
+} from '@shopify/react-native-skia';
 import {Card, CardSuit} from '~/types/cards';
+import {useSharedValue, withRepeat, withTiming} from 'react-native-reanimated';
 
 interface CardProps {
   card: Card;
   width?: number;
   height?: number;
+  glowing?: boolean;
 }
 
 interface SuitProps {
   size: 'small' | 'normal';
   color: string;
+  cardX?: number;
+  cardY?: number;
 }
 
 const CARD_COLORS: Record<CardSuit, string> = {
@@ -89,10 +99,10 @@ const SUIT_PATHS = {
 };
 
 // Card Suit
-const ClubSuit: React.FC<SuitProps> = ({size, color}) => {
+const ClubSuit: React.FC<SuitProps> = ({size, color, cardX = 0, cardY = 0}) => {
   const paths = SUIT_PATHS.club[size];
   return (
-    <Group>
+    <Group transform={[{translateX: cardX}, {translateY: cardY}]}>
       <Path path={paths.topCircle} color={color} />
       <Path path={paths.leftCircle} color={color} />
       <Path path={paths.rightCircle} color={color} />
@@ -101,18 +111,46 @@ const ClubSuit: React.FC<SuitProps> = ({size, color}) => {
     </Group>
   );
 };
-const DiamondSuit: React.FC<SuitProps> = ({size, color}) => {
+
+const DiamondSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const path = SUIT_PATHS.diamond[size];
-  return <Path path={path} color={color} />;
+  return (
+    <Path
+      path={path}
+      color={color}
+      transform={[{translateX: cardX}, {translateY: cardY}]}
+    />
+  );
 };
-const HeartSuit: React.FC<SuitProps> = ({size, color}) => {
+const HeartSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const path = SUIT_PATHS.heart[size];
-  return <Path path={path} color={color} />;
+  return (
+    <Path
+      path={path}
+      color={color}
+      transform={[{translateX: cardX}, {translateY: cardY}]}
+    />
+  );
 };
-const SpadeSuit: React.FC<SuitProps> = ({size, color}) => {
+const SpadeSuit: React.FC<SuitProps> = ({
+  size,
+  color,
+  cardX = 0,
+  cardY = 0,
+}) => {
   const paths = SUIT_PATHS.spade[size];
   return (
-    <Group>
+    <Group transform={[{translateX: cardX}, {translateY: cardY}]}>
       <Path path={paths.suit} color={color} />
       <Path path={paths.stem} color={color} />
     </Group>
@@ -127,49 +165,114 @@ const cardToSuit: Record<CardSuit, React.FC<SuitProps>> = {
   spades: SpadeSuit,
 };
 
-// Card background
-const Background: React.FC<{width: number; height: number}> = ({
-  width,
-  height,
-}) => (
-  <>
-    <RoundedRect
-      x={0}
-      y={0}
-      width={width}
-      height={height}
-      r={8}
-      color="#FFF8E6"
-    />
-    <RoundedRect
-      x={0.5}
-      y={0.5}
-      width={width - 1}
-      height={height - 1}
-      r={7.5}
-      style="stroke"
-      strokeWidth={1}
-      color="#E6D9B7"
-    />
-  </>
-);
+// Enhanced Background with glow support
+const Background: React.FC<{
+  width: number;
+  height: number;
+  cardX: number;
+  cardY: number;
+  glowing?: boolean;
+}> = ({width, height, cardX, cardY, glowing = false}) => {
+  // Continuous glow animation - always pulsing up and down
+  const glowProgress = useSharedValue(0);
+
+  React.useEffect(() => {
+    if (glowing) {
+      glowProgress.value = withRepeat(withTiming(1, {duration: 300}), -1, true);
+    } else {
+      glowProgress.value = 0;
+    }
+  }, [glowProgress, glowing]);
+
+  return (
+    <>
+      {/* Cartoonish shadow - offset and darker / Glow effect */}
+
+      {!glowing && (
+        <RoundedRect
+          x={0}
+          y={0}
+          width={width + cardX * 2}
+          height={height + cardY * 2}
+          r={8}
+          color={'#b8a08218'}
+        />
+      )}
+
+      {glowing && (
+        <RoundedRect
+          x={cardX}
+          y={cardY}
+          width={width}
+          height={height}
+          r={8}
+          color="#FFF8E6"
+          opacity={glowProgress}>
+          <Shadow dx={0} dy={0} blur={2} color="#FFD700" />
+        </RoundedRect>
+      )}
+
+      {/* Main card */}
+      <RoundedRect
+        x={cardX}
+        y={cardY}
+        width={width}
+        height={height}
+        r={8}
+        color={glowing ? '#fff9ecff' : '#FFF8E6'}
+      />
+
+      {/* Card border */}
+      <RoundedRect
+        x={cardX + 0.5}
+        y={cardY + 0.5}
+        width={width - 1}
+        height={height - 1}
+        r={7.5}
+        style="stroke"
+        strokeWidth={1}
+        color="#E6D9B7"
+      />
+    </>
+  );
+};
 
 // Main card component
 export const CardComponent: React.FC<CardProps> = ({
   card,
   width = 50,
   height = 70,
+  glowing = false,
 }) => {
   const {suit, value} = card;
   const color = CARD_COLORS[suit];
   const suitSize = value > 10 ? 'small' : 'normal';
   const Suit = cardToSuit[suit];
 
+  const shadowPadding = 2;
+  const canvasWidth = width + shadowPadding * 2;
+  const canvasHeight = height + shadowPadding * 2;
+
+  const cardX = shadowPadding;
+  const cardY = shadowPadding;
+
   return (
-    <Canvas style={{width, height}}>
-      <Background width={width} height={height} />
-      {value > 0 && <Suit size={suitSize} color={color} />}
-      <Path path={VALUE_PATHS[value]} color={color} />
+    <Canvas style={{width: canvasWidth, height: canvasHeight}}>
+      <Background
+        width={width}
+        height={height}
+        cardX={cardX}
+        cardY={cardY}
+        glowing={glowing}
+      />
+      {value > 0 && (
+        <Suit size={suitSize} color={color} cardX={cardX} cardY={cardY} />
+      )}
+      <Path
+        path={VALUE_PATHS[value]}
+        color={color}
+        transform={[{translateX: cardX}, {translateY: cardY}]}
+      />
     </Canvas>
   );
 };

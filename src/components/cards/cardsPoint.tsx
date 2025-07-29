@@ -178,7 +178,7 @@ const CardPointer = ({
         <Animated.View style={animatedSelectionStyle}>
           <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
             <Animated.View style={animatedFrontFlipStyle}>
-              <CardComponent card={card} />
+              <CardComponent card={card} glowing={isSlap} />
             </Animated.View>
             <Animated.View style={animatedBackFlipStyle}>
               <CardBack />

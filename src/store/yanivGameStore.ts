@@ -11,13 +11,16 @@ import {
 import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_HEIGHT, CARD_SELECT_OFFSET, CARD_WIDTH} from '~/utils/constants';
 import {
+  calculateAllPlayerPositions,
   calculateCardsPositions,
   calculateHiddenCardsPositions,
+  createPlayerOrder,
+  createPlayersData,
 } from '~/utils/logic';
 import {useRoomStore} from './roomStore';
-import {Dimensions, Platform} from 'react-native';
+import {Dimensions} from 'react-native';
 
 //region Server Types
 interface PublicGameState {
@@ -32,69 +35,70 @@ interface PublicGameState {
 //#endregion
 
 export type PlayerId = string;
-type MainState =
-  | {
-      ui: GameUI | null;
-      prevTurn: null;
-      playerTurn: null;
-      state: 'loading';
-      roundResults: null;
-      turnStartTime: null;
-    }
-  | {
-      ui: GameUI;
-      prevTurn: null;
-      playerTurn: PlayerId;
-      state: 'begin';
-      roundResults: null;
-      turnStartTime: Date;
-    }
-  | {
-      ui: GameUI;
-      prevTurn: TurnState;
-      playerTurn: PlayerId;
-      state: 'playing';
-      roundResults: null;
-      turnStartTime: Date;
-    }
-  | {
-      ui: GameUI;
-      prevTurn: null;
-      playerTurn: null;
-      state: 'end';
-      roundResults: RoundResults;
-      turnStartTime: null;
-    };
 
-type PlayerInfo = {
+//region Game State
+type GamePhase = 'loading' | 'active' | 'round-end' | 'game-end';
+
+type TurnInfo = {
   playerId: PlayerId;
+  startTime: Date;
+  prevTurn?: TurnState | null;
+};
+
+type GameRules = {
+  timePerPlayer: number;
+  slapDownAllowed: boolean;
+  canCallYaniv: number;
+};
+
+type GameState = {
+  phase: GamePhase;
+  round: number;
+  currentTurn: TurnInfo | null;
+  rules: GameRules;
+};
+//#endregion
+
+//region Players State
+type PlayersState = {
+  all: Record<PlayerId, PlayerData>;
+  order: PlayerId[];
+  current: PlayerId; // the viewing player
+};
+
+type PlayerData = {
+  stats: PlayerStatus;
+  hand: Card[];
+  isMyTurn: boolean;
   roundScore: number;
-  handCards: Card[];
-  myTurn: boolean;
   slapDownAvailable: boolean;
 };
 
+//#endregion
+
+//region Board State
+type BoardState = {
+  pickupPile: Card[];
+  discardHistory: TurnState[];
+};
+//#endregion
+
+type UIState = {
+  cardPositions: Record<PlayerId, Position[]>;
+  deckPosition: Location;
+  pickupPosition: Location;
+};
+
 type YanivGameFields = {
-  mainState: MainState;
-  // independent fields:
-  round: number;
-  playersStats: Record<PlayerId, PlayerStatus>;
-  thisPlayer: PlayerInfo;
-  pickupCards: Card[];
-  playersHands: {[playerId: string]: Card[]};
-  playersCardsPositions: Record<PlayerId, Position[]>;
-  config: {
-    players: PlayerId[];
-    timePerPlayer: number;
-    slapDownAllowed: boolean;
-    canCallYaniv: number;
-  };
+  game: GameState;
+  players: PlayersState;
+  board: BoardState;
+  roundResults?: RoundResults;
+  ui: UIState;
   error?: string;
 };
 
 type YanivGameMethods = {
-  setUI: (gameUI: GameUI, players: PlayerId[]) => void;
-  // updateUI: (playerId: PlayerId, playerPos: Position[]) => void;
   clearGame: () => void;
   clearError: () => void;
   resetSlapDown: () => void;
@@ -161,86 +165,39 @@ type RoundResults = {
 };
 
 const initialGameFields: YanivGameFields = {
-  mainState: {
-    state: 'loading',
-    ui: null,
-    prevTurn: null,
-    playerTurn: null,
-    roundResults: null,
-    turnStartTime: null,
+  game: {
+    phase: 'loading',
+    round: 0,
+    currentTurn: null,
+    rules: {
+      timePerPlayer: 0,
+      slapDownAllowed: false,
+      canCallYaniv: 7,
+    },
   },
-  playersStats: {},
-  playersHands: {},
-  playersCardsPositions: {},
-  round: 0,
-  thisPlayer: {
-    playerId: '',
-    roundScore: 0,
-    handCards: [],
-    myTurn: false,
-    slapDownAvailable: false,
+  players: {
+    all: {},
+    order: [],
+    current: '',
   },
-  pickupCards: [],
-  config: {
-    players: [],
-    timePerPlayer: 0,
-    slapDownAllowed: false,
-    canCallYaniv: 7,
+  board: {
+    pickupPile: [],
+    discardHistory: [],
+  },
+  roundResults: undefined,
+  ui: {
+    cardPositions: {},
+    deckPosition: {x: 0, y: 0},
+    pickupPosition: {x: 0, y: 0},
   },
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-const normalizedHeight =
-  Platform.OS === 'ios' ? screenHeight + 30 : screenHeight - 30;
 
 const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
-  setUI: (gameUI: GameUI, players: PlayerId[]) => {
-    const socketId = `${useSocket.getState().getSocketId()}`;
-    const currentPlayerIndex = players.findIndex(id => id === socketId);
-
-    const orderedPlayers: PlayerId[] = [];
-    for (let i = 0; i < players.length; i++) {
-      const index = (currentPlayerIndex + i) % players.length;
-      orderedPlayers.push(players[index]);
-    }
-
-    const playersCardsPositions = directions
-      .slice(0, players.length)
-      .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
-        const playerId = orderedPlayers[i];
-        if (socketId === playerId) {
-          res[playerId] = calculateCardsPositions(5, direction);
-        } else {
-          res[playerId] = calculateHiddenCardsPositions(5, direction);
-        }
-        return res;
-      }, {});
-
-    set(state => {
-      return {
-        ...state,
-        mainState: {
-          ...state.mainState,
-          ui: gameUI,
-        },
-        config: {
-          ...state.config,
-          players: orderedPlayers,
-        },
-        playersCardsPositions,
-      };
-    });
-  },
-  // updateUI: (playerId: PlayerId, playerPos: Position[]) => {
-  //   set(state => {
-  //     const playersCardsPositions = state.playersCardsPositions;
-  //     playersCardsPositions[playerId] = playerPos;
-  //     return {...state, playersCardsPositions};
-  //   });
-  // },
   clearGame: () => {
     set(state => ({...state, ...initialGameFields}));
   },
@@ -249,20 +206,30 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   },
   getRemainingTime: () => {
     const {
-      mainState: {turnStartTime},
-      config,
+      game: {currentTurn, rules},
     } = get();
-    if (!turnStartTime) {
-      return config.timePerPlayer;
+
+    if (!currentTurn) {
+      return rules.timePerPlayer;
     }
-    const elapsed = (Date.now() - new Date(turnStartTime).getTime()) / 1000;
-    const remaining = Math.max(0, config.timePerPlayer - elapsed);
+    const {startTime} = currentTurn;
+    const elapsed = (Date.now() - new Date(startTime).getTime()) / 1000;
+    const remaining = Math.max(0, rules.timePerPlayer - elapsed);
     return Math.ceil(remaining);
   },
   resetSlapDown: () => {
     set(state => ({
       ...state,
-      thisPlayer: {...state.thisPlayer, slapDownAvailable: false},
+      players: {
+        ...state.players,
+        all: {
+          ...state.players.all,
+          [state.players.current]: {
+            ...state.players.all[state.players.current],
+            slapDownAvailable: false,
+          },
+        },
+      },
     }));
   },
   subscribed: {
@@ -272,49 +239,69 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       firstCard: Card;
       currentPlayerId: PlayerId;
     }) => {
-      console.log('Game Init');
-      const {config} = useRoomStore.getState();
+      const {config, players} = useRoomStore.getState();
+      const playerIds = players.map(player => player.id);
       const {currentPlayerId, playerHands} = data;
-      const socketId = useSocket.getState().getSocketId();
-      const thisPlayerHands = socketId ? playerHands[socketId] || [] : [];
-      set(state => {
-        return {
-          ...state,
+
+      const socketId = `${useSocket.getState().getSocketId()}`;
+
+      const orderedPlayers = createPlayerOrder(playerIds, socketId);
+
+      const cardPositions = calculateAllPlayerPositions(
+        orderedPlayers,
+        socketId,
+      );
+
+      const playersData = createPlayersData(playerHands, currentPlayerId);
+
+      const gameRules: GameRules = config
+        ? {
+            timePerPlayer: config.timePerPlayer,
+            slapDownAllowed: config.slapDown,
+            canCallYaniv: config.canCallYaniv,
+          }
+        : {
+            timePerPlayer: 15,
+            slapDownAllowed: true,
+            canCallYaniv: 7,
+          };
+
+      const deckPosition = {
+        y: screenHeight / 2 - 2 * CARD_HEIGHT,
+        x: screenWidth / 2 - CARD_WIDTH * 0.5,
+      };
+      const pickupPosition = {
+        y: screenHeight / 2,
+        x: screenWidth / 2 - CARD_WIDTH * 0.5,
+      };
+
+      set(state => ({
+        ...state,
+        game: {
+          phase: 'active',
           round: 0,
-          playersStats: Object.keys(playerHands).reduce<
-            Record<string, PlayerStatus>
-          >((res, playerId) => {
-            res[playerId] = {
-              score: 0,
-              lost: false,
-            };
-            return res;
-          }, {}),
-          thisPlayer: {
-            playerId: socketId ?? '',
-            roundScore: getHandValue(thisPlayerHands),
-            handCards: thisPlayerHands,
-            myTurn: currentPlayerId === socketId,
-            slapDownAvailable: false,
-          },
-          pickupCards: [data.firstCard],
-          mainState: {
-            state: 'begin',
-            ui: state.mainState.ui!!,
+          currentTurn: {
+            playerId: data.currentPlayerId,
+            startTime: new Date(),
             prevTurn: null,
-            playerTurn: data.currentPlayerId,
-            roundResults: null,
-            turnStartTime: new Date(),
           },
-          playersHands: data.playerHands,
-          config: {
-            players: Object.keys(playerHands),
-            timePerPlayer: data.gameState.timePerPlayer,
-            slapDownAllowed: config?.slapDown ?? false,
-            canCallYaniv: config?.canCallYaniv ?? 7,
-          },
-        };
-      });
+          rules: gameRules,
+        },
+        players: {
+          all: playersData,
+          order: orderedPlayers,
+          current: socketId,
+        },
+        board: {
+          pickupPile: [data.firstCard],
+          discardHistory: [],
+        },
+        ui: {
+          cardPositions,
+          deckPosition,
+          pickupPosition,
+        },
+      }));
     },
     playerDrew: (data: {
       playerId: string;
@@ -328,71 +315,52 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       currentPlayerId: PlayerId;
     }) => {
       const socketId = useSocket.getState().getSocketId();
+
       set(state => {
-        const {playerId, source, pickupCards, hands, slapDownActiveFor} = data;
+        // Calculate discard positions from selected cards
+        const playerIndex = state.players.order.indexOf(data.playerId);
+        const playerPositions = state.ui.cardPositions[data.playerId] || [];
 
-        const deckPos = state.mainState.ui?.deckLocation ?? {
-          x: 0,
-          y: 0,
-        };
-        const pickupPos = state.mainState.ui?.pickupLocation ?? {
-          x: 0,
-          y: 0,
-        };
+        const cardsPositions = data.selectedCardsPositions
+          .map(i => playerPositions[i])
+          .filter(Boolean)
+          .map(pos => ({
+            x:
+              pos.x -
+              screenWidth / 2 +
+              CARD_WIDTH / 2 +
+              (CARD_WIDTH * (data.selectedCardsPositions.length - 1)) / 2,
+            y:
+              pos.y -
+              screenHeight / 2 +
+              CARD_HEIGHT / 2 -
+              (socketId === data.playerId ? CARD_SELECT_OFFSET : 0),
+            deg: pos.deg,
+          }));
 
-        // ✅ קודם עדכן את המיקומים החדשים
-        const playerIndex = state.config.players.indexOf(playerId);
-        if (playerIndex > -1) {
-          if (socketId === playerId) {
-            state.playersCardsPositions[playerId] = calculateCardsPositions(
-              data.amountBefore,
-              directions[playerIndex],
-            );
-          } else {
-            state.playersCardsPositions[playerId] =
-              calculateHiddenCardsPositions(
-                data.amountBefore,
-                directions[playerIndex],
-              );
-          }
-        }
-
-        // ✅ אחר כך חשב cardsPositions מהמיקומים המעודכנים
-        const cardsPositions =
-          state.playersCardsPositions[playerId]
-            ?.filter((_, i) => data.selectedCardsPositions.includes(i))
-            .map(pos => ({
-              x: pos.x - screenWidth / 2 + 29,
-              y: pos.y - normalizedHeight / 2 - 45,
-              deg: pos.deg,
-            })) ?? [];
-
+        // Determine card position and action type based on source
         let cardPosition: Position | undefined;
         let actionType: TurnState['action'] = 'DRAG_FROM_DECK';
-        switch (source) {
+
+        switch (data.source) {
           case 'deck': {
             cardPosition = {
-              ...deckPos,
-              x: deckPos.x + 2,
-              y: deckPos.y - 41,
+              ...state.ui.deckPosition,
               deg: 0,
             };
             actionType = 'DRAG_FROM_DECK';
             break;
           }
           case 'pickup': {
-            // we want to get the index of the card that is in the discard_pile
-            // for accurate transition
-            const pCard = data.card;
-            const indexOfPickedCard = state.pickupCards.findIndex(
-              card => getCardKey(card) === getCardKey(pCard),
+            const indexOfPickedCard = state.board.pickupPile.findIndex(
+              card => getCardKey(card) === getCardKey(data.card),
             );
             cardPosition = {
               x:
-                pickupPos.x +
+                state.ui.pickupPosition.x +
                 indexOfPickedCard * CARD_WIDTH -
-                ((state.pickupCards.length - 1) * CARD_WIDTH) / 2,
-              y: pickupPos.y - 35,
+                ((state.board.pickupPile.length - 1) * CARD_WIDTH) / 2,
+              y: state.ui.pickupPosition.y - 35,
               deg: 0,
             };
             actionType = 'DRAG_FROM_PICKUP';
@@ -404,55 +372,84 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             break;
           }
         }
-        const playersHands = {...state.playersHands};
-        playersHands[playerId] = hands;
 
-        const prevTurn: TurnState = {
-          round: state.round,
-          step: (state.mainState.prevTurn?.step ?? -1) + 1,
-          playerId,
-          // השלך קלפים
+        // Create turn state for animations and history
+        const turnState: TurnState = {
+          round: state.game.round,
+          step: (state.game.currentTurn?.prevTurn?.step ?? -1) + 1,
+          playerId: data.playerId,
           discard: {
-            cards: pickupCards,
+            cards: data.pickupCards,
             cardsPositions: cardsPositions,
-            // deckPos is always the target
           },
-          // משוך קלף
-          draw: cardPosition && {
-            card: data.card,
-            cardPosition,
-            // calculate the target inside the player cards
-          },
-          pickupCards: pickupCards,
+          draw: cardPosition
+            ? {
+                card: data.card,
+                cardPosition,
+              }
+            : undefined,
+          pickupCards: data.pickupCards,
           action: actionType,
         };
 
-        const thisPlayer: PlayerInfo = {
-          ...state.thisPlayer,
-          ...(playerId === socketId
-            ? {
-                roundScore: getHandValue(hands),
-                handCards: hands,
-              }
-            : {}),
-          myTurn: data.currentPlayerId === socketId,
-          slapDownAvailable: slapDownActiveFor === socketId,
-        };
+        // Update player card positions
+        const updatedCardPositions = {...state.ui.cardPositions};
+        if (playerIndex > -1) {
+          if (socketId === data.playerId) {
+            updatedCardPositions[data.playerId] = calculateCardsPositions(
+              data.amountBefore,
+              directions[playerIndex],
+            );
+          } else {
+            updatedCardPositions[data.playerId] = calculateHiddenCardsPositions(
+              data.amountBefore,
+              directions[playerIndex],
+            );
+          }
+        }
+
+        // Update all players data
+        const updatedPlayers = {...state.players.all};
+        Object.keys(updatedPlayers).forEach(playerId => {
+          if (playerId === data.playerId) {
+            updatedPlayers[playerId] = {
+              ...updatedPlayers[playerId],
+              hand: data.hands,
+              roundScore: getHandValue(data.hands),
+            };
+          }
+
+          updatedPlayers[playerId] = {
+            ...updatedPlayers[playerId],
+            isMyTurn: data.currentPlayerId === playerId,
+            slapDownAvailable: data.slapDownActiveFor === playerId,
+          };
+        });
 
         return {
           ...state,
-          playersHands,
-          mainState: {
-            ...state.mainState,
-            ui: state.mainState.ui!!,
-            state: 'playing',
-            prevTurn,
-            playerTurn: data.currentPlayerId,
-            roundResults: null,
-            turnStartTime: new Date(),
+          game: {
+            ...state.game,
+            phase: 'active' as GamePhase,
+            currentTurn: {
+              playerId: data.currentPlayerId,
+              startTime: new Date(),
+              prevTurn: turnState,
+            },
           },
-          pickupCards,
-          thisPlayer,
+          players: {
+            ...state.players,
+            all: updatedPlayers,
+          },
+          board: {
+            ...state.board,
+            pickupPile: data.pickupCards,
+            discardHistory: [...state.board.discardHistory, turnState],
+          },
+          ui: {
+            ...state.ui,
+            cardPositions: updatedCardPositions,
+          },
         };
       });
     },
@@ -468,40 +465,67 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       console.log('NEW ROUND - - ', gameState.playersStats);
 
       set(state => {
-        const playersCardsPositions = directions
-          .slice(0, state.config.players.length)
-          .reduce<Record<PlayerId, Position[]>>((res, direction, i) => {
-            const playerId = state.config.players[i];
-            if (socketId === playerId) {
-              res[playerId] = calculateCardsPositions(5, direction);
-            } else {
-              res[playerId] = calculateHiddenCardsPositions(5, direction);
-            }
-            return res;
-          }, {});
+        // Reset card positions for all players with new hand size (5 cards)
+        const updatedCardPositions = {...state.ui.cardPositions};
+        state.players.order.forEach((playerId, index) => {
+          if (socketId === playerId) {
+            updatedCardPositions[playerId] = calculateCardsPositions(
+              5,
+              directions[index],
+            );
+          } else {
+            updatedCardPositions[playerId] = calculateHiddenCardsPositions(
+              5,
+              directions[index],
+            );
+          }
+        });
+
+        // Update all players with new hands and reset turn state
+        const updatedPlayers = {...state.players.all};
+        Object.keys(updatedPlayers).forEach(playerId => {
+          const newHand = data.playerHands[playerId] || [];
+          updatedPlayers[playerId] = {
+            ...updatedPlayers[playerId],
+            stats:
+              data.gameState.playersStats[playerId] ||
+              updatedPlayers[playerId].stats,
+            hand: newHand,
+            isMyTurn: data.currentPlayerId === playerId,
+            slapDownAvailable: false,
+            roundScore: getHandValue(newHand),
+          };
+        });
 
         return {
           ...state,
-          round: state.round + 1,
-          playersStats: gameState.playersStats,
-          thisPlayer: {
-            ...state.thisPlayer,
-            roundScore: getHandValue(thisPlayerHands),
-            handCards: thisPlayerHands,
-            myTurn: currentPlayerId === socketId,
-            slapDownAvailable: false,
+          game: {
+            ...state.game,
+            phase: 'active' as GamePhase,
+            round: state.game.round + 1,
+            currentTurn: {
+              playerId: data.currentPlayerId,
+              startTime: new Date(),
+              prevTurn: null, // No previous turn at start of new round
+            },
+            rules: {
+              ...state.game.rules,
+              timePerPlayer: data.gameState.timePerPlayer,
+            },
           },
-          pickupCards: [data.firstCard],
-          mainState: {
-            state: 'begin',
-            ui: state.mainState.ui!!,
-            prevTurn: null,
-            playerTurn: data.currentPlayerId,
-            roundResults: null,
-            turnStartTime: new Date(),
+          players: {
+            ...state.players,
+            all: updatedPlayers,
           },
-          playersHands: data.playerHands,
-          playersCardsPositions,
+          board: {
+            pickupPile: [data.firstCard],
+            discardHistory: [], // Reset history for new round
+          },
+          ui: {
+            ...state.ui,
+            cardPositions: updatedCardPositions,
+          },
+          roundResults: undefined, // Clear previous round results
         };
       });
     },
@@ -516,29 +540,38 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       console.log('Round Ended ,', data.playersStats);
       set(state => {
-        const thisPlayer: PlayerInfo = {
-          ...state.thisPlayer,
-          myTurn: false,
-        };
+        // Update all players with new stats and final hands
+        const updatedPlayers = {...state.players.all};
+        Object.keys(updatedPlayers).forEach(playerId => {
+          updatedPlayers[playerId] = {
+            ...updatedPlayers[playerId],
+            stats:
+              data.playersStats[playerId] || updatedPlayers[playerId].stats,
+            hand: data.playerHands[playerId] || updatedPlayers[playerId].hand,
+            isMyTurn: false, // No one's turn during round end
+            slapDownAvailable: false,
+            roundScore: getHandValue(data.playerHands[playerId] || []),
+          };
+        });
 
         return {
           ...state,
-          mainState: {
-            ...state.mainState,
-            ui: state.mainState.ui!!,
-            prevTurn: null,
-            playerTurn: null,
-            state: 'end',
-            roundResults: {
-              winnerId: data.winnerId,
-              playersStats: data.playersStats,
-              playersHands: data.playerHands,
-              yanivCaller: data.yanivCaller,
-              assafCaller: data.assafCaller,
-            },
-            turnStartTime: null,
+          game: {
+            ...state.game,
+            phase: 'round-end' as GamePhase,
+            currentTurn: null, // No active turn during round end
           },
-          thisPlayer,
+          players: {
+            ...state.players,
+            all: updatedPlayers,
+          },
+          roundResults: {
+            winnerId: data.winnerId,
+            playersStats: data.playersStats,
+            playersHands: data.playerHands,
+            yanivCaller: data.yanivCaller,
+            assafCaller: data.assafCaller,
+          },
         };
       });
     },
