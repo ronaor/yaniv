@@ -53,6 +53,7 @@ function GameScreen({navigation}: any) {
   const {roundResults, turnStartTime} = mainState;
   console.log('?playersStats', mainState.roundResults?.playersStats);
 
+  console.log('config.players', config.players);
   const {myTurn, slapDownAvailable, handCards: playerHand} = thisPlayer;
 
   const {name: nickName} = useUser();
@@ -69,12 +70,12 @@ function GameScreen({navigation}: any) {
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
   useEffect(() => {
-    openEndGameDialog(
-      'finish',
-      thisPlayer.playerId,
-      config.players,
-      mainState.roundResults?.playersStats ?? {},
-    );
+    // openEndGameDialog(
+    //   'finish',
+    //   thisPlayer.playerId,
+    //   config.players,
+    //   mainState.roundResults?.playersStats ?? {},
+    // );
     return clearGame;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

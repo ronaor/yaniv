@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
@@ -20,6 +21,7 @@ import CardPointsList from '../cards/cardsPoint';
 import {DirectionName} from '~/types/cards';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {isEmpty} from 'lodash';
+import {useNavigation} from '@react-navigation/native';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -59,9 +61,11 @@ export function openEndGameDialog(
 }
 
 const EndGameDialog: React.FC = () => {
+  const navigation = useNavigation<any>();
   const {isOpen, mode, thisPlayerId, playersIds, playersStats, close, open} =
     useEndGameStore();
-  console.log('🚀 ~ EndGameDialog ~ playersStats:', playersStats);
+  console.log('🚀 ~ EndGameDialog ~ playersIds:', playersIds);
+  // console.log('🚀 ~ EndGameDialog ~ playersStats:', playersStats);
   const {players, leaveRoom} = useRoomStore();
 
   const activePlayers = Object.entries(playersStats).filter(
@@ -74,6 +78,22 @@ const EndGameDialog: React.FC = () => {
       return res;
     }, {});
   }, [players]);
+
+  // Handle leave game
+  const handleLeave = useCallback(() => {
+    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
+      {text: 'ביטול', style: 'cancel'},
+      {
+        text: 'צא',
+        style: 'destructive',
+        onPress: () => {
+          close();
+          leaveRoom(playersName[thisPlayerId]);
+          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+        },
+      },
+    ]);
+  }, [navigation, leaveRoom, playersName, thisPlayerId, close]);
 
   // Show dialog on finish app entry
   // React.useEffect(() => {
@@ -113,17 +133,6 @@ const EndGameDialog: React.FC = () => {
             name : {playersName[thisPlayerId]} - score :
             {playersStats[thisPlayerId]?.score ?? 0}
           </Text>
-
-          <BasePressable onPress={() => {}}>
-            <View style={styles.playAgainBtn}>
-              <Text style={[textStyles.body]}>שחק שוב</Text>
-            </View>
-          </BasePressable>
-          <BasePressable onPress={() => {}}>
-            <View style={styles.leaveBtn}>
-              <Text style={[textStyles.body]}>צא</Text>
-            </View>
-          </BasePressable>
         </View>
         {playersIds.map((playerId, i) => {
           if (thisPlayerId !== playerId) {
@@ -139,7 +148,23 @@ const EndGameDialog: React.FC = () => {
             );
           }
         })}
-
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <BasePressable onPress={() => {}}>
+            <View style={styles.playAgainBtn}>
+              <Text style={[textStyles.body]}>שחק שוב</Text>
+            </View>
+          </BasePressable>
+          <BasePressable onPress={handleLeave}>
+            <View style={styles.leaveBtn}>
+              <Text style={[textStyles.body]}>צא</Text>
+            </View>
+          </BasePressable>
+        </View>
         {/* <BasePressable onPress={() => {}}>
           <View style={styles.saveButton}>
             <Text style={[textStyles.body, styles.saveText]}>שמור</Text>
