@@ -14,12 +14,10 @@ import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {getHandValue} from '~/utils/gameRules';
 
-import CardBack from '~/components/cards/cardBack';
 import CardPointsList from '~/components/cards/cardsPoint';
 import {DirectionName} from '~/types/cards';
-import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
@@ -28,24 +26,16 @@ import YanivButton from '~/components/yanivButton';
 import UserAvatar from '~/components/user/userAvatar';
 import LightAround from '~/components/user/lightAround';
 import {OutlinedText} from '~/components/cartoonText';
+import GameBoard from '~/components/game/board';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({rotation}: {rotation: number}) => {
-  const rotationStyle: ViewStyle = {
-    position: 'absolute',
-    transform: [{rotate: `${rotation}deg`}],
-  };
-  return (
-    <View style={rotationStyle}>
-      <CardBack />
-    </View>
-  );
-};
-
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
-  const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [selectedCardsIndexes, setSelectedCardsIndexes] = useState<number[]>(
+    [],
+  );
+
   const {
     game,
     players: gamePlayers,
@@ -71,6 +61,11 @@ function GameScreen({navigation}: any) {
     };
   }, [gamePlayers]);
 
+  const selectedCards = useMemo(
+    () => selectedCardsIndexes.map(i => playerHand[i]),
+    [playerHand, selectedCardsIndexes],
+  );
+
   const playersName = useMemo(() => {
     return players.reduce<Record<PlayerId, string>>((res, user) => {
       res[user.id] = user.nickName;
@@ -90,7 +85,7 @@ function GameScreen({navigation}: any) {
   // Timer for remaining time
   useEffect(() => {
     if (!myTurn) {
-      setSelectedCards([]);
+      setSelectedCardsIndexes([]);
       return;
     }
     if (game.phase !== 'active') {
@@ -151,34 +146,8 @@ function GameScreen({navigation}: any) {
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
 
-  const handleDrawFromDeck = () => {
-    const selected = selectedCards.map(i => playerHand[i]);
-    if (!isValidCardSet(selected, true)) {
-      return false;
-    }
-    emit.completeTurn(
-      {choice: 'deck'},
-      selectedCards.map(i => playerHand[i]),
-    );
-  };
-
-  const handlePickupCard = (pickupIndex: number) => {
-    const selected = selectedCards.map(i => playerHand[i]);
-    if (
-      !isCanPickupCard(board.pickupPile.length, pickupIndex) ||
-      !isValidCardSet(selected, true)
-    ) {
-      return false;
-    }
-
-    emit.completeTurn(
-      {choice: 'pickup', pickupIndex},
-      selectedCards.map(i => playerHand[i]),
-    );
-  };
-
   const toggleCardSelection = (index: number) => {
-    setSelectedCards(prev => {
+    setSelectedCardsIndexes(prev => {
       const isSelected = prev.includes(index);
       if (isSelected) {
         return prev.filter(i => i !== index);
@@ -276,29 +245,16 @@ function GameScreen({navigation}: any) {
           />
         </View>
         {/* Game Area */}
-        <View style={styles.gameArea}>
-          <TouchableOpacity
-            style={styles.deck}
-            onPress={handleDrawFromDeck}
-            disabled={!myTurn || selectedCards.length === 0}>
-            <>
-              <CardBackRotated rotation={10} />
-              <CardBackRotated rotation={3} />
-            </>
-          </TouchableOpacity>
-          <View style={styles.pickup}>
-            <DeckCardPointers
-              cards={board.pickupPile}
-              pickedCard={lastPickedCard}
-              onPickUp={handlePickupCard}
-              fromTargets={
-                game.currentTurn?.prevTurn?.discard.cardsPositions ?? []
-              }
-              round={game.round}
-              disabled={!myTurn}
-            />
-          </View>
-        </View>
+        <GameBoard
+          pickup={{
+            pickupPile: board.pickupPile,
+            lastPickedCard,
+            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+          }}
+          round={game.round}
+          selectedCards={selectedCards}
+          disabled={!myTurn}
+        />
         {gamePlayers.order.map((playerId, i) => {
           if (gamePlayers.current === playerId) {
             return (
@@ -307,7 +263,7 @@ function GameScreen({navigation}: any) {
                 cards={playerHand}
                 onCardSelect={toggleCardSelection}
                 slapCardIndex={slapCardIndex}
-                selectedCardsIndexes={selectedCards}
+                selectedCardsIndexes={selectedCardsIndexes}
                 onCardSlapped={onSlapCard}
                 fromPosition={
                   playerId === game.currentTurn?.prevTurn?.playerId
