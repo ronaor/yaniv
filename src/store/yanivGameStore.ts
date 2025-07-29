@@ -181,13 +181,7 @@ const initialGameFields: YanivGameFields = {
     pickupPile: [],
     discardHistory: [],
   },
-  roundResults: {
-    winnerId: '',
-    playersStats: {},
-    playersHands: {},
-    yanivCaller: '',
-    assafCaller: undefined,
-  },
+  roundResults: undefined,
   ui: {
     cardPositions: {},
     deckPosition: {x: 0, y: 0},

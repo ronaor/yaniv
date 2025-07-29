@@ -27,6 +27,7 @@ import UserAvatar from '~/components/user/userAvatar';
 import LightAround from '~/components/user/lightAround';
 import {OutlinedText} from '~/components/cartoonText';
 import GameBoard from '~/components/game/board';
+import {isNil} from 'lodash';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -286,7 +287,7 @@ function GameScreen({navigation}: any) {
                       : undefined
                   }
                   action={game.currentTurn?.prevTurn?.action}
-                  reveal={roundResults !== undefined}
+                  reveal={!isNil(roundResults)}
                 />
                 <View style={recordStyle[directions[i]]}>
                   <UserAvatar
