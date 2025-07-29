@@ -256,51 +256,44 @@ function GameScreen({navigation}: any) {
           selectedCards={selectedCards}
           disabled={!myTurn}
         />
-        {gamePlayers.order.map((playerId, i) => {
-          if (gamePlayers.current === playerId) {
-            return (
-              <CardPointsList
-                key={playerId}
-                cards={playerHand}
-                onCardSelect={toggleCardSelection}
-                slapCardIndex={slapCardIndex}
-                selectedCardsIndexes={selectedCardsIndexes}
-                onCardSlapped={onSlapCard}
-                fromPosition={
-                  playerId === game.currentTurn?.prevTurn?.playerId
-                    ? game.currentTurn?.prevTurn?.draw?.cardPosition
-                    : undefined
-                }
-                action={game.currentTurn?.prevTurn?.action}
-                direction={directions[i]}
-              />
-            );
-          } else {
-            return (
-              <View key={playerId} style={styles.absolute}>
-                <HiddenCardPointsList
-                  cards={gamePlayers.all[playerId]?.hand ?? []}
-                  direction={directions[i]}
-                  fromPosition={
-                    playerId === game.currentTurn?.prevTurn?.playerId
-                      ? game.currentTurn?.prevTurn?.draw?.cardPosition
-                      : undefined
-                  }
-                  action={game.currentTurn?.prevTurn?.action}
-                  reveal={!isNil(roundResults)}
-                />
-                <View style={recordStyle[directions[i]]}>
-                  <UserAvatar
-                    name={playersName[playerId]}
-                    score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-                    isActive={game.currentTurn?.playerId === playerId}
-                    timePerPlayer={game.rules.timePerPlayer}
-                  />
-                </View>
-              </View>
-            );
+        <CardPointsList
+          key={gamePlayers.current}
+          cards={playerHand}
+          onCardSelect={toggleCardSelection}
+          slapCardIndex={slapCardIndex}
+          selectedCardsIndexes={selectedCardsIndexes}
+          onCardSlapped={onSlapCard}
+          fromPosition={
+            gamePlayers.current === game.currentTurn?.prevTurn?.playerId
+              ? game.currentTurn?.prevTurn?.draw?.cardPosition
+              : undefined
           }
-        })}
+          action={game.currentTurn?.prevTurn?.action}
+          direction={directions[0]}
+        />
+        {gamePlayers.order.slice(1).map((playerId, i) => (
+          <View key={playerId} style={styles.absolute}>
+            <HiddenCardPointsList
+              cards={gamePlayers.all[playerId]?.hand ?? []}
+              direction={directions[i + 1]}
+              fromPosition={
+                playerId === game.currentTurn?.prevTurn?.playerId
+                  ? game.currentTurn?.prevTurn?.draw?.cardPosition
+                  : undefined
+              }
+              action={game.currentTurn?.prevTurn?.action}
+              reveal={!isNil(roundResults)}
+            />
+            <View style={recordStyle[directions[i + 1]]}>
+              <UserAvatar
+                name={playersName[playerId]}
+                score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+                isActive={game.currentTurn?.playerId === playerId}
+                timePerPlayer={game.rules.timePerPlayer}
+              />
+            </View>
+          </View>
+        ))}
       </SafeAreaView>
     </>
   );
