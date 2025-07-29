@@ -257,7 +257,12 @@ export const CardComponent: React.FC<CardProps> = ({
   const cardY = shadowPadding;
 
   return (
-    <Canvas style={{width: canvasWidth, height: canvasHeight}}>
+    <Canvas
+      style={{
+        width: canvasWidth,
+        height: canvasHeight,
+        transform: [{scale: 1.25}],
+      }}>
       <Background
         width={width}
         height={height}
