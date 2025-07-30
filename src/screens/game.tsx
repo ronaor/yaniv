@@ -16,19 +16,19 @@ import {colors} from '~/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getHandValue} from '~/utils/gameRules';
 
+import {isNil} from 'lodash';
 import CardPointsList from '~/components/cards/cardsPoint';
+import HiddenCardPointsList from '~/components/cards/hiddenCards';
+import {OutlinedText} from '~/components/cartoonText';
+import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
+import GameBoard from '~/components/game/board';
+import LightAround from '~/components/user/lightAround';
+import UserAvatar from '~/components/user/userAvatar';
+import YanivButton from '~/components/yanivButton';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {DirectionName} from '~/types/cards';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import WaveAnimationBackground from './waveScreen';
-import YanivButton from '~/components/yanivButton';
-import UserAvatar from '~/components/user/userAvatar';
-import LightAround from '~/components/user/lightAround';
-import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
-import {OutlinedText} from '~/components/cartoonText';
-import GameBoard from '~/components/game/board';
-import {isNil} from 'lodash';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -80,61 +80,27 @@ function GameScreen({navigation}: any) {
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
   useEffect(() => {
-    // openEndGameDialog(
-    //   'finish',
-    //   thisPlayer.playerId,
-    //   config.players,
-    //   mainState.roundResults?.playersStats ?? {},
-    // );
+    openEndGameDialog(
+      'finish',
+      gamePlayers.current,
+      gamePlayers.order,
+      roundResults?.playersStats ?? {},
+    );
     return clearGame;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    console.log('RRRR', mainState.state);
-
-    if (mainState.state === 'end') {
-      console.log('FFFF', mainState.state);
-      openEndGameDialog(
-        'finish',
-        thisPlayer.playerId,
-        config.players,
-        mainState.roundResults?.playersStats ?? {},
-      );
-    }
-  }, [mainState.state]);
-  const [uiReady, setUiReady] = useState<{
-    deckLocation: boolean;
-    pickupLocation: boolean;
-  }>({deckLocation: false, pickupLocation: false});
-
-  useEffect(() => {
-    if (mainState.ui || !uiReady.deckLocation || !uiReady.pickupLocation) {
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      deckRef.current?.measure((_, __, ___, lH, lPX, lPY) => {
-        const deckLocation = {x: lPX, y: lPY + lH / 2, deg: 0};
-        pickupRef.current?.measure((____, _____, ______, pH, pPX, pPY) => {
-          const pickupLocation = {x: pPX, y: pPY + pH / 2, deg: 0};
-          setUI(
-            {
-              deckLocation,
-              pickupLocation,
-            },
-            players.map(p => p.id),
-          );
-        });
-      });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [setUI, players, mainState.ui, uiReady]);
-
   // Timer for remaining time
   useEffect(() => {
     if (!myTurn) {
+      if (game.phase === 'game-end') {
+        openEndGameDialog(
+          'finish',
+          gamePlayers.current,
+          gamePlayers.order,
+          roundResults?.playersStats ?? {},
+        );
+      }
       setSelectedCardsIndexes([]);
       return;
     }
@@ -161,6 +127,8 @@ function GameScreen({navigation}: any) {
     return () => clearInterval(interval);
   }, [
     myTurn,
+    gamePlayers,
+    roundResults,
     game.currentTurn?.startTime,
     game.rules.timePerPlayer,
     game.phase,

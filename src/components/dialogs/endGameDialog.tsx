@@ -1,27 +1,15 @@
+import {useNavigation} from '@react-navigation/native';
+import {isEmpty} from 'lodash';
 import React, {useCallback, useMemo} from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  ActivityIndicator,
-  StyleSheet,
-  Dimensions,
-  Alert,
-} from 'react-native';
-import {useUser} from '~/store/userStore';
-import {colors, textStyles} from '~/theme';
+import {Alert, Dimensions, StyleSheet, Text, View} from 'react-native';
+import {create} from 'zustand';
 import BasePressable from '~/components/basePressable';
 import Dialog from '~/components/dialog';
-import {create} from 'zustand';
-import {PlayerId} from '~/store/yanivGameStore';
-import {PlayerStatus} from '~/types/player';
-import UserAvatar from '../user/userAvatar';
 import {useRoomStore} from '~/store/roomStore';
-import CardPointsList from '../cards/cardsPoint';
+import {PlayerId} from '~/store/yanivGameStore';
+import {colors, textStyles} from '~/theme';
 import {DirectionName} from '~/types/cards';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {isEmpty} from 'lodash';
-import {useNavigation} from '@react-navigation/native';
+import {PlayerStatus} from '~/types/player';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
