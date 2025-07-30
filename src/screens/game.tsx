@@ -28,8 +28,12 @@ import LightAround from '~/components/user/lightAround';
 import {OutlinedText} from '~/components/cartoonText';
 import GameBoard from '~/components/game/board';
 import {isNil} from 'lodash';
+import YanivBubble from '~/components/bubbles/yaniv';
+import AssafBubble from '~/components/bubbles/assaf';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+
+const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
@@ -177,7 +181,19 @@ function GameScreen({navigation}: any) {
     }
   }, [playerHand, slapCardIndex, emit]);
 
-  const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
+  const yanivCall: DirectionName | undefined = useMemo(() => {
+    if (roundResults) {
+      const i = gamePlayers.order.indexOf(roundResults.yanivCaller);
+      return directions[i];
+    }
+  }, [gamePlayers.order, roundResults]);
+
+  const assafCall: DirectionName | undefined = useMemo(() => {
+    if (roundResults && roundResults.assafCaller) {
+      const i = gamePlayers.order.indexOf(roundResults.assafCaller);
+      return directions[i];
+    }
+  }, [gamePlayers.order, roundResults]);
 
   return (
     <>
@@ -200,20 +216,9 @@ function GameScreen({navigation}: any) {
               </View>
             )}
           </View>
-
           {/* Yaniv/Asaf Overlay */}
-          <View style={styles.overlay}>
-            {roundResults?.yanivCaller && (
-              <View>
-                <Text style={styles.yanivText}>{'יניב!'}</Text>
-              </View>
-            )}
-            {roundResults?.assafCaller && (
-              <View>
-                <Text style={styles.yanivText}>{'אסף!'}</Text>
-              </View>
-            )}
-          </View>
+          <YanivBubble direction={yanivCall} />
+          <AssafBubble direction={assafCall} />
         </View>
         {gamePlayers.order.map((playerId, i) => (
           <LightAround
@@ -416,4 +421,5 @@ const recordStyle: Record<DirectionName, ViewStyle> = {
     top: screenHeight / 2 - 140,
   },
 };
+
 export default GameScreen;
