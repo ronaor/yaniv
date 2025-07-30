@@ -582,6 +582,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       set(state => {
         return {
           ...state,
+          game: {
+            ...state.game,
+            phase: 'game-end' as GamePhase,
+          },
         };
       });
     },

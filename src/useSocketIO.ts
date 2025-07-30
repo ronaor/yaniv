@@ -43,8 +43,8 @@ const useSocketIO = () => {
       roomStore.setRoomConfigVotes({roomId, votes});
     });
 
-    socket.on('player_left', ({players, votes}) => {
-      roomStore.setPlayerLeft({players, votes});
+    socket.on('player_left', ({roomId, playerId, players, votes}) => {
+      roomStore.setPlayerLeft({roomId, playerId, players, votes});
     });
 
     socket.on('kick_out_from_room', ({roomId}) =>

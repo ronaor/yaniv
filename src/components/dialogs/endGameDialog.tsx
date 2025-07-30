@@ -64,7 +64,6 @@ const EndGameDialog: React.FC = () => {
   const navigation = useNavigation<any>();
   const {isOpen, mode, thisPlayerId, playersIds, playersStats, close, open} =
     useEndGameStore();
-  console.log('🚀 ~ EndGameDialog ~ playersIds:', playersIds);
   // console.log('🚀 ~ EndGameDialog ~ playersStats:', playersStats);
   const {players, leaveRoom} = useRoomStore();
 
