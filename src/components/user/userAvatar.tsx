@@ -21,6 +21,8 @@ interface UserAvatarProps {
   timePerPlayer?: number;
 }
 
+const CIRCLE_SIZE = 75;
+
 function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
 
@@ -33,9 +35,9 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
   }, [circleProgress, isActive, timePerPlayer]);
 
   const progressPath = useDerivedValue(() => {
-    const radius = 35; // (75 - 5*2) / 2 = circle radius minus border
-    const centerX = 37.5; // 75 / 2
-    const centerY = 37.5; // 75 / 2
+    const radius = (CIRCLE_SIZE - 5) / 2;
+    const centerX = CIRCLE_SIZE / 2;
+    const centerY = CIRCLE_SIZE / 2;
     const sweepAngle = circleProgress.value * 360;
 
     if (sweepAngle === 0) {
@@ -79,7 +81,7 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
             <Path
               path={progressPath}
               style="stroke"
-              strokeWidth={6}
+              strokeWidth={5}
               strokeCap="round"
               color={progressColor}
             />
@@ -106,7 +108,7 @@ export default UserAvatar;
 
 const styles = StyleSheet.create({
   circle: {
-    width: 75,
+    width: CIRCLE_SIZE,
     aspectRatio: 1,
     borderRadius: 40,
     borderWidth: 5,
@@ -123,8 +125,8 @@ const styles = StyleSheet.create({
   },
   progressCanvas: {
     position: 'absolute',
-    width: 75,
-    height: 75,
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
     top: 0,
     left: 0,
   },

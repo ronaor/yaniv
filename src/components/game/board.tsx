@@ -16,10 +16,17 @@ import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({rotation}: {rotation: number}) => {
+const CardBackRotated = ({
+  rotation,
+  opacity,
+}: {
+  rotation: number;
+  opacity: number;
+}) => {
   const rotationStyle: ViewStyle = {
     position: 'absolute',
     transform: [{rotate: `${rotation}deg`}],
+    opacity,
   };
   return (
     <View style={rotationStyle}>
@@ -77,8 +84,10 @@ function GameBoard({
         onPress={handleDrawFromDeck}
         disabled={disabled || selectedCards.length === 0}>
         <>
-          <CardBackRotated rotation={10} />
-          <CardBackRotated rotation={3} />
+          <CardBackRotated rotation={10} opacity={0.5} />
+          <CardBackRotated rotation={5} opacity={0.5} />
+          <CardBackRotated rotation={0} opacity={0.5} />
+          <CardBackRotated rotation={-5} opacity={1} />
         </>
       </TouchableOpacity>
       <View style={styles.pickup}>
