@@ -1,5 +1,5 @@
+import {Dimensions} from 'react-native';
 import {create} from 'zustand';
-import {useSocket} from './socketStore';
 import {
   ActionSource,
   Card,
@@ -8,10 +8,10 @@ import {
   Position,
   TurnAction,
 } from '~/types/cards';
-import {TurnState} from '~/types/turnState';
 import {PlayerStatus} from '~/types/player';
-import {getCardKey, getHandValue} from '~/utils/gameRules';
+import {TurnState} from '~/types/turnState';
 import {CARD_HEIGHT, CARD_SELECT_OFFSET, CARD_WIDTH} from '~/utils/constants';
+import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {
   calculateAllPlayerPositions,
   calculateCardsPositions,
@@ -20,7 +20,7 @@ import {
   createPlayersData,
 } from '~/utils/logic';
 import {useRoomStore} from './roomStore';
-import {Dimensions} from 'react-native';
+import {useSocket} from './socketStore';
 
 //region Server Types
 interface PublicGameState {
@@ -54,6 +54,7 @@ type GameRules = {
 type GameState = {
   phase: GamePhase;
   round: number;
+  playersStats: Record<PlayerId, PlayerStatus>;
   currentTurn: TurnInfo | null;
   rules: GameRules;
 };
@@ -136,13 +137,23 @@ type YanivGameMethods = {
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
     }) => void;
-    gameEnded: () => void;
+    gameEnded: (data: {
+      winnerId: string;
+      finalScores: Record<string, number>;
+      playersStats: Record<string, PlayerStatus>;
+    }) => void;
     setGameError: (data: {message: string}) => void;
+    setPlayAgain: (data: {
+      roomId: string;
+      playerId: string;
+      playersStats: Record<PlayerId, PlayerStatus>;
+    }) => void;
   };
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
     callYaniv: () => void;
     slapDown: (card: Card) => void;
+    playAgain: () => void;
   };
 };
 
@@ -155,7 +166,6 @@ export type GameUI = {
 
 type RoundResults = {
   winnerId: string;
-  playersStats: Record<PlayerId, PlayerStatus>;
   playersHands: Record<PlayerId, Card[]>;
   yanivCaller: string;
   assafCaller?: string;
@@ -171,6 +181,7 @@ const initialGameFields: YanivGameFields = {
       slapDownAllowed: false,
       canCallYaniv: 7,
     },
+    playersStats: {},
   },
   players: {
     all: {},
@@ -283,6 +294,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             prevTurn: null,
           },
           rules: gameRules,
+          playersStats: data.gameState.playersStats || {},
         },
         players: {
           all: playersData,
@@ -532,6 +544,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
     }) => {
+      console.log('Round Ended ,', data.playersStats);
       set(state => {
         // Update all players with new stats and final hands
         const updatedPlayers = {...state.players.all};
@@ -560,7 +573,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           roundResults: {
             winnerId: data.winnerId,
-            playersStats: data.playersStats,
             playersHands: data.playerHands,
             yanivCaller: data.yanivCaller,
             assafCaller: data.assafCaller,
@@ -568,9 +580,42 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         };
       });
     },
-    gameEnded: () => {},
+    gameEnded: (data: {
+      winnerId: string;
+      finalScores: Record<string, number>;
+      playersStats: Record<string, PlayerStatus>;
+    }) => {
+      const {playersStats} = data;
+      set(state => {
+        return {
+          ...state,
+          game: {
+            ...state.game,
+            phase: 'game-end' as GamePhase,
+            currentTurn: null, // No active turn during game end
+            playersStats,
+          },
+        };
+      });
+    },
     setGameError: (data: {message: string}) => {
       set({error: data.message});
+    },
+    setPlayAgain: (data: {
+      roomId: string;
+      playerId: string;
+      playersStats: Record<PlayerId, PlayerStatus>;
+    }) => {
+      const {playersStats} = data;
+      set(state => {
+        return {
+          ...state,
+          game: {
+            ...state.game,
+            playersStats: playersStats,
+          },
+        };
+      });
     },
   },
   emit: {
@@ -582,6 +627,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     },
     slapDown: (card: Card) => {
       useSocket.getState().emit('slap_down', {card});
+    },
+    playAgain: () => {
+      useSocket.getState().emit('player_wants_to_play_again');
     },
   },
 }));

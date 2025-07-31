@@ -16,20 +16,21 @@ import {colors} from '~/theme';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getHandValue} from '~/utils/gameRules';
 
+import {isNil} from 'lodash';
+import AssafBubble from '~/components/bubbles/assaf';
+import YanivBubble from '~/components/bubbles/yaniv';
 import CardPointsList from '~/components/cards/cardsPoint';
+import HiddenCardPointsList from '~/components/cards/hiddenCards';
+import {OutlinedText} from '~/components/cartoonText';
+import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
+import GameBoard from '~/components/game/board';
+import LightAround from '~/components/user/lightAround';
+import UserAvatar from '~/components/user/userAvatar';
+import YanivButton from '~/components/yanivButton';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {DirectionName} from '~/types/cards';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import WaveAnimationBackground from './waveScreen';
-import YanivButton from '~/components/yanivButton';
-import UserAvatar from '~/components/user/userAvatar';
-import LightAround from '~/components/user/lightAround';
-import {OutlinedText} from '~/components/cartoonText';
-import GameBoard from '~/components/game/board';
-import {isNil} from 'lodash';
-import YanivBubble from '~/components/bubbles/yaniv';
-import AssafBubble from '~/components/bubbles/assaf';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -89,7 +90,15 @@ function GameScreen({navigation}: any) {
 
   // Timer for remaining time
   useEffect(() => {
-    if (!myTurn) {
+    if (!myTurn || isNil(game.currentTurn)) {
+      if (game.phase === 'game-end') {
+        openEndGameDialog(
+          'finish',
+          gamePlayers.current,
+          gamePlayers.order,
+          game.playersStats ?? {},
+        );
+      }
       setSelectedCardsIndexes([]);
       return;
     }
@@ -116,7 +125,9 @@ function GameScreen({navigation}: any) {
     return () => clearInterval(interval);
   }, [
     myTurn,
-    game.currentTurn?.startTime,
+    gamePlayers,
+    game.playersStats,
+    game.currentTurn,
     game.rules.timePerPlayer,
     game.phase,
   ]);

@@ -1,7 +1,7 @@
-import {create, StateCreator} from 'zustand';
-import {useSocket} from './socketStore';
-import {RoomConfig, User} from '~/types/player';
 import {isUndefined} from 'lodash';
+import {create, StateCreator} from 'zustand';
+import {RoomConfig, User} from '~/types/player';
+import {useSocket} from './socketStore';
 
 export interface RoomState {
   roomId: string | null;
@@ -48,6 +48,8 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
     canStartTheGameIn10Sec: Date | null;
   }) => void;
   setPlayerLeft: (data: {
+    roomId: string;
+    playerId: string;
     players: User[];
     votes: Record<string, RoomConfig>;
   }) => void;
@@ -147,8 +149,8 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         players,
         config,
         gameState: 'waiting',
+        // isAdminOfPrivateRoom: true,
         isInRoom: true,
-        isAdminOfPrivateRoom: true,
         isLoading: false,
         error: null,
       }));
@@ -174,9 +176,12 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
           : canStartTheGameIn10Sec,
       }));
     },
-    setPlayerLeft: ({players, votes}) => {
+
+    setPlayerLeft: ({roomId, playerId, players, votes}) => {
       set((state: RoomState) => ({...state, players, votes}));
+      useSocket.getState().emit('player_left_from_game', {roomId, playerId});
     },
+
     setGameStarted: ({roomId, config, players, votes}) => {
       set((state: RoomState) => ({
         ...state,
@@ -204,18 +209,21 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         isLoading: false,
       }));
     },
+
     registerCallback: (event, cb) => {
       set((state: RoomState) => ({
         ...state,
         callbacks: {...state.callbacks, [event]: cb},
       }));
     },
+
     triggerCallback: (event, data) => {
       const cb = get().callbacks[event];
       if (cb) {
         cb(data);
       }
     },
+
     checkRoomState: (roomId, _cb) => {
       useSocket.getState().emit('get_room_state', {roomId});
       // Note: Socket.IO callbacks are handled differently, we'll need to listen for the response
