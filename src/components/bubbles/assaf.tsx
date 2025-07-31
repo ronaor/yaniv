@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
   withTiming,
   useAnimatedProps,
+  runOnJS,
 } from 'react-native-reanimated';
 import {DirectionName} from '~/types/cards';
 import {Dimensions, View, ViewStyle} from 'react-native';
@@ -16,6 +17,11 @@ const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
+const springConfig = {
+  damping: 15,
+  stiffness: 150,
+  mass: 1,
+};
 interface AssafBubbleProps {
   direction?: DirectionName;
 }
@@ -33,43 +39,31 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 
   const pivotX = bubbleDirection === 'right' ? -50 : 50;
   const pivotY = bubbleDirection === 'down' ? 120 : -120;
-
   useEffect(() => {
     const visible = !isUndefined(direction);
+
     if (visible) {
-      rotation.value = withSpring(0, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
+      // Show: Update position + animate in
+      setActiveDirection(direction);
+      rotation.value = direction === 'left' || direction === 'up' ? 90 : -90;
+      rotation.value = withSpring(0);
+      scale.value = withSpring(1);
       opacity.value = withTiming(1);
     } else {
+      // Hide: Animate out + update position after
       rotation.value = withSpring(
-        activeDirection === 'right' || activeDirection === 'down' ? -90 : 90,
-        {
-          damping: 15,
-          stiffness: 150,
-          mass: 1,
+        activeDirection === 'left' || activeDirection === 'up' ? 90 : -90,
+        springConfig,
+        finished => {
+          if (finished) {
+            runOnJS(setActiveDirection)(undefined);
+          }
         },
       );
-      scale.value = withSpring(0.3, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      opacity.value = withTiming(0);
+      scale.value = withSpring(0.3, springConfig);
+      opacity.value = withTiming(0, {duration: 300});
     }
-    const timeout = setTimeout(() => {
-      setActiveDirection(direction);
-    }, 500);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rotation, scale, opacity, direction]);
+  }, [activeDirection, direction, opacity, rotation, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
