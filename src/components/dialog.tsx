@@ -1,6 +1,6 @@
+import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 import withModalPopUpContainer from './popupContainer';
-import React, {ReactNode} from 'react';
 
 interface DialogContentProps {
   children: ReactNode;
@@ -16,10 +16,12 @@ const Dialog = withModalPopUpContainer(DialogContent);
 
 const styles = StyleSheet.create({
   body: {
-    padding: 30,
-    backgroundColor: 'white',
+    width: '100%',
+    height: '100%',
+    padding: 20,
     borderRadius: 20,
     alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'column',
   },
 });

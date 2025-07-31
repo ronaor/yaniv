@@ -80,25 +80,19 @@ function GameScreen({navigation}: any) {
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
   useEffect(() => {
-    openEndGameDialog(
-      'finish',
-      gamePlayers.current,
-      gamePlayers.order,
-      roundResults?.playersStats ?? {},
-    );
     return clearGame;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Timer for remaining time
   useEffect(() => {
-    if (!myTurn) {
+    if (!myTurn || isNil(game.currentTurn)) {
       if (game.phase === 'game-end') {
         openEndGameDialog(
           'finish',
           gamePlayers.current,
           gamePlayers.order,
-          roundResults?.playersStats ?? {},
+          game.playersStats ?? {},
         );
       }
       setSelectedCardsIndexes([]);
@@ -128,8 +122,8 @@ function GameScreen({navigation}: any) {
   }, [
     myTurn,
     gamePlayers,
-    roundResults,
-    game.currentTurn?.startTime,
+    game.playersStats,
+    game.currentTurn,
     game.rules.timePerPlayer,
     game.phase,
   ]);

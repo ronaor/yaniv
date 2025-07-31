@@ -1,7 +1,7 @@
-import {create, StateCreator} from 'zustand';
-import {useSocket} from './socketStore';
-import {RoomConfig, User} from '~/types/player';
 import {isUndefined} from 'lodash';
+import {create, StateCreator} from 'zustand';
+import {RoomConfig, User} from '~/types/player';
+import {useSocket} from './socketStore';
 
 export interface RoomState {
   roomId: string | null;
@@ -176,10 +176,12 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
           : canStartTheGameIn10Sec,
       }));
     },
+
     setPlayerLeft: ({roomId, playerId, players, votes}) => {
       set((state: RoomState) => ({...state, players, votes}));
       useSocket.getState().emit('player_left_from_game', {roomId, playerId});
     },
+
     setGameStarted: ({roomId, config, players, votes}) => {
       set((state: RoomState) => ({
         ...state,
