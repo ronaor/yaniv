@@ -1,7 +1,7 @@
 import {useNavigation} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
 import React, {useCallback, useEffect, useMemo} from 'react';
-import {Alert, Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Alert, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {create} from 'zustand';
 import BasePressable from '~/components/basePressable';
@@ -76,7 +76,7 @@ const EndGameDialog: React.FC = () => {
   const navigation = useNavigation<any>();
   const {isOpen, thisPlayerId, playersIds, playersStats, close} =
     useEndGameStore();
-  const {players, leaveRoom} = useRoomStore();
+  const {leaveRoom} = useRoomStore();
   const {emit} = useYanivGameStore();
 
   const activePlayer = useMemo(
