@@ -310,6 +310,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           deckPosition,
           pickupPosition,
         },
+        roundResults: undefined,
       }));
     },
     playerDrew: (data: {

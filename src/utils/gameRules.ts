@@ -22,7 +22,7 @@ export const isValidCardSet = (
   }
 
   // חוק שלישי: רצף של קלפים (מינימום 2)
-  if (cards.length >= 2 && isSequence(cards)) {
+  if (cards.length >= 3 && isSequence(cards)) {
     return true;
   }
 
