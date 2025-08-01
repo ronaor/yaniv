@@ -46,9 +46,9 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
       // Show: Update position + animate in
       setActiveDirection(direction);
       rotation.value = direction === 'left' || direction === 'up' ? 90 : -90;
-      rotation.value = withSpring(0);
-      scale.value = withSpring(1);
-      opacity.value = withTiming(1);
+      rotation.value = withSpring(0, springConfig);
+      scale.value = withSpring(1, springConfig);
+      opacity.value = withTiming(1, {duration: 300});
     } else {
       // Hide: Animate out + update position after
       rotation.value = withSpring(
