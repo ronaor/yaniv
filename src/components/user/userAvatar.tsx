@@ -2,7 +2,6 @@ import {StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
-  useAnimatedStyle,
   useSharedValue,
   withTiming,
   useDerivedValue,
@@ -67,10 +66,7 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
     );
   });
 
-  const circleStyle = useAnimatedStyle(
-    () => ({borderColor: isActive ? '#0c7599' : 'white'}),
-    [],
-  );
+  const circleStyle = {borderColor: isActive ? '#0c7599' : '#16C4DD'};
 
   return (
     <View style={styles.container}>
@@ -112,7 +108,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 40,
     borderWidth: 5,
-    backgroundColor: '#139AC8',
+    backgroundColor: '#199BC9',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
