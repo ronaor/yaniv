@@ -6,72 +6,66 @@ import Animated, {
   useAnimatedProps,
   withSpring,
   withTiming,
+  runOnJS,
 } from 'react-native-reanimated';
 import {DirectionName} from '~/types/cards';
 import {Dimensions, View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
+import {useEffect, useState} from 'react';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
+const springConfig = {
+  damping: 15,
+  stiffness: 150,
+  mass: 1,
+};
+
 interface YanivBubbleProps {
   direction?: DirectionName;
 }
-
-const getTailPath = (direction: DirectionName) => {
-  switch (direction) {
-    case 'left':
-    case 'up':
-      return 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z';
-    case 'right':
-      return 'M323 401C329.002 419.082 338.379 445.107 351 469C298.811 457.628 276.931 430.173 253 401H323Z';
-    case 'down':
-      return 'M282 77C275.998 58.918 266.621 32.893 254 9C306.189 20.372 328.069 47.827 352 77H282Z';
-    default:
-      return 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z';
-  }
-};
 
 const YanivBubble = ({direction}: YanivBubbleProps) => {
   const rotation = useSharedValue(-90);
   const scale = useSharedValue(0.3);
   const opacity = useSharedValue(0);
 
-  const pivotX = direction === 'down' || direction === 'left' ? 40 : -40;
-  const pivotY = direction === 'down' ? 120 : -120;
+  const [activeDirection, setActiveDirection] = useState<
+    DirectionName | undefined
+  >(direction);
 
-  const tailPath = getTailPath(direction ?? 'up');
-  const visible = !isUndefined(direction);
+  const bubbleDirection = activeDirection ?? direction;
+  const pivotX =
+    bubbleDirection === 'down' || bubbleDirection === 'left' ? 40 : -40;
+  const pivotY = bubbleDirection === 'down' ? 120 : -120;
 
-  React.useEffect(() => {
+  const tailPath = tailPaths[bubbleDirection ?? 'up'];
+
+  useEffect(() => {
+    const visible = !isUndefined(direction);
     if (visible) {
-      rotation.value = withSpring(0, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
+      setActiveDirection(direction);
+      rotation.value = activeDirection === 'right' ? -90 : 90;
+      rotation.value = withSpring(0, springConfig);
+      scale.value = withSpring(1, springConfig);
       opacity.value = withTiming(1, {duration: 300});
     } else {
-      rotation.value = withSpring(direction === 'left' ? 90 : -90, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      scale.value = withSpring(0.3, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
+      // Hide: Animate out + update position after
+      rotation.value = withSpring(
+        activeDirection === 'right' ? -90 : 90,
+        springConfig,
+        finished => {
+          if (finished) {
+            runOnJS(setActiveDirection)(undefined);
+          }
+        },
+      );
+      scale.value = withSpring(0.3, springConfig);
       opacity.value = withTiming(0, {duration: 300});
     }
-  }, [visible, rotation, scale, opacity, direction]);
-
+  }, [activeDirection, direction, opacity, rotation, scale]);
   // Use useAnimatedProps for SVG opacity
   const animatedProps = useAnimatedProps(() => ({
     opacity: opacity.value,
@@ -90,7 +84,7 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
   }));
 
   return (
-    <View pointerEvents="none" style={bubbleStyle[direction ?? 'up']}>
+    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'up']}>
       <AnimatedSvg
         width={200}
         height={150}
@@ -144,6 +138,14 @@ const bubbleStyle: Record<DirectionName, ViewStyle> = {
     left: 10,
     top: screenHeight / 2 - 350,
   },
+};
+
+const tailPaths: Record<DirectionName, string> = {
+  left: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
+  up: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
+  right:
+    'M323 401C329.002 419.082 338.379 445.107 351 469C298.811 457.628 276.931 430.173 253 401H323Z',
+  down: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
 };
 
 export default YanivBubble;

@@ -6,73 +6,64 @@ import Animated, {
   withSpring,
   withTiming,
   useAnimatedProps,
+  runOnJS,
 } from 'react-native-reanimated';
 import {DirectionName} from '~/types/cards';
 import {Dimensions, View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
+import {useEffect, useState} from 'react';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
+const springConfig = {
+  damping: 15,
+  stiffness: 150,
+  mass: 1,
+};
 interface AssafBubbleProps {
   direction?: DirectionName;
 }
-
-const getPathTransform = (direction?: DirectionName) => {
-  switch (direction) {
-    case 'left':
-    case 'up':
-      return undefined;
-    case 'right':
-      return 'scale(-1, 1) translate(-660, 0)';
-    case 'down':
-      return 'scale(1, -1) translate(0, -574)';
-    default:
-      return undefined;
-  }
-};
 
 const AssafBubble = ({direction}: AssafBubbleProps) => {
   const rotation = useSharedValue(-90);
   const scale = useSharedValue(0.3);
   const opacity = useSharedValue(0);
 
-  const pivotX = direction === 'right' ? -50 : 50;
-  const pivotY = direction === 'down' ? 120 : -120;
+  const [activeDirection, setActiveDirection] = useState<
+    DirectionName | undefined
+  >(direction);
 
-  const visible = !isUndefined(direction);
+  const bubbleDirection = activeDirection ?? direction;
 
-  React.useEffect(() => {
+  const pivotX = bubbleDirection === 'right' ? -50 : 50;
+  const pivotY = bubbleDirection === 'down' ? 120 : -120;
+  useEffect(() => {
+    const visible = !isUndefined(direction);
+
     if (visible) {
-      rotation.value = withSpring(0, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      opacity.value = withTiming(1);
+      // Show: Update position + animate in
+      setActiveDirection(direction);
+      rotation.value = direction === 'left' || direction === 'up' ? 90 : -90;
+      rotation.value = withSpring(0, springConfig);
+      scale.value = withSpring(1, springConfig);
+      opacity.value = withTiming(1, {duration: 300});
     } else {
+      // Hide: Animate out + update position after
       rotation.value = withSpring(
-        direction === 'right' || direction === 'down' ? -90 : 90,
-        {
-          damping: 15,
-          stiffness: 150,
-          mass: 1,
+        activeDirection === 'left' || activeDirection === 'up' ? 90 : -90,
+        springConfig,
+        finished => {
+          if (finished) {
+            runOnJS(setActiveDirection)(undefined);
+          }
         },
       );
-      scale.value = withSpring(0.3, {
-        damping: 15,
-        stiffness: 150,
-        mass: 1,
-      });
-      opacity.value = withTiming(0);
+      scale.value = withSpring(0.3, springConfig);
+      opacity.value = withTiming(0, {duration: 300});
     }
-  }, [visible, rotation, scale, opacity, direction]);
+  }, [activeDirection, direction, opacity, rotation, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -91,7 +82,7 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
   }));
 
   return (
-    <View pointerEvents="none" style={bubbleStyle[direction ?? 'up']}>
+    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'up']}>
       <AnimatedSvg
         width={250}
         height={180}
@@ -104,11 +95,10 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
           fill="#FFEEC2"
           stroke="#472304"
           strokeWidth={12}
-          transform={getPathTransform(direction)}
+          transform={bubbleDirection && pathTransform[bubbleDirection]}
         />
-
         <Image
-          translateY={direction === 'down' ? 50 : 0}
+          translateY={bubbleDirection === 'down' ? 50 : 0}
           x="50"
           y="-10"
           width="610"
@@ -136,6 +126,13 @@ const bubbleStyle: Record<DirectionName, ViewStyle> = {
     top: screenHeight / 2 - 370,
     zIndex: 5,
   },
+};
+
+const pathTransform: Record<DirectionName, string | undefined> = {
+  left: undefined,
+  up: undefined,
+  right: 'scale(-1, 1) translate(-660, 0)',
+  down: 'scale(1, -1) translate(0, -574)',
 };
 
 export default AssafBubble;

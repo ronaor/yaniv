@@ -1,7 +1,16 @@
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import MenuButton from '~/components/menuButton';
+import GameLogo from '~/components/menu/title';
+
+import MenuButton from '~/components/menu/menuButton';
 import {openNamePromptEdit} from '~/components/namePrompt';
 
 import {useRoomStore} from '~/store/roomStore';
@@ -9,6 +18,8 @@ import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
+
+const {width: screenWidth} = Dimensions.get('screen');
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore();
@@ -27,76 +38,87 @@ function HomeScreen({navigation}: HomeScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <View style={styles.body}>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
         <View style={styles.header}>
-          <Text style={styles.welcome}>
-            {name ? `שלום ${name}! ברוך הבא` : ''}
-          </Text>
-          <TouchableOpacity
-            onPress={() => openNamePromptEdit(name)}
-            style={styles.changeNameBtn}>
-            <Text style={styles.changeNameText}>שנה שם</Text>
-          </TouchableOpacity>
+          <View>
+            <Text style={styles.welcome}>
+              {name ? `hello ${name}! welcome` : ''}
+            </Text>
+            <TouchableOpacity
+              onPress={() => openNamePromptEdit(name)}
+              style={styles.changeNameBtn}>
+              <Text style={styles.changeNameText}>change name</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.connectionStatus}>
+            <View
+              style={[
+                styles.connectionDot,
+                {
+                  backgroundColor: isConnected
+                    ? colors.success
+                    : isConnecting
+                    ? colors.warning
+                    : colors.error,
+                },
+              ]}
+            />
+            <Text style={styles.connectionText}>
+              {isConnected
+                ? 'connected'
+                : isConnecting
+                ? 'connecting...'
+                : 'disconnected'}
+            </Text>
+          </View>
         </View>
 
-        {/* Connection Status */}
-        <View style={styles.connectionStatus}>
-          <View
-            style={[
-              styles.connectionDot,
-              {
-                backgroundColor: isConnected
-                  ? colors.success
-                  : isConnecting
-                  ? colors.warning
-                  : colors.error,
-              },
-            ]}
-          />
-          <Text style={styles.connectionText}>
-            {isConnected ? 'מחובר' : isConnecting ? 'מתחבר...' : 'לא מחובר'}
-          </Text>
-        </View>
-
-        <View style={styles.container}>
-          <Text style={[textStyles.title, styles.title]}>{'יניב'}</Text>
+        <View style={styles.body}>
+          <GameLogo />
           <View style={styles.menuButtons}>
             <MenuButton
-              text={'משחק מהיר'}
+              text={'Quick Game'}
               onPress={quickGameHandler}
               disabled={!isConnected}
             />
-            <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
-            <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
+            <MenuButton text={'Play with Friends'} onPress={gameWithFriends} />
+            <MenuButton text={'Play vs Computer'} onPress={gameWithAI} />
           </View>
         </View>
-      </View>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  safeArea: {flex: 1},
+  screen: {
     flex: 1,
-    backgroundColor: colors.background,
     padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  body: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
     justifyContent: 'center',
+    marginTop: -50,
   },
   header: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 10,
+    justifyContent: 'space-between',
+    width: screenWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    position: 'absolute',
   },
   connectionStatus: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 10,
@@ -145,17 +167,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   menuButtons: {
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: colors.accent,
+    padding: 10,
     gap: 16,
-    marginTop: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
     width: '100%',
-    alignItems: 'stretch',
   },
 });
 

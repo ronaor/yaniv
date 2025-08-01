@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import MenuButton from '~/components/menuButton';
+import MenuButton from '~/components/menu/menuButton';
 import Dialog from '~/components/dialog';
 import {GameWithFriendsProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';

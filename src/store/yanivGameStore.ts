@@ -127,6 +127,7 @@ type YanivGameMethods = {
       playerHands: {[playerId: string]: Card[]};
       firstCard: Card;
       currentPlayerId: PlayerId;
+      round: number;
     }) => void;
     roundEnded: (data: {
       winnerId: string;
@@ -310,6 +311,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           deckPosition,
           pickupPosition,
         },
+        roundResults: undefined,
       }));
     },
     playerDrew: (data: {
@@ -467,6 +469,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       playerHands: {[playerId: string]: Card[]};
       firstCard: Card;
       currentPlayerId: PlayerId;
+      round: number;
     }) => {
       const socketId = useSocket.getState().getSocketId();
 
@@ -507,8 +510,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           ...state,
           game: {
             ...state.game,
-            phase: 'active' as GamePhase,
-            round: state.game.round + 1,
+            phase: 'active',
+            round: data.round,
             currentTurn: {
               playerId: data.currentPlayerId,
               startTime: new Date(),
@@ -525,13 +528,13 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           board: {
             pickupPile: [data.firstCard],
-            discardHistory: [], // Reset history for new round
+            discardHistory: [],
           },
           ui: {
             ...state.ui,
             cardPositions: updatedCardPositions,
           },
-          roundResults: undefined, // Clear previous round results
+          roundResults: undefined,
         };
       });
     },
