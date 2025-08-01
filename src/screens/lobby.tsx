@@ -11,14 +11,13 @@ import React, {useCallback, useEffect} from 'react';
 import {LobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useRoomStore} from '~/store/roomStore';
-import MenuButton from '~/components/menuButton';
+import MenuButton from '~/components/menu/menuButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 function LobbyScreen({navigation}: LobbyProps) {
   const {
     roomId,
     players,
-    config,
     gameState,
     nickName,
     isAdminOfPrivateRoom,

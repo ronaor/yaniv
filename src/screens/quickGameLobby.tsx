@@ -11,7 +11,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {LobbyProps, QuickGameLobbyProps} from '~/types/navigation';
 import {colors, textStyles} from '~/theme';
 import {useRoomStore} from '~/store/roomStore';
-import MenuButton from '~/components/menuButton';
+import MenuButton from '~/components/menu/menuButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Dialog from '~/components/dialog';
 import StartGameDialog from '~/components/startGameDialog';

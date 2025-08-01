@@ -10,7 +10,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
-import MenuButton from '~/components/menuButton';
+import MenuButton from '~/components/menu/menuButton';
 import {openNamePromptEdit} from '~/components/namePrompt';
 
 import {useRoomStore} from '~/store/roomStore';
@@ -78,16 +78,14 @@ function HomeScreen({navigation}: HomeScreenProps) {
 
         <View style={styles.body}>
           <GameLogo />
-          <View style={styles.container}>
-            <View style={styles.menuButtons}>
-              <MenuButton
-                text={'משחק מהיר'}
-                onPress={quickGameHandler}
-                disabled={!isConnected}
-              />
-              <MenuButton text={'משחק עם חברים'} onPress={gameWithFriends} />
-              <MenuButton text={'משחק עם מחשב'} onPress={gameWithAI} />
-            </View>
+          <View style={styles.menuButtons}>
+            <MenuButton
+              text={'Quick Game'}
+              onPress={quickGameHandler}
+              disabled={!isConnected}
+            />
+            <MenuButton text={'Play with Friends'} onPress={gameWithFriends} />
+            <MenuButton text={'Play vs Computer'} onPress={gameWithAI} />
           </View>
         </View>
       </ImageBackground>
@@ -169,17 +167,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   menuButtons: {
-    padding: 20,
-    borderRadius: 20,
-    backgroundColor: colors.accent,
+    padding: 10,
     gap: 16,
-    marginTop: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
     width: '100%',
-    alignItems: 'stretch',
   },
 });
 

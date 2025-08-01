@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {colors, textStyles} from '~/theme';
+import {View, StyleSheet} from 'react-native';
+import {colors} from '~/theme';
 import CheckBox from './checkBox';
 import CircleCheckBox from './circleCheckBox';
-import MenuButton from './menuButton';
+import MenuButton from '~/components/menu/menuButton';
 import {useRoomStore} from '~/store/roomStore';
 import {RoomConfig} from '~/types/player';
 import {isEmpty} from 'lodash';
@@ -61,6 +61,8 @@ export default function StartGameDialog({
     timePerPlayer,
     canCallYaniv,
     maxMatchPoints,
+    isQuickGameLobby,
+    nickName,
   ]);
 
   const handleCreateRoom = () => {
