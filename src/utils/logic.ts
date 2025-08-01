@@ -148,7 +148,7 @@ export const createPlayersData = (
     res[playerId] = {
       stats: {
         score: 0,
-        lost: false,
+        playerStatus: 'active',
       },
       hand,
       isMyTurn: activePlayerId === playerId,
