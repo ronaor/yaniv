@@ -7,7 +7,6 @@ type PlayerStatusType = 'active' | 'lost' | 'winner' | 'playAgain' | 'leave';
 
 export type PlayerStatus = {
   score: number;
-  lost: boolean;
   playerStatus: PlayerStatusType;
   playerName: string;
 };

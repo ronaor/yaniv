@@ -46,13 +46,11 @@ const useEndGameStore = create<EndGameStore>(set => ({
   //     playersIds ,://['sN5hKQRukcgY4rxwAACh', 'j7E3vEMByHXiMWhZAACg'],
   //     playersStats: {
   //       sN5hKQRukcgY4rxwAACh: {
-  //         lost: false,
   //         playerName: 'lolkk',
   //         playerStatus: 'active',
   //         score: 0,
   //       },
   //       j7E3vEMByHXiMWhZAACg: {
-  //         lost: true,
   //         playerName: 'Fff',
   //         playerStatus: 'leave',
   //         score: 0,
@@ -108,32 +106,29 @@ const EndGameDialog: React.FC = () => {
   useEffect(() => {
     const shouldClose =
       Object.values(playersStats).length > 0 &&
-      Object.values(playersStats).every(
-        p => p.playerStatus === 'leave' || p.playerStatus === 'playAgain',
-      );
+      isEveryPlayersVoted &&
+      playAgainVotes > 1;
     if (shouldClose) {
       const timer = setTimeout(close, 5000); // Close dialog after 5 seconds
       return () => clearTimeout(timer);
     }
-  }, [playersStats, close]);
+  }, [playersStats, close, isEveryPlayersVoted, playAgainVotes]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {
-    if (activePlayer?.playerName) {
-      Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-        {text: 'ביטול', style: 'cancel'},
-        {
-          text: 'צא',
-          style: 'destructive',
-          onPress: () => {
-            close();
-            leaveRoom(activePlayer.playerName);
-            navigation.reset({index: 0, routes: [{name: 'Home'}]});
-          },
+    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
+      {text: 'ביטול', style: 'cancel'},
+      {
+        text: 'צא',
+        style: 'destructive',
+        onPress: () => {
+          close();
+          leaveRoom(playersStats[thisPlayerId].playerName);
+          navigation.reset({index: 0, routes: [{name: 'Home'}]});
         },
-      ]);
-    }
-  }, [navigation, leaveRoom, activePlayer?.playerName, close]);
+      },
+    ]);
+  }, [navigation, leaveRoom, playersStats, thisPlayerId, close]);
 
   const renderPlayer = (playerId: string) => {
     const player = playersStats[playerId];

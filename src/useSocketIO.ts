@@ -84,7 +84,7 @@ const useSocketIO = () => {
       gameStore.subscribed.roundEnded(data);
     });
 
-    socket.on('want_to_play_again', ({roomId, playerId, playersStats}) => {
+    socket.on('set_playersStats_data', ({roomId, playerId, playersStats}) => {
       gameStore.subscribed.setPlayAgain({roomId, playerId, playersStats});
     });
 

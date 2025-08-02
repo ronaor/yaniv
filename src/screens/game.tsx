@@ -92,12 +92,14 @@ function GameScreen({navigation}: any) {
   useEffect(() => {
     if (!myTurn || isNil(game.currentTurn)) {
       if (game.phase === 'game-end') {
-        openEndGameDialog(
-          'finish',
-          gamePlayers.current,
-          gamePlayers.order,
-          game.playersStats ?? {},
-        );
+        setTimeout(() => {
+          openEndGameDialog(
+            'finish',
+            gamePlayers.current,
+            gamePlayers.order,
+            game.playersStats ?? {},
+          );
+        }, 4000);
       }
       setSelectedCardsIndexes([]);
       return;
