@@ -6,12 +6,11 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
-import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
-import {Card} from 'server/cards';
-import {Position} from '~/types/cards';
+import DeckCardPointers from '~/components/cards/deckCardPoint';
 import {useYanivGameStore} from '~/store/yanivGameStore';
+import {Card, Position} from '~/types/cards';
+import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');

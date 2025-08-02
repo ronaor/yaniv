@@ -13,7 +13,7 @@ export type PlayerStatus = {
 
 export interface RoomConfig {
   slapDown: boolean;
-  timePerPlayer: number;
+  timePerPlayer?: number;
   canCallYaniv: number;
   maxMatchPoints: number;
 }

@@ -1,12 +1,12 @@
+import {isEmpty} from 'lodash';
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {colors} from '~/theme';
-import CheckBox from './checkBox';
-import CircleCheckBox from './circleCheckBox';
+import {StyleSheet, View} from 'react-native';
 import MenuButton from '~/components/menu/menuButton';
 import {useRoomStore} from '~/store/roomStore';
+import {colors} from '~/theme';
 import {RoomConfig} from '~/types/player';
-import {isEmpty} from 'lodash';
+import CheckBox from './checkBox';
+import CircleCheckBox from './circleCheckBox';
 
 type StartGameDialogProps = {
   isQuickGameLobby?: boolean;
@@ -18,14 +18,14 @@ export default function StartGameDialog({
   onCreateRoom,
 }: StartGameDialogProps) {
   const [slapDown, setSlapDown] = useState(true);
-  const [timePerPlayer, setTimePerPlayer] = useState(15);
+  // const [timePerPlayer, setTimePerPlayer] = useState(15);
   const [canCallYaniv, setCanCallYaniv] = useState(7);
   const [maxMatchPoints, setMatchMaxPoints] = useState(100);
   const {roomId, nickName, votes, setQuickGameConfig} = useRoomStore();
 
   const {
     slapDownVotes,
-    timePerPlayerVotes,
+    // timePerPlayerVotes,
     canCallYanivVotes,
     maxMatchPointsVotes,
   } = React.useMemo(() => {
@@ -37,7 +37,7 @@ export default function StartGameDialog({
 
     return {
       slapDownVotes: othersVotes.map(v => v.slapDown),
-      timePerPlayerVotes: othersVotes.map(v => v.timePerPlayer.toString()),
+      // timePerPlayerVotes: othersVotes.map(v => v.timePerPlayer.toString()),
       canCallYanivVotes: othersVotes.map(v => v.canCallYaniv.toString()),
       maxMatchPointsVotes: othersVotes.map(v => v.maxMatchPoints.toString()),
     };
@@ -47,18 +47,18 @@ export default function StartGameDialog({
     if (
       isQuickGameLobby &&
       roomId &&
-      timePerPlayer &&
+      // timePerPlayer &&
       canCallYaniv &&
       maxMatchPoints
     ) {
-      let config = {slapDown, timePerPlayer, canCallYaniv, maxMatchPoints};
+      let config = {slapDown, canCallYaniv, maxMatchPoints};
       setQuickGameConfig(roomId, nickName, config);
     }
   }, [
     setQuickGameConfig,
     roomId,
     slapDown,
-    timePerPlayer,
+    // timePerPlayer,
     canCallYaniv,
     maxMatchPoints,
     isQuickGameLobby,
@@ -68,7 +68,7 @@ export default function StartGameDialog({
   const handleCreateRoom = () => {
     onCreateRoom({
       slapDown,
-      timePerPlayer,
+      // timePerPlayer,
       canCallYaniv,
       maxMatchPoints,
     });
@@ -83,13 +83,13 @@ export default function StartGameDialog({
           value={slapDown}
           otherVotes={slapDownVotes}
         />
-        <CircleCheckBox
+        {/* <CircleCheckBox
           title="משך תור :"
           choices={['5', '10', '15']}
           value={timePerPlayer}
           onChangeSelection={setTimePerPlayer}
           otherVotes={timePerPlayerVotes}
-        />
+        /> */}
         <CircleCheckBox
           title="אפשר להגיד יניב ב :"
           choices={['3', '5', '7']}

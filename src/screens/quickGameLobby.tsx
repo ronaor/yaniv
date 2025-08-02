@@ -1,37 +1,21 @@
+import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Alert,
+  FlatList,
   StyleSheet,
   Text,
-  View,
-  FlatList,
-  Pressable,
   TouchableOpacity,
-  Alert,
+  View,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
-import {LobbyProps, QuickGameLobbyProps} from '~/types/navigation';
-import {colors, textStyles} from '~/theme';
-import {useRoomStore} from '~/store/roomStore';
-import MenuButton from '~/components/menu/menuButton';
-import Clipboard from '@react-native-clipboard/clipboard';
-import Dialog from '~/components/dialog';
 import StartGameDialog from '~/components/startGameDialog';
+import {useRoomStore} from '~/store/roomStore';
+import {colors, textStyles} from '~/theme';
+import {QuickGameLobbyProps} from '~/types/navigation';
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
-  const {
-    roomId,
-    players,
-    config,
-    votes,
-    gameState,
-    nickName,
-    isAdminOfPrivateRoom,
-    canStartTimer,
-    getRemainingTimeToStartGame,
-    leaveRoom,
-    startPrivateGame,
-  } = useRoomStore();
+  const {players, gameState, nickName, canStartTimer, leaveRoom} =
+    useRoomStore();
 
-  const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   useEffect(() => {
@@ -81,23 +65,6 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     return () => clearInterval(interval);
   }, [players.length, canStartTimer]);
 
-  // useEffect(() => {
-  //   if (!canStartTimer) return;
-
-  //   const interval = setInterval(() => {
-  //     const remaining = getRemainingTimeToStartGame();
-  //     setTimeRemaining(remaining);
-
-  //     if (remaining <= 0) {
-  //       if (players[1].nickName === nickName && roomId)
-  //         // startPrivateGame(roomId);
-  //         clearInterval(interval);
-  //     }
-  //   }, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, [canStartTimer, getRemainingTimeToStartGame]); // מאזין לזמן חדש שמגיע מהשרת
-
   const handleLeave = useCallback(() => {
     Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
       {text: 'ביטול', style: 'cancel'},
@@ -110,7 +77,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
         },
       },
     ]);
-  }, [navigation, leaveRoom]);
+  }, [navigation, leaveRoom, nickName]);
 
   return (
     <View style={styles.body}>
@@ -138,12 +105,6 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           : `ממתין לשחקנים... (${players.length}/4)`}
       </Text>
       <StartGameDialog onCreateRoom={() => {}} isQuickGameLobby />
-
-      {/* <Dialog
-        isModalOpen={newRoomModalOpen}
-        onBackgroundPress={() => setNewRoomModalOpen(false)}>
-        <StartGameDialog onCreateRoom={} />
-      </Dialog> */}
     </View>
   );
 }

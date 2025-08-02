@@ -48,8 +48,6 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
     canStartTheGameIn10Sec: Date | null;
   }) => void;
   setPlayerLeft: (data: {
-    roomId: string;
-    playerId: string;
     players: User[];
     votes: Record<string, RoomConfig>;
   }) => void;
@@ -177,9 +175,8 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
       }));
     },
 
-    setPlayerLeft: ({roomId, playerId, players, votes}) => {
+    setPlayerLeft: ({players, votes}) => {
       set((state: RoomState) => ({...state, players, votes}));
-      useSocket.getState().emit('player_left_from_game', {roomId, playerId});
     },
 
     setGameStarted: ({roomId, config, players, votes}) => {

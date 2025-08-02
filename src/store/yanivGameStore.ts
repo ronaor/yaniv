@@ -49,6 +49,7 @@ type GameRules = {
   timePerPlayer: number;
   slapDownAllowed: boolean;
   canCallYaniv: number;
+  maxMatchPoints: number;
 };
 
 type GameState = {
@@ -144,7 +145,7 @@ type YanivGameMethods = {
       playersStats: Record<string, PlayerStatus>;
     }) => void;
     setGameError: (data: {message: string}) => void;
-    setPlayAgain: (data: {
+    setPlayersStatusData: (data: {
       roomId: string;
       playerId: string;
       playersStats: Record<PlayerId, PlayerStatus>;
@@ -178,9 +179,10 @@ const initialGameFields: YanivGameFields = {
     round: 0,
     currentTurn: null,
     rules: {
-      timePerPlayer: 0,
-      slapDownAllowed: false,
+      timePerPlayer: 15,
+      slapDownAllowed: true,
       canCallYaniv: 7,
+      maxMatchPoints: 100,
     },
     playersStats: {},
   },
@@ -265,14 +267,16 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
 
       const gameRules: GameRules = config
         ? {
-            timePerPlayer: config.timePerPlayer,
+            timePerPlayer: config.timePerPlayer || 15,
             slapDownAllowed: config.slapDown,
             canCallYaniv: config.canCallYaniv,
+            maxMatchPoints: config.maxMatchPoints,
           }
         : {
             timePerPlayer: 15,
             slapDownAllowed: true,
             canCallYaniv: 7,
+            maxMatchPoints: 100,
           };
 
       const deckPosition = {
@@ -604,7 +608,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     setGameError: (data: {message: string}) => {
       set({error: data.message});
     },
-    setPlayAgain: (data: {
+    setPlayersStatusData: (data: {
       roomId: string;
       playerId: string;
       playersStats: Record<PlayerId, PlayerStatus>;

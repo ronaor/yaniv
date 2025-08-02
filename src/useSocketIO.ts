@@ -43,8 +43,8 @@ const useSocketIO = () => {
       roomStore.setRoomConfigVotes({roomId, votes});
     });
 
-    socket.on('player_left', ({roomId, playerId, players, votes}) => {
-      roomStore.setPlayerLeft({roomId, playerId, players, votes});
+    socket.on('player_left', ({players, votes}) => {
+      roomStore.setPlayerLeft({players, votes});
     });
 
     socket.on('kick_out_from_room', ({roomId}) =>
@@ -85,7 +85,11 @@ const useSocketIO = () => {
     });
 
     socket.on('set_playersStats_data', ({roomId, playerId, playersStats}) => {
-      gameStore.subscribed.setPlayAgain({roomId, playerId, playersStats});
+      gameStore.subscribed.setPlayersStatusData({
+        roomId,
+        playerId,
+        playersStats,
+      });
     });
 
     // Cleanup on app unmount

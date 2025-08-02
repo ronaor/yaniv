@@ -1,18 +1,18 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import React, {useCallback, useEffect} from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
+  Alert,
   FlatList,
   Pressable,
+  StyleSheet,
+  Text,
   TouchableOpacity,
-  Alert,
+  View,
 } from 'react-native';
-import React, {useCallback, useEffect} from 'react';
-import {LobbyProps} from '~/types/navigation';
-import {colors, textStyles} from '~/theme';
-import {useRoomStore} from '~/store/roomStore';
 import MenuButton from '~/components/menu/menuButton';
-import Clipboard from '@react-native-clipboard/clipboard';
+import {useRoomStore} from '~/store/roomStore';
+import {colors, textStyles} from '~/theme';
+import {LobbyProps} from '~/types/navigation';
 
 function LobbyScreen({navigation}: LobbyProps) {
   const {
@@ -72,7 +72,7 @@ function LobbyScreen({navigation}: LobbyProps) {
         onPress={() => {
           if (roomId) {
             Clipboard.setString(roomId);
-            alert('קוד החדר הועתק ללוח!');
+            Alert.alert('קוד החדר הועתק ללוח!');
           }
         }}
         style={{
