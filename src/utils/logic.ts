@@ -1,6 +1,6 @@
 import {Dimensions} from 'react-native';
 import {Card, DirectionName, Position} from '~/types/cards';
-import {CARD_WIDTH, OVERLAP_AMOUNT} from './constants';
+import {CARD_WIDTH, directions, OVERLAP_AMOUNT} from './constants';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -16,14 +16,14 @@ export const calculateCardsPositions = (
     const arcOffset = Math.pow(shift, 2) * 2;
 
     switch (direction) {
-      case 'up': // Cards at bottom, pointing up (original behavior)
+      case 'down': // Cards at bottom, pointing up (original behavior)
         return {
           x: width / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH,
           y: height - 145 + arcOffset,
           deg: shift * 3,
         };
 
-      case 'down': // Cards at top, pointing down
+      case 'up': // Cards at top, pointing down
         return {
           x: width / 2 - (cardsLen / 2) * CARD_WIDTH + index * CARD_WIDTH,
           y: 125 - arcOffset,
@@ -67,7 +67,7 @@ export const calculateHiddenCardsPositions = (
     const arcOffset = Math.pow(shift, 2) * 2;
 
     switch (direction) {
-      case 'up': // Cards at bottom, pointing up (original behavior)
+      case 'down': // Cards at bottom, pointing up (original behavior)
         return {
           x:
             width / 2 -
@@ -77,7 +77,7 @@ export const calculateHiddenCardsPositions = (
           deg: shift * 20,
         };
 
-      case 'down': // Cards at top, pointing down
+      case 'up': // Cards at top, pointing down
         return {
           x:
             width / 2 -
@@ -120,8 +120,6 @@ export const calculateHiddenCardsPositions = (
     }
   });
 };
-
-const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export function calculateAllPlayerPositions(
   players: string[],

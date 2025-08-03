@@ -25,6 +25,10 @@ interface CardPointsListProps {
   fromPosition?: Position;
   direction: DirectionName;
   action?: TurnState['action'];
+  initialState?: {
+    from: Position[];
+    round: number;
+  };
 }
 
 const CardPointsList = ({
@@ -36,6 +40,7 @@ const CardPointsList = ({
   fromPosition,
   direction,
   action,
+  initialState,
 }: CardPointsListProps) => {
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
@@ -44,20 +49,21 @@ const CardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {cards.map((card, index) => (
-        <CardPointer
-          key={getCardKey(card)}
-          index={index}
-          onCardSelect={() => onCardSelect(index)}
-          card={card}
-          isSelected={selectedCardsIndexes.includes(index)}
-          isSlap={index === slapCardIndex}
-          onCardSlapped={onCardSlapped}
-          from={fromPosition}
-          dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
-          action={action}
-        />
-      ))}
+      {initialState &&
+        cards.map((card, index) => (
+          <CardPointer
+            key={getCardKey(card)}
+            index={index}
+            onCardSelect={() => onCardSelect(index)}
+            card={card}
+            isSelected={selectedCardsIndexes.includes(index)}
+            isSlap={index === slapCardIndex}
+            onCardSlapped={onCardSlapped}
+            from={fromPosition ?? initialState.from[index]}
+            dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+            action={action ?? 'DRAG_FROM_DECK'}
+          />
+        ))}
     </View>
   );
 };
@@ -84,6 +90,7 @@ interface CardPointerProps {
   from?: Position;
   dest: Position;
   action?: TurnState['action'];
+  delay?: number;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -140,6 +147,7 @@ const CardPointer = ({
     dest.y,
     flipRotation,
     scale,
+    index,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({

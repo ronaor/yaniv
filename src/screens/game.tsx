@@ -31,13 +31,11 @@ import LightAround from '~/components/user/lightAround';
 import UserAvatar from '~/components/user/userAvatar';
 import YanivButton from '~/components/yanivButton';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import {DirectionName} from '~/types/cards';
-import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
+import {DirectionName, Position} from '~/types/cards';
+import {CARD_HEIGHT, CARD_WIDTH, directions} from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
-const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
@@ -206,8 +204,23 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
+  const activeDirections = useMemo(() => {
+    return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
+      (res, playerId, i) => {
+        if (game.playersStats[playerId].playerStatus === 'active') {
+          res[playerId] = directions[i];
+        }
+        return res;
+      },
+      {},
+    );
+  }, [game.playersStats, gamePlayers.order]);
+
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
+  const [initialCardsPositions, setInitialCardsPositions] = useState<
+    Record<string, Position[]> | undefined
+  >(undefined);
 
   useEffect(() => {
     if (!roundResults) {
@@ -327,6 +340,8 @@ function GameScreen({navigation}: any) {
           round={game.round}
           selectedCards={selectedCards}
           disabled={!myTurn}
+          activeDirections={activeDirections}
+          onPlayerCardsCalculated={setInitialCardsPositions}
         />
         <CardPointsList
           key={gamePlayers.current}
@@ -342,6 +357,12 @@ function GameScreen({navigation}: any) {
           }
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
+          initialState={
+            initialCardsPositions?.[gamePlayers.current] && {
+              round: game.round,
+              from: initialCardsPositions[gamePlayers.current],
+            }
+          }
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -356,6 +377,12 @@ function GameScreen({navigation}: any) {
             }
             action={game.currentTurn?.prevTurn?.action}
             reveal={!!playersRevealing[playerId]}
+            initialState={
+              initialCardsPositions?.[playerId] && {
+                round: game.round,
+                from: initialCardsPositions[playerId],
+              }
+            }
           />
           <View style={recordStyle[directions[i + 1]]}>
             <UserAvatar
@@ -480,8 +507,8 @@ const styles = StyleSheet.create({
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: 0, left: 10},
-  down: {position: 'absolute', top: 80, left: 30},
+  down: {position: 'absolute', top: 0, left: 10},
+  up: {position: 'absolute', top: 80, left: 30},
   left: {
     position: 'absolute',
     left: 10,

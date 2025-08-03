@@ -38,21 +38,21 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
   const bubbleDirection = activeDirection ?? direction;
 
   const pivotX = bubbleDirection === 'right' ? -50 : 50;
-  const pivotY = bubbleDirection === 'down' ? 120 : -120;
+  const pivotY = bubbleDirection === 'up' ? 120 : -120;
   useEffect(() => {
     const visible = !isUndefined(direction);
 
     if (visible) {
       // Show: Update position + animate in
       setActiveDirection(direction);
-      rotation.value = direction === 'left' || direction === 'up' ? 90 : -90;
+      rotation.value = direction === 'left' || direction === 'down' ? 90 : -90;
       rotation.value = withSpring(0, springConfig);
       scale.value = withSpring(1, springConfig);
       opacity.value = withTiming(1, {duration: 300});
     } else {
       // Hide: Animate out + update position after
       rotation.value = withSpring(
-        activeDirection === 'left' || activeDirection === 'up' ? 90 : -90,
+        activeDirection === 'left' || activeDirection === 'down' ? 90 : -90,
         springConfig,
         finished => {
           if (finished) {
@@ -82,7 +82,7 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
   }));
 
   return (
-    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'up']}>
+    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'down']}>
       <AnimatedSvg
         width={250}
         height={180}
@@ -98,7 +98,7 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
           transform={bubbleDirection && pathTransform[bubbleDirection]}
         />
         <Image
-          translateY={bubbleDirection === 'down' ? 50 : 0}
+          translateY={bubbleDirection === 'up' ? 50 : 0}
           x="50"
           y="-10"
           width="610"
@@ -112,8 +112,8 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: screenHeight - 450, left: 0, zIndex: 5},
-  down: {position: 'absolute', top: 150, left: 30, zIndex: 5},
+  down: {position: 'absolute', top: screenHeight - 450, left: 0, zIndex: 5},
+  up: {position: 'absolute', top: 150, left: 30, zIndex: 5},
   right: {
     position: 'absolute',
     left: screenWidth - 250,
@@ -130,9 +130,9 @@ const bubbleStyle: Record<DirectionName, ViewStyle> = {
 
 const pathTransform: Record<DirectionName, string | undefined> = {
   left: undefined,
-  up: undefined,
+  down: undefined,
   right: 'scale(-1, 1) translate(-660, 0)',
-  down: 'scale(1, -1) translate(0, -574)',
+  up: 'scale(1, -1) translate(0, -574)',
 };
 
 export default AssafBubble;

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -6,26 +6,25 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import CardBack from '~/components/cards/cardBack';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
-import {useYanivGameStore} from '~/store/yanivGameStore';
-import {Card, Position} from '~/types/cards';
+import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
+import {Card} from 'server/cards';
+import {DirectionName, Position} from '~/types/cards';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import CardsSpread from './cardsSpread';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({
-  rotation,
-  opacity,
-}: {
-  rotation: number;
-  opacity: number;
-}) => {
+const CardBackRotated = ({position}: {position: Position}) => {
   const rotationStyle: ViewStyle = {
     position: 'absolute',
-    transform: [{rotate: `${rotation}deg`}],
-    opacity,
+    transform: [
+      {translateX: position.x},
+      {translateY: position.y},
+      {rotate: `${position.deg}deg`},
+    ],
   };
   return (
     <View style={rotationStyle}>
@@ -44,6 +43,8 @@ interface GameBoardProps {
   disabled?: boolean;
   round: number;
   selectedCards: Card[];
+  activeDirections: Record<PlayerId, DirectionName>;
+  onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
 }
 
 function GameBoard({
@@ -51,6 +52,8 @@ function GameBoard({
   selectedCards,
   round,
   disabled = false,
+  activeDirections,
+  onPlayerCardsCalculated,
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
 
@@ -77,6 +80,16 @@ function GameBoard({
     [emit, pickupPile.length, selectedCards],
   );
 
+  const [ready, setReady] = useState<boolean>(false);
+
+  const $onPlayerCardsCalculated = useCallback(
+    (playerCards: Record<string, Position[]>) => {
+      onPlayerCardsCalculated?.(playerCards);
+      setReady(true);
+    },
+    [onPlayerCardsCalculated, setReady],
+  );
+
   return (
     <View style={styles.gameArea}>
       <TouchableOpacity
@@ -84,23 +97,31 @@ function GameBoard({
         onPress={handleDrawFromDeck}
         disabled={disabled || selectedCards.length === 0}>
         <>
-          <CardBackRotated rotation={10} opacity={0.5} />
-          <CardBackRotated rotation={5} opacity={0.5} />
-          <CardBackRotated rotation={0} opacity={0.5} />
-          <CardBackRotated rotation={-5} opacity={1} />
+          <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
+          <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
+          <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
+          <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
         </>
       </TouchableOpacity>
+
       <View style={styles.pickup}>
-        <DeckCardPointers
-          cards={pickupPile}
-          pickedCard={lastPickedCard}
-          onPickUp={handlePickupCard}
-          fromTargets={tookFrom ?? []}
-          round={round}
-          disabled={disabled}
-          wasPlayer={pickup.wasPlayer}
-        />
+        {ready && (
+          <DeckCardPointers
+            cards={pickupPile}
+            pickedCard={lastPickedCard}
+            onPickUp={handlePickupCard}
+            fromTargets={tookFrom ?? [{x: 0, y: -1 * CARD_HEIGHT, deg: 0}]}
+            round={round}
+            disabled={disabled}
+            wasPlayer={pickup.wasPlayer}
+          />
+        )}
       </View>
+      <CardsSpread
+        activeDirections={activeDirections}
+        onPlayerCardsCalculated={$onPlayerCardsCalculated}
+        round={round}
+      />
     </View>
   );
 }

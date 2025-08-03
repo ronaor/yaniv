@@ -24,6 +24,10 @@ interface HiddenCardPointsListProps {
   direction: DirectionName;
   action?: TurnState['action'];
   reveal: boolean;
+  initialState?: {
+    from: Position[];
+    round: number;
+  };
 }
 
 const HiddenCardPointsList = ({
@@ -32,6 +36,7 @@ const HiddenCardPointsList = ({
   direction,
   action,
   reveal,
+  initialState,
 }: HiddenCardPointsListProps) => {
   const cardsHiddenPositions = useMemo(
     () => calculateHiddenCardsPositions(cards.length, direction),
@@ -45,23 +50,26 @@ const HiddenCardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {cards.map((card, index) => (
-        <HiddenCardPointer
-          key={getCardKey(card)}
-          index={index}
-          from={fromPosition}
-          dest={
-            (reveal ? cardsPositions[index] : cardsHiddenPositions[index]) ?? {
-              x: 0,
-              y: 0,
-              deg: 0,
+      {initialState &&
+        cards.map((card, index) => (
+          <HiddenCardPointer
+            key={getCardKey(card)}
+            index={index}
+            from={fromPosition ?? initialState.from[index]}
+            dest={
+              (reveal
+                ? cardsPositions[index]
+                : cardsHiddenPositions[index]) ?? {
+                x: 0,
+                y: 0,
+                deg: 0,
+              }
             }
-          }
-          card={card}
-          action={action}
-          reveal={reveal}
-        />
-      ))}
+            card={card}
+            action={action}
+            reveal={reveal}
+          />
+        ))}
     </View>
   );
 };

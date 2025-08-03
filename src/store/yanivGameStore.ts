@@ -3,14 +3,18 @@ import {create} from 'zustand';
 import {
   ActionSource,
   Card,
-  DirectionName,
   Location,
   Position,
   TurnAction,
 } from '~/types/cards';
 import {PlayerStatus} from '~/types/player';
 import {TurnState} from '~/types/turnState';
-import {CARD_HEIGHT, CARD_SELECT_OFFSET, CARD_WIDTH} from '~/utils/constants';
+import {
+  CARD_HEIGHT,
+  CARD_SELECT_OFFSET,
+  CARD_WIDTH,
+  directions,
+} from '~/utils/constants';
 import {getCardKey, getHandValue} from '~/utils/gameRules';
 import {
   calculateAllPlayerPositions,
@@ -206,8 +210,6 @@ const initialGameFields: YanivGameFields = {
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
-const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
