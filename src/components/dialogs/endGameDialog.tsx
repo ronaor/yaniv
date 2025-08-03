@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {isEmpty} from 'lodash';
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {create} from 'zustand';
@@ -70,6 +70,10 @@ export function openEndGameDialog(
   useEndGameStore.getState().open(mode, thisPlayerId, playersIds, playersStats);
 }
 
+export function closeEndGameDialog() {
+  useEndGameStore.getState().close();
+}
+
 const EndGameDialog: React.FC = () => {
   const navigation = useNavigation<any>();
   const {isOpen, thisPlayerId, playersIds, playersStats, close} =
@@ -102,17 +106,6 @@ const EndGameDialog: React.FC = () => {
         playerId !== thisPlayerId && p.playerStatus === 'playAgain',
     ).length;
   }, [playersStats, thisPlayerId]);
-
-  useEffect(() => {
-    const shouldClose =
-      Object.values(playersStats).length > 0 &&
-      isEveryPlayersVoted &&
-      playAgainVotes > 1;
-    if (shouldClose) {
-      const timer = setTimeout(close, 5000); // Close dialog after 5 seconds
-      return () => clearTimeout(timer);
-    }
-  }, [playersStats, close, isEveryPlayersVoted, playAgainVotes]);
 
   // Handle leave game
   const handleLeave = useCallback(() => {

@@ -138,6 +138,7 @@ type YanivGameMethods = {
       yanivCallerDelayedScore?: number;
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
+      roundPlayers: PlayerId[];
     }) => void;
     gameEnded: (data: {
       winnerId: string;
@@ -171,6 +172,7 @@ type RoundResults = {
   playersHands: Record<PlayerId, Card[]>;
   yanivCaller: string;
   assafCaller?: string;
+  roundPlayers: PlayerId[];
 };
 
 const initialGameFields: YanivGameFields = {
@@ -287,6 +289,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         y: screenHeight / 2,
         x: screenWidth / 2 - CARD_WIDTH * 0.5,
       };
+
+      console.log('game started');
 
       set(state => ({
         ...state,
@@ -550,8 +554,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       yanivCallerDelayedScore?: number;
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
+      roundPlayers: PlayerId[];
     }) => {
-      console.log('Round Ended ,', data.playersStats);
+      console.log('Round Ended ,', data.playersStats, data.roundPlayers);
       set(state => {
         // Update all players with new stats and final hands
         const updatedPlayers = {...state.players.all};
@@ -583,6 +588,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             playersHands: data.playerHands,
             yanivCaller: data.yanivCaller,
             assafCaller: data.assafCaller,
+            roundPlayers: data.roundPlayers,
           },
         };
       });

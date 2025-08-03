@@ -23,6 +23,7 @@ import CardPointsList from '~/components/cards/cardsPoint';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {OutlinedText} from '~/components/cartoonText';
 import EndGameDialog, {
+  closeEndGameDialog,
   openEndGameDialog,
 } from '~/components/dialogs/endGameDialog';
 import GameBoard from '~/components/game/board';
@@ -90,23 +91,28 @@ function GameScreen({navigation}: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    switch (game.phase) {
+      case 'active': {
+        closeEndGameDialog();
+        break;
+      }
+      case 'game-end': {
+        openEndGameDialog(
+          'finish',
+          gamePlayers.current,
+          gamePlayers.order,
+          game.playersStats ?? {},
+        );
+        break;
+      }
+    }
+  });
+
   // Timer for remaining time
   useEffect(() => {
     if (!myTurn || isNil(game.currentTurn)) {
-      if (game.phase === 'game-end') {
-        setTimeout(() => {
-          openEndGameDialog(
-            'finish',
-            gamePlayers.current,
-            gamePlayers.order,
-            game.playersStats ?? {},
-          );
-        }, 4000);
-      }
       setSelectedCardsIndexes([]);
-      return;
-    }
-    if (game.phase !== 'active') {
       return;
     }
 
@@ -215,8 +221,8 @@ function GameScreen({navigation}: any) {
       return;
     }
 
-    const activePlayers = gamePlayers.order.filter(
-      playerId => game.playersStats[playerId].playerStatus === 'active',
+    const activePlayers = gamePlayers.order.filter(playerId =>
+      roundResults.roundPlayers.includes(playerId),
     );
 
     const startIndex = activePlayers.indexOf(roundResults.yanivCaller);
