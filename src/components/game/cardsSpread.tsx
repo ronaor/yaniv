@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Dimensions, View} from 'react-native';
+import {Dimensions, StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {DirectionName, Location, Position} from '~/types/cards';
@@ -77,7 +77,6 @@ const RevealableCard = ({
 };
 
 interface CardsSpreadProps {
-  round: number;
   activeDirections: Record<string, DirectionName>;
   onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
 }
@@ -85,7 +84,6 @@ interface CardsSpreadProps {
 const CARDS_PER_PLAYER = 5;
 
 const CardsSpread = ({
-  round,
   activeDirections,
   onPlayerCardsCalculated,
 }: CardsSpreadProps) => {
@@ -93,7 +91,6 @@ const CardsSpread = ({
   const numOfPlayers = playerIds.length;
   const totalCards = numOfPlayers * CARDS_PER_PLAYER;
   const angleStep = (2 * Math.PI) / totalCards;
-  const lastRound = useRef<number>(-1);
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const hasStarted = useRef(false);
@@ -106,13 +103,10 @@ const CardsSpread = ({
   );
 
   useEffect(() => {
-    if (lastRound.current !== round && onPlayerCardsCalculated) {
-      setShouldAnimate(true);
-      setIsFinished(false);
-      lastRound.current = round;
-      hasStarted.current = false;
-    }
-  }, [round, onPlayerCardsCalculated, specialCardAngle, specialCardYOffset]);
+    setShouldAnimate(true);
+    setIsFinished(false);
+    hasStarted.current = false;
+  }, []);
 
   // Calculate player cards for callback
   useEffect(() => {
@@ -149,7 +143,7 @@ const CardsSpread = ({
           if (finished) {
             runOnJS(onPlayerCardsCalculated ?? noop)(playerCards);
             runOnJS(setShouldAnimate)(false);
-            lastRound.current = round;
+
             specialCardYOffset.value = withTiming(-0.5 * CARD_HEIGHT);
           }
         },
@@ -163,7 +157,7 @@ const CardsSpread = ({
     angleStep,
     cards,
     playerIds,
-    round,
+
     specialCardAngle,
     onPlayerCardsCalculated,
     specialCardYOffset,
@@ -184,8 +178,12 @@ const CardsSpread = ({
     };
   });
 
+  if (isFinished) {
+    return null;
+  }
+
   return (
-    <View style={{position: 'absolute'}}>
+    <View style={StyleSheet.absoluteFill}>
       {/* Progressive reveal cards */}
       {shouldAnimate &&
         cards.map((cardPos, index) => (
@@ -198,11 +196,9 @@ const CardsSpread = ({
         ))}
 
       {/* Orbiting special card */}
-      {!isFinished && (
-        <Animated.View style={specialCardStyle}>
-          <CardBack />
-        </Animated.View>
-      )}
+      <Animated.View style={specialCardStyle}>
+        <CardBack />
+      </Animated.View>
     </View>
   );
 };

@@ -126,7 +126,7 @@ function GameBoard({
       <CardsSpread
         activeDirections={activeDirections}
         onPlayerCardsCalculated={$onPlayerCardsCalculated}
-        round={round}
+        key={round}
       />
     </View>
   );

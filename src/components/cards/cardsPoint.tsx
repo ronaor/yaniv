@@ -10,7 +10,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
 import {calculateCardsPositions} from '~/utils/logic';
-import {CARD_SELECT_OFFSET, MOVE_DURATION} from '~/utils/constants';
+import {
+  CARD_SELECT_OFFSET,
+  MOVE_DURATION,
+  SMALL_DELAY,
+} from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 
@@ -28,6 +32,7 @@ interface CardPointsListProps {
   initialState?: {
     from: Position[];
     round: number;
+    delay: number;
   };
 }
 
@@ -62,6 +67,9 @@ const CardPointsList = ({
             from={fromPosition ?? initialState.from[index]}
             dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
             action={action ?? 'DRAG_FROM_DECK'}
+            delay={
+              fromPosition ? DELAY : initialState.delay + index * SMALL_DELAY
+            }
           />
         ))}
     </View>
@@ -105,6 +113,7 @@ const CardPointer = ({
   from,
   dest,
   action,
+  delay,
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
@@ -134,7 +143,7 @@ const CardPointer = ({
       flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
       scale.value = withTiming(1.25, {duration: MOVE_DURATION});
       translateInternalY.value = withSpring(0);
-    }, DELAY);
+    }, delay);
 
     return () => clearTimeout(timer);
   }, [
@@ -148,6 +157,7 @@ const CardPointer = ({
     flipRotation,
     scale,
     index,
+    delay,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({

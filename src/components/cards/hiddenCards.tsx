@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import {Dimensions, Platform, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,7 +12,7 @@ import {
 } from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
-import {MOVE_DURATION} from '~/utils/constants';
+import {MOVE_DURATION, SMALL_DELAY} from '~/utils/constants';
 import {TurnState} from '~/types/turnState';
 import {CardComponent} from './cardVisual';
 
@@ -27,6 +27,7 @@ interface HiddenCardPointsListProps {
   initialState?: {
     from: Position[];
     round: number;
+    delay: number;
   };
 }
 
@@ -68,6 +69,13 @@ const HiddenCardPointsList = ({
             card={card}
             action={action}
             reveal={reveal}
+            delay={
+              reveal
+                ? 0
+                : fromPosition
+                ? DELAY
+                : initialState.delay + index * SMALL_DELAY
+            }
           />
         ))}
     </View>
@@ -92,7 +100,10 @@ interface HiddenCardPointerProps {
   card: Card;
   action?: TurnState['action'];
   reveal: boolean;
+  delay?: number;
 }
+
+const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
 
 const HiddenCardPointer = ({
   index,
@@ -101,6 +112,7 @@ const HiddenCardPointer = ({
   card,
   action,
   reveal,
+  delay = 0,
 }: HiddenCardPointerProps) => {
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
   const translateX = useSharedValue<number>(from?.x ?? dest.x);
@@ -111,19 +123,27 @@ const HiddenCardPointer = ({
   // Animate to target position
   useEffect(() => {
     const targetRotation = dest.deg;
-    translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
-    translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
-    cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
-    flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
-  }, [translateX, translateY, cardDeg, dest.deg, dest.x, dest.y, flipRotation]);
-
-  useEffect(() => {
-    if (reveal) {
-      flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
-    } else {
-      flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
-    }
-  }, [reveal, flipRotation]);
+    const timer = setTimeout(() => {
+      translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
+      translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
+      cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
+      flipRotation.value = withTiming(reveal ? 0 : 1, {
+        duration: MOVE_DURATION / 2,
+      });
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [
+    translateX,
+    translateY,
+    cardDeg,
+    dest.deg,
+    dest.x,
+    dest.y,
+    flipRotation,
+    delay,
+    index,
+    reveal,
+  ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],

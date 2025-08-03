@@ -6,5 +6,6 @@ export const OVERLAP_AMOUNT = CARD_WIDTH * 0.3;
 export const CARD_SELECT_OFFSET = 20;
 
 export const MOVE_DURATION = 500;
+export const SMALL_DELAY = 50;
 
 export const directions: DirectionName[] = ['down', 'right', 'up', 'left'];

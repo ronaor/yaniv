@@ -32,7 +32,12 @@ import UserAvatar from '~/components/user/userAvatar';
 import YanivButton from '~/components/yanivButton';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {DirectionName, Position} from '~/types/cards';
-import {CARD_HEIGHT, CARD_WIDTH, directions} from '~/utils/constants';
+import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  directions,
+  SMALL_DELAY,
+} from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -367,6 +372,7 @@ function GameScreen({navigation}: any) {
               ? {
                   round: game.round,
                   from: currentRoundPositions.positions[gamePlayers.current],
+                  delay: 0,
                 }
               : undefined
           }
@@ -390,6 +396,7 @@ function GameScreen({navigation}: any) {
                 ? {
                     round: game.round,
                     from: currentRoundPositions.positions[playerId],
+                    delay: SMALL_DELAY * 5 * (i + 1),
                   }
                 : undefined
             }
