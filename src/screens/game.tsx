@@ -102,10 +102,11 @@ function GameScreen({navigation}: any) {
           gamePlayers.order,
           game.playersStats ?? {},
         );
+        setCurrentRoundPositions(null);
         break;
       }
     }
-  });
+  }, [game.phase, game.playersStats, gamePlayers]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -218,9 +219,10 @@ function GameScreen({navigation}: any) {
 
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
-  const [initialCardsPositions, setInitialCardsPositions] = useState<
-    Record<string, Position[]> | undefined
-  >(undefined);
+  const [currentRoundPositions, setCurrentRoundPositions] = useState<{
+    round: number;
+    positions: Record<string, Position[]>;
+  } | null>(null);
 
   useEffect(() => {
     if (!roundResults) {
@@ -341,7 +343,9 @@ function GameScreen({navigation}: any) {
           selectedCards={selectedCards}
           disabled={!myTurn}
           activeDirections={activeDirections}
-          onPlayerCardsCalculated={setInitialCardsPositions}
+          onPlayerCardsCalculated={positions =>
+            setCurrentRoundPositions({round: game.round, positions})
+          }
         />
         <CardPointsList
           key={gamePlayers.current}
@@ -358,10 +362,13 @@ function GameScreen({navigation}: any) {
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
           initialState={
-            initialCardsPositions?.[gamePlayers.current] && {
-              round: game.round,
-              from: initialCardsPositions[gamePlayers.current],
-            }
+            currentRoundPositions?.round === game.round &&
+            !isNil(currentRoundPositions?.positions[gamePlayers.current])
+              ? {
+                  round: game.round,
+                  from: currentRoundPositions.positions[gamePlayers.current],
+                }
+              : undefined
           }
         />
       </SafeAreaView>
@@ -378,10 +385,13 @@ function GameScreen({navigation}: any) {
             action={game.currentTurn?.prevTurn?.action}
             reveal={!!playersRevealing[playerId]}
             initialState={
-              initialCardsPositions?.[playerId] && {
-                round: game.round,
-                from: initialCardsPositions[playerId],
-              }
+              currentRoundPositions?.round === game.round &&
+              !isNil(currentRoundPositions?.positions[playerId])
+                ? {
+                    round: game.round,
+                    from: currentRoundPositions.positions[playerId],
+                  }
+                : undefined
             }
           />
           <View style={recordStyle[directions[i + 1]]}>

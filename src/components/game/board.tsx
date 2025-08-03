@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -82,6 +82,10 @@ function GameBoard({
 
   const [ready, setReady] = useState<boolean>(false);
 
+  useEffect(() => {
+    setReady(false);
+  }, [round]);
+
   const $onPlayerCardsCalculated = useCallback(
     (playerCards: Record<string, Position[]>) => {
       onPlayerCardsCalculated?.(playerCards);
@@ -92,17 +96,19 @@ function GameBoard({
 
   return (
     <View style={styles.gameArea}>
-      <TouchableOpacity
-        style={styles.deck}
-        onPress={handleDrawFromDeck}
-        disabled={disabled || selectedCards.length === 0}>
-        <>
-          <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
-          <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
-          <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
-          <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
-        </>
-      </TouchableOpacity>
+      {ready && (
+        <TouchableOpacity
+          style={styles.deck}
+          onPress={handleDrawFromDeck}
+          disabled={disabled || selectedCards.length === 0}>
+          <>
+            <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
+          </>
+        </TouchableOpacity>
+      )}
 
       <View style={styles.pickup}>
         {ready && (
