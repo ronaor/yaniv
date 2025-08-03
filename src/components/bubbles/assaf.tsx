@@ -112,18 +112,18 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: screenHeight - 490, left: 0, zIndex: 5},
-  down: {position: 'absolute', top: 110, left: 30, zIndex: 5},
+  up: {position: 'absolute', top: screenHeight - 450, left: 0, zIndex: 5},
+  down: {position: 'absolute', top: 150, left: 30, zIndex: 5},
   right: {
     position: 'absolute',
     left: screenWidth - 250,
-    top: screenHeight / 2 - 370,
+    top: screenHeight / 2 - 330,
     zIndex: 5,
   },
   left: {
     position: 'absolute',
     left: 0,
-    top: screenHeight / 2 - 370,
+    top: screenHeight / 2 - 330,
     zIndex: 5,
   },
 };

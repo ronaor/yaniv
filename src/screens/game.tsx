@@ -22,7 +22,9 @@ import YanivBubble from '~/components/bubbles/yaniv';
 import CardPointsList from '~/components/cards/cardsPoint';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {OutlinedText} from '~/components/cartoonText';
-import {openEndGameDialog} from '~/components/dialogs/endGameDialog';
+import EndGameDialog, {
+  openEndGameDialog,
+} from '~/components/dialogs/endGameDialog';
 import GameBoard from '~/components/game/board';
 import LightAround from '~/components/user/lightAround';
 import UserAvatar from '~/components/user/userAvatar';
@@ -194,19 +196,66 @@ function GameScreen({navigation}: any) {
     }
   }, [playerHand, slapCardIndex, emit]);
 
-  const yanivCall: DirectionName | undefined = useMemo(() => {
-    if (roundResults) {
-      const i = gamePlayers.order.indexOf(roundResults.yanivCaller);
-      return directions[i];
-    }
-  }, [gamePlayers.order, roundResults]);
+  const [playersRevealing, setPlayersRevealing] = useState<
+    Record<PlayerId, boolean>
+  >({});
 
-  const assafCall: DirectionName | undefined = useMemo(() => {
-    if (roundResults && roundResults.assafCaller) {
-      const i = gamePlayers.order.indexOf(roundResults.assafCaller);
-      return directions[i];
+  const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
+  const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
+
+  useEffect(() => {
+    if (!roundResults) {
+      setPlayersRevealing({});
+      setYanivCall(undefined);
+      setAssafCall(undefined);
+      return;
     }
-  }, [gamePlayers.order, roundResults]);
+
+    if (game.phase !== 'round-end') {
+      return;
+    }
+
+    const activePlayers = gamePlayers.order.filter(
+      playerId => game.playersStats[playerId].playerStatus === 'active',
+    );
+
+    const startIndex = activePlayers.indexOf(roundResults.yanivCaller);
+
+    const LOOK_MOMENT = 2000;
+
+    const executeReveal = (i: number) => {
+      const activeIndex = (startIndex + i) % activePlayers.length;
+
+      const playerId = activePlayers[activeIndex];
+
+      if (roundResults.yanivCaller === playerId) {
+        setYanivCall(directions[activeIndex]);
+      }
+      if (roundResults.assafCaller === playerId) {
+        setAssafCall(directions[activeIndex]);
+      }
+
+      setPlayersRevealing(prev => {
+        prev[playerId] = true;
+        return {...prev};
+      });
+    };
+
+    executeReveal(0);
+    if (activePlayers.length > 1) {
+      let i = 1;
+      const interval = setInterval(() => {
+        executeReveal(i);
+
+        if (i === activePlayers.length - 1) {
+          clearInterval(interval);
+        }
+        i += 1;
+      }, LOOK_MOMENT);
+
+      return () => clearInterval(interval);
+    }
+  }, [roundResults, game.playersStats, gamePlayers.order, game.phase]);
 
   return (
     <>
@@ -229,9 +278,6 @@ function GameScreen({navigation}: any) {
               </View>
             )}
           </View>
-          {/* Yaniv/Asaf Overlay */}
-          <YanivBubble direction={yanivCall} />
-          <AssafBubble direction={assafCall} />
         </View>
         {gamePlayers.order.map((playerId, i) => (
           <LightAround
@@ -289,30 +335,35 @@ function GameScreen({navigation}: any) {
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
         />
-        {gamePlayers.order.slice(1).map((playerId, i) => (
-          <View key={playerId} style={styles.absolute}>
-            <HiddenCardPointsList
-              cards={gamePlayers.all[playerId]?.hand ?? []}
-              direction={directions[i + 1]}
-              fromPosition={
-                playerId === game.currentTurn?.prevTurn?.playerId
-                  ? game.currentTurn?.prevTurn?.draw?.cardPosition
-                  : undefined
-              }
-              action={game.currentTurn?.prevTurn?.action}
-              reveal={!isNil(roundResults)}
-            />
-            <View style={recordStyle[directions[i + 1]]}>
-              <UserAvatar
-                name={playersName[playerId]}
-                score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-                isActive={game.currentTurn?.playerId === playerId}
-                timePerPlayer={game.rules.timePerPlayer}
-              />
-            </View>
-          </View>
-        ))}
       </SafeAreaView>
+      {gamePlayers.order.slice(1).map((playerId, i) => (
+        <View key={playerId} style={styles.absolute}>
+          <HiddenCardPointsList
+            cards={gamePlayers.all[playerId]?.hand ?? []}
+            direction={directions[i + 1]}
+            fromPosition={
+              playerId === game.currentTurn?.prevTurn?.playerId
+                ? game.currentTurn?.prevTurn?.draw?.cardPosition
+                : undefined
+            }
+            action={game.currentTurn?.prevTurn?.action}
+            reveal={!!playersRevealing[playerId]}
+          />
+          <View style={recordStyle[directions[i + 1]]}>
+            <UserAvatar
+              name={playersName[playerId]}
+              score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+              isActive={game.currentTurn?.playerId === playerId}
+              timePerPlayer={game.rules.timePerPlayer}
+            />
+          </View>
+        </View>
+      ))}
+
+      {/* Yaniv/Asaf Overlay */}
+      <YanivBubble direction={yanivCall} />
+      <AssafBubble direction={assafCall} />
+      <EndGameDialog />
     </>
   );
 }

@@ -126,17 +126,17 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: screenHeight - 450, left: 10, zIndex: 5},
-  down: {position: 'absolute', top: 110, left: 50},
+  up: {position: 'absolute', top: screenHeight - 430, left: 10, zIndex: 5},
+  down: {position: 'absolute', top: 170, left: 50},
   right: {
     position: 'absolute',
     left: screenWidth - 220,
-    top: screenHeight / 2 - 350,
+    top: screenHeight / 2 - 330,
   },
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 350,
+    top: screenHeight / 2 - 330,
   },
 };
 
@@ -145,7 +145,7 @@ const tailPaths: Record<DirectionName, string> = {
   up: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
   right:
     'M323 401C329.002 419.082 338.379 445.107 351 469C298.811 457.628 276.931 430.173 253 401H323Z',
-  down: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
+  down: 'M282 77C275.998 58.918 266.621 32.893 254 9C306.189 20.372 328.069 47.827 352 77H282Z',
 };
 
 export default YanivBubble;

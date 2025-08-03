@@ -4,7 +4,6 @@ import React, {useCallback} from 'react';
 import {I18nManager} from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
 import GameBannerAd from '~/ads/banner';
-import EndGameDialog from '~/components/dialogs/endGameDialog';
 import NamePrompt from '~/components/namePrompt';
 import GameScreen from '~/screens/game';
 import GameWithFriendsScreen from '~/screens/gameWithFriends';
@@ -104,7 +103,6 @@ const App = () => {
         </Stack.Navigator>
         <GameBannerAd />
         <NamePrompt />
-        <EndGameDialog />
       </NavigationContainer>
     </>
   );

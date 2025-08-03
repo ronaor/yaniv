@@ -42,9 +42,9 @@ const DeckCardPointers = ({
 }: DeckCardPointersProps) => {
   const newCards = useRef<Card[]>([]);
   const [layerHistory, setLayerHistory] = useState<{
-    layer1: (Card & {deg: number; picked: boolean})[];
-    layer2: (Card & {deg: number; picked: boolean})[];
-    layer3: (Card & {deg: number; picked: boolean})[];
+    layer1: (Card & {deg: number})[];
+    layer2: (Card & {deg: number})[];
+    layer3: (Card & {deg: number})[];
   }>({
     layer1: [],
     layer2: [],
@@ -66,19 +66,22 @@ const DeckCardPointers = ({
   useEffect(() => {
     if (!isEqual(newCards.current, cards)) {
       const newLayer = [
-        ...newCards.current.map(card => ({
-          ...card,
-          deg: Math.random() * 20,
-          picked: pickedCard
-            ? getCardKey(pickedCard) === getCardKey(card)
-            : false,
-        })),
+        ...newCards.current
+          .filter(card =>
+            pickedCard ? getCardKey(pickedCard) !== getCardKey(card) : true,
+          )
+          .map(card => ({
+            ...card,
+            deg: Math.random() * 20,
+          })),
       ];
-      setLayerHistory(prev => ({
-        layer3: [...prev.layer2],
-        layer2: [...prev.layer1],
-        layer1: newLayer,
-      }));
+      if (newLayer.length > 0) {
+        setLayerHistory(prev => ({
+          layer3: [...prev.layer2],
+          layer2: [...prev.layer1],
+          layer1: newLayer,
+        }));
+      }
     }
     newCards.current = cards;
   }, [cards, pickedCard]);
@@ -88,58 +91,49 @@ const DeckCardPointers = ({
       <View
         style={cardsShifterStyle(layerHistory.layer3.length)}
         pointerEvents="none">
-        {layerHistory.layer3.map(
-          card =>
-            !card.picked && (
-              <DiscardedPointer
-                card={card}
-                throwTarget={{
-                  x: ((layerHistory.layer3.length - 1) * CARD_WIDTH) / 2,
-                  y: 2 * CARD_WIDTH,
-                  deg: card.deg,
-                }}
-                key={getCardKey(card)}
-                opacity={{from: 0.4, to: 0.15}}
-              />
-            ),
-        )}
+        {layerHistory.layer3.map(card => (
+          <DiscardedPointer
+            card={card}
+            throwTarget={{
+              x: ((layerHistory.layer3.length - 1) * CARD_WIDTH) / 2,
+              y: 2 * CARD_WIDTH,
+              deg: card.deg,
+            }}
+            key={getCardKey(card)}
+            opacity={{from: 0.4, to: 0.15}}
+          />
+        ))}
       </View>
       <View
         style={cardsShifterStyle(layerHistory.layer2.length)}
         pointerEvents="none">
-        {layerHistory.layer2.map(
-          card =>
-            !card.picked && (
-              <DiscardedPointer
-                card={card}
-                throwTarget={{
-                  x: ((layerHistory.layer2.length - 1) * CARD_WIDTH) / 2,
-                  y: 2 * CARD_WIDTH,
-                  deg: card.deg,
-                }}
-                key={getCardKey(card)}
-                opacity={{from: 0.7, to: 0.4}}
-              />
-            ),
-        )}
+        {layerHistory.layer2.map(card => (
+          <DiscardedPointer
+            card={card}
+            throwTarget={{
+              x: ((layerHistory.layer2.length - 1) * CARD_WIDTH) / 2,
+              y: 2 * CARD_WIDTH,
+              deg: card.deg,
+            }}
+            key={getCardKey(card)}
+            opacity={{from: 0.7, to: 0.4}}
+          />
+        ))}
       </View>
       <View style={cardsShifterStyle(layerHistory.layer1.length)}>
-        {layerHistory.layer1.map(
-          (card, index) =>
-            !card.picked && (
-              <DiscardPointer
-                card={card}
-                index={index}
-                throwTarget={{
-                  x: ((layerHistory.layer1.length - 1) * CARD_WIDTH) / 2,
-                  y: 2 * CARD_WIDTH,
-                  deg: card.deg,
-                }}
-                key={getCardKey(card)}
-                opacity={0.7}
-              />
-            ),
-        )}
+        {layerHistory.layer1.map((card, index) => (
+          <DiscardPointer
+            card={card}
+            index={index}
+            throwTarget={{
+              x: ((layerHistory.layer1.length - 1) * CARD_WIDTH) / 2,
+              y: 2 * CARD_WIDTH,
+              deg: card.deg,
+            }}
+            key={getCardKey(card)}
+            opacity={0.7}
+          />
+        ))}
       </View>
       <View style={cardsShifterStyle(cards.length)}>
         {cards.map((card, index) => (

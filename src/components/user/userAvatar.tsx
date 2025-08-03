@@ -84,17 +84,19 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
           </Canvas>
         )}
       </View>
-      <View style={styles.gradientWrap}>
-        <LinearGradient
-          style={styles.gradient}
-          colors={['#E05F0B', '#AE4906', '#AE4906']}>
-          <View style={styles.log}>
-            <Text style={styles.name}>{name}</Text>
-          </View>
-        </LinearGradient>
-      </View>
-      <View style={styles.gradientScore}>
-        <Text style={styles.score}>{score}</Text>
+      <View style={styles.logContainer}>
+        <View style={styles.gradientWrap}>
+          <LinearGradient
+            style={styles.gradient}
+            colors={['#E05F0B', '#AE4906', '#AE4906']}>
+            <View style={styles.log}>
+              <Text style={styles.name}>{name}</Text>
+            </View>
+          </LinearGradient>
+        </View>
+        <View style={styles.gradientScore}>
+          <Text style={styles.score}>{score}</Text>
+        </View>
       </View>
     </View>
   );
@@ -130,6 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logContainer: {},
   name: {
     paddingHorizontal: 5,
     paddingVertical: 3,
@@ -166,11 +169,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#BB550C',
     flexDirection: 'row',
     borderRadius: 13,
+
+    paddingHorizontal: 5,
   },
   gradientScore: {
     marginTop: -6,
-    alignSelf: 'flex-end',
-    marginEnd: 10,
+    alignSelf: 'flex-start',
+    marginStart: 10,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -178,6 +183,6 @@ const styles = StyleSheet.create({
     borderColor: '#732C03',
     borderWidth: 2,
     backgroundColor: '#E9872A',
-    minWidth: 23,
+    minWidth: 24,
   },
 });
