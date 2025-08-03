@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {noop} from 'lodash';
+import CardShuffle from './cardsShuffle';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -93,9 +94,19 @@ const CardsSpread = ({
   const angleStep = (2 * Math.PI) / totalCards;
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [finishShuffle, setFinishShuffle] = useState(false);
   const hasStarted = useRef(false);
   const specialCardAngle = useSharedValue<number>(0);
   const specialCardYOffset = useSharedValue<number>(0);
+
+  const overlayOpacity = useSharedValue<number>(0);
+
+  const onFinishShuffle = useCallback(() => {
+    setShouldAnimate(true);
+    setFinishShuffle(true);
+    setIsFinished(false);
+    hasStarted.current = false;
+  }, []);
 
   const cards: Location[] = useMemo(
     () => generateCircularCardLocations(numOfPlayers),
@@ -103,10 +114,8 @@ const CardsSpread = ({
   );
 
   useEffect(() => {
-    setShouldAnimate(true);
-    setIsFinished(false);
-    hasStarted.current = false;
-  }, []);
+    overlayOpacity.value = withTiming(1);
+  }, [overlayOpacity]);
 
   // Calculate player cards for callback
   useEffect(() => {
@@ -134,6 +143,7 @@ const CardsSpread = ({
 
         playerCards[playerId] = positions;
       });
+
       specialCardAngle.value = withTiming(
         2 * Math.PI,
         {duration: 1000},
@@ -143,7 +153,7 @@ const CardsSpread = ({
           if (finished) {
             runOnJS(onPlayerCardsCalculated ?? noop)(playerCards);
             runOnJS(setShouldAnimate)(false);
-
+            overlayOpacity.value = withTiming(0);
             specialCardYOffset.value = withTiming(-0.5 * CARD_HEIGHT);
           }
         },
@@ -157,7 +167,6 @@ const CardsSpread = ({
     angleStep,
     cards,
     playerIds,
-
     specialCardAngle,
     onPlayerCardsCalculated,
     specialCardYOffset,
@@ -178,12 +187,17 @@ const CardsSpread = ({
     };
   });
 
-  if (isFinished) {
-    return null;
-  }
+  const overlayStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
+    opacity: overlayOpacity.value,
+    backgroundColor: '#00000050',
+    width: screenWidth,
+    height: screenHeight,
+  }));
 
   return (
-    <View style={StyleSheet.absoluteFill}>
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <Animated.View style={overlayStyle} />
       {/* Progressive reveal cards */}
       {shouldAnimate &&
         cards.map((cardPos, index) => (
@@ -196,9 +210,19 @@ const CardsSpread = ({
         ))}
 
       {/* Orbiting special card */}
-      <Animated.View style={specialCardStyle}>
-        <CardBack />
-      </Animated.View>
+      {!isFinished && (
+        <Animated.View style={specialCardStyle}>
+          {finishShuffle ? (
+            <CardBack />
+          ) : (
+            <CardShuffle
+              startAnimation={true}
+              loops={3}
+              onFinish={onFinishShuffle}
+            />
+          )}
+        </Animated.View>
+      )}
     </View>
   );
 };
