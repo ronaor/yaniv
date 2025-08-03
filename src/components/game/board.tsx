@@ -39,6 +39,7 @@ interface GameBoardProps {
     pickupPile: Card[];
     lastPickedCard?: Card;
     tookFrom?: Position[];
+    wasPlayer: boolean;
   };
   disabled?: boolean;
   round: number;
@@ -97,6 +98,7 @@ function GameBoard({
           fromTargets={tookFrom ?? []}
           round={round}
           disabled={disabled}
+          wasPlayer={pickup.wasPlayer}
         />
       </View>
     </View>

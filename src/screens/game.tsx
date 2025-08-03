@@ -321,6 +321,8 @@ function GameScreen({navigation}: any) {
             pickupPile: board.pickupPile,
             lastPickedCard,
             tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+            wasPlayer:
+              game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
           }}
           round={game.round}
           selectedCards={selectedCards}

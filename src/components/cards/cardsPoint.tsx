@@ -106,6 +106,7 @@ const CardPointer = ({
   const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
 
   const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
@@ -124,6 +125,7 @@ const CardPointer = ({
       translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
       cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
       flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
+      scale.value = withTiming(1.25, {duration: MOVE_DURATION});
       translateInternalY.value = withSpring(0);
     }, DELAY);
 
@@ -137,6 +139,7 @@ const CardPointer = ({
     dest.x,
     dest.y,
     flipRotation,
+    scale,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
@@ -160,6 +163,7 @@ const CardPointer = ({
       {
         scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
       },
+      {scale: scale.value},
     ],
   }));
 
@@ -168,6 +172,7 @@ const CardPointer = ({
       {
         scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
       },
+      {scale: scale.value},
     ],
     position: 'absolute',
   }));

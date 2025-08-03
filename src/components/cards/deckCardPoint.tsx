@@ -30,6 +30,7 @@ interface DeckCardPointersProps {
   fromTargets?: (Position & {deg: number})[];
   round: number;
   disabled?: boolean;
+  wasPlayer: boolean;
 }
 
 const DeckCardPointers = ({
@@ -39,6 +40,7 @@ const DeckCardPointers = ({
   fromTargets,
   round,
   disabled = false,
+  wasPlayer,
 }: DeckCardPointersProps) => {
   const newCards = useRef<Card[]>([]);
   const [layerHistory, setLayerHistory] = useState<{
@@ -144,6 +146,7 @@ const DeckCardPointers = ({
             card={card}
             fromTarget={fromTargets?.[index]}
             key={getCardKey(card)}
+            isHidden={!wasPlayer}
           />
         ))}
       </View>

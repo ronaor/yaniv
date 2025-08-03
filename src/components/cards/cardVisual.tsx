@@ -261,7 +261,6 @@ export const CardComponent: React.FC<CardProps> = ({
       style={{
         width: canvasWidth,
         height: canvasHeight,
-        transform: [{scale: 1.25}],
       }}>
       <Background
         width={width}
