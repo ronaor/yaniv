@@ -3,7 +3,6 @@ import {StyleSheet} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
   withSequence,
   runOnJS,
@@ -17,43 +16,88 @@ interface CardShuffleProps {
   onFinish?: () => void;
 }
 
-interface ShuffleCardProps {
-  direction: 'left' | 'right';
-  delay: number;
+interface CircularShuffleCardProps {
+  direction: 'right' | 'left';
   loops: number;
   startAnimation: boolean;
+  delay: number;
 }
 
-const MOVE_DUR = 200;
-const ShuffleCard = ({
+const MOVE_DUR = 100;
+const MOVE_DISTANCE = CARD_WIDTH * 0.5;
+const PHASE_DURATION = MOVE_DUR * 4;
+
+const CircularShuffleCard = ({
   direction,
   delay,
   loops,
   startAnimation,
-}: ShuffleCardProps) => {
+}: CircularShuffleCardProps) => {
   const translateX = useSharedValue(0);
-
-  const targetPosition =
-    direction === 'left' ? -CARD_WIDTH * 0.5 : CARD_WIDTH * 0.5;
+  const translateY = useSharedValue(0);
 
   useEffect(() => {
     if (startAnimation && loops > 0) {
-      // Create animation sequence for multiple loops
-      const animations = [];
+      const xAnimations = [];
+      const yAnimations = [];
 
-      for (let i = 0; i < loops; i++) {
-        animations.push(
-          withTiming(targetPosition, {duration: MOVE_DUR}), // Go out
-          withTiming(0, {duration: MOVE_DUR}), // Come back to center
-        );
+      // Add initial delay - stay at (0,0)
+      if (delay > 0) {
+        xAnimations.push(withTiming(0, {duration: delay}));
+        yAnimations.push(withTiming(0, {duration: delay}));
       }
 
-      translateX.value = withDelay(delay, withSequence(...animations));
+      for (let i = 0; i < loops; i++) {
+        if (direction === 'right') {
+          // Clockwise:  → right → down → left → up → center
+
+          // Clockwise:  → rightX → rightX → centerX → centerX
+          xAnimations.push(
+            withTiming(MOVE_DISTANCE, {duration: MOVE_DUR}), // right
+            withTiming(MOVE_DISTANCE, {duration: MOVE_DUR}), // down
+            withTiming(0, {duration: MOVE_DUR}), // left
+            withTiming(0, {duration: MOVE_DUR}), // up
+          );
+
+          // Clockwise:  → centerY → downY → downY → centerY
+          yAnimations.push(
+            withTiming(0, {duration: MOVE_DUR}), // right
+            withTiming(MOVE_DISTANCE, {duration: MOVE_DUR}), // down
+            withTiming(MOVE_DISTANCE, {duration: MOVE_DUR}), // left
+            withTiming(0, {duration: MOVE_DUR}), // up
+          );
+        } else {
+          // Counter-clockwise: center → left → down → right → up → center
+          xAnimations.push(
+            withTiming(-MOVE_DISTANCE, {duration: MOVE_DUR}), // right
+            withTiming(-MOVE_DISTANCE, {duration: MOVE_DUR}), // down
+            withTiming(0, {duration: MOVE_DUR}), // left
+            withTiming(0, {duration: MOVE_DUR}), // up
+          );
+
+          // Clockwise:  → centerY → downY → downY → centerY
+          yAnimations.push(
+            withTiming(0, {duration: MOVE_DUR}), // right
+            withTiming(-MOVE_DISTANCE, {duration: MOVE_DUR}), // down
+            withTiming(-MOVE_DISTANCE, {duration: MOVE_DUR}), // left
+            withTiming(0, {duration: MOVE_DUR}), // up
+          );
+        }
+
+        // After each loop, add delay to stay still while other card moves
+        if (i < loops - 1) {
+          xAnimations.push(withTiming(0, {duration: PHASE_DURATION}));
+          yAnimations.push(withTiming(0, {duration: PHASE_DURATION}));
+        }
+      }
+
+      translateX.value = withSequence(...xAnimations);
+      translateY.value = withSequence(...yAnimations);
     }
-  }, [startAnimation, loops, delay, targetPosition, translateX]);
+  }, [startAnimation, loops, direction, delay, translateX, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
+    transform: [{translateX: translateX.value}, {translateY: translateY.value}],
   }));
 
   return (
@@ -71,10 +115,8 @@ const CardShuffle = ({startAnimation, loops, onFinish}: CardShuffleProps) => {
       // Start with rotation
       containerRotation.value = withTiming(45, {duration: MOVE_DUR});
 
-      // Calculate total animation duration
-      const maxDelay = 600; // highest delay
-      const totalLoopDuration = loops * MOVE_DUR * 2; // each loop is 800ms (400 out + 400 back)
-      const totalDuration = maxDelay + totalLoopDuration;
+      // Calculate total duration: each loop has 2 phases (right then left)
+      const totalDuration = loops * PHASE_DURATION * 2;
 
       // Return rotation to 0 and call onFinish after all animations complete
       setTimeout(() => {
@@ -97,42 +139,18 @@ const CardShuffle = ({startAnimation, loops, onFinish}: CardShuffleProps) => {
 
   return (
     <Animated.View style={shuffleContainerStyle}>
-      <ShuffleCard
-        direction="left"
-        delay={600}
-        loops={loops}
-        startAnimation={startAnimation}
-      />
-
-      <ShuffleCard
-        direction="right"
-        delay={600}
-        loops={loops}
-        startAnimation={startAnimation}
-      />
-
-      <ShuffleCard
-        direction="left"
-        delay={300}
-        loops={loops}
-        startAnimation={startAnimation}
-      />
-      <ShuffleCard
-        direction="right"
-        delay={300}
-        loops={loops}
-        startAnimation={startAnimation}
-      />
-      <ShuffleCard
+      {/* First card - starts immediately, clockwise */}
+      <CircularShuffleCard
         direction="right"
         delay={0}
         loops={loops}
         startAnimation={startAnimation}
       />
 
-      <ShuffleCard
+      {/* Second card - starts after first completes, counter-clockwise */}
+      <CircularShuffleCard
         direction="left"
-        delay={0}
+        delay={PHASE_DURATION}
         loops={loops}
         startAnimation={startAnimation}
       />

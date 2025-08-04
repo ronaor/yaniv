@@ -217,7 +217,7 @@ const CardsSpread = ({
           ) : (
             <CardShuffle
               startAnimation={true}
-              loops={3}
+              loops={2}
               onFinish={onFinishShuffle}
             />
           )}
