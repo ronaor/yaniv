@@ -149,19 +149,17 @@ const CardsSpread = ({
           runOnJS(onPlayerCardsCalculated ?? noop)(playerCards);
           runOnJS(setShouldAnimate)(false);
           overlayOpacity.value = withTiming(0);
-          specialCardYOffset.value = withTiming(
-            -0.5 * CARD_HEIGHT,
-            {duration: 300},
-            secondFinish => {
-              if (secondFinish) {
-                runOnJS(setIsFinished)(true);
-                runOnJS(onFinish ?? noop)();
-              }
-            },
-          );
+          specialCardYOffset.value = withTiming(-0.5 * CARD_HEIGHT, {
+            duration: 300,
+          });
         }
       },
     );
+
+    setTimeout(() => {
+      setIsFinished(true);
+      onFinish?.();
+    }, 1550);
   }, [
     playerIds,
     cards,
