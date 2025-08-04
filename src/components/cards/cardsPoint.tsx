@@ -142,7 +142,6 @@ const CardPointer = ({
       cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
       flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
       scale.value = withTiming(1.25, {duration: MOVE_DURATION});
-      translateInternalY.value = withSpring(0);
     }, delay);
 
     return () => clearTimeout(timer);
