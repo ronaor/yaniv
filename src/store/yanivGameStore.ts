@@ -22,6 +22,7 @@ import {
   calculateHiddenCardsPositions,
   createPlayerOrder,
   createPlayersData,
+  generateUUID,
 } from '~/utils/logic';
 import {useRoomStore} from './roomStore';
 import {useSocket} from './socketStore';
@@ -41,7 +42,7 @@ interface PublicGameState {
 export type PlayerId = string;
 
 //region Game State
-type GamePhase = 'loading' | 'active' | 'round-end' | 'game-end';
+export type GamePhase = 'loading' | 'active' | 'round-end' | 'game-end';
 
 type TurnInfo = {
   playerId: PlayerId;
@@ -102,6 +103,7 @@ type YanivGameFields = {
   roundResults?: RoundResults;
   ui: UIState;
   error?: string;
+  gameId: string;
 };
 
 type YanivGameMethods = {
@@ -180,6 +182,7 @@ type RoundResults = {
 };
 
 const initialGameFields: YanivGameFields = {
+  gameId: '',
   game: {
     phase: 'loading',
     round: 0,
@@ -296,6 +299,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
 
       set(state => ({
         ...state,
+        gameId: generateUUID(),
         game: {
           phase: 'active',
           round: 0,

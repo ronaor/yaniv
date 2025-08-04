@@ -80,6 +80,7 @@ const RevealableCard = ({
 interface CardsSpreadProps {
   activeDirections: Record<string, DirectionName>;
   onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
+  onFinish?: () => void;
 }
 
 const CARDS_PER_PLAYER = 5;
@@ -87,26 +88,21 @@ const CARDS_PER_PLAYER = 5;
 const CardsSpread = ({
   activeDirections,
   onPlayerCardsCalculated,
+  onFinish,
 }: CardsSpreadProps) => {
   const playerIds = Object.keys(activeDirections);
   const numOfPlayers = playerIds.length;
   const totalCards = numOfPlayers * CARDS_PER_PLAYER;
   const angleStep = (2 * Math.PI) / totalCards;
+
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
   const hasStarted = useRef(false);
+
   const specialCardAngle = useSharedValue<number>(0);
   const specialCardYOffset = useSharedValue<number>(0);
-
   const overlayOpacity = useSharedValue<number>(0);
-
-  const onFinishShuffle = useCallback(() => {
-    setShouldAnimate(true);
-    setFinishShuffle(true);
-    setIsFinished(false);
-    hasStarted.current = false;
-  }, []);
 
   const cards: Location[] = useMemo(
     () => generateCircularCardLocations(numOfPlayers),
@@ -117,60 +113,64 @@ const CardsSpread = ({
     overlayOpacity.value = withTiming(1);
   }, [overlayOpacity]);
 
-  // Calculate player cards for callback
-  useEffect(() => {
-    if (
-      shouldAnimate &&
-      !isFinished &&
-      !hasStarted.current &&
-      playerIds.length > 0
-    ) {
-      const playerCards: Record<string, Position[]> = {};
-      hasStarted.current = true;
-      specialCardAngle.value = 0;
-      specialCardYOffset.value = 0;
-      playerIds.forEach((playerId, playerIndex) => {
-        const startCard = playerIndex * CARDS_PER_PLAYER;
-        const positions = Array.from({length: CARDS_PER_PLAYER}, (_, i) => {
-          const cardIndex = startCard + i;
-          const cardAngle = cardIndex * angleStep;
-          return {
-            x: cards[cardIndex].x,
-            y: cards[cardIndex].y,
-            deg: ((cardAngle - Math.PI / 2) * 180) / Math.PI + 90,
-          };
-        });
+  const onFinishShuffle = useCallback(() => {
+    if (hasStarted.current) return; // Double guard
+    hasStarted.current = true;
 
-        playerCards[playerId] = positions;
+    setShouldAnimate(true);
+    setFinishShuffle(true);
+    setIsFinished(false);
+
+    // Do all the work immediately in callback
+    const playerCards: Record<string, Position[]> = {};
+    specialCardAngle.value = 0;
+    specialCardYOffset.value = 0;
+
+    playerIds.forEach((playerId, playerIndex) => {
+      const startCard = playerIndex * CARDS_PER_PLAYER;
+      const positions = Array.from({length: CARDS_PER_PLAYER}, (_, i) => {
+        const cardIndex = startCard + i;
+        const cardAngle = cardIndex * angleStep;
+        return {
+          x: cards[cardIndex].x,
+          y: cards[cardIndex].y,
+          deg: ((cardAngle - Math.PI / 2) * 180) / Math.PI + 90,
+        };
       });
+      playerCards[playerId] = positions;
+    });
 
-      specialCardAngle.value = withTiming(
-        2 * Math.PI,
-        {duration: 1000},
-        finished => {
-          'worklet';
-
-          if (finished) {
-            runOnJS(onPlayerCardsCalculated ?? noop)(playerCards);
-            runOnJS(setShouldAnimate)(false);
-            overlayOpacity.value = withTiming(0);
-            specialCardYOffset.value = withTiming(-0.5 * CARD_HEIGHT);
-          }
-        },
-      );
-      setTimeout(() => {
-        setIsFinished(true);
-      }, 3000);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    specialCardAngle.value = withTiming(
+      2 * Math.PI,
+      {duration: 1000},
+      finished => {
+        'worklet';
+        if (finished) {
+          runOnJS(onPlayerCardsCalculated ?? noop)(playerCards);
+          runOnJS(setShouldAnimate)(false);
+          overlayOpacity.value = withTiming(0);
+          specialCardYOffset.value = withTiming(
+            -0.5 * CARD_HEIGHT,
+            {duration: 300},
+            secondFinish => {
+              if (secondFinish) {
+                runOnJS(setIsFinished)(true);
+                runOnJS(onFinish ?? noop)();
+              }
+            },
+          );
+        }
+      },
+    );
   }, [
-    angleStep,
-    cards,
     playerIds,
+    cards,
+    angleStep,
     specialCardAngle,
-    onPlayerCardsCalculated,
+    overlayOpacity,
     specialCardYOffset,
-    isFinished,
+    onPlayerCardsCalculated,
+    onFinish,
   ]);
 
   const specialCardStyle = useAnimatedStyle(() => {

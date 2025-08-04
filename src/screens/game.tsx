@@ -58,6 +58,7 @@ function GameScreen({navigation}: any) {
     clearError,
     resetSlapDown,
     emit,
+    gameId,
   } = useYanivGameStore();
 
   const {name: nickName} = useUser();
@@ -345,6 +346,7 @@ function GameScreen({navigation}: any) {
               game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
           }}
           round={game.round}
+          gameId={gameId}
           selectedCards={selectedCards}
           disabled={!myTurn}
           activeDirections={activeDirections}

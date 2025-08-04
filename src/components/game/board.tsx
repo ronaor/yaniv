@@ -1,11 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
@@ -14,22 +8,33 @@ import {DirectionName, Position} from '~/types/cards';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 import CardsSpread from './cardsSpread';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const CardBackRotated = ({position}: {position: Position}) => {
-  const rotationStyle: ViewStyle = {
+  const rotation = useSharedValue<number>(0);
+  const rotationStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     transform: [
       {translateX: position.x},
       {translateY: position.y},
-      {rotate: `${position.deg}deg`},
+      {rotate: `${rotation.value}deg`},
     ],
-  };
+  }));
+
+  useEffect(() => {
+    rotation.value = withTiming(position.deg, {duration: 300});
+  }, [position.deg, rotation]);
+
   return (
-    <View style={rotationStyle}>
+    <Animated.View style={rotationStyle}>
       <CardBack />
-    </View>
+    </Animated.View>
   );
 };
 
@@ -42,6 +47,7 @@ interface GameBoardProps {
   };
   disabled?: boolean;
   round: number;
+  gameId: string;
   selectedCards: Card[];
   activeDirections: Record<PlayerId, DirectionName>;
   onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
@@ -54,6 +60,7 @@ function GameBoard({
   disabled = false,
   activeDirections,
   onPlayerCardsCalculated,
+  gameId,
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
 
@@ -80,38 +87,44 @@ function GameBoard({
     [emit, pickupPile.length, selectedCards],
   );
 
-  const [ready, setReady] = useState<boolean>(false);
+  const [pickupReady, setPickupReady] = useState<boolean>(false);
+  const [deckReady, setDeckReady] = useState<boolean>(false);
 
   useEffect(() => {
-    setReady(false);
-  }, [round]);
+    setPickupReady(false);
+    setDeckReady(false);
+  }, [round, gameId]);
 
   const $onPlayerCardsCalculated = useCallback(
     (playerCards: Record<string, Position[]>) => {
       onPlayerCardsCalculated?.(playerCards);
-      setReady(true);
+      setPickupReady(true);
     },
-    [onPlayerCardsCalculated, setReady],
+    [onPlayerCardsCalculated],
   );
+
+  const $onFinish = useCallback(() => {
+    setDeckReady(true);
+  }, []);
 
   return (
     <View style={styles.gameArea}>
-      {ready && (
-        <TouchableOpacity
-          style={styles.deck}
-          onPress={handleDrawFromDeck}
-          disabled={disabled || selectedCards.length === 0}>
+      <TouchableOpacity
+        style={styles.deck}
+        onPress={handleDrawFromDeck}
+        disabled={disabled || selectedCards.length === 0 || !deckReady}>
+        {deckReady && (
           <>
             <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
             <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
             <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
             <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
           </>
-        </TouchableOpacity>
-      )}
+        )}
+      </TouchableOpacity>
 
       <View style={styles.pickup}>
-        {ready && (
+        {pickupReady && (
           <DeckCardPointers
             cards={pickupPile}
             pickedCard={lastPickedCard}
@@ -126,7 +139,8 @@ function GameBoard({
       <CardsSpread
         activeDirections={activeDirections}
         onPlayerCardsCalculated={$onPlayerCardsCalculated}
-        key={round}
+        key={`${gameId}-${round}`}
+        onFinish={$onFinish}
       />
     </View>
   );
