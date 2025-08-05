@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, ViewStyle} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,6 +14,32 @@ interface CardShuffleProps {
   startAnimation: boolean;
   loops: number;
   onFinish?: () => void;
+}
+
+interface ShiftedCardProps {
+  x: number;
+  y: number;
+}
+
+function ShiftedCard({x, y}: ShiftedCardProps) {
+  const animatedX = useSharedValue<number>(0);
+  const animatedY = useSharedValue<number>(0);
+
+  useEffect(() => {
+    animatedX.value = withTiming(x, {duration: MOVE_DUR});
+    animatedY.value = withTiming(y, {duration: MOVE_DUR});
+  }, [animatedX, animatedY, x, y]);
+
+  const style: ViewStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
+    transform: [{translateX: animatedX.value}, {translateY: animatedY.value}],
+  }));
+
+  return (
+    <Animated.View style={style}>
+      <CardBack />
+    </Animated.View>
+  );
 }
 
 interface CircularShuffleCardProps {
@@ -36,6 +62,7 @@ const CircularShuffleCard = ({
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
 
+  const [done, setDone] = useState(false);
   useEffect(() => {
     if (startAnimation && loops > 0) {
       const xAnimations = [];
@@ -93,6 +120,10 @@ const CircularShuffleCard = ({
 
       translateX.value = withSequence(...xAnimations);
       translateY.value = withSequence(...yAnimations);
+
+      setTimeout(() => {
+        setDone(true);
+      }, loops * 800);
     }
   }, [startAnimation, loops, direction, delay, translateX, translateY]);
 
@@ -102,7 +133,9 @@ const CircularShuffleCard = ({
 
   return (
     <Animated.View style={[styles.card, animatedStyle]}>
-      <CardBack />
+      <ShiftedCard x={done ? 0 : 8} y={done ? 0 : 8} />
+      <ShiftedCard x={done ? 0 : 4} y={done ? 0 : 4} />
+      <ShiftedCard x={0} y={0} />
     </Animated.View>
   );
 };
