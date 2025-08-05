@@ -31,7 +31,7 @@ import LightAround from '~/components/user/lightAround';
 import UserAvatar from '~/components/user/userAvatar';
 import YanivButton from '~/components/yanivButton';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import {DirectionName, Position} from '~/types/cards';
+import {DirectionName} from '~/types/cards';
 import {
   CARD_HEIGHT,
   CARD_WIDTH,
@@ -108,7 +108,7 @@ function GameScreen({navigation}: any) {
           gamePlayers.order,
           game.playersStats ?? {},
         );
-        setCurrentRoundPositions(null);
+        setRoundReadyFor(-1);
         break;
       }
     }
@@ -225,10 +225,13 @@ function GameScreen({navigation}: any) {
 
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
-  const [currentRoundPositions, setCurrentRoundPositions] = useState<{
-    round: number;
-    positions: Record<string, Position[]>;
-  } | null>(null);
+  const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
+
+  const playersActive = useMemo(() => {
+    return gamePlayers.order.filter(
+      pId => game.playersStats[pId].playerStatus === 'active',
+    );
+  }, [game.playersStats, gamePlayers.order]);
 
   useEffect(() => {
     if (!roundResults) {
@@ -313,6 +316,23 @@ function GameScreen({navigation}: any) {
             isActive={game.currentTurn?.playerId === playerId}
           />
         ))}
+
+        {/* Game Area */}
+        <GameBoard
+          pickup={{
+            pickupPile: board.pickupPile,
+            lastPickedCard,
+            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+            wasPlayer:
+              game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
+          }}
+          round={game.round}
+          gameId={gameId}
+          selectedCards={selectedCards}
+          disabled={!myTurn}
+          activeDirections={activeDirections}
+          onReady={() => setRoundReadyFor(game.round)}
+        />
         <View style={styles.actionButtons}>
           <UserAvatar
             name={playersName[gamePlayers.current]}
@@ -336,24 +356,6 @@ function GameScreen({navigation}: any) {
             disabled={handValue > game.rules.canCallYaniv || !myTurn}
           />
         </View>
-        {/* Game Area */}
-        <GameBoard
-          pickup={{
-            pickupPile: board.pickupPile,
-            lastPickedCard,
-            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
-            wasPlayer:
-              game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
-          }}
-          round={game.round}
-          gameId={gameId}
-          selectedCards={selectedCards}
-          disabled={!myTurn}
-          activeDirections={activeDirections}
-          onPlayerCardsCalculated={positions =>
-            setCurrentRoundPositions({round: game.round, positions})
-          }
-        />
         <CardPointsList
           key={gamePlayers.current}
           cards={playerHand}
@@ -368,16 +370,11 @@ function GameScreen({navigation}: any) {
           }
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
-          initialState={
-            currentRoundPositions?.round === game.round &&
-            !isNil(currentRoundPositions?.positions[gamePlayers.current])
-              ? {
-                  round: game.round,
-                  from: currentRoundPositions.positions[gamePlayers.current],
-                  delay: 0,
-                }
-              : undefined
-          }
+          isReady={roundReadyFor === game.round}
+          withDelay={{
+            delay: 0,
+            gap: playersActive.length * SMALL_DELAY,
+          }}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -392,16 +389,11 @@ function GameScreen({navigation}: any) {
             }
             action={game.currentTurn?.prevTurn?.action}
             reveal={!!playersRevealing[playerId]}
-            initialState={
-              currentRoundPositions?.round === game.round &&
-              !isNil(currentRoundPositions?.positions[playerId])
-                ? {
-                    round: game.round,
-                    from: currentRoundPositions.positions[playerId],
-                    delay: SMALL_DELAY * 5 * (i + 1),
-                  }
-                : undefined
-            }
+            isReady={roundReadyFor === game.round}
+            withDelay={{
+              delay: (i + 1) * SMALL_DELAY,
+              gap: playersActive.length * SMALL_DELAY,
+            }}
           />
           <View style={recordStyle[directions[i + 1]]}>
             <UserAvatar

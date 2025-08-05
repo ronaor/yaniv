@@ -13,7 +13,7 @@ import {calculateCardsPositions} from '~/utils/logic';
 import {
   CARD_SELECT_OFFSET,
   MOVE_DURATION,
-  SMALL_DELAY,
+  CIRCLE_CENTER,
 } from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
@@ -29,11 +29,8 @@ interface CardPointsListProps {
   fromPosition?: Position;
   direction: DirectionName;
   action?: TurnState['action'];
-  initialState?: {
-    from: Position[];
-    round: number;
-    delay: number;
-  };
+  isReady?: boolean;
+  withDelay?: {delay: number; gap: number};
 }
 
 const CardPointsList = ({
@@ -45,7 +42,8 @@ const CardPointsList = ({
   fromPosition,
   direction,
   action,
-  initialState,
+  isReady = true,
+  withDelay,
 }: CardPointsListProps) => {
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
@@ -54,7 +52,7 @@ const CardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {initialState &&
+      {isReady &&
         cards.map((card, index) => (
           <CardPointer
             key={getCardKey(card)}
@@ -64,11 +62,15 @@ const CardPointsList = ({
             isSelected={selectedCardsIndexes.includes(index)}
             isSlap={index === slapCardIndex}
             onCardSlapped={onCardSlapped}
-            from={fromPosition ?? initialState.from[index]}
+            from={fromPosition ?? CIRCLE_CENTER}
             dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
             action={action ?? 'DRAG_FROM_DECK'}
             delay={
-              fromPosition ? DELAY : initialState.delay + index * SMALL_DELAY
+              fromPosition
+                ? DELAY
+                : withDelay
+                ? withDelay.delay + index * withDelay.gap
+                : 0
             }
           />
         ))}

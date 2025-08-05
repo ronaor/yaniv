@@ -12,7 +12,7 @@ import {
 } from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
-import {MOVE_DURATION, SMALL_DELAY} from '~/utils/constants';
+import {CIRCLE_CENTER, MOVE_DURATION} from '~/utils/constants';
 import {TurnState} from '~/types/turnState';
 import {CardComponent} from './cardVisual';
 
@@ -24,11 +24,8 @@ interface HiddenCardPointsListProps {
   direction: DirectionName;
   action?: TurnState['action'];
   reveal: boolean;
-  initialState?: {
-    from: Position[];
-    round: number;
-    delay: number;
-  };
+  isReady?: boolean;
+  withDelay?: {delay: number; gap: number};
 }
 
 const HiddenCardPointsList = ({
@@ -37,7 +34,8 @@ const HiddenCardPointsList = ({
   direction,
   action,
   reveal,
-  initialState,
+  isReady = true,
+  withDelay,
 }: HiddenCardPointsListProps) => {
   const cardsHiddenPositions = useMemo(
     () => calculateHiddenCardsPositions(cards.length, direction),
@@ -51,12 +49,12 @@ const HiddenCardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {initialState &&
+      {isReady &&
         cards.map((card, index) => (
           <HiddenCardPointer
             key={getCardKey(card)}
             index={index}
-            from={fromPosition ?? initialState.from[index]}
+            from={fromPosition ?? CIRCLE_CENTER}
             dest={
               (reveal
                 ? cardsPositions[index]
@@ -74,7 +72,9 @@ const HiddenCardPointsList = ({
                 ? 0
                 : fromPosition
                 ? DELAY
-                : initialState.delay + index * SMALL_DELAY
+                : withDelay
+                ? withDelay.delay + index * withDelay.gap
+                : 0
             }
           />
         ))}

@@ -50,7 +50,7 @@ interface GameBoardProps {
   gameId: string;
   selectedCards: Card[];
   activeDirections: Record<PlayerId, DirectionName>;
-  onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
+  onReady?: () => void;
 }
 
 function GameBoard({
@@ -59,7 +59,7 @@ function GameBoard({
   round,
   disabled = false,
   activeDirections,
-  onPlayerCardsCalculated,
+  onReady,
   gameId,
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
@@ -111,16 +111,16 @@ function GameBoard({
     setLastGameId(gameId);
   }, [round, gameId]);
 
-  const $onPlayerCardsCalculated = useCallback(
-    (playerCards: Record<string, Position[]>) => {
-      onPlayerCardsCalculated?.(playerCards);
-      setPickupReady(true);
-    },
-    [onPlayerCardsCalculated],
-  );
-
   const $onFinish = useCallback(() => {
     setDeckReady(true);
+  }, []);
+
+  const onFinishShuffled = useCallback(() => {
+    onReady?.();
+  }, [onReady]);
+
+  const onFinishSpread = useCallback(() => {
+    setPickupReady(true);
   }, []);
 
   return (
@@ -154,9 +154,10 @@ function GameBoard({
       </View>
       <CardsSpread
         activeDirections={activeDirections}
-        onPlayerCardsCalculated={$onPlayerCardsCalculated}
         key={`${gameId}-${round}`}
-        onFinish={$onFinish}
+        onEnd={$onFinish}
+        onShuffled={onFinishShuffled}
+        onSpread={onFinishSpread}
         shouldGroupCards={lastGameId === gameId}
         lastHands={lastHands}
       />
