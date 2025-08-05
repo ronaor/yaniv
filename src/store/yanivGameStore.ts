@@ -48,6 +48,7 @@ type TurnInfo = {
   playerId: PlayerId;
   startTime: Date;
   prevTurn?: TurnState | null;
+  handsPrev?: Record<PlayerId, Card[]>;
 };
 
 type GameRules = {
@@ -295,8 +296,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         x: screenWidth / 2 - CARD_WIDTH * 0.5,
       };
 
-      console.log('game started');
-
       set(state => ({
         ...state,
         gameId: generateUUID(),
@@ -433,6 +432,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           }
         }
 
+        const lastHands = Object.entries(state.players.all).reduce<
+          Record<PlayerId, Card[]>
+        >((res, [playerId, pConfig]) => {
+          res[playerId] = pConfig.hand;
+          return res;
+        }, {});
         // Update all players data
         const updatedPlayers = {...state.players.all};
         Object.keys(updatedPlayers).forEach(playerId => {
@@ -460,6 +465,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               playerId: data.currentPlayerId,
               startTime: new Date(),
               prevTurn: turnState,
+              handsPrev: lastHands,
             },
           },
           players: {
@@ -504,6 +510,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           }
         });
 
+        const lastHands = Object.entries(state.players.all).reduce<
+          Record<PlayerId, Card[]>
+        >((res, [playerId, pConfig]) => {
+          res[playerId] = pConfig.hand;
+          return res;
+        }, {});
         // Update all players with new hands and reset turn state
         const updatedPlayers = {...state.players.all};
         Object.keys(updatedPlayers).forEach(playerId => {
@@ -530,6 +542,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               playerId: data.currentPlayerId,
               startTime: new Date(),
               prevTurn: null, // No previous turn at start of new round
+              handsPrev: lastHands,
             },
             rules: {
               ...state.game.rules,

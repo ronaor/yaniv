@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
@@ -66,20 +66,7 @@ function GameBoard({
 
   const [lastGameId, setLastGameId] = useState<string>(gameId);
 
-  const {emit, players} = useYanivGameStore();
-
-  const newHands = useRef<Record<PlayerId, Card[]>>({});
-  const [lastHands, setLastHands] = useState<Record<PlayerId, Card[]>>({});
-
-  useEffect(() => {
-    setLastHands(newHands.current);
-    newHands.current = Object.entries(players.all).reduce<
-      Record<PlayerId, Card[]>
-    >((res, [playerId, pConfig]) => {
-      res[playerId] = pConfig.hand;
-      return res;
-    }, {});
-  }, [players.all]);
+  const {emit} = useYanivGameStore();
 
   const handleDrawFromDeck = useCallback(() => {
     if (!isValidCardSet(selectedCards, true)) {
@@ -159,7 +146,6 @@ function GameBoard({
         onShuffled={onFinishShuffled}
         onSpread={onFinishSpread}
         shouldGroupCards={lastGameId === gameId}
-        lastHands={lastHands}
       />
     </View>
   );

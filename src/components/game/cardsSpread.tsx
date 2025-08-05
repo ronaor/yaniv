@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
-import {Card, DirectionName} from '~/types/cards';
+import {DirectionName} from '~/types/cards';
 
 import Animated, {
   runOnJS,
@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import CardShuffle from './cardsShuffle';
 import CardsGroup from './cardGroup';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
+import {useYanivGameStore} from '~/store/yanivGameStore';
 import {CARD_HEIGHT, CIRCLE_CENTER, SMALL_DELAY} from '~/utils/constants';
 import {noop} from 'lodash';
 
@@ -23,7 +23,6 @@ interface CardsSpreadProps {
   onSpread?: () => void;
   onEnd?: () => void;
   shouldGroupCards: boolean;
-  lastHands: Record<PlayerId, Card[]>;
 }
 
 const CardsSpread = ({
@@ -31,7 +30,6 @@ const CardsSpread = ({
   onSpread,
   onEnd,
   shouldGroupCards,
-  lastHands,
 }: CardsSpreadProps) => {
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
@@ -125,7 +123,6 @@ const CardsSpread = ({
         <CardsGroup
           shouldCollect={shouldGroupCards}
           onComplete={cardGroupingDone}
-          lastHands={lastHands}
         />
       )}
     </View>

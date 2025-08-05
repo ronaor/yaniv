@@ -24,7 +24,6 @@ const COLLECTION_CENTER = {
 interface CardsGroupProps {
   shouldCollect: boolean;
   onComplete: () => void;
-  lastHands: Record<PlayerId, Card[]>;
 }
 
 interface AnimatedCardProps {
@@ -98,13 +97,13 @@ const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
   );
 };
 
-const CardsGroup = ({
-  shouldCollect,
-  onComplete,
-  lastHands,
-}: CardsGroupProps) => {
+const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
   const {players} = useYanivGameStore();
   const [isCollecting, setIsCollecting] = useState(false);
+
+  const {game} = useYanivGameStore();
+
+  const lastHands = useMemo(() => game.currentTurn?.handsPrev ?? {}, [game]);
 
   // Collect all cards and their positions
   const allCardsWithPositions = useMemo(() => {
@@ -121,7 +120,7 @@ const CardsGroup = ({
     const updatedCardPositions: Record<PlayerId, Position[]> = {};
     players.order.forEach((playerId, index) => {
       updatedCardPositions[playerId] = calculateCardsPositions(
-        5,
+        lastHands[playerId]?.length ?? 0,
         directions[index],
       );
     });
@@ -189,5 +188,4 @@ const styles = StyleSheet.create({
     zIndex: 1000, // Above everything else
   },
 });
-
 export default CardsGroup;
