@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -39,24 +39,18 @@ const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
   const flipRotation = useSharedValue(0); // Start showing front
 
   useEffect(() => {
-    // Start animations with delay
-    const timer = setTimeout(() => {
-      // Flip to back during movement
-      flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
+    flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
 
-      // Move to center
-      translateX.value = withTiming(COLLECTION_CENTER.x, {
-        duration: MOVE_DURATION,
-      });
-      translateY.value = withTiming(COLLECTION_CENTER.y, {
-        duration: MOVE_DURATION,
-      });
-      rotation.value = withTiming(0, {
-        duration: MOVE_DURATION,
-      });
-    }, delay);
-
-    return () => clearTimeout(timer);
+    // Move to center
+    translateX.value = withTiming(COLLECTION_CENTER.x, {
+      duration: MOVE_DURATION,
+    });
+    translateY.value = withTiming(COLLECTION_CENTER.y, {
+      duration: MOVE_DURATION,
+    });
+    rotation.value = withTiming(0, {
+      duration: MOVE_DURATION,
+    });
   }, [delay, translateX, translateY, rotation, flipRotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -99,7 +93,6 @@ const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
 
 const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
   const {players} = useYanivGameStore();
-  const [isCollecting, setIsCollecting] = useState(false);
 
   const {game} = useYanivGameStore();
 
@@ -144,27 +137,12 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
   }, [shouldCollect, players.order, lastHands]);
 
   useEffect(() => {
-    if (!shouldCollect || isCollecting) {
-      return;
-    }
-    setIsCollecting(true);
-  }, [shouldCollect, isCollecting]);
-
-  useEffect(() => {
-    if (!isCollecting) {
-      return;
-    }
-
     const timer = setTimeout(() => {
       onComplete();
     }, allCardsWithPositions.length * 50 + MOVE_DURATION);
 
     return () => clearTimeout(timer);
-  }, [isCollecting, allCardsWithPositions.length, onComplete]);
-
-  if (!isCollecting || allCardsWithPositions.length === 0) {
-    return null;
-  }
+  }, [allCardsWithPositions.length, onComplete]);
 
   return (
     <View style={styles.container} pointerEvents="none">
@@ -173,7 +151,7 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
           key={`${cardData.playerId}-${getCardKey(cardData.card)}-${index}`}
           card={cardData.card}
           startPosition={cardData.position}
-          delay={index * 50} // Stagger the animations
+          delay={index * 50}
         />
       ))}
     </View>
@@ -185,7 +163,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: screenWidth,
     height: screenHeight,
-    zIndex: 1000, // Above everything else
+    zIndex: 1000,
   },
 });
 export default CardsGroup;

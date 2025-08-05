@@ -120,10 +120,7 @@ const CardsSpread = ({
         </Animated.View>
       )}
       {!isFinished && shouldGroupCards && !startShuffle && (
-        <CardsGroup
-          shouldCollect={shouldGroupCards}
-          onComplete={cardGroupingDone}
-        />
+        <CardsGroup shouldCollect={true} onComplete={cardGroupingDone} />
       )}
     </View>
   );
