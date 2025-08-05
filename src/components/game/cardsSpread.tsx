@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
-import {DirectionName, Location, Position} from '~/types/cards';
+import {Card, DirectionName, Location, Position} from '~/types/cards';
 
 import Animated, {
   runOnJS,
@@ -13,6 +13,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import {noop} from 'lodash';
 import CardShuffle from './cardsShuffle';
+import CardsGroup from './cardGroup';
+import {PlayerId} from '~/store/yanivGameStore';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -81,6 +83,8 @@ interface CardsSpreadProps {
   activeDirections: Record<string, DirectionName>;
   onPlayerCardsCalculated?: (playerCards: Record<string, Position[]>) => void;
   onFinish?: () => void;
+  shouldGroupCards: boolean;
+  lastHands: Record<PlayerId, Card[]>;
 }
 
 const CARDS_PER_PLAYER = 5;
@@ -89,6 +93,8 @@ const CardsSpread = ({
   activeDirections,
   onPlayerCardsCalculated,
   onFinish,
+  shouldGroupCards,
+  lastHands,
 }: CardsSpreadProps) => {
   const playerIds = Object.keys(activeDirections);
   const numOfPlayers = playerIds.length;
@@ -98,11 +104,16 @@ const CardsSpread = ({
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
+  const [startShuffle, setStartShuffle] = useState(!shouldGroupCards);
   const hasStarted = useRef(false);
 
   const specialCardAngle = useSharedValue<number>(0);
   const specialCardYOffset = useSharedValue<number>(0);
   const overlayOpacity = useSharedValue<number>(0);
+
+  const cardGroupingDone = useCallback(() => {
+    setStartShuffle(true);
+  }, []);
 
   const cards: Location[] = useMemo(
     () => generateCircularCardLocations(numOfPlayers),
@@ -208,7 +219,7 @@ const CardsSpread = ({
         ))}
 
       {/* Orbiting special card */}
-      {!isFinished && (
+      {!isFinished && startShuffle && (
         <Animated.View style={specialCardStyle}>
           {finishShuffle ? (
             <CardBack />
@@ -220,6 +231,13 @@ const CardsSpread = ({
             />
           )}
         </Animated.View>
+      )}
+      {!isFinished && shouldGroupCards && !startShuffle && (
+        <CardsGroup
+          shouldCollect={shouldGroupCards}
+          onComplete={cardGroupingDone}
+          lastHands={lastHands}
+        />
       )}
     </View>
   );

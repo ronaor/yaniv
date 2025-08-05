@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
@@ -64,7 +64,22 @@ function GameBoard({
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
 
-  const {emit} = useYanivGameStore();
+  const [lastGameId, setLastGameId] = useState<string>(gameId);
+
+  const {emit, players} = useYanivGameStore();
+
+  const newHands = useRef<Record<PlayerId, Card[]>>({});
+  const [lastHands, setLastHands] = useState<Record<PlayerId, Card[]>>({});
+
+  useEffect(() => {
+    setLastHands(newHands.current);
+    newHands.current = Object.entries(players.all).reduce<
+      Record<PlayerId, Card[]>
+    >((res, [playerId, pConfig]) => {
+      res[playerId] = pConfig.hand;
+      return res;
+    }, {});
+  }, [players.all]);
 
   const handleDrawFromDeck = useCallback(() => {
     if (!isValidCardSet(selectedCards, true)) {
@@ -93,6 +108,7 @@ function GameBoard({
   useEffect(() => {
     setPickupReady(false);
     setDeckReady(false);
+    setLastGameId(gameId);
   }, [round, gameId]);
 
   const $onPlayerCardsCalculated = useCallback(
@@ -141,6 +157,8 @@ function GameBoard({
         onPlayerCardsCalculated={$onPlayerCardsCalculated}
         key={`${gameId}-${round}`}
         onFinish={$onFinish}
+        shouldGroupCards={lastGameId === gameId}
+        lastHands={lastHands}
       />
     </View>
   );

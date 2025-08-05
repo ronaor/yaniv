@@ -7,7 +7,7 @@ const {width, height} = Dimensions.get('screen');
 export const calculateCardsPositions = (
   cardsLen: number,
   direction: DirectionName,
-): (Position & {deg: number})[] => {
+): Position[] => {
   return Array.from({length: cardsLen}, (_, index) => {
     const centerIndex = (cardsLen - 1) / 2;
     const shift = index - centerIndex;

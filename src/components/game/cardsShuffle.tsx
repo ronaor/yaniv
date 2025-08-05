@@ -142,14 +142,17 @@ const CircularShuffleCard = ({
 
 const CardShuffle = ({startAnimation, loops, onFinish}: CardShuffleProps) => {
   const containerRotation = useSharedValue(0);
+  const [shuffling, startShuffling] = useState(false);
 
   useEffect(() => {
     if (startAnimation && loops > 0) {
       // Start with rotation
-      containerRotation.value = withTiming(45, {duration: MOVE_DUR});
+      containerRotation.value = withTiming(45, {duration: MOVE_DUR}, finish => {
+        runOnJS(startShuffling)(!!finish);
+      });
 
       // Calculate total duration: each loop has 2 phases (right then left)
-      const totalDuration = loops * PHASE_DURATION * 2;
+      const totalDuration = loops * PHASE_DURATION * 2 + MOVE_DUR;
 
       // Return rotation to 0 and call onFinish after all animations complete
       setTimeout(() => {
@@ -177,7 +180,7 @@ const CardShuffle = ({startAnimation, loops, onFinish}: CardShuffleProps) => {
         direction="right"
         delay={0}
         loops={loops}
-        startAnimation={startAnimation}
+        startAnimation={shuffling}
       />
 
       {/* Second card - starts after first completes, counter-clockwise */}
@@ -185,7 +188,7 @@ const CardShuffle = ({startAnimation, loops, onFinish}: CardShuffleProps) => {
         direction="left"
         delay={PHASE_DURATION}
         loops={loops}
-        startAnimation={startAnimation}
+        startAnimation={shuffling}
       />
     </Animated.View>
   );
