@@ -337,6 +337,11 @@ function GameScreen({navigation}: any) {
           <UserAvatar
             name={playersName[gamePlayers.current]}
             score={currentPlayer?.stats?.score ?? 0}
+            roundScore={
+              playersRevealing[gamePlayers.current]
+                ? roundResults?.playersStats[gamePlayers.current].score
+                : undefined
+            }
             isActive={myTurn}
             timePerPlayer={game.rules.timePerPlayer}
           />
@@ -396,9 +401,16 @@ function GameScreen({navigation}: any) {
             }}
           />
           <View style={recordStyle[directions[i + 1]]}>
+            {/* we got reveal to trigger update score */}
+            {/* score is now listened immidiatly from the store */}
             <UserAvatar
               name={playersName[playerId]}
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+              roundScore={
+                playersRevealing[playerId]
+                  ? roundResults?.playersStats[playerId].score
+                  : undefined
+              }
               isActive={game.currentTurn?.playerId === playerId}
               timePerPlayer={game.rules.timePerPlayer}
             />

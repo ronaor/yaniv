@@ -180,6 +180,7 @@ type RoundResults = {
   yanivCaller: string;
   assafCaller?: string;
   roundPlayers: PlayerId[];
+  playersStats: Record<PlayerId, PlayerStatus>;
 };
 
 const initialGameFields: YanivGameFields = {
@@ -577,20 +578,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       console.log('Round Ended ,', data.playersStats, data.roundPlayers);
       set(state => {
-        // Update all players with new stats and final hands
-        const updatedPlayers = {...state.players.all};
-        Object.keys(updatedPlayers).forEach(playerId => {
-          updatedPlayers[playerId] = {
-            ...updatedPlayers[playerId],
-            stats:
-              data.playersStats[playerId] || updatedPlayers[playerId].stats,
-            hand: data.playerHands[playerId] || updatedPlayers[playerId].hand,
-            isMyTurn: false, // No one's turn during round end
-            slapDownAvailable: false,
-            roundScore: getHandValue(data.playerHands[playerId] || []),
-          };
-        });
-
         return {
           ...state,
           game: {
@@ -600,7 +587,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           players: {
             ...state.players,
-            all: updatedPlayers,
           },
           roundResults: {
             winnerId: data.winnerId,
@@ -608,6 +594,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             yanivCaller: data.yanivCaller,
             assafCaller: data.assafCaller,
             roundPlayers: data.roundPlayers,
+            playersStats: data.playersStats,
           },
         };
       });
