@@ -46,6 +46,7 @@ function UserAvatar({
   // Timer progress animation
   useEffect(() => {
     if (timePerPlayer && isActive) {
+      circleProgress.value = 0;
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
@@ -61,7 +62,6 @@ function UserAvatar({
     // Reset position
     roundScoreX.value = -40;
     roundScoreScale.value = 0;
-
     // Phase 1: Bump in with bounce effect
     roundScoreScale.value = withSpring(1, {
       damping: 10,

@@ -69,10 +69,10 @@ function GameScreen({navigation}: any) {
     return {
       currentPlayer: $currentPlayer,
       playerHand: $currentPlayer?.hand || [],
-      myTurn: $currentPlayer?.isMyTurn || false,
+      myTurn: game.currentTurn?.playerId === gamePlayers.current || false,
       slapDownAvailable: $currentPlayer?.slapDownAvailable || false,
     };
-  }, [gamePlayers]);
+  }, [game.currentTurn, gamePlayers]);
 
   const selectedCards = useMemo(
     () => selectedCardsIndexes.map(i => playerHand[i]),
@@ -339,7 +339,7 @@ function GameScreen({navigation}: any) {
             score={currentPlayer?.stats?.score ?? 0}
             roundScore={
               playersRevealing[gamePlayers.current]
-                ? roundResults?.playersStats[gamePlayers.current].score
+                ? roundResults?.playersRoundScore[gamePlayers.current]
                 : undefined
             }
             isActive={myTurn}
@@ -408,7 +408,7 @@ function GameScreen({navigation}: any) {
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
               roundScore={
                 playersRevealing[playerId]
-                  ? roundResults?.playersStats[playerId].score
+                  ? roundResults?.playersRoundScore[playerId]
                   : undefined
               }
               isActive={game.currentTurn?.playerId === playerId}

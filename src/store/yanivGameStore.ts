@@ -15,7 +15,7 @@ import {
   CARD_WIDTH,
   directions,
 } from '~/utils/constants';
-import {getCardKey, getHandValue} from '~/utils/gameRules';
+import {getCardKey} from '~/utils/gameRules';
 import {
   calculateAllPlayerPositions,
   calculateCardsPositions,
@@ -77,8 +77,6 @@ type PlayersState = {
 type PlayerData = {
   stats: PlayerStatus;
   hand: Card[];
-  isMyTurn: boolean;
-  roundScore: number;
   slapDownAvailable: boolean;
 };
 
@@ -146,6 +144,7 @@ type YanivGameMethods = {
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
+      playersRoundScore: Record<PlayerId, number>;
     }) => void;
     gameEnded: (data: {
       winnerId: string;
@@ -181,6 +180,7 @@ type RoundResults = {
   assafCaller?: string;
   roundPlayers: PlayerId[];
   playersStats: Record<PlayerId, PlayerStatus>;
+  playersRoundScore: Record<PlayerId, number>;
 };
 
 const initialGameFields: YanivGameFields = {
@@ -446,13 +446,11 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             updatedPlayers[playerId] = {
               ...updatedPlayers[playerId],
               hand: data.hands,
-              roundScore: getHandValue(data.hands),
             };
           }
 
           updatedPlayers[playerId] = {
             ...updatedPlayers[playerId],
-            isMyTurn: data.currentPlayerId === playerId,
             slapDownAvailable: data.slapDownActiveFor === playerId,
           };
         });
@@ -527,9 +525,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               data.gameState.playersStats[playerId] ||
               updatedPlayers[playerId].stats,
             hand: newHand,
-            isMyTurn: data.currentPlayerId === playerId,
             slapDownAvailable: false,
-            roundScore: getHandValue(newHand),
           };
         });
 
@@ -539,6 +535,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             ...state.game,
             phase: 'active',
             round: data.round,
+            playersStats:
+              state.roundResults?.playersStats ?? state.game.playersStats,
             currentTurn: {
               playerId: data.currentPlayerId,
               startTime: new Date(),
@@ -575,6 +573,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
+      playersRoundScore: Record<PlayerId, number>;
     }) => {
       console.log('Round Ended ,', data.playersStats, data.roundPlayers);
       set(state => {
@@ -583,7 +582,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           game: {
             ...state.game,
             phase: 'round-end' as GamePhase,
-            currentTurn: null, // No active turn during round end
+            currentTurn: null,
           },
           players: {
             ...state.players,
@@ -595,6 +594,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             assafCaller: data.assafCaller,
             roundPlayers: data.roundPlayers,
             playersStats: data.playersStats,
+            playersRoundScore: data.playersRoundScore,
           },
         };
       });
