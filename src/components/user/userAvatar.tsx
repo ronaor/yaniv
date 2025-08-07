@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   runOnJS,
+  Easing,
 } from 'react-native-reanimated';
 import {
   Canvas,
@@ -57,33 +58,40 @@ function UserAvatar({
       return;
     }
 
-    // Phase 1: Round score appears
-    roundScoreScale.value = withTiming(1, {duration: 400});
+    // Reset position
+    roundScoreX.value = -40;
+    roundScoreScale.value = 0;
 
-    // Phase 2: Move toward score bubble (after 500ms delay)
+    // Phase 1: Bump in with bounce effect
+    roundScoreScale.value = withSpring(1, {
+      damping: 10,
+      stiffness: 200,
+      mass: 0.8,
+    });
+
+    // Phase 2: After brief pause, accelerate toward score bubble
     setTimeout(() => {
-      roundScoreX.value = withTiming(0, {duration: 600});
-    }, 500);
+      roundScoreX.value = withTiming(0, {
+        duration: 500,
+        easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+      });
+    }, 700);
 
-    // Phase 3: Absorption animation (after 1200ms total)
+    // Phase 3: Absorption animation - happens much faster as it "speeds up"
     setTimeout(() => {
-      // Round score gets absorbed (shrinks)
-      roundScoreScale.value = withTiming(0, {duration: 300});
+      // Round score gets absorbed instantly (it's moving very fast now)
+      roundScoreScale.value = withTiming(0, {duration: 150});
 
-      // Score bubble pulses
-      scoreScale.value = withSpring(
-        1.3,
-        {damping: 12, stiffness: 200},
-        finished => {
-          if (finished) {
-            scoreScale.value = withSpring(1, {damping: 15, stiffness: 150});
-          }
-        },
-      );
+      // Score bubble pulses with explosive energy
+      scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+        if (finished) {
+          scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+        }
+      });
 
       // Update the displayed score
       runOnJS(setDisplayScore)(score + roundScore);
-    }, 1000);
+    }, 1200);
   }, [roundScore, score, roundScoreX, roundScoreScale, scoreScale]);
 
   useEffect(() => {
@@ -173,7 +181,7 @@ function UserAvatar({
               <OutlinedText
                 text={`+${roundScore}`}
                 fontSize={16}
-                width={30}
+                width={50}
                 height={30}
                 strokeWidth={5}
                 fillColor={'#FFFFFF'}
@@ -283,7 +291,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -14,
+    marginTop: -13,
+    marginStart: -8,
     alignSelf: 'flex-start',
     borderRadius: 20,
     minWidth: 24,
