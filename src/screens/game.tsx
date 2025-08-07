@@ -32,12 +32,15 @@ import UserAvatar from '~/components/user/userAvatar';
 import YanivButton from '~/components/yanivButton';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {DirectionName} from '~/types/cards';
-import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
+import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  directions,
+  SMALL_DELAY,
+} from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
-const directions: DirectionName[] = ['up', 'right', 'down', 'left'];
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
@@ -55,6 +58,7 @@ function GameScreen({navigation}: any) {
     clearError,
     resetSlapDown,
     emit,
+    gameId,
   } = useYanivGameStore();
 
   const {name: nickName} = useUser();
@@ -65,10 +69,10 @@ function GameScreen({navigation}: any) {
     return {
       currentPlayer: $currentPlayer,
       playerHand: $currentPlayer?.hand || [],
-      myTurn: $currentPlayer?.isMyTurn || false,
+      myTurn: game.currentTurn?.playerId === gamePlayers.current || false,
       slapDownAvailable: $currentPlayer?.slapDownAvailable || false,
     };
-  }, [gamePlayers]);
+  }, [game.currentTurn, gamePlayers]);
 
   const selectedCards = useMemo(
     () => selectedCardsIndexes.map(i => playerHand[i]),
@@ -104,10 +108,11 @@ function GameScreen({navigation}: any) {
           gamePlayers.order,
           game.playersStats ?? {},
         );
+        setRoundReadyFor(-1);
         break;
       }
     }
-  });
+  }, [game.phase, game.playersStats, gamePlayers]);
 
   // Timer for remaining time
   useEffect(() => {
@@ -206,8 +211,27 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
+  const activeDirections = useMemo(() => {
+    return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
+      (res, playerId, i) => {
+        if (game.playersStats[playerId].playerStatus === 'active') {
+          res[playerId] = directions[i];
+        }
+        return res;
+      },
+      {},
+    );
+  }, [game.playersStats, gamePlayers.order]);
+
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
+  const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
+
+  const playersActive = useMemo(() => {
+    return gamePlayers.order.filter(
+      pId => game.playersStats[pId].playerStatus === 'active',
+    );
+  }, [game.playersStats, gamePlayers.order]);
 
   useEffect(() => {
     if (!roundResults) {
@@ -292,10 +316,32 @@ function GameScreen({navigation}: any) {
             isActive={game.currentTurn?.playerId === playerId}
           />
         ))}
+
+        {/* Game Area */}
+        <GameBoard
+          pickup={{
+            pickupPile: board.pickupPile,
+            lastPickedCard,
+            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+            wasPlayer:
+              game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
+          }}
+          round={game.round}
+          gameId={gameId}
+          selectedCards={selectedCards}
+          disabled={!myTurn}
+          activeDirections={activeDirections}
+          onReady={() => setRoundReadyFor(game.round)}
+        />
         <View style={styles.actionButtons}>
           <UserAvatar
             name={playersName[gamePlayers.current]}
             score={currentPlayer?.stats?.score ?? 0}
+            roundScore={
+              playersRevealing[gamePlayers.current]
+                ? roundResults?.playersRoundScore[gamePlayers.current]
+                : undefined
+            }
             isActive={myTurn}
             timePerPlayer={game.rules.timePerPlayer}
           />
@@ -315,17 +361,6 @@ function GameScreen({navigation}: any) {
             disabled={handValue > game.rules.canCallYaniv || !myTurn}
           />
         </View>
-        {/* Game Area */}
-        <GameBoard
-          pickup={{
-            pickupPile: board.pickupPile,
-            lastPickedCard,
-            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
-          }}
-          round={game.round}
-          selectedCards={selectedCards}
-          disabled={!myTurn}
-        />
         <CardPointsList
           key={gamePlayers.current}
           cards={playerHand}
@@ -340,6 +375,11 @@ function GameScreen({navigation}: any) {
           }
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
+          isReady={roundReadyFor === game.round}
+          withDelay={{
+            delay: 0,
+            gap: playersActive.length * SMALL_DELAY,
+          }}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -354,11 +394,23 @@ function GameScreen({navigation}: any) {
             }
             action={game.currentTurn?.prevTurn?.action}
             reveal={!!playersRevealing[playerId]}
+            isReady={roundReadyFor === game.round}
+            withDelay={{
+              delay: (i + 1) * SMALL_DELAY,
+              gap: playersActive.length * SMALL_DELAY,
+            }}
           />
           <View style={recordStyle[directions[i + 1]]}>
+            {/* we got reveal to trigger update score */}
+            {/* score is now listened immidiatly from the store */}
             <UserAvatar
               name={playersName[playerId]}
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+              roundScore={
+                playersRevealing[playerId]
+                  ? roundResults?.playersRoundScore[playerId]
+                  : undefined
+              }
               isActive={game.currentTurn?.playerId === playerId}
               timePerPlayer={game.rules.timePerPlayer}
             />
@@ -478,8 +530,8 @@ const styles = StyleSheet.create({
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: 0, left: 10},
-  down: {position: 'absolute', top: 80, left: 30},
+  down: {position: 'absolute', top: 0, left: 10},
+  up: {position: 'absolute', top: 80, left: 30},
   left: {
     position: 'absolute',
     left: 10,

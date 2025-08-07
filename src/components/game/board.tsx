@@ -1,36 +1,40 @@
-import React, {useCallback} from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from 'react-native';
-import CardBack from '~/components/cards/cardBack';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
-import {useYanivGameStore} from '~/store/yanivGameStore';
-import {Card, Position} from '~/types/cards';
+import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
+import {Card} from 'server/cards';
+import {DirectionName, Position} from '~/types/cards';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import CardsSpread from './cardsSpread';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({
-  rotation,
-  opacity,
-}: {
-  rotation: number;
-  opacity: number;
-}) => {
-  const rotationStyle: ViewStyle = {
+const CardBackRotated = ({position}: {position: Position}) => {
+  const rotation = useSharedValue<number>(0);
+  const rotationStyle = useAnimatedStyle(() => ({
     position: 'absolute',
-    transform: [{rotate: `${rotation}deg`}],
-    opacity,
-  };
+    transform: [
+      {translateX: position.x},
+      {translateY: position.y},
+      {rotate: `${rotation.value}deg`},
+    ],
+  }));
+
+  useEffect(() => {
+    rotation.value = withTiming(position.deg, {duration: 300});
+  }, [position.deg, rotation]);
+
   return (
-    <View style={rotationStyle}>
+    <Animated.View style={rotationStyle}>
       <CardBack />
-    </View>
+    </Animated.View>
   );
 };
 
@@ -39,10 +43,14 @@ interface GameBoardProps {
     pickupPile: Card[];
     lastPickedCard?: Card;
     tookFrom?: Position[];
+    wasPlayer: boolean;
   };
   disabled?: boolean;
   round: number;
+  gameId: string;
   selectedCards: Card[];
+  activeDirections: Record<PlayerId, DirectionName>;
+  onReady?: () => void;
 }
 
 function GameBoard({
@@ -50,8 +58,13 @@ function GameBoard({
   selectedCards,
   round,
   disabled = false,
+  activeDirections,
+  onReady,
+  gameId,
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
+
+  const [lastGameId, setLastGameId] = useState<string>(gameId);
 
   const {emit} = useYanivGameStore();
 
@@ -76,29 +89,64 @@ function GameBoard({
     [emit, pickupPile.length, selectedCards],
   );
 
+  const [pickupReady, setPickupReady] = useState<boolean>(false);
+  const [deckReady, setDeckReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    setPickupReady(false);
+    setDeckReady(false);
+    setLastGameId(gameId);
+  }, [round, gameId]);
+
+  const $onFinish = useCallback(() => {
+    setDeckReady(true);
+  }, []);
+
+  const onFinishShuffled = useCallback(() => {
+    onReady?.();
+  }, [onReady]);
+
+  const onFinishSpread = useCallback(() => {
+    setPickupReady(true);
+  }, []);
+
   return (
     <View style={styles.gameArea}>
       <TouchableOpacity
         style={styles.deck}
         onPress={handleDrawFromDeck}
-        disabled={disabled || selectedCards.length === 0}>
-        <>
-          <CardBackRotated rotation={10} opacity={0.5} />
-          <CardBackRotated rotation={5} opacity={0.5} />
-          <CardBackRotated rotation={0} opacity={0.5} />
-          <CardBackRotated rotation={-5} opacity={1} />
-        </>
+        disabled={disabled || selectedCards.length === 0 || !deckReady}>
+        {deckReady && (
+          <>
+            <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
+            <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
+          </>
+        )}
       </TouchableOpacity>
+
       <View style={styles.pickup}>
-        <DeckCardPointers
-          cards={pickupPile}
-          pickedCard={lastPickedCard}
-          onPickUp={handlePickupCard}
-          fromTargets={tookFrom ?? []}
-          round={round}
-          disabled={disabled}
-        />
+        {pickupReady && (
+          <DeckCardPointers
+            cards={pickupPile}
+            pickedCard={lastPickedCard}
+            onPickUp={handlePickupCard}
+            fromTargets={tookFrom ?? [{x: 0, y: -1 * CARD_HEIGHT, deg: 0}]}
+            round={round}
+            disabled={disabled}
+            wasPlayer={pickup.wasPlayer}
+          />
+        )}
       </View>
+      <CardsSpread
+        activeDirections={activeDirections}
+        key={`${gameId}-${round}`}
+        onEnd={$onFinish}
+        onShuffled={onFinishShuffled}
+        onSpread={onFinishSpread}
+        shouldGroupCards={lastGameId === gameId}
+      />
     </View>
   );
 }

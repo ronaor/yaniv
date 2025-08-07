@@ -38,10 +38,10 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
 
   const bubbleDirection = activeDirection ?? direction;
   const pivotX =
-    bubbleDirection === 'down' || bubbleDirection === 'left' ? 40 : -40;
-  const pivotY = bubbleDirection === 'down' ? 120 : -120;
+    bubbleDirection === 'up' || bubbleDirection === 'left' ? 40 : -40;
+  const pivotY = bubbleDirection === 'up' ? 120 : -120;
 
-  const tailPath = tailPaths[bubbleDirection ?? 'up'];
+  const tailPath = tailPaths[bubbleDirection ?? 'down'];
 
   useEffect(() => {
     const visible = !isUndefined(direction);
@@ -84,7 +84,7 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
   }));
 
   return (
-    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'up']}>
+    <View pointerEvents="none" style={bubbleStyle[bubbleDirection ?? 'down']}>
       <AnimatedSvg
         width={200}
         height={150}
@@ -126,8 +126,8 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  up: {position: 'absolute', top: screenHeight - 430, left: 10, zIndex: 5},
-  down: {position: 'absolute', top: 170, left: 50},
+  down: {position: 'absolute', top: screenHeight - 430, left: 10, zIndex: 5},
+  up: {position: 'absolute', top: 170, left: 50},
   right: {
     position: 'absolute',
     left: screenWidth - 220,
@@ -142,10 +142,10 @@ const bubbleStyle: Record<DirectionName, ViewStyle> = {
 
 const tailPaths: Record<DirectionName, string> = {
   left: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
-  up: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
+  down: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
   right:
     'M323 401C329.002 419.082 338.379 445.107 351 469C298.811 457.628 276.931 430.173 253 401H323Z',
-  down: 'M282 77C275.998 58.918 266.621 32.893 254 9C306.189 20.372 328.069 47.827 352 77H282Z',
+  up: 'M282 77C275.998 58.918 266.621 32.893 254 9C306.189 20.372 328.069 47.827 352 77H282Z',
 };
 
 export default YanivBubble;

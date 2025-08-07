@@ -7,9 +7,9 @@ import {
   Path,
   Skia,
   vec,
-  Oval,
-  Group,
   SkPath,
+  Image,
+  useImage,
 } from '@shopify/react-native-skia';
 import {
   useSharedValue,
@@ -41,38 +41,6 @@ const generateRandomMinY = () => {
   'worklet';
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
-
-// Pre-generate ellipses once
-const ellipses = (() => {
-  const $ellipses = [];
-  const cols = Math.ceil(Math.sqrt(15));
-  const rows = Math.ceil(15 / cols);
-  const cellWidth = width / cols;
-  const cellHeight = height / rows;
-
-  for (let i = 0; i < 15; i++) {
-    const row = Math.floor(i / cols);
-    const col = i % cols;
-
-    const baseCx = col * cellWidth + cellWidth / 2;
-    const baseCy = row * cellHeight + cellHeight / 2;
-
-    const offsetRange = Math.min(cellWidth, cellHeight);
-    const randomOffsetX = (Math.random() - 0.5) * offsetRange * 0.5;
-    const randomOffsetY = (Math.random() - 0.5) * offsetRange * 0.5;
-
-    $ellipses.push({
-      id: i,
-      cx: Math.max(30, Math.min(width - 30, baseCx + randomOffsetX)),
-      cy: Math.max(30, Math.min(height - 30, baseCy + randomOffsetY)),
-      rx: Math.random() * 2 + 3,
-      ry: Math.random() * 2 + 3,
-      opacity: Math.random() * 0.25 + 0.4,
-      angle: Math.random(),
-    });
-  }
-  return $ellipses;
-})();
 
 // Wave Memory Component
 interface WaveMemoryProps {
@@ -214,8 +182,8 @@ const WaveAnimationBackground = () => {
       shouldCaptureSnapshot.value = false;
       runOnJS(captureWaveSnapshot)(pathString);
     }
-
-    return Skia.Path.MakeFromSVGString(pathString) || Skia.Path.Make();
+    const path = Skia.Path.MakeFromSVGString(pathString);
+    return path || Skia.Path.Make();
   }, [time, verticalOffset, amplitude]);
 
   // Gradient calculations
@@ -228,49 +196,42 @@ const WaveAnimationBackground = () => {
     seaColor,
   ]);
 
+  const image = useImage(require('~/assets/images/sand.png'));
+
   return (
     <Canvas style={styles.canvas}>
       {/* Ellipses */}
-      {ellipses.map(ellipse => (
-        <Group
-          key={ellipse.id}
-          transform={[
-            {rotate: ellipse.angle},
-            {translateX: ellipse.cx},
-            {translateY: ellipse.cy},
-          ]}>
-          <Oval
-            x={-ellipse.rx}
-            y={-ellipse.ry}
-            width={ellipse.rx * 2}
-            height={ellipse.ry * 2}
-            color={`#fbc15f${Math.floor(ellipse.opacity * 255)
-              .toString(16)
-              .padStart(2, '0')}`}
-          />
-        </Group>
-      ))}
+      <Image
+        image={image}
+        width={dimension.width}
+        height={dimension.height}
+        fit={'scaleDown'}
+      />
 
       {/* Wave memory snapshot */}
       <WaveMemory path={waveSnapshot} opacity={snapshotOpacity} />
 
       {/* Main wave */}
-      <Path path={wavePath} style="fill">
-        <LinearGradient
-          start={gradientStart}
-          end={gradientEnd}
-          colors={gradientColors}
-        />
-      </Path>
+      {wavePath.value && (
+        <Path path={wavePath} style="fill">
+          <LinearGradient
+            start={gradientStart}
+            end={gradientEnd}
+            colors={gradientColors}
+          />
+        </Path>
+      )}
 
       {/* Wave stroke */}
-      <Path
-        path={wavePath}
-        style="stroke"
-        transform={[{translateY: -8}]}
-        strokeWidth={15}
-        color="#FFFFFFF0"
-      />
+      {wavePath.value && (
+        <Path
+          path={wavePath}
+          style="stroke"
+          transform={[{translateY: -8}]}
+          strokeWidth={15}
+          color="#FFFFFFF0"
+        />
+      )}
     </Canvas>
   );
 };

@@ -1,10 +1,14 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   withTiming,
   useDerivedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+  Easing,
 } from 'react-native-reanimated';
 import {
   Canvas,
@@ -12,26 +16,89 @@ import {
   Path,
   Skia,
 } from '@shopify/react-native-skia';
+import {OutlinedText} from '../cartoonText';
 
 interface UserAvatarProps {
   name: string;
   score: number;
+  roundScore: number | undefined;
   isActive: boolean;
   timePerPlayer?: number;
 }
 
 const CIRCLE_SIZE = 75;
 
-function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
+function UserAvatar({
+  name,
+  score,
+  roundScore = 0,
+  isActive,
+  timePerPlayer,
+}: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
 
+  // Round score animation values
+  const roundScoreScale = useSharedValue<number>(0);
+  const roundScoreX = useSharedValue<number>(-30);
+  const scoreScale = useSharedValue<number>(1);
+  const [displayScore, setDisplayScore] = useState<number>(score);
+
+  // Timer progress animation
   useEffect(() => {
     if (timePerPlayer && isActive) {
+      circleProgress.value = 0;
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
     }
   }, [circleProgress, isActive, timePerPlayer]);
+
+  // Round score absorption animation
+  useEffect(() => {
+    if (roundScore === 0) {
+      return;
+    }
+
+    // Reset position
+    roundScoreX.value = -40;
+    roundScoreScale.value = 0;
+    // Phase 1: Bump in with bounce effect
+    roundScoreScale.value = withSpring(1, {
+      damping: 10,
+      stiffness: 200,
+      mass: 0.8,
+    });
+
+    // Phase 2: After brief pause, accelerate toward score bubble
+    setTimeout(() => {
+      roundScoreX.value = withTiming(0, {
+        duration: 500,
+        easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+      });
+    }, 700);
+
+    // Phase 3: Absorption animation - happens much faster as it "speeds up"
+    setTimeout(() => {
+      // Round score gets absorbed instantly (it's moving very fast now)
+      roundScoreScale.value = withTiming(0, {duration: 150});
+
+      // Score bubble pulses with explosive energy
+      scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+        if (finished) {
+          scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+        }
+      });
+
+      // Update the displayed score
+      runOnJS(setDisplayScore)(score + roundScore);
+    }, 1200);
+  }, [roundScore, score, roundScoreX, roundScoreScale, scoreScale]);
+
+  useEffect(() => {
+    if (roundScore === 0) {
+      setDisplayScore(score);
+    }
+  }, [score, roundScore]);
 
   const progressPath = useDerivedValue(() => {
     const radius = (CIRCLE_SIZE - 5) / 2;
@@ -68,6 +135,17 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
 
   const circleStyle = {borderColor: isActive ? '#0c7599' : '#16C4DD'};
 
+  const scoreStyle = useAnimatedStyle(() => ({
+    transform: [{scale: scoreScale.value}],
+  }));
+
+  const roundScoreStyle = useAnimatedStyle(() => ({
+    transform: [
+      {translateX: roundScoreX.value},
+      {scale: roundScoreScale.value},
+    ],
+  }));
+
   return (
     <View style={styles.container}>
       <View style={styles.circleContainer}>
@@ -94,8 +172,24 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
             </View>
           </LinearGradient>
         </View>
-        <View style={styles.gradientScore}>
-          <Text style={styles.score}>{score}</Text>
+        <View>
+          <Animated.View style={[styles.gradientScore, scoreStyle]}>
+            <Text style={styles.score}>{displayScore}</Text>
+          </Animated.View>
+          {roundScore > 0 && (
+            <Animated.View style={[styles.roundScore, roundScoreStyle]}>
+              <OutlinedText
+                text={`+${roundScore}`}
+                fontSize={16}
+                width={50}
+                height={30}
+                strokeWidth={5}
+                fillColor={'#FFFFFF'}
+                strokeColor={'#158ac9ff'}
+                fontWeight={'900'}
+              />
+            </Animated.View>
+          )}
         </View>
       </View>
     </View>
@@ -169,8 +263,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#BB550C',
     flexDirection: 'row',
     borderRadius: 13,
-
     paddingHorizontal: 5,
+  },
+  scoreContainer: {
+    position: 'relative',
   },
   gradientScore: {
     marginTop: -6,
@@ -183,6 +279,22 @@ const styles = StyleSheet.create({
     borderColor: '#732C03',
     borderWidth: 2,
     backgroundColor: '#E9872A',
+    minWidth: 24,
+  },
+  roundScore: {
+    position: 'absolute',
+    paddingVertical: 2,
+    paddingHorizontal: 3,
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#17a6ffff',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -13,
+    marginStart: -8,
+    alignSelf: 'flex-start',
+    borderRadius: 20,
     minWidth: 24,
   },
 });

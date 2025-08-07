@@ -15,6 +15,7 @@ interface PickupPointerProps {
   fromTarget?: Position;
   onPress: () => void;
   disabled: boolean;
+  isHidden?: boolean;
 }
 
 const PickupPointer = ({
@@ -23,17 +24,20 @@ const PickupPointer = ({
   fromTarget,
   onPress,
   disabled,
+  isHidden = false,
 }: PickupPointerProps) => {
   const targetX = index * CARD_WIDTH;
   const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
   const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
   const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
+  const scale = useSharedValue(isHidden ? 1 : 1.25);
 
   useEffect(() => {
     translateX.value = withTiming(targetX, {duration: MOVE_DURATION});
     translateY.value = withTiming(0, {duration: MOVE_DURATION});
     cardDeg.value = withTiming(0, {duration: MOVE_DURATION});
-  }, [translateX, translateY, cardDeg, card, targetX]);
+    scale.value = withTiming(1, {duration: MOVE_DURATION});
+  }, [translateX, translateY, cardDeg, card, targetX, scale]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
     transform: [{translateX: translateX.value}],
@@ -43,6 +47,7 @@ const PickupPointer = ({
     transform: [
       {translateY: translateY.value},
       {rotate: `${cardDeg.value}deg`},
+      {scale: scale.value},
     ],
   }));
 

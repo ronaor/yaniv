@@ -35,9 +35,9 @@ function LightAround({direction, isActive}: LightAroundProps) {
 
   const getPosition = () => {
     switch (direction) {
-      case 'up':
-        return {cx: screenWidth / 2, cy: screenHeight};
       case 'down':
+        return {cx: screenWidth / 2, cy: screenHeight};
+      case 'up':
         return {cx: screenWidth / 2, cy: 40};
       case 'left':
         return {cx: -70, cy: screenHeight / 2};

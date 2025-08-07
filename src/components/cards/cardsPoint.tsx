@@ -10,7 +10,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import {getCardKey} from '~/utils/gameRules';
 import {calculateCardsPositions} from '~/utils/logic';
-import {CARD_SELECT_OFFSET, MOVE_DURATION} from '~/utils/constants';
+import {
+  CARD_SELECT_OFFSET,
+  MOVE_DURATION,
+  CIRCLE_CENTER,
+} from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 
@@ -25,6 +29,8 @@ interface CardPointsListProps {
   fromPosition?: Position;
   direction: DirectionName;
   action?: TurnState['action'];
+  isReady?: boolean;
+  withDelay?: {delay: number; gap: number};
 }
 
 const CardPointsList = ({
@@ -36,6 +42,8 @@ const CardPointsList = ({
   fromPosition,
   direction,
   action,
+  isReady = true,
+  withDelay,
 }: CardPointsListProps) => {
   const cardsPositions = useMemo(
     () => calculateCardsPositions(cards.length, direction),
@@ -44,20 +52,28 @@ const CardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {cards.map((card, index) => (
-        <CardPointer
-          key={getCardKey(card)}
-          index={index}
-          onCardSelect={() => onCardSelect(index)}
-          card={card}
-          isSelected={selectedCardsIndexes.includes(index)}
-          isSlap={index === slapCardIndex}
-          onCardSlapped={onCardSlapped}
-          from={fromPosition}
-          dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
-          action={action}
-        />
-      ))}
+      {isReady &&
+        cards.map((card, index) => (
+          <CardPointer
+            key={getCardKey(card)}
+            index={index}
+            onCardSelect={() => onCardSelect(index)}
+            card={card}
+            isSelected={selectedCardsIndexes.includes(index)}
+            isSlap={index === slapCardIndex}
+            onCardSlapped={onCardSlapped}
+            from={fromPosition ?? CIRCLE_CENTER}
+            dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+            action={action ?? 'DRAG_FROM_DECK'}
+            delay={
+              fromPosition
+                ? DELAY
+                : withDelay
+                ? withDelay.delay + index * withDelay.gap
+                : 0
+            }
+          />
+        ))}
     </View>
   );
 };
@@ -84,6 +100,7 @@ interface CardPointerProps {
   from?: Position;
   dest: Position;
   action?: TurnState['action'];
+  delay?: number;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -98,6 +115,7 @@ const CardPointer = ({
   from,
   dest,
   action,
+  delay,
 }: CardPointerProps) => {
   const prevStateSelection = useRef<boolean>(false);
   const translateY = useSharedValue<number>(from?.y ?? dest.y);
@@ -106,6 +124,7 @@ const CardPointer = ({
   const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
 
   const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
@@ -124,8 +143,8 @@ const CardPointer = ({
       translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
       cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
       flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
-      translateInternalY.value = withSpring(0);
-    }, DELAY);
+      scale.value = withTiming(1.25, {duration: MOVE_DURATION});
+    }, delay);
 
     return () => clearTimeout(timer);
   }, [
@@ -137,6 +156,9 @@ const CardPointer = ({
     dest.x,
     dest.y,
     flipRotation,
+    scale,
+    index,
+    delay,
   ]);
 
   const animatedPointerStyle = useAnimatedStyle(() => ({
@@ -160,6 +182,7 @@ const CardPointer = ({
       {
         scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
       },
+      {scale: scale.value},
     ],
   }));
 
@@ -168,6 +191,7 @@ const CardPointer = ({
       {
         scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
       },
+      {scale: scale.value},
     ],
     position: 'absolute',
   }));
