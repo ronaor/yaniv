@@ -11,7 +11,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
 import MenuButton from '~/components/menu/menuButton';
-import {openNamePromptEdit} from '~/components/namePrompt';
 
 import {useRoomStore} from '~/store/roomStore';
 import {useSocket} from '~/store/socketStore';
@@ -25,7 +24,6 @@ function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore();
   const {isConnected, isConnecting} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
-  const gameWithAI = () => {};
   const {name} = useUser();
 
   const quickGameHandler = () => {
@@ -48,7 +46,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
               {name ? `hello ${name}! welcome` : ''}
             </Text>
             <TouchableOpacity
-              onPress={() => openNamePromptEdit(name)}
+              onPress={() => navigation.navigate('Game')}
               style={styles.changeNameBtn}>
               <Text style={styles.changeNameText}>change name</Text>
             </TouchableOpacity>
@@ -85,7 +83,10 @@ function HomeScreen({navigation}: HomeScreenProps) {
               disabled={!isConnected}
             />
             <MenuButton text={'Play with Friends'} onPress={gameWithFriends} />
-            <MenuButton text={'Play vs Computer'} onPress={gameWithAI} />
+            <MenuButton
+              text={'Play vs Computer'}
+              onPress={() => navigation.navigate('BotDifficulty')}
+            />
           </View>
         </View>
       </ImageBackground>
