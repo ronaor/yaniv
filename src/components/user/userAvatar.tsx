@@ -1,5 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -7,7 +7,6 @@ import Animated, {
   useDerivedValue,
   useAnimatedStyle,
   withSpring,
-  runOnJS,
   Easing,
 } from 'react-native-reanimated';
 import {
@@ -21,17 +20,18 @@ import {OutlinedText} from '../cartoonText';
 interface UserAvatarProps {
   name: string;
   score: number;
-  roundScore: number | undefined;
+  roundScore: number[] | undefined;
   isActive: boolean;
   timePerPlayer?: number;
 }
 
 const CIRCLE_SIZE = 75;
+const LOOK_MOMENT = 2000;
 
 function UserAvatar({
   name,
   score,
-  roundScore = 0,
+  roundScore = [],
   isActive,
   timePerPlayer,
 }: UserAvatarProps) {
@@ -42,6 +42,7 @@ function UserAvatar({
   const roundScoreX = useSharedValue<number>(-30);
   const scoreScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
+  const [displayAddScore, setDisplayAddScore] = useState<number>(0);
 
   // Timer progress animation
   useEffect(() => {
@@ -53,49 +54,67 @@ function UserAvatar({
     }
   }, [circleProgress, isActive, timePerPlayer]);
 
+  const scoreMergingAnimation = useCallback(
+    (addedScore: number) => {
+      // Reset position
+      roundScoreScale.value = 0;
+      roundScoreX.value = -30;
+      setDisplayAddScore(addedScore);
+      // Phase 1: Bump in with bounce effect
+      roundScoreScale.value = withSpring(1, {
+        damping: 10,
+        stiffness: 200,
+        mass: 0.8,
+      });
+
+      // Phase 2: After brief pause, accelerate toward score bubble
+      setTimeout(() => {
+        roundScoreX.value = withTiming(0, {
+          duration: 500,
+          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+        });
+      }, 700);
+
+      // Phase 3: Absorption animation - happens much faster as it "speeds up"
+      setTimeout(() => {
+        // Round score gets absorbed instantly (it's moving very fast now)
+        roundScoreScale.value = withTiming(0, {duration: 150});
+
+        // Score bubble pulses with explosive energy
+        scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+          if (finished) {
+            scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+          }
+        });
+
+        setDisplayScore(prev => prev + addedScore);
+      }, 1200);
+    },
+    [roundScoreScale, roundScoreX, scoreScale],
+  );
+
   // Round score absorption animation
   useEffect(() => {
-    if (roundScore === 0) {
+    if (roundScore.length === 0) {
       return;
     }
 
-    // Reset position
-    roundScoreX.value = -30;
-    roundScoreScale.value = 0;
-    // Phase 1: Bump in with bounce effect
-    roundScoreScale.value = withSpring(1, {
-      damping: 10,
-      stiffness: 200,
-      mass: 0.8,
-    });
+    scoreMergingAnimation(roundScore[0]);
+    let i = 1;
+    const interval = setInterval(() => {
+      if (i < roundScore.length - 1) {
+        scoreMergingAnimation(roundScore[i]);
+        i += 1;
+      } else {
+        clearInterval(interval);
+      }
+    }, LOOK_MOMENT);
 
-    // Phase 2: After brief pause, accelerate toward score bubble
-    setTimeout(() => {
-      roundScoreX.value = withTiming(0, {
-        duration: 500,
-        easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
-      });
-    }, 700);
-
-    // Phase 3: Absorption animation - happens much faster as it "speeds up"
-    setTimeout(() => {
-      // Round score gets absorbed instantly (it's moving very fast now)
-      roundScoreScale.value = withTiming(0, {duration: 150});
-
-      // Score bubble pulses with explosive energy
-      scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
-        if (finished) {
-          scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
-        }
-      });
-
-      // Update the displayed score
-      runOnJS(setDisplayScore)(score + roundScore);
-    }, 1200);
-  }, [roundScore, score, roundScoreX, roundScoreScale, scoreScale]);
+    return () => clearInterval(interval);
+  }, [roundScore, scoreMergingAnimation]);
 
   useEffect(() => {
-    if (roundScore === 0) {
+    if (roundScore.length === 0) {
       setDisplayScore(score);
     }
   }, [score, roundScore]);
@@ -176,10 +195,10 @@ function UserAvatar({
           <Animated.View style={[styles.gradientScore, scoreStyle]}>
             <Text style={styles.score}>{displayScore}</Text>
           </Animated.View>
-          {roundScore > 0 && (
+          {roundScore.length > 0 && (
             <Animated.View style={[styles.roundScore, roundScoreStyle]}>
               <OutlinedText
-                text={`+${roundScore}`}
+                text={`+${displayAddScore}`}
                 fontSize={16}
                 width={50}
                 height={30}

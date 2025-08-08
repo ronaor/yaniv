@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
   Dimensions,
@@ -210,6 +210,9 @@ function GameScreen({navigation}: any) {
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
   >({});
+  const [playersResultedScores, setPlayersResultedScores] = useState<
+    Record<PlayerId, number[]>
+  >({});
 
   const activeDirections = useMemo(() => {
     return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
@@ -233,29 +236,26 @@ function GameScreen({navigation}: any) {
     );
   }, [game.playersStats, gamePlayers.order]);
 
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
   useEffect(() => {
-    if (!roundResults) {
+    if (!roundResults || game.phase !== 'round-end') {
       setPlayersRevealing({});
+      setPlayersResultedScores({});
       setYanivCall(undefined);
       setAssafCall(undefined);
-      return;
-    }
-
-    if (game.phase !== 'round-end') {
       return;
     }
 
     const activePlayers = gamePlayers.order.filter(playerId =>
       roundResults.roundPlayers.includes(playerId),
     );
-
     const startIndex = activePlayers.indexOf(roundResults.yanivCaller);
 
     const LOOK_MOMENT = 2000;
 
     const executeReveal = (i: number) => {
       const activeIndex = (startIndex + i) % activePlayers.length;
-
       const playerId = activePlayers[activeIndex];
 
       if (roundResults.yanivCaller === playerId) {
@@ -265,27 +265,66 @@ function GameScreen({navigation}: any) {
         setAssafCall(directions[activeIndex]);
       }
 
-      setPlayersRevealing(prev => {
-        prev[playerId] = true;
+      setPlayersRevealing(prev => ({...prev, [playerId]: true}));
+      let extraDelay = 0;
+
+      setPlayersResultedScores(prev => {
+        if (roundResults.yanivCaller === playerId) {
+          return prev;
+        }
+        if (roundResults.assafCaller === playerId) {
+          const playerRoundScore =
+            roundResults.playersRoundScore[roundResults.yanivCaller];
+          if (playerRoundScore < 0) {
+            prev[roundResults.yanivCaller] = [30, -50];
+            extraDelay += 2;
+          } else {
+            prev[roundResults.yanivCaller] = [30];
+          }
+        }
+        const playerRoundScore = roundResults.playersRoundScore[playerId];
+        if (playerRoundScore < 0) {
+          const actualScore = playerRoundScore + 50;
+          prev[playerId] = [actualScore, -50];
+          extraDelay += 1;
+        } else {
+          prev[playerId] = [roundResults.playersRoundScore[playerId]];
+        }
+
         return {...prev};
       });
+      return extraDelay * LOOK_MOMENT;
     };
 
+    const scheduleReveal = (index: number, accumulatedDelay: number) => {
+      if (index >= activePlayers.length) {
+        return;
+      }
+
+      const timeoutId = setTimeout(() => {
+        const extraDelay = executeReveal(index);
+        scheduleReveal(index + 1, LOOK_MOMENT + extraDelay);
+      }, accumulatedDelay);
+
+      timeoutsRef.current.push(timeoutId);
+    };
+
+    // Clear any existing timeouts
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+
+    // Start sequence
     executeReveal(0);
     if (activePlayers.length > 1) {
-      let i = 1;
-      const interval = setInterval(() => {
-        executeReveal(i);
-
-        if (i === activePlayers.length - 1) {
-          clearInterval(interval);
-        }
-        i += 1;
-      }, LOOK_MOMENT);
-
-      return () => clearInterval(interval);
+      scheduleReveal(1, LOOK_MOMENT);
     }
-  }, [roundResults, game.playersStats, gamePlayers.order, game.phase]);
+
+    // Cleanup
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+      timeoutsRef.current = [];
+    };
+  }, [roundResults, game.phase, gamePlayers.order]);
 
   return (
     <>
@@ -337,11 +376,7 @@ function GameScreen({navigation}: any) {
           <UserAvatar
             name={playersName[gamePlayers.current]}
             score={currentPlayer?.stats?.score ?? 0}
-            roundScore={
-              playersRevealing[gamePlayers.current]
-                ? roundResults?.playersRoundScore[gamePlayers.current]
-                : undefined
-            }
+            roundScore={playersResultedScores[gamePlayers.current]}
             isActive={myTurn}
             timePerPlayer={game.rules.timePerPlayer}
           />
@@ -406,11 +441,7 @@ function GameScreen({navigation}: any) {
             <UserAvatar
               name={playersName[playerId]}
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-              roundScore={
-                playersRevealing[playerId]
-                  ? roundResults?.playersRoundScore[playerId]
-                  : undefined
-              }
+              roundScore={playersResultedScores[playerId]}
               isActive={game.currentTurn?.playerId === playerId}
               timePerPlayer={game.rules.timePerPlayer}
             />
