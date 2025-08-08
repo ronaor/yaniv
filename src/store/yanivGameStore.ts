@@ -144,7 +144,7 @@ type YanivGameMethods = {
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
-      playersRoundScore: Record<PlayerId, number>;
+      playersRoundScore: Record<PlayerId, number[]>;
     }) => void;
     gameEnded: (data: {
       winnerId: string;
@@ -180,7 +180,7 @@ type RoundResults = {
   assafCaller?: string;
   roundPlayers: PlayerId[];
   playersStats: Record<PlayerId, PlayerStatus>;
-  playersRoundScore: Record<PlayerId, number>;
+  playersRoundScore: Record<PlayerId, number[]>;
 };
 
 const initialGameFields: YanivGameFields = {
@@ -573,9 +573,14 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       lowestValue: number;
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
-      playersRoundScore: Record<PlayerId, number>;
+      playersRoundScore: Record<PlayerId, number[]>;
     }) => {
-      console.log('Round Ended ,', data.playersStats, data.roundPlayers);
+      console.log(
+        'Round Ended ,',
+        data.playersStats,
+        data.roundPlayers,
+        data.playersRoundScore,
+      );
       set(state => {
         return {
           ...state,

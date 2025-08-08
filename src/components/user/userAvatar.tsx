@@ -1,5 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
@@ -16,6 +16,7 @@ import {
   Skia,
 } from '@shopify/react-native-skia';
 import {OutlinedText} from '../cartoonText';
+import {isEqual} from 'lodash';
 
 interface UserAvatarProps {
   name: string;
@@ -36,7 +37,7 @@ function UserAvatar({
   timePerPlayer,
 }: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
-
+  const refRoundScore = useRef<number[]>([]);
   // Round score animation values
   const roundScoreScale = useSharedValue<number>(0);
   const roundScoreX = useSharedValue<number>(-30);
@@ -95,14 +96,15 @@ function UserAvatar({
 
   // Round score absorption animation
   useEffect(() => {
-    if (roundScore.length === 0) {
+    if (roundScore.length === 0 || isEqual(refRoundScore.current, roundScore)) {
       return;
     }
+    refRoundScore.current = roundScore;
 
     scoreMergingAnimation(roundScore[0]);
     let i = 1;
     const interval = setInterval(() => {
-      if (i < roundScore.length - 1) {
+      if (i < roundScore.length) {
         scoreMergingAnimation(roundScore[i]);
         i += 1;
       } else {
@@ -198,13 +200,15 @@ function UserAvatar({
           {roundScore.length > 0 && (
             <Animated.View style={[styles.roundScore, roundScoreStyle]}>
               <OutlinedText
-                text={`+${displayAddScore}`}
+                text={`${displayAddScore > 0 ? '+' : ''}${displayAddScore}`}
                 fontSize={16}
                 width={50}
                 height={30}
                 strokeWidth={5}
                 fillColor={'#FFFFFF'}
-                strokeColor={'#158ac9ff'}
+                strokeColor={`${
+                  displayAddScore > 0 ? '#158ac9ff' : '#15c924ff'
+                }`}
                 fontWeight={'900'}
               />
             </Animated.View>

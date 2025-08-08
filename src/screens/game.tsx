@@ -273,23 +273,13 @@ function GameScreen({navigation}: any) {
           return prev;
         }
         if (roundResults.assafCaller === playerId) {
-          const playerRoundScore =
+          extraDelay +=
+            roundResults.playersRoundScore[roundResults.yanivCaller].length - 1;
+          prev[roundResults.yanivCaller] =
             roundResults.playersRoundScore[roundResults.yanivCaller];
-          if (playerRoundScore < 0) {
-            prev[roundResults.yanivCaller] = [30, -50];
-            extraDelay += 2;
-          } else {
-            prev[roundResults.yanivCaller] = [30];
-          }
         }
-        const playerRoundScore = roundResults.playersRoundScore[playerId];
-        if (playerRoundScore < 0) {
-          const actualScore = playerRoundScore + 50;
-          prev[playerId] = [actualScore, -50];
-          extraDelay += 1;
-        } else {
-          prev[playerId] = [roundResults.playersRoundScore[playerId]];
-        }
+        extraDelay += roundResults.playersRoundScore[playerId].length - 1;
+        prev[playerId] = roundResults.playersRoundScore[playerId];
 
         return {...prev};
       });
