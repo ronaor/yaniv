@@ -60,7 +60,7 @@ function UserAvatar({
     }
 
     // Reset position
-    roundScoreX.value = -40;
+    roundScoreX.value = -30;
     roundScoreScale.value = 0;
     // Phase 1: Bump in with bounce effect
     roundScoreScale.value = withSpring(1, {
@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
   },
   gradientScore: {
     marginTop: -6,
-    alignSelf: 'flex-start',
-    marginStart: 10,
+    alignSelf: 'flex-end',
+    marginEnd: 10,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -292,8 +292,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: -13,
-    marginStart: -8,
-    alignSelf: 'flex-start',
+    marginEnd: 8,
+    alignSelf: 'flex-end',
     borderRadius: 20,
     minWidth: 24,
   },
