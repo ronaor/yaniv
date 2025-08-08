@@ -1,10 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   withTiming,
   useDerivedValue,
+  useAnimatedStyle,
+  withSpring,
+  Easing,
 } from 'react-native-reanimated';
 import {
   Canvas,
@@ -12,26 +15,111 @@ import {
   Path,
   Skia,
 } from '@shopify/react-native-skia';
+import {OutlinedText} from '../cartoonText';
+import {isEqual} from 'lodash';
 
 interface UserAvatarProps {
   name: string;
   score: number;
+  roundScore: number[] | undefined;
   isActive: boolean;
   timePerPlayer?: number;
 }
 
 const CIRCLE_SIZE = 75;
+const LOOK_MOMENT = 2000;
 
-function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
+function UserAvatar({
+  name,
+  score,
+  roundScore = [],
+  isActive,
+  timePerPlayer,
+}: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
+  const refRoundScore = useRef<number[]>([]);
+  // Round score animation values
+  const roundScoreScale = useSharedValue<number>(0);
+  const roundScoreX = useSharedValue<number>(-30);
+  const scoreScale = useSharedValue<number>(1);
+  const [displayScore, setDisplayScore] = useState<number>(score);
+  const [displayAddScore, setDisplayAddScore] = useState<number>(0);
 
+  // Timer progress animation
   useEffect(() => {
     if (timePerPlayer && isActive) {
+      circleProgress.value = 0;
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
     }
   }, [circleProgress, isActive, timePerPlayer]);
+
+  const scoreMergingAnimation = useCallback(
+    (addedScore: number) => {
+      // Reset position
+      roundScoreScale.value = 0;
+      roundScoreX.value = -30;
+      setDisplayAddScore(addedScore);
+      // Phase 1: Bump in with bounce effect
+      roundScoreScale.value = withSpring(1, {
+        damping: 10,
+        stiffness: 200,
+        mass: 0.8,
+      });
+
+      // Phase 2: After brief pause, accelerate toward score bubble
+      setTimeout(() => {
+        roundScoreX.value = withTiming(0, {
+          duration: 500,
+          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+        });
+      }, 700);
+
+      // Phase 3: Absorption animation - happens much faster as it "speeds up"
+      setTimeout(() => {
+        // Round score gets absorbed instantly (it's moving very fast now)
+        roundScoreScale.value = withTiming(0, {duration: 150});
+
+        // Score bubble pulses with explosive energy
+        scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+          if (finished) {
+            scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+          }
+        });
+
+        setDisplayScore(prev => prev + addedScore);
+      }, 1200);
+    },
+    [roundScoreScale, roundScoreX, scoreScale],
+  );
+
+  // Round score absorption animation
+  useEffect(() => {
+    if (roundScore.length === 0 || isEqual(refRoundScore.current, roundScore)) {
+      return;
+    }
+    refRoundScore.current = roundScore;
+
+    scoreMergingAnimation(roundScore[0]);
+    let i = 1;
+    const interval = setInterval(() => {
+      if (i < roundScore.length) {
+        scoreMergingAnimation(roundScore[i]);
+        i += 1;
+      } else {
+        clearInterval(interval);
+      }
+    }, LOOK_MOMENT);
+
+    return () => clearInterval(interval);
+  }, [roundScore, scoreMergingAnimation]);
+
+  useEffect(() => {
+    if (roundScore.length === 0) {
+      setDisplayScore(score);
+    }
+  }, [score, roundScore]);
 
   const progressPath = useDerivedValue(() => {
     const radius = (CIRCLE_SIZE - 5) / 2;
@@ -68,6 +156,17 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
 
   const circleStyle = {borderColor: isActive ? '#0c7599' : '#16C4DD'};
 
+  const scoreStyle = useAnimatedStyle(() => ({
+    transform: [{scale: scoreScale.value}],
+  }));
+
+  const roundScoreStyle = useAnimatedStyle(() => ({
+    transform: [
+      {translateX: roundScoreX.value},
+      {scale: roundScoreScale.value},
+    ],
+  }));
+
   return (
     <View style={styles.container}>
       <View style={styles.circleContainer}>
@@ -94,8 +193,26 @@ function UserAvatar({name, score, isActive, timePerPlayer}: UserAvatarProps) {
             </View>
           </LinearGradient>
         </View>
-        <View style={styles.gradientScore}>
-          <Text style={styles.score}>{score}</Text>
+        <View>
+          <Animated.View style={[styles.gradientScore, scoreStyle]}>
+            <Text style={styles.score}>{displayScore}</Text>
+          </Animated.View>
+          {roundScore.length > 0 && (
+            <Animated.View style={[styles.roundScore, roundScoreStyle]}>
+              <OutlinedText
+                text={`${displayAddScore > 0 ? '+' : ''}${displayAddScore}`}
+                fontSize={16}
+                width={50}
+                height={30}
+                strokeWidth={5}
+                fillColor={'#FFFFFF'}
+                strokeColor={`${
+                  displayAddScore > 0 ? '#158ac9ff' : '#15c924ff'
+                }`}
+                fontWeight={'900'}
+              />
+            </Animated.View>
+          )}
         </View>
       </View>
     </View>
@@ -169,13 +286,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#BB550C',
     flexDirection: 'row',
     borderRadius: 13,
-
     paddingHorizontal: 5,
+  },
+  scoreContainer: {
+    position: 'relative',
   },
   gradientScore: {
     marginTop: -6,
-    alignSelf: 'flex-start',
-    marginStart: 10,
+    alignSelf: 'flex-end',
+    marginEnd: 10,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -183,6 +302,22 @@ const styles = StyleSheet.create({
     borderColor: '#732C03',
     borderWidth: 2,
     backgroundColor: '#E9872A',
+    minWidth: 24,
+  },
+  roundScore: {
+    position: 'absolute',
+    paddingVertical: 2,
+    paddingHorizontal: 3,
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#17a6ffff',
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -13,
+    marginEnd: 8,
+    alignSelf: 'flex-end',
+    borderRadius: 20,
     minWidth: 24,
   },
 });

@@ -41,7 +41,6 @@ const CardBack: React.FC<CardBackProps> = ({width = 50, height = 70}) => {
       style={{
         width: canvasWidth,
         height: canvasHeight,
-        transform: [{scale: 1.25}],
       }}>
       {/* Cartoonish shadow - offset and darker */}
       <RoundedRect

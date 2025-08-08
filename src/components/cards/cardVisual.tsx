@@ -208,7 +208,7 @@ const Background: React.FC<{
           r={8}
           color="#FFF8E6"
           opacity={glowProgress}>
-          <Shadow dx={0} dy={0} blur={2} color="#FFD700" />
+          <Shadow dx={0} dy={0} blur={2} color="#ffe864ff" />
         </RoundedRect>
       )}
 
@@ -219,7 +219,7 @@ const Background: React.FC<{
         width={width}
         height={height}
         r={8}
-        color={glowing ? '#fff9ecff' : '#FFF8E6'}
+        color={glowing ? '#fff9ebff' : '#FFF8E6'}
       />
 
       {/* Card border */}
@@ -231,7 +231,7 @@ const Background: React.FC<{
         r={7.5}
         style="stroke"
         strokeWidth={1}
-        color="#E6D9B7"
+        color={glowing ? '#f8d783ff' : '#E6D9B7'}
       />
     </>
   );
@@ -261,7 +261,6 @@ export const CardComponent: React.FC<CardProps> = ({
       style={{
         width: canvasWidth,
         height: canvasHeight,
-        transform: [{scale: 1.25}],
       }}>
       <Background
         width={width}

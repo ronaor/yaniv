@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo} from 'react';
+import React from 'react';
 import {Dimensions, StyleSheet} from 'react-native';
 
 import {
@@ -7,16 +7,16 @@ import {
   Path,
   Skia,
   vec,
-  Oval,
-  Group,
   SkPath,
+  Image,
+  useImage,
+  PathOp,
 } from '@shopify/react-native-skia';
 import {
   useSharedValue,
   useDerivedValue,
   useFrameCallback,
   withTiming,
-  runOnJS,
   interpolate,
 } from 'react-native-reanimated';
 
@@ -42,63 +42,9 @@ const generateRandomMinY = () => {
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
 
-// Pre-generate ellipses once
-const ellipses = (() => {
-  const $ellipses = [];
-  const cols = Math.ceil(Math.sqrt(15));
-  const rows = Math.ceil(15 / cols);
-  const cellWidth = width / cols;
-  const cellHeight = height / rows;
-
-  for (let i = 0; i < 15; i++) {
-    const row = Math.floor(i / cols);
-    const col = i % cols;
-
-    const baseCx = col * cellWidth + cellWidth / 2;
-    const baseCy = row * cellHeight + cellHeight / 2;
-
-    const offsetRange = Math.min(cellWidth, cellHeight);
-    const randomOffsetX = (Math.random() - 0.5) * offsetRange * 0.5;
-    const randomOffsetY = (Math.random() - 0.5) * offsetRange * 0.5;
-
-    $ellipses.push({
-      id: i,
-      cx: Math.max(30, Math.min(width - 30, baseCx + randomOffsetX)),
-      cy: Math.max(30, Math.min(height - 30, baseCy + randomOffsetY)),
-      rx: Math.random() * 2 + 3,
-      ry: Math.random() * 2 + 3,
-      opacity: Math.random() * 0.25 + 0.4,
-      angle: Math.random(),
-    });
-  }
-  return $ellipses;
-})();
-
-// Wave Memory Component
-interface WaveMemoryProps {
-  path: SkPath | null;
-  opacity: number;
-}
-
-const WaveMemory: React.FC<WaveMemoryProps> = React.memo(({path, opacity}) => {
-  if (!path || opacity <= 0) {
-    return null;
-  }
-
-  return (
-    <Path path={path} style="fill" opacity={opacity}>
-      <LinearGradient
-        start={vec(0, height)}
-        end={vec(0, 0)}
-        colors={['transparent', '#17A5C340']}
-      />
-    </Path>
-  );
-});
-
-const waveColors = ['#D0DCAC', '#46c8e2'];
-const surfColors = ['#e5e2a9', '#91F7D5'];
-const seaColor = '#17A5C3';
+const waveColors = ['#46c8e2b4', '#46c8e2'];
+const surfColors = ['#91f7d56b', '#91f7d5ac'];
+const seaColor = '#0087b8f7';
 
 const WaveAnimationBackground = () => {
   const verticalOffset = useSharedValue(initialVerticalOffset);
@@ -113,40 +59,18 @@ const WaveAnimationBackground = () => {
   const waveMinY = useSharedValue(generateRandomMinY());
 
   // State for single wave snapshot
-  const [waveSnapshot, setWaveSnapshot] = useState<SkPath | null>(null);
-  const [snapshotOpacity, setSnapshotOpacity] = useState(0);
+  const snapshotPath = useSharedValue<SkPath>(Skia.Path.Make());
+  const snapshotOpacity = useSharedValue(0);
   const shouldCaptureSnapshot = useSharedValue(false);
 
-  // Memoized capture function to avoid recreating
-  const captureWaveSnapshot = useMemo(
-    () => (pathString: string) => {
-      const path = Skia.Path.MakeFromSVGString(pathString);
-      if (path) {
-        setWaveSnapshot(prev => {
-          prev?.dispose?.(); // Clean up previous path
-          return path.copy();
-        });
-        setSnapshotOpacity(1);
-      }
-    },
-    [],
-  );
-
-  // Optimized fade effect with fewer updates
-  useEffect(() => {
-    if (snapshotOpacity > 0) {
-      const interval = setInterval(() => {
-        setSnapshotOpacity(prev => {
-          const newOpacity = Math.max(0, prev - 0.015);
-          return newOpacity;
-        });
-      }, 100);
-
-      return () => clearInterval(interval);
+  // Fade animation for snapshot
+  useDerivedValue(() => {
+    if (snapshotOpacity.value > 0) {
+      snapshotOpacity.value = Math.max(0, snapshotOpacity.value - 0.0015);
     }
-  }, [snapshotOpacity]);
+  }, [time.value]);
 
-  // Optimize color transitions
+  // Color transitions and snapshot trigger
   useDerivedValue(() => {
     if (direction.value !== lastDirection.value) {
       if (direction.value > 0) {
@@ -157,6 +81,7 @@ const WaveAnimationBackground = () => {
         surfColor.value = withTiming(surfColors[1], {duration: 3000});
         waveColor.value = withTiming(waveColors[1], {duration: 3000});
 
+        // Set flag to capture snapshot in frame callback
         if (lastDirection.value === 1) {
           shouldCaptureSnapshot.value = true;
         }
@@ -191,9 +116,33 @@ const WaveAnimationBackground = () => {
     const distanceFromMiddle = Math.abs(cycle - 0.5) * 2;
     const baseAmplitude = 5 + (1 - distanceFromMiddle) * 15;
     amplitude.value = baseAmplitude;
+
+    // Capture snapshot when flag is set
+    if (shouldCaptureSnapshot.value) {
+      shouldCaptureSnapshot.value = false;
+
+      const current = (time.value / 1000) % 1000;
+      const points = waveIndices.map(i => {
+        const x = (i / WAVE_POINTS) * width;
+        const angle = (x / width) * (Math.PI * frequency) + current;
+        return [x, amplitude.value * Math.sin(angle) + verticalOffset.value];
+      });
+
+      let pathString = `M${points[0][0]},${points[0][1]}`;
+      for (let i = 1; i < points.length; i++) {
+        pathString += ` L${points[i][0]},${points[i][1]}`;
+      }
+      pathString += ` L${width},${height} L0,${height} Z`;
+
+      const path = Skia.Path.MakeFromSVGString(pathString);
+      if (path) {
+        snapshotPath.value = path.copy();
+        snapshotOpacity.value = 1;
+      }
+    }
   });
 
-  // Wave path calculation
+  // Wave path calculation (clean, no snapshot logic)
   const wavePath = useDerivedValue(() => {
     'worklet';
     const current = (time.value / 1000) % 1000;
@@ -210,13 +159,32 @@ const WaveAnimationBackground = () => {
     }
     pathString += ` L${width},${height} L0,${height} Z`;
 
-    if (shouldCaptureSnapshot.value) {
-      shouldCaptureSnapshot.value = false;
-      runOnJS(captureWaveSnapshot)(pathString);
-    }
-
     return Skia.Path.MakeFromSVGString(pathString) || Skia.Path.Make();
   }, [time, verticalOffset, amplitude]);
+
+  const maskedSnapshotPath = useDerivedValue(() => {
+    'worklet';
+    if (snapshotOpacity.value <= 0) {
+      return Skia.Path.Make();
+    }
+
+    // Create a copy of the snapshot path
+    const maskedPath = snapshotPath.value.copy();
+
+    // Subtract the current wave path using path operations
+    const currentPath = wavePath.value;
+    if (currentPath) {
+      // Use path difference operation - try 'Difference' (capital D)
+      const result = Skia.Path.MakeFromOp(
+        maskedPath,
+        currentPath,
+        PathOp.Difference,
+      );
+      return result || Skia.Path.Make();
+    }
+
+    return maskedPath;
+  }, [snapshotPath.value, wavePath.value, snapshotOpacity.value]);
 
   // Gradient calculations
   const gradientStart = useDerivedValue(() => vec(0, verticalOffset.value));
@@ -228,31 +196,25 @@ const WaveAnimationBackground = () => {
     seaColor,
   ]);
 
+  const image = useImage(require('~/assets/images/sand.png'));
+
   return (
     <Canvas style={styles.canvas}>
-      {/* Ellipses */}
-      {ellipses.map(ellipse => (
-        <Group
-          key={ellipse.id}
-          transform={[
-            {rotate: ellipse.angle},
-            {translateX: ellipse.cx},
-            {translateY: ellipse.cy},
-          ]}>
-          <Oval
-            x={-ellipse.rx}
-            y={-ellipse.ry}
-            width={ellipse.rx * 2}
-            height={ellipse.ry * 2}
-            color={`#fbc15f${Math.floor(ellipse.opacity * 255)
-              .toString(16)
-              .padStart(2, '0')}`}
-          />
-        </Group>
-      ))}
+      {/* Background */}
+      <Image
+        image={image}
+        width={dimension.width}
+        height={dimension.height}
+        fit={'scaleDown'}
+      />
 
-      {/* Wave memory snapshot */}
-      <WaveMemory path={waveSnapshot} opacity={snapshotOpacity} />
+      {/* Wave memory snapshot - masked to exclude current wave area */}
+      <Path
+        path={maskedSnapshotPath}
+        style="fill"
+        color={'#17a6c32d'}
+        opacity={snapshotOpacity}
+      />
 
       {/* Main wave */}
       <Path path={wavePath} style="fill">
@@ -276,21 +238,6 @@ const WaveAnimationBackground = () => {
 };
 
 const styles = StyleSheet.create({
-  backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    zIndex: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  backButtonText: {
-    color: '#333',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
   canvas: {
     width: '100%',
     height: '100%',
