@@ -5,6 +5,7 @@ import {I18nManager} from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
 import GameBannerAd from '~/ads/banner';
 import NamePrompt from '~/components/namePrompt';
+import BotDifficultyScreen from '~/screens/botDifficultyScreen';
 import GameScreen from '~/screens/game';
 import GameWithFriendsScreen from '~/screens/gameWithFriends';
 import HomeScreen from '~/screens/home';
@@ -99,6 +100,11 @@ const App = () => {
             options={{
               animation: 'slide_from_left',
             }}
+          />
+          <Stack.Screen
+            name="BotDifficulty"
+            component={BotDifficultyScreen}
+            options={{headerShown: false}}
           />
         </Stack.Navigator>
         <GameBannerAd />
