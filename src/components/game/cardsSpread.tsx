@@ -16,6 +16,7 @@ import {CARD_HEIGHT, CIRCLE_CENTER, SMALL_DELAY} from '~/utils/constants';
 import {noop} from 'lodash';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+const NUM_LOOPS = 2;
 
 interface CardsSpreadProps {
   activeDirections: Record<string, DirectionName>;
@@ -113,7 +114,7 @@ const CardsSpread = ({
           ) : (
             <CardShuffle
               startAnimation={true}
-              loops={2}
+              loops={NUM_LOOPS}
               onFinish={onFinishShuffle}
             />
           )}

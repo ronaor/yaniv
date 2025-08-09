@@ -29,10 +29,9 @@ interface CardsGroupProps {
 interface AnimatedCardProps {
   card: Card;
   startPosition: Position;
-  delay: number;
 }
 
-const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
+const AnimatedCard = ({card, startPosition}: AnimatedCardProps) => {
   const translateX = useSharedValue(startPosition.x);
   const translateY = useSharedValue(startPosition.y);
   const rotation = useSharedValue(startPosition.deg);
@@ -51,7 +50,7 @@ const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
     rotation.value = withTiming(0, {
       duration: MOVE_DURATION,
     });
-  }, [delay, translateX, translateY, rotation, flipRotation]);
+  }, [translateX, translateY, rotation, flipRotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     position: 'absolute',
@@ -94,9 +93,7 @@ const AnimatedCard = ({card, startPosition, delay}: AnimatedCardProps) => {
 const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
   const {players} = useYanivGameStore();
 
-  const {game} = useYanivGameStore();
-
-  const lastHands = useMemo(() => game.currentTurn?.handsPrev ?? {}, [game]);
+  const lastHands = useMemo(() => players.handsPrev ?? {}, [players]);
 
   // Collect all cards and their positions
   const allCardsWithPositions = useMemo(() => {
@@ -151,7 +148,6 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
           key={`${cardData.playerId}-${getCardKey(cardData.card)}-${index}`}
           card={cardData.card}
           startPosition={cardData.position}
-          delay={index * 50}
         />
       ))}
     </View>

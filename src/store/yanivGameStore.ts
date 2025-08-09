@@ -48,7 +48,6 @@ type TurnInfo = {
   playerId: PlayerId;
   startTime: Date;
   prevTurn?: TurnState | null;
-  handsPrev?: Record<PlayerId, Card[]>;
 };
 
 type GameRules = {
@@ -72,6 +71,7 @@ type PlayersState = {
   all: Record<PlayerId, PlayerData>;
   order: PlayerId[];
   current: PlayerId; // the viewing player
+  handsPrev?: Record<PlayerId, Card[]>;
 };
 
 type PlayerData = {
@@ -116,6 +116,7 @@ type YanivGameMethods = {
       playerHands: {[playerId: string]: Card[]};
       firstCard: Card;
       currentPlayerId: PlayerId;
+      startDelay: number;
     }) => void;
     playerDrew: (data: {
       playerId: string;
@@ -134,6 +135,7 @@ type YanivGameMethods = {
       firstCard: Card;
       currentPlayerId: PlayerId;
       round: number;
+      startDelay: number;
     }) => void;
     roundEnded: (data: {
       winnerId: string;
@@ -258,6 +260,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       playerHands: {[playerId: string]: Card[]};
       firstCard: Card;
       currentPlayerId: PlayerId;
+      startDelay: number;
     }) => {
       const {config, players} = useRoomStore.getState();
       const playerIds = players.map(player => player.id);
@@ -303,11 +306,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         game: {
           phase: 'active',
           round: 0,
-          currentTurn: {
-            playerId: data.currentPlayerId,
-            startTime: new Date(),
-            prevTurn: null,
-          },
+          currentTurn: null,
           rules: gameRules,
           playersStats: data.gameState.playersStats || {},
         },
@@ -327,6 +326,20 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         },
         roundResults: undefined,
       }));
+
+      setTimeout(() => {
+        set(state => ({
+          ...state,
+          game: {
+            ...state.game,
+            currentTurn: {
+              playerId: data.currentPlayerId,
+              startTime: new Date(),
+              prevTurn: null,
+            },
+          },
+        }));
+      }, data.startDelay);
     },
     playerDrew: (data: {
       playerId: string;
@@ -464,12 +477,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               playerId: data.currentPlayerId,
               startTime: new Date(),
               prevTurn: turnState,
-              handsPrev: lastHands,
             },
           },
           players: {
             ...state.players,
             all: updatedPlayers,
+            handsPrev: lastHands,
           },
           board: {
             ...state.board,
@@ -489,6 +502,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       firstCard: Card;
       currentPlayerId: PlayerId;
       round: number;
+      startDelay: number;
     }) => {
       const socketId = useSocket.getState().getSocketId();
 
@@ -537,12 +551,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             round: data.round,
             playersStats:
               state.roundResults?.playersStats ?? state.game.playersStats,
-            currentTurn: {
-              playerId: data.currentPlayerId,
-              startTime: new Date(),
-              prevTurn: null, // No previous turn at start of new round
-              handsPrev: lastHands,
-            },
+            currentTurn: null,
             rules: {
               ...state.game.rules,
               timePerPlayer: data.gameState.timePerPlayer,
@@ -551,6 +560,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           players: {
             ...state.players,
             all: updatedPlayers,
+            handsPrev: lastHands,
           },
           board: {
             pickupPile: [data.firstCard],
@@ -563,6 +573,19 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           roundResults: undefined,
         };
       });
+      setTimeout(() => {
+        set(state => ({
+          ...state,
+          game: {
+            ...state.game,
+            currentTurn: {
+              playerId: data.currentPlayerId,
+              startTime: new Date(),
+              prevTurn: null,
+            },
+          },
+        }));
+      }, data.startDelay);
     },
     roundEnded: (data: {
       winnerId: string;

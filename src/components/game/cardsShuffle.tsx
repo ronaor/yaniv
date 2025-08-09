@@ -8,7 +8,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import CardBack from '~/components/cards/cardBack';
-import {CARD_WIDTH} from '~/utils/constants';
+import {CARD_WIDTH, SMALL_DELAY} from '~/utils/constants';
 
 interface CardShuffleProps {
   startAnimation: boolean;
@@ -49,7 +49,7 @@ interface CircularShuffleCardProps {
   delay: number;
 }
 
-const MOVE_DUR = 100;
+const MOVE_DUR = SMALL_DELAY;
 const MOVE_DISTANCE = CARD_WIDTH * 0.5;
 const PHASE_DURATION = MOVE_DUR * 4;
 
