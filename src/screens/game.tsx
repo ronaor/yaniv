@@ -114,9 +114,16 @@ function GameScreen({navigation}: any) {
     }
   }, [game.phase, game.playersStats, gamePlayers]);
 
+  useEffect(() => {
+    if (!myTurn) {
+      setSelectedCardsIndexes([]);
+      return;
+    }
+  }, [myTurn]);
+
   // Timer for remaining time
   useEffect(() => {
-    if (!myTurn || isNil(game.currentTurn)) {
+    if (isNil(game.currentTurn)) {
       setSelectedCardsIndexes([]);
       return;
     }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   Canvas,
   RoundedRect,
@@ -7,7 +7,12 @@ import {
   Shadow,
 } from '@shopify/react-native-skia';
 import {Card, CardSuit} from '~/types/cards';
-import {useSharedValue, withRepeat, withTiming} from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 interface CardProps {
   card: Card;
@@ -278,5 +283,32 @@ export const CardComponent: React.FC<CardProps> = ({
         transform={[{translateX: cardX}, {translateY: cardY}]}
       />
     </Canvas>
+  );
+};
+
+interface GlowingCardProps {
+  card: Card;
+  width?: number;
+  height?: number;
+}
+export const GlowingCardComponent: React.FC<GlowingCardProps> = ({
+  card,
+  width = 50,
+  height = 70,
+}) => {
+  const glowProgress = useSharedValue(0);
+
+  useEffect(() => {
+    glowProgress.value = withRepeat(withTiming(1, {duration: 300}), -1, true);
+  }, [glowProgress]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {transform: [{scale: 1 + glowProgress.value * 0.1}]};
+  }, []);
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <CardComponent card={card} width={width} height={height} glowing />
+    </Animated.View>
   );
 };

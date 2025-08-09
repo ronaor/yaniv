@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
-import {CardComponent} from './cardVisual';
+import {CardComponent, GlowingCardComponent} from './cardVisual';
 import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -202,7 +202,11 @@ const CardPointer = ({
         <Animated.View style={animatedSelectionStyle}>
           <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
             <Animated.View style={animatedFrontFlipStyle}>
-              <CardComponent card={card} glowing={isSlap} />
+              {isSlap ? (
+                <GlowingCardComponent card={card} />
+              ) : (
+                <CardComponent card={card} />
+              )}
             </Animated.View>
             <Animated.View style={animatedBackFlipStyle}>
               <CardBack />
