@@ -612,9 +612,6 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             phase: 'round-end' as GamePhase,
             currentTurn: null,
           },
-          players: {
-            ...state.players,
-          },
           roundResults: {
             winnerId: data.winnerId,
             playersHands: data.playerHands,
@@ -634,8 +631,22 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     }) => {
       const {playersStats} = data;
       set(state => {
+        const updatedPlayers = {...state.players.all};
+        Object.keys(updatedPlayers).forEach(playerId => {
+          updatedPlayers[playerId] = {
+            ...updatedPlayers[playerId],
+            stats:
+              data.playersStats[playerId] || updatedPlayers[playerId].stats,
+            hand: [],
+            slapDownAvailable: false,
+          };
+        });
         return {
           ...state,
+          players: {
+            ...state.players,
+            all: updatedPlayers,
+          },
           game: {
             ...state.game,
             phase: 'game-end' as GamePhase,
