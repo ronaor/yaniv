@@ -131,12 +131,12 @@ const bubbleStyle: Record<DirectionName, ViewStyle> = {
   right: {
     position: 'absolute',
     left: screenWidth - 220,
-    top: screenHeight / 2 - 330,
+    top: screenHeight / 2 - 300,
   },
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 330,
+    top: screenHeight / 2 - 300,
   },
 };
 

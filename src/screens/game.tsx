@@ -266,10 +266,10 @@ function GameScreen({navigation}: any) {
       const playerId = activePlayers[activeIndex];
 
       if (roundResults.yanivCaller === playerId) {
-        setYanivCall(directions[activeIndex]);
+        setYanivCall(directions[gamePlayers.order.indexOf(playerId)]);
       }
       if (roundResults.assafCaller === playerId) {
-        setAssafCall(directions[activeIndex]);
+        setAssafCall(directions[gamePlayers.order.indexOf(playerId)]);
       }
 
       setPlayersRevealing(prev => ({...prev, [playerId]: true}));
