@@ -200,14 +200,14 @@ function UserAvatar({
           {roundScore.length > 0 && (
             <Animated.View style={[styles.roundScore, roundScoreStyle]}>
               <OutlinedText
-                text={`${displayAddScore > 0 ? '+' : ''}${displayAddScore}`}
+                text={`${displayAddScore >= 0 ? '+' : ''}${displayAddScore}`}
                 fontSize={16}
                 width={50}
                 height={30}
                 strokeWidth={5}
                 fillColor={'#FFFFFF'}
                 strokeColor={`${
-                  displayAddScore > 0 ? '#158ac9ff' : '#15c924ff'
+                  displayAddScore >= 0 ? '#158ac9ff' : '#15c924ff'
                 }`}
                 fontWeight={'900'}
               />
