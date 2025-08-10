@@ -10,13 +10,13 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {OutlinedText} from '~/components/cartoonText';
-import CheckMark from '~/components/menu/checkMark';
+import CheckMark from '~/components/menu/checkMark2';
+
 import DeclineMark from '~/components/menu/declineMark';
 import LeaveButton from '~/components/menu/leaveButton';
 import LogContainer from '~/components/menu/logContainer';
 import SelectionBar from '~/components/menu/mainSelectionBar';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
-import StartGameDialog from '~/components/startGameDialog';
 import {useRoomStore} from '~/store/roomStore';
 import {colors} from '~/theme';
 import {QuickGameLobbyProps} from '~/types/navigation';
@@ -225,7 +225,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
             paddingBottom: 80,
             width: '100%',
             paddingHorizontal: 30,
-            gap: 10,
+            gap: 25,
           }}>
           <LogContainer
             text="Enable Slap-Down"
@@ -235,8 +235,10 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
                   flexDirection: 'row',
                   alignSelf: 'flex-end',
                   gap: 3,
+                  position: 'absolute',
+                  bottom: -19,
                 }}>
-                <CheckMark value={2} />
+                <CheckMark value={2} self={true} />
                 <DeclineMark value={0} />
               </View>
             }>
@@ -251,10 +253,12 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
                   alignSelf: 'flex-end',
                   gap: 3,
                   paddingEnd: 14,
+                  position: 'absolute',
+                  bottom: -19,
                 }}>
-                <CheckMark value={1} />
+                <CheckMark value={1} self={true} />
                 <CheckMark value={0} />
-                <CheckMark value={1} />
+                <CheckMark value={1} self={false} />
               </View>
             }>
             <SelectionBar
@@ -272,6 +276,8 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
                   alignSelf: 'flex-end',
                   gap: 3,
                   paddingEnd: 40,
+                  position: 'absolute',
+                  bottom: -19,
                 }}>
                 <CheckMark value={2} />
                 <CheckMark value={0} />
@@ -288,8 +294,9 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
         <View
           style={{
             padding: 10,
-            backgroundColor: '#00000090',
-            borderRadius: 20,
+            paddingHorizontal: 14,
+            backgroundColor: '#3618189b',
+            borderRadius: 25,
             flexDirection: 'row',
             alignItems: 'center',
             gap: 5,
@@ -304,7 +311,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
             style={{
               padding: 10,
               borderRadius: 20,
-              backgroundColor: '#0000005F',
+              backgroundColor: '#3b0c0c9f',
             }}>
             <Text
               style={{

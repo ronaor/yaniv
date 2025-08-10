@@ -10,6 +10,7 @@ interface SelectionElementProps {
 
 function SelectionElement({value, isSelected, onPress}: SelectionElementProps) {
   const activeStyle = {
+    borderColor: '#3C4A01',
     endColor: '#247916',
     startColor: '#9BF931',
     mainColor: '#45AC27',
@@ -17,6 +18,7 @@ function SelectionElement({value, isSelected, onPress}: SelectionElementProps) {
   };
 
   const inactiveStyle = {
+    borderColor: '#6D2C00',
     endColor: '#BD6E01',
     startColor: '#FFCD06',
     mainColor: '#FFAA01',
@@ -26,7 +28,9 @@ function SelectionElement({value, isSelected, onPress}: SelectionElementProps) {
   const colors = isSelected ? activeStyle : inactiveStyle;
 
   return (
-    <Pressable onPress={onPress} style={styles.pressable}>
+    <Pressable
+      onPress={onPress}
+      style={[styles.pressable, {backgroundColor: colors.borderColor}]}>
       <LinearGradient
         style={styles.gradient}
         colors={[colors.startColor, colors.endColor]}>

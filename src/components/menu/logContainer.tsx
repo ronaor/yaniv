@@ -10,7 +10,7 @@ interface MenuButtonProps {
 
 const LogContainer = ({children, text, votes}: MenuButtonProps) => {
   return (
-    <View style={{gap: 2}}>
+    <View>
       <View style={styles.container}>
         <LinearGradient style={styles.gradient} colors={['#DE8216', '#702900']}>
           <View style={styles.content}>
