@@ -1,27 +1,47 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
-  FlatList,
+  Dimensions,
+  ImageBackground,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {OutlinedText} from '~/components/cartoonText';
+import CheckMark from '~/components/menu/checkMark';
+import DeclineMark from '~/components/menu/declineMark';
+import LeaveButton from '~/components/menu/leaveButton';
+import LogContainer from '~/components/menu/logContainer';
+import SelectionBar from '~/components/menu/mainSelectionBar';
+import MenuToggle from '~/components/menu/mainToggleSwitch';
 import StartGameDialog from '~/components/startGameDialog';
 import {useRoomStore} from '~/store/roomStore';
-import {colors, textStyles} from '~/theme';
+import {colors} from '~/theme';
 import {QuickGameLobbyProps} from '~/types/navigation';
+
+const {width: screenWidth} = Dimensions.get('screen');
+
+const formatTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+    .toString()
+    .padStart(2, '0')}`;
+};
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   const {players, gameState, nickName, canStartTimer, leaveRoom} =
     useRoomStore();
 
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timeActive, setTimeActive] = useState(false);
 
   useEffect(() => {
-    if (gameState === 'started') {
-      navigation.replace('Game');
-    }
+    // if (gameState === 'started') {
+    //   navigation.replace('Game');
+    // }
   }, [navigation, gameState]);
 
   useEffect(() => {
@@ -37,9 +57,11 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   useEffect(() => {
     if (players.length < 2) {
       setTimeRemaining(0);
+      setTimeActive(false);
       return;
     }
 
+    setTimeActive(true);
     let targetSeconds = 0;
     if (players.length === 2) {
       targetSeconds = 15;
@@ -79,44 +101,232 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     ]);
   }, [navigation, leaveRoom, nickName]);
 
-  return (
-    <View style={styles.body}>
-      <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-        <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-      </TouchableOpacity>
-      <View style={styles.timerContainer}>
-        <Text style={[styles.timer]}>{timeRemaining}s</Text>
-      </View>
+  const [slapDown, setSlapDown] = useState(true);
+  const [callYanivAt, setCallYanivAt] = useState(0);
+  const [maxScoreLimit, setMaxScoreLimit] = useState(0);
 
-      <Text style={textStyles.subtitle}>{'שחקנים בחדר:'}</Text>
-      <View style={styles.playerListContainer}>
-        <FlatList
-          data={players}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <Text style={styles.player}>{item.nickName}</Text>
-          )}
-          style={styles.flatList}
-        />
-      </View>
-      <Text style={styles.status}>
-        {gameState === 'started'
-          ? 'המשחק התחיל!'
-          : `ממתין לשחקנים... (${players.length}/4)`}
-      </Text>
-      <StartGameDialog onCreateRoom={() => {}} isQuickGameLobby />
-    </View>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
+        <View style={styles.header}>
+          <LeaveButton text={'Leave'} onPress={handleLeave} />
+        </View>
+
+        <View
+          style={{
+            width: '100%',
+            paddingHorizontal: 50,
+          }}>
+          <View
+            style={{
+              backgroundColor: '#502404',
+              padding: 3,
+              borderRadius: 28,
+              shadowColor: '#000',
+              shadowOffset: {width: 0, height: 2},
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}>
+            <LinearGradient
+              style={{
+                backgroundColor: '#843402',
+                borderStartStartRadius: 25,
+                borderStartEndRadius: 25,
+                paddingHorizontal: 3,
+                paddingTop: 3,
+              }}
+              colors={['#DE8216', '#702900']}>
+              <View
+                style={{
+                  backgroundColor: '#A9500F',
+                  borderStartStartRadius: 25,
+                  borderStartEndRadius: 25,
+                  padding: 5,
+                }}>
+                <Text
+                  style={{
+                    color: '#F9F09D',
+                    fontSize: 27,
+                    textAlign: 'center',
+                    fontWeight: '700',
+                    paddingBottom: 3,
+                  }}>
+                  {'Players'}
+                </Text>
+              </View>
+            </LinearGradient>
+            {players.map((player, index) => (
+              <View
+                key={player.id}
+                style={{
+                  backgroundColor: index % 2 === 1 ? '#903300' : '#702900',
+                  borderEndStartRadius: index === players.length - 1 ? 25 : 0,
+                  borderEndEndRadius: index === players.length - 1 ? 25 : 0,
+                  paddingHorizontal: 3,
+                  paddingBottom: index === players.length - 1 ? 3 : 0,
+                }}>
+                <View
+                  style={{
+                    backgroundColor: index % 2 === 1 ? '#AA4E08' : '#7C3709',
+                    borderEndStartRadius: index === players.length - 1 ? 25 : 0,
+                    borderEndEndRadius: index === players.length - 1 ? 25 : 0,
+                    padding: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 15,
+                  }}>
+                  <View
+                    style={{
+                      aspectRatio: 1,
+                      width: 25,
+                      backgroundColor: '#F7AD02',
+                      borderRadius: 25,
+                      borderColor: '#3B1603',
+                      borderWidth: 2,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      color: '#F9F09D',
+                      fontSize: 20,
+                      textAlign: 'left',
+                      fontWeight: '700',
+                    }}>
+                    {player.nickName}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={{flex: 1}}>
+          <OutlinedText
+            text={
+              gameState === 'started'
+                ? 'The Game Begin!'
+                : `Waiting for players... (${players.length}/4)`
+            }
+            fontSize={18}
+            width={screenWidth}
+            height={60}
+            fillColor={'#FFFFFF'}
+            strokeColor={'#644008'}
+            fontWeight={'700'}
+            strokeWidth={3}
+          />
+        </View>
+
+        <View
+          style={{
+            paddingTop: 10,
+            paddingBottom: 80,
+            width: '100%',
+            paddingHorizontal: 30,
+            gap: 10,
+          }}>
+          <LogContainer
+            text="Enable Slap-Down"
+            votes={
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'flex-end',
+                  gap: 3,
+                }}>
+                <CheckMark value={2} />
+                <DeclineMark value={0} />
+              </View>
+            }>
+            <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
+          </LogContainer>
+          <LogContainer
+            text="Call Yaniv at"
+            votes={
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'flex-end',
+                  gap: 3,
+                  paddingEnd: 14,
+                }}>
+                <CheckMark value={1} />
+                <CheckMark value={0} />
+                <CheckMark value={1} />
+              </View>
+            }>
+            <SelectionBar
+              selectionIndex={callYanivAt}
+              setSelection={setCallYanivAt}
+              elements={['3', '5', '7']}
+            />
+          </LogContainer>
+          <LogContainer
+            text="Max Score"
+            votes={
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'flex-end',
+                  gap: 3,
+                  paddingEnd: 40,
+                }}>
+                <CheckMark value={2} />
+                <CheckMark value={0} />
+              </View>
+            }>
+            <SelectionBar
+              selectionIndex={maxScoreLimit}
+              setSelection={setMaxScoreLimit}
+              elements={['100', '200']}
+            />
+          </LogContainer>
+        </View>
+
+        <View
+          style={{
+            padding: 10,
+            backgroundColor: '#00000090',
+            borderRadius: 20,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+            position: 'absolute',
+            bottom: 15,
+            opacity: timeActive ? 1 : 0.5,
+          }}>
+          <Text style={{color: 'white', fontWeight: '800', fontSize: 18}}>
+            {'Game start in: '}
+          </Text>
+          <View
+            style={{
+              padding: 10,
+              borderRadius: 20,
+              backgroundColor: '#0000005F',
+            }}>
+            <Text
+              style={{
+                color: '#FFFFFF',
+                fontWeight: '800',
+                fontSize: 18,
+              }}>{`${formatTime(timeRemaining)}`}</Text>
+          </View>
+        </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  safeArea: {flex: 1},
+  screen: {
     flex: 1,
-    backgroundColor: colors.background,
     padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 100,
   },
   playerListContainer: {
     width: '100%',
@@ -135,13 +345,6 @@ const styles = StyleSheet.create({
     padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    textAlign: 'center',
-  },
-  status: {
-    fontSize: 20,
-    color: colors.primary,
-    marginTop: 20,
-    fontWeight: 'bold',
     textAlign: 'center',
   },
   loaderOverlay: {
@@ -175,6 +378,29 @@ const styles = StyleSheet.create({
   },
   timerUrgent: {
     color: '#FF6B6B',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+    justifyContent: 'space-between',
+    width: screenWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    position: 'absolute',
+  },
+  gradient: {
+    backgroundColor: '#843402',
+    borderRadius: 25,
+    borderWidth: 3,
+    borderColor: '#5D2607',
+    paddingHorizontal: 3,
+    paddingVertical: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
 
