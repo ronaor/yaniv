@@ -22,11 +22,7 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
   createRoom: (nickName: string, config: RoomConfig) => void;
   getRemainingTimeToStartGame: () => number;
   joinRoom: (roomId: string, nickName: string) => void;
-  setQuickGameConfig: (
-    roomId: string,
-    nickName: string,
-    config: RoomConfig,
-  ) => void;
+  setQuickGameConfig: (config: RoomConfig) => void;
   startPrivateGame: (roomId: string) => void;
   quickGame: (nickName: string) => void;
   leaveRoom: (nickName: string) => void;
@@ -55,7 +51,6 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
     roomId: string;
     config: RoomConfig;
     players: User[];
-    votes: Record<string, RoomConfig>;
   }) => void;
   setRoomError: (data: {message: string}) => void;
 }
@@ -121,11 +116,16 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         nickName,
       });
     },
-    setQuickGameConfig: (roomId, nickName, config) => {
-      set((state: RoomState) => ({...state, isLoading: true, error: null}));
-      useSocket
-        .getState()
-        .emit('set_quick_game_config', {roomId, nickName, config});
+    setQuickGameConfig: config => {
+      set((state: RoomState) => {
+        console.log('state', state.roomId, state.nickName);
+        useSocket.getState().emit('set_quick_game_config', {
+          roomId: state.roomId,
+          nickName: state.nickName,
+          config,
+        });
+        return {...state, isLoading: true, error: null};
+      });
     },
     leaveRoom: (nickName: string) => {
       set((state: RoomState) => {
@@ -141,6 +141,7 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
 
     setRoomCreated: data => {
       const {roomId, players, config} = data;
+
       set((state: RoomState) => ({
         ...state,
         roomId,
@@ -179,13 +180,12 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
       set((state: RoomState) => ({...state, players, votes}));
     },
 
-    setGameStarted: ({roomId, config, players, votes}) => {
+    setGameStarted: ({roomId, config, players}) => {
       set((state: RoomState) => ({
         ...state,
         roomId,
         config,
         players,
-        votes,
         gameState: 'started',
         isLoading: false,
       }));

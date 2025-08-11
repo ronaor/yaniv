@@ -1,25 +1,31 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {ReactNode} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
+import Poll from './poll';
 
 interface MenuButtonProps {
   children?: ReactNode;
   text: string;
-  votes?: ReactNode;
+  choices: {name: string; choice: any}[];
 }
 
-const LogContainer = ({children, text, votes}: MenuButtonProps) => {
+const LogContainer = ({children, text, choices}: MenuButtonProps) => {
   return (
-    <View>
-      <View style={styles.container}>
-        <LinearGradient style={styles.gradient} colors={['#DE8216', '#702900']}>
-          <View style={styles.content}>
+    <View style={styles.container}>
+      <LinearGradient style={styles.gradient} colors={['#DE8216', '#702900']}>
+        <View style={styles.content}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
             <Text style={styles.text}>{text}</Text>
             {children}
           </View>
-        </LinearGradient>
-      </View>
-      {votes}
+          <Poll choices={choices} />
+        </View>
+      </LinearGradient>
     </View>
   );
 };
@@ -41,15 +47,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 3,
     paddingTop: 3,
+    flexDirection: 'column',
   },
   content: {
     backgroundColor: '#A9500F',
     borderRadius: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 10,
   },
 
   text: {

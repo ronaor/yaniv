@@ -20,6 +20,7 @@ const useSocketIO = () => {
     // Room events
     socket.on('room_created', ({roomId, players, config}) => {
       //TODO
+      console.log('should be called');
       roomStore.setRoomCreated({
         roomId,
         players,
@@ -51,8 +52,8 @@ const useSocketIO = () => {
       roomStore.triggerCallback('kickout', roomId),
     );
 
-    socket.on('start_game', ({roomId, config, players, votes}) => {
-      roomStore.setGameStarted({roomId, config, players, votes});
+    socket.on('start_game', ({roomId, config, players}) => {
+      roomStore.setGameStarted({roomId, config, players});
     });
 
     socket.on('room_error', ({message}) => {

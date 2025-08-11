@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   Dimensions,
   ImageBackground,
@@ -12,28 +12,54 @@ import GameLogo from '~/components/menu/title';
 
 import MenuButton from '~/components/menu/menuButton';
 
-import {useRoomStore} from '~/store/roomStore';
 import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
+import {useRoomStore} from '~/store/roomStore';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
 function HomeScreen({navigation}: HomeScreenProps) {
-  const {quickGame} = useRoomStore();
+  const {quickGame} = useRoomStore.getState();
+
   const {isConnected, isConnecting} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const {name} = useUser();
 
-  const quickGameHandler = () => {
+  const quickGameHandler = useCallback(async () => {
     if (!name) {
-      // Optionally show an alert
       return;
     }
+
+    // Emit the request
     quickGame(name);
-    navigation.navigate('QuickLobby');
-  };
+
+    // Wait for roomId to be set in the store
+    const checkRoomCreated = () => {
+      return new Promise<string | null>(resolve => {
+        const unsubscribe = useRoomStore.subscribe(state => {
+          if (state.roomId && state.isInRoom) {
+            unsubscribe();
+            resolve(state.roomId);
+          }
+        });
+
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          unsubscribe();
+          resolve(null);
+        }, 5000);
+      });
+    };
+
+    const availableRoomId = await checkRoomCreated();
+    if (availableRoomId) {
+      navigation.navigate('QuickLobby');
+    } else {
+      console.error('Room creation timeout');
+    }
+  }, [name, navigation, quickGame]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
