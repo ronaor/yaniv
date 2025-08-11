@@ -50,7 +50,7 @@ function RoomTimer() {
   }, [players.length, canStartTimer]);
 
   return (
-    <View style={[styles.container, timeActive ? styles.transparent : {}]}>
+    <View style={[styles.container, timeActive ? {} : styles.transparent]}>
       <Text style={styles.text}>{'Game start in: '}</Text>
       <View style={styles.timer}>
         <Text style={styles.text}>{`${formatTime(timeRemaining)}`}</Text>
