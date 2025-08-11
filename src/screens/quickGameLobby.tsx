@@ -19,12 +19,10 @@ import PlayersList from '~/components/menu/playersList';
 import RoomTimer from '~/components/menu/roomTimer';
 import {useRoomStore} from '~/store/roomStore';
 import {QuickGameLobbyProps} from '~/types/navigation';
+import {GAME_CONFIG} from '~/utils/constants';
 import {normalize} from '~/utils/ui';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
-const CALL_YANIV_AVAILABLE_AT = ['3', '5', '7'];
-const MAX_SCORE_LIMIT_OPTIONS = ['50', '100', '200'];
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   const {players, gameState, nickName, leaveRoom} = useRoomStore();
@@ -49,9 +47,13 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     ]);
   }, [navigation, leaveRoom, nickName]);
 
-  const [slapDown, setSlapDown] = useState(true);
-  const [callYanivAt, setCallYanivAt] = useState(2);
-  const [maxScoreLimit, setMaxScoreLimit] = useState(1);
+  const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
+  const [callYanivAt, setCallYanivAt] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
+  );
+  const [maxScoreLimit, setMaxScoreLimit] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.maxScoreIndex,
+  );
 
   const {votes, setQuickGameConfig} = useRoomStore();
 
@@ -81,8 +83,8 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   useEffect(() => {
     let config = {
       slapDown,
-      canCallYaniv: +CALL_YANIV_AVAILABLE_AT[callYanivAt],
-      maxMatchPoints: +MAX_SCORE_LIMIT_OPTIONS[maxScoreLimit],
+      canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[callYanivAt],
+      maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[maxScoreLimit],
     };
     setQuickGameConfig(config);
   }, [setQuickGameConfig, slapDown, callYanivAt, maxScoreLimit]);
@@ -129,14 +131,14 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
               <SelectionBar
                 selectionIndex={callYanivAt}
                 setSelection={setCallYanivAt}
-                elements={CALL_YANIV_AVAILABLE_AT}
+                elements={GAME_CONFIG.CALL_YANIV_OPTIONS}
               />
             </LogContainer>
             <LogContainer choices={choices.maxMatchPoints} text="Max Score">
               <SelectionBar
                 selectionIndex={maxScoreLimit}
                 setSelection={setMaxScoreLimit}
-                elements={MAX_SCORE_LIMIT_OPTIONS}
+                elements={GAME_CONFIG.MAX_SCORE_OPTIONS}
               />
             </LogContainer>
           </View>

@@ -6,22 +6,20 @@ import SelectionBar from './menu/mainSelectionBar';
 import LinearGradient from 'react-native-linear-gradient';
 import {normalize} from '~/utils/ui';
 import CreateButton from './menu/createButton';
+import {GAME_CONFIG} from '~/utils/constants';
 
 type StartGameDialogProps = {
   onCreateRoom: (data: RoomConfig) => void;
 };
 
-const CALL_YANIV_AVAILABLE_AT = ['3', '5', '7'];
-const MAX_SCORE_LIMIT_OPTIONS = ['50', '100', '200'];
-
 interface RowItemProps {
   text?: string;
   children?: ReactNode;
   index: number;
-  isLast: boolean;
+  isLast?: boolean;
 }
 
-function RowItem({text, children, index, isLast}: RowItemProps) {
+function RowItem({text, children, index, isLast = false}: RowItemProps) {
   const isOdd = index % 2 === 1;
 
   return (
@@ -45,15 +43,19 @@ function RowItem({text, children, index, isLast}: RowItemProps) {
 }
 
 export default function StartGameDialog({onCreateRoom}: StartGameDialogProps) {
-  const [slapDown, setSlapDown] = useState(true);
-  const [callYanivAt, setCallYanivAt] = useState(2);
-  const [maxScoreLimit, setMaxScoreLimit] = useState(1);
+  const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
+  const [callYanivAt, setCallYanivAt] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
+  );
+  const [maxScoreLimit, setMaxScoreLimit] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.maxScoreIndex,
+  );
 
   const handleCreateRoom = () => {
     onCreateRoom({
       slapDown,
-      canCallYaniv: +CALL_YANIV_AVAILABLE_AT[callYanivAt],
-      maxMatchPoints: +MAX_SCORE_LIMIT_OPTIONS[maxScoreLimit],
+      canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[callYanivAt],
+      maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[maxScoreLimit],
     });
   };
 
@@ -67,21 +69,21 @@ export default function StartGameDialog({onCreateRoom}: StartGameDialogProps) {
             <Text style={styles.headerTitle}>{'CREATE ROOM'}</Text>
           </View>
         </LinearGradient>
-        <RowItem text={'Enable Slap-Down'} index={0} isLast={false}>
+        <RowItem text={'Enable Slap-Down'} index={0}>
           <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
         </RowItem>
-        <RowItem text={'Call Yaniv at'} index={1} isLast={false}>
+        <RowItem text={'Call Yaniv at'} index={1}>
           <SelectionBar
             selectionIndex={callYanivAt}
             setSelection={setCallYanivAt}
-            elements={CALL_YANIV_AVAILABLE_AT}
+            elements={GAME_CONFIG.CALL_YANIV_OPTIONS}
           />
         </RowItem>
-        <RowItem text={'Max Score'} index={2} isLast={false}>
+        <RowItem text={'Max Score'} index={2}>
           <SelectionBar
             selectionIndex={maxScoreLimit}
             setSelection={setMaxScoreLimit}
-            elements={MAX_SCORE_LIMIT_OPTIONS}
+            elements={GAME_CONFIG.MAX_SCORE_OPTIONS}
           />
         </RowItem>
         <RowItem index={3} isLast={true}>

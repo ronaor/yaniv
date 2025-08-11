@@ -36,7 +36,7 @@ const CreateButton = ({text, onPress, disabled = false}: CreateButtonProps) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#2C8408',
-    borderRadius: 25,
+    borderRadius: 27,
     borderWidth: 3,
     borderColor: '#622800',
     shadowColor: '#000',
