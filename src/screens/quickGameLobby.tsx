@@ -33,16 +33,6 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     }
   }, [navigation, gameState]);
 
-  useEffect(() => {
-    // On unmount, always leave the room
-    return () => {
-      if (gameState === 'waiting') {
-        leaveRoom(nickName);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaveRoom]);
-
   const handleLeave = useCallback(() => {
     Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
       {text: 'ביטול', style: 'cancel'},
