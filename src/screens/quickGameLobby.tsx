@@ -22,7 +22,7 @@ import {QuickGameLobbyProps} from '~/types/navigation';
 const {width: screenWidth} = Dimensions.get('screen');
 
 const CALL_YANIV_AVAILABLE_AT = ['3', '5', '7'];
-const MAX_SCORE_LIMIT_OPTIONS = ['100', '200'];
+const MAX_SCORE_LIMIT_OPTIONS = ['50', '100', '200'];
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   const {players, gameState, nickName, leaveRoom} = useRoomStore();
@@ -48,8 +48,8 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   }, [navigation, leaveRoom, nickName]);
 
   const [slapDown, setSlapDown] = useState(true);
-  const [callYanivAt, setCallYanivAt] = useState(0);
-  const [maxScoreLimit, setMaxScoreLimit] = useState(0);
+  const [callYanivAt, setCallYanivAt] = useState(3);
+  const [maxScoreLimit, setMaxScoreLimit] = useState(1);
 
   const {votes, setQuickGameConfig} = useRoomStore();
 

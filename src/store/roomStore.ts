@@ -118,7 +118,6 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
     },
     setQuickGameConfig: config => {
       set((state: RoomState) => {
-        console.log('state', state.roomId, state.nickName);
         useSocket.getState().emit('set_quick_game_config', {
           roomId: state.roomId,
           nickName: state.nickName,
