@@ -7,6 +7,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import {useRoomStore} from '~/store/roomStore';
+import {normalize} from '~/utils/ui';
 
 interface PollProps {
   choices: {
@@ -133,14 +134,15 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   choiceText: {
-    fontSize: 15,
+    fontSize: normalize(15),
     fontWeight: '700',
     color: 'white',
   },
   percentageText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: 'white',
+    fontSize: normalize(12),
+    fontWeight: '900',
+    color: '#FFFFFFD0',
+    transform: [{scaleX: 0.9}],
   },
 });
 

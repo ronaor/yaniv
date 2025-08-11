@@ -1,6 +1,7 @@
 import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {normalize} from '~/utils/ui';
 
 interface SelectionElementProps {
   value: string;
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
     minWidth: 32,
   },
   text: {
-    fontSize: 23,
+    fontSize: normalize(19),
     textAlign: 'center',
     fontWeight: '700',
     paddingHorizontal: 2,

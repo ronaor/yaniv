@@ -20,7 +20,6 @@ const useSocketIO = () => {
     // Room events
     socket.on('room_created', ({roomId, players, config}) => {
       //TODO
-      console.log('should be called');
       roomStore.setRoomCreated({
         roomId,
         players,

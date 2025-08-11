@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
   View,
+  ScrollView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {OutlinedText} from '~/components/cartoonText';
@@ -18,8 +19,9 @@ import PlayersList from '~/components/menu/playersList';
 import RoomTimer from '~/components/menu/roomTimer';
 import {useRoomStore} from '~/store/roomStore';
 import {QuickGameLobbyProps} from '~/types/navigation';
+import {normalize} from '~/utils/ui';
 
-const {width: screenWidth} = Dimensions.get('screen');
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const CALL_YANIV_AVAILABLE_AT = ['3', '5', '7'];
 const MAX_SCORE_LIMIT_OPTIONS = ['50', '100', '200'];
@@ -29,7 +31,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
 
   useEffect(() => {
     if (gameState === 'started') {
-      navigation.replace('Game');
+      // navigation.replace('Game');
     }
   }, [navigation, gameState]);
 
@@ -48,7 +50,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   }, [navigation, leaveRoom, nickName]);
 
   const [slapDown, setSlapDown] = useState(true);
-  const [callYanivAt, setCallYanivAt] = useState(3);
+  const [callYanivAt, setCallYanivAt] = useState(2);
   const [maxScoreLimit, setMaxScoreLimit] = useState(1);
 
   const {votes, setQuickGameConfig} = useRoomStore();
@@ -94,46 +96,51 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           <LeaveButton text={'Leave'} onPress={handleLeave} />
         </View>
 
-        <View style={styles.playersContainer}>
-          <PlayersList players={players} />
-        </View>
+        <ScrollView
+          horizontal={false}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.playersContainer}>
+            <PlayersList players={players} />
+          </View>
 
-        <View style={styles.betweenText}>
-          <OutlinedText
-            text={
-              gameState === 'started'
-                ? 'The Game Begin!'
-                : `Waiting for players... (${players.length}/4)`
-            }
-            fontSize={18}
-            width={screenWidth}
-            height={60}
-            fillColor={'#FFFFFF'}
-            strokeColor={'#644008'}
-            fontWeight={'700'}
-            strokeWidth={3}
-          />
-        </View>
+          <View style={styles.betweenText}>
+            <OutlinedText
+              text={
+                gameState === 'started'
+                  ? 'The Game Begin!'
+                  : `Waiting for players... (${players.length}/4)`
+              }
+              fontSize={normalize(17)}
+              width={screenWidth}
+              height={normalize(60)}
+              fillColor={'#FFFFFF'}
+              strokeColor={'#644008'}
+              fontWeight={'700'}
+              strokeWidth={3}
+            />
+          </View>
 
-        <View style={styles.options}>
-          <LogContainer choices={choices.slapDown} text="Enable Slap-Down">
-            <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
-          </LogContainer>
-          <LogContainer choices={choices.canCallYaniv} text="Call Yaniv at">
-            <SelectionBar
-              selectionIndex={callYanivAt}
-              setSelection={setCallYanivAt}
-              elements={CALL_YANIV_AVAILABLE_AT}
-            />
-          </LogContainer>
-          <LogContainer choices={choices.maxMatchPoints} text="Max Score">
-            <SelectionBar
-              selectionIndex={maxScoreLimit}
-              setSelection={setMaxScoreLimit}
-              elements={MAX_SCORE_LIMIT_OPTIONS}
-            />
-          </LogContainer>
-        </View>
+          <View style={styles.options}>
+            <LogContainer choices={choices.slapDown} text="Enable Slap-Down">
+              <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
+            </LogContainer>
+            <LogContainer choices={choices.canCallYaniv} text="Call Yaniv at">
+              <SelectionBar
+                selectionIndex={callYanivAt}
+                setSelection={setCallYanivAt}
+                elements={CALL_YANIV_AVAILABLE_AT}
+              />
+            </LogContainer>
+            <LogContainer choices={choices.maxMatchPoints} text="Max Score">
+              <SelectionBar
+                selectionIndex={maxScoreLimit}
+                setSelection={setMaxScoreLimit}
+                elements={MAX_SCORE_LIMIT_OPTIONS}
+              />
+            </LogContainer>
+          </View>
+        </ScrollView>
 
         <RoomTimer />
       </ImageBackground>
@@ -147,10 +154,8 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
-    padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
-    paddingTop: 100,
   },
   header: {
     flexDirection: 'row',
@@ -166,14 +171,22 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.75,
   },
   betweenText: {
-    flex: 1,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   options: {
     width: screenWidth * 0.9,
     paddingTop: 10,
-    paddingBottom: 80,
+    paddingBottom: screenHeight * 0.08,
     gap: 10,
   },
+  scrollViewContent: {
+    paddingTop: screenHeight * 0.12,
+    padding: 20,
+    alignItems: 'center',
+  },
+  scrollView: {width: '100%'},
 });
 
 export default QuickGameLobby;

@@ -2,6 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import React, {ReactNode} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import Poll from './poll';
+import {normalize} from '~/utils/ui';
 
 interface MenuButtonProps {
   children?: ReactNode;
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
 
   text: {
     color: '#F9F09D',
-    fontSize: 23,
+    fontSize: normalize(19),
     textAlign: 'left',
     fontWeight: '700',
     paddingBottom: 3,

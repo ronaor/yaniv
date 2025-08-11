@@ -2,6 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {User} from '~/types/player';
+import {normalize} from '~/utils/ui';
 
 interface PlayersListProps {
   players: User[];
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: '#F9F09D',
-    fontSize: 27,
+    fontSize: normalize(22),
     textAlign: 'center',
     fontWeight: '700',
     paddingBottom: 3,
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   },
   playerName: {
     color: '#F9F09D',
-    fontSize: 20,
+    fontSize: normalize(16),
     textAlign: 'left',
     fontWeight: '700',
   },

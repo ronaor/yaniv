@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {useRoomStore} from '~/store/roomStore';
+import {normalize} from '~/utils/ui';
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -61,7 +62,7 @@ function RoomTimer() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: normalize(9),
     paddingHorizontal: 14,
     backgroundColor: '#3618189b',
     borderRadius: 25,
