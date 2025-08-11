@@ -7,7 +7,7 @@ import {normalize} from '~/utils/ui';
 interface MenuButtonProps {
   children?: ReactNode;
   text: string;
-  choices: {name: string; choice: any}[];
+  choices?: {name: string; choice: any}[];
 }
 
 const LogContainer = ({children, text, choices}: MenuButtonProps) => {
@@ -15,16 +15,11 @@ const LogContainer = ({children, text, choices}: MenuButtonProps) => {
     <View style={styles.container}>
       <LinearGradient style={styles.gradient} colors={['#DE8216', '#702900']}>
         <View style={styles.content}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
+          <View style={styles.textWrap}>
             <Text style={styles.text}>{text}</Text>
             {children}
           </View>
-          <Poll choices={choices} />
+          {choices ? <Poll choices={choices} /> : null}
         </View>
       </LinearGradient>
     </View>
@@ -65,6 +60,11 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontWeight: '700',
     paddingBottom: 3,
+  },
+  textWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });
 

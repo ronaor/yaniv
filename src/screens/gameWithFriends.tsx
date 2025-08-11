@@ -5,6 +5,7 @@ import {
   View,
   Alert,
   ActivityIndicator,
+  ImageBackground,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menu/menuButton';
@@ -15,6 +16,7 @@ import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
 import StartGameDialog from '~/components/startGameDialog';
 import {RoomConfig} from '~/types/player';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -72,49 +74,58 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.container}>
-        <Text style={[textStyles.title, styles.title]}>{'משחק עם חברים'}</Text>
-        <View style={styles.menuButtons}>
-          <MenuButton text={'צור חדר'} onPress={createARoom} />
-          <MenuButton text={'כנס לחדר'} onPress={enterARoom} />
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
+        <View style={styles.body}>
+          <View style={styles.container}>
+            <Text style={[textStyles.title, styles.title]}>
+              {'משחק עם חברים'}
+            </Text>
+            <View style={styles.menuButtons}>
+              <MenuButton text={'צור חדר'} onPress={createARoom} />
+              <MenuButton text={'כנס לחדר'} onPress={enterARoom} />
+            </View>
+          </View>
+          <Dialog
+            isModalOpen={newRoomModalOpen}
+            onBackgroundPress={() => setNewRoomModalOpen(false)}>
+            <StartGameDialog onCreateRoom={handleCreateRoom} />
+          </Dialog>
+          <Dialog
+            isModalOpen={enterRoomModalOpen}
+            onBackgroundPress={() => setEnterRoomModalOpen(false)}>
+            <Text style={textStyles.subtitle}>{'כניסה לחדר'}</Text>
+            <View style={styles.dialogBody}>
+              <Text style={textStyles.body}>{'מזהה חדר'}</Text>
+              <TextInput
+                value={roomCode}
+                onChangeText={setRoomCode}
+                style={styles.input}
+                placeholder="הכנס קוד חדר"
+                autoCapitalize="characters"
+                placeholderTextColor={colors.textSecondary}
+              />
+              <MenuButton onPress={handleJoinRoom} text="כנס" />
+            </View>
+          </Dialog>
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          )}
         </View>
-      </View>
-      <Dialog
-        isModalOpen={newRoomModalOpen}
-        onBackgroundPress={() => setNewRoomModalOpen(false)}>
-        <StartGameDialog onCreateRoom={handleCreateRoom} />
-      </Dialog>
-      <Dialog
-        isModalOpen={enterRoomModalOpen}
-        onBackgroundPress={() => setEnterRoomModalOpen(false)}>
-        <Text style={textStyles.subtitle}>{'כניסה לחדר'}</Text>
-        <View style={styles.dialogBody}>
-          <Text style={textStyles.body}>{'מזהה חדר'}</Text>
-          <TextInput
-            value={roomCode}
-            onChangeText={setRoomCode}
-            style={styles.input}
-            placeholder="הכנס קוד חדר"
-            autoCapitalize="characters"
-            placeholderTextColor={colors.textSecondary}
-          />
-          <MenuButton onPress={handleJoinRoom} text="כנס" />
-        </View>
-      </Dialog>
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      )}
-    </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {flex: 1},
+  screen: {flex: 1},
   body: {
     flex: 1,
-    backgroundColor: colors.background,
     padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
