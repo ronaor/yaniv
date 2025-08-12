@@ -64,10 +64,10 @@ function LobbyScreen({navigation}: LobbyProps) {
 
   const handleLeave = useCallback(() => {
     if (players.length > 1) {
-      Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-        {text: 'ביטול', style: 'cancel'},
+      Alert.alert('Leave Room', 'Are you sure you want to leave?', [
+        {text: 'Cancel', style: 'cancel'},
         {
-          text: 'צא',
+          text: 'Leave',
           style: 'destructive',
           onPress: () => {
             leaveRoom(nickName);
