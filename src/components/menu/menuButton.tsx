@@ -2,6 +2,7 @@ import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {OutlinedText} from '../cartoonText';
+import {normalize} from '~/utils/ui';
 
 interface MenuButtonProps {
   text: string;
@@ -35,7 +36,7 @@ const MenuButton = ({text, onPress, disabled = false}: MenuButtonProps) => {
           <View style={styles.textSection}>
             <OutlinedText
               text={text}
-              fontSize={28}
+              fontSize={normalize(22)}
               width={400}
               height={70}
               fillColor={disabled ? '#F0F0F0' : '#FEF3C7'}
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
   },
   text: {
-    fontSize: 28,
+    fontSize: normalize(24),
     fontWeight: 'bold',
     color: 'transparent',
     textAlign: 'center',
