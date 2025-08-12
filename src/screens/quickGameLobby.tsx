@@ -46,6 +46,9 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           },
         },
       ]);
+    } else {
+      leaveRoom(nickName);
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
     }
   }, [players.length, leaveRoom, nickName, navigation]);
 
