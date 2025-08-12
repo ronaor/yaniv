@@ -29,7 +29,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
 
   useEffect(() => {
     if (gameState === 'started') {
-      // navigation.replace('Game');
+      navigation.replace('Game');
     }
   }, [navigation, gameState]);
 
