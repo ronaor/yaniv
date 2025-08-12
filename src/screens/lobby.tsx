@@ -143,8 +143,8 @@ function LobbyScreen({navigation}: LobbyProps) {
               onPress={() => roomId && startPrivateGame(roomId)}
               text="Start Game"
               disabled={players.length === 1}
-              colors={['#61C300', '#2A7100']}
-              mainColor={'#45A300'}
+              colors={['#61C300', '#45A300', '#2A7100']}
+              borderColor={'#1A1208'}
             />
           )}
         </View>

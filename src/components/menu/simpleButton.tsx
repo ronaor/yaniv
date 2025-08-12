@@ -8,18 +8,20 @@ interface SimpleButtonProps {
   text: string;
   onPress: () => void;
   disabled?: boolean;
-  colors: [string, string];
-  mainColor: string;
+  colors: [string, string, string];
+  borderColor?: string;
 }
 
 const SimpleButton = ({
   colors,
-  mainColor,
+  borderColor = '#622800',
   text,
   onPress,
   disabled = false,
 }: SimpleButtonProps) => {
-  const gradientColors = disabled ? ['#BBBBBB', '#999999'] : colors;
+  const gradientColors = disabled
+    ? ['#BBBBBB', '#999999']
+    : [colors[0], colors[2]];
 
   return (
     <Pressable
@@ -27,6 +29,7 @@ const SimpleButton = ({
       disabled={disabled}
       style={({pressed}) => [
         styles.container,
+        {borderColor: borderColor},
         disabled
           ? styles.disabled
           : {backgroundColor: colors[colors.length - 1]},
@@ -36,7 +39,7 @@ const SimpleButton = ({
         <View
           style={[
             styles.content,
-            disabled ? styles.contentDisabled : {backgroundColor: mainColor},
+            disabled ? styles.contentDisabled : {backgroundColor: colors[1]},
           ]}>
           <Text style={styles.text}>{text}</Text>
         </View>
@@ -49,7 +52,6 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 27,
     borderWidth: 3,
-    borderColor: '#622800',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,

@@ -53,8 +53,7 @@ export default function JoinRoomDialog({
               <SimpleButton
                 text="JOIN"
                 onPress={handleJoinRoom}
-                colors={['#FFBA15', '#CD6600']}
-                mainColor={'#F5970B'}
+                colors={['#FFBA15', '#F5970B', '#CD6600']}
               />
             </View>
           </View>

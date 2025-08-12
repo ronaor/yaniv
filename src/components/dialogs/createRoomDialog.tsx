@@ -83,8 +83,7 @@ export default function CreateRoomDialog({
               <SimpleButton
                 text="CREATE"
                 onPress={handleCreateRoom}
-                colors={['#A0D72C', '#2C8408']}
-                mainColor={'#3BA209'}
+                colors={['#A0D72C', '#3BA209', '#2C8408']}
               />
             </View>
           </RowItem>
