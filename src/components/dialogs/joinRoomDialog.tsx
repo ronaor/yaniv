@@ -20,6 +20,7 @@ export default function JoinRoomDialog({
   const [roomCode, setRoomCode] = useState<string>('');
 
   const handleJoinRoom = () => {
+    console.log('onJoinRoom', roomCode);
     onJoinRoom(roomCode);
   };
 

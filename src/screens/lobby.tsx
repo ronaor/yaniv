@@ -2,17 +2,40 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import React, {useCallback, useEffect} from 'react';
 import {
   Alert,
-  FlatList,
-  Pressable,
+  ImageBackground,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  ScrollView,
+  Dimensions,
+  Text,
+  Pressable,
 } from 'react-native';
-import MenuButton from '~/components/menu/menuButton';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import PlayersList from '~/components/menu/playersList';
 import {useRoomStore} from '~/store/roomStore';
-import {colors, textStyles} from '~/theme';
+
 import {LobbyProps} from '~/types/navigation';
+
+import {OutlinedText} from '~/components/cartoonText';
+
+import LeaveButton from '~/components/menu/leaveButton';
+
+import {normalize} from '~/utils/ui';
+import AlternatingRowsList from '~/components/menu/alternatingRowsList';
+import SimpleButton from '~/components/menu/simpleButton';
+
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+
+interface RoomOptionRowProps {
+  text: string;
+}
+function RoomOptionRow({text}: RoomOptionRowProps) {
+  return (
+    <View style={styles.optionRow}>
+      <Text style={styles.rowText}>{text}</Text>
+    </View>
+  );
+}
 
 function LobbyScreen({navigation}: LobbyProps) {
   const {
@@ -24,6 +47,7 @@ function LobbyScreen({navigation}: LobbyProps) {
     leaveRoom,
     startPrivateGame,
     registerCallback,
+    config,
   } = useRoomStore();
 
   useEffect(() => {
@@ -37,16 +61,6 @@ function LobbyScreen({navigation}: LobbyProps) {
       navigation.replace('Game');
     }
   }, [navigation, gameState]);
-
-  useEffect(() => {
-    // On unmount, always leave the room
-    return () => {
-      if (gameState === 'waiting') {
-        leaveRoom(nickName);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaveRoom]);
 
   const handleLeave = useCallback(() => {
     Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
@@ -63,122 +77,141 @@ function LobbyScreen({navigation}: LobbyProps) {
   }, [leaveRoom, nickName, navigation]);
 
   return (
-    <View style={styles.body}>
-      <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-        <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
+        <View style={styles.header}>
+          <LeaveButton text={'Leave'} onPress={handleLeave} />
+          <AlternatingRowsList cornerRadius={15}>
+            <Text style={styles.roomCodeTitle}>{'Room Code'}</Text>
+            <Pressable
+              onPress={() => {
+                if (roomId) {
+                  Clipboard.setString(roomId);
+                  Alert.alert('קוד החדר הועתק ללוח!');
+                }
+              }}>
+              <Text style={styles.roomCode}>{roomId}</Text>
+            </Pressable>
+          </AlternatingRowsList>
+        </View>
 
-      <Pressable
-        onPress={() => {
-          if (roomId) {
-            Clipboard.setString(roomId);
-            Alert.alert('קוד החדר הועתק ללוח!');
-          }
-        }}
-        style={{
-          marginBottom: 20,
-          alignItems: 'center',
-          backgroundColor: colors.accent,
-          padding: 10,
-          borderRadius: 16,
-        }}>
-        <Text style={textStyles.title}>{'קוד חדר: ' + (roomId || '')}</Text>
-      </Pressable>
-      <Text style={textStyles.subtitle}>{'שחקנים בחדר:'}</Text>
-      <View style={styles.playerListContainer}>
-        <FlatList
-          data={players}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <Text style={styles.player}>{item.nickName}</Text>
+        <ScrollView
+          horizontal={false}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.playersContainer}>
+            <PlayersList players={players} />
+          </View>
+
+          <View style={styles.betweenText}>
+            <OutlinedText
+              text={
+                gameState === 'started'
+                  ? 'The Game Begin!'
+                  : `Waiting for players... (${players.length}/4)`
+              }
+              fontSize={normalize(17)}
+              width={screenWidth}
+              height={normalize(60)}
+              fillColor={'#FFFFFF'}
+              strokeColor={'#644008'}
+              fontWeight={'700'}
+              strokeWidth={3}
+            />
+          </View>
+
+          {config ? (
+            <View style={styles.options}>
+              <AlternatingRowsList>
+                <RoomOptionRow text={`Enable Slap-Down: ${config.slapDown}`} />
+                <RoomOptionRow text={`Call Yaniv at: ${config.canCallYaniv}`} />
+                <RoomOptionRow text={`Max Score: ${config.maxMatchPoints}`} />
+              </AlternatingRowsList>
+            </View>
+          ) : null}
+        </ScrollView>
+        <View style={styles.footer}>
+          {isAdminOfPrivateRoom && (
+            <SimpleButton
+              onPress={() => roomId && startPrivateGame(roomId)}
+              text="Start Game"
+              disabled={players.length === 1}
+              colors={['#61C300', '#2A7100']}
+              mainColor={'#45A300'}
+            />
           )}
-          style={styles.flatList}
-        />
-      </View>
-      <Text style={styles.status}>
-        {gameState === 'started'
-          ? 'המשחק התחיל!'
-          : `ממתין לשחקנים... (${players.length}/4)`}
-      </Text>
-
-      {isAdminOfPrivateRoom && (
-        <MenuButton
-          onPress={() => roomId && startPrivateGame(roomId)}
-          text="התחל משחק!"
-          disabled={players.length === 1}
-        />
-      )}
-    </View>
+        </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
-    padding: 20,
+  },
+  screen: {
+    flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    zIndex: 10,
+    justifyContent: 'space-between',
+    width: screenWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    position: 'absolute',
+  },
+  playersContainer: {
+    top: 30,
+    width: screenWidth * 0.75,
+  },
+  betweenText: {
     justifyContent: 'center',
-  },
-  playerListContainer: {
-    width: '100%',
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 12,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  player: {
-    fontSize: 18,
-    color: colors.text,
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    textAlign: 'center',
-  },
-  status: {
-    fontSize: 20,
-    color: colors.primary,
-    marginTop: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  loaderOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
     alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
+    transform: [{translateY: 16}],
   },
-  leaveBtn: {
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+  options: {
+    width: screenWidth * 0.8,
+    paddingTop: 10,
+    paddingBottom: screenHeight * 0.08,
+    gap: 10,
   },
-  leaveBtnText: {
-    color: colors.primary,
-    fontWeight: 'bold',
-    fontSize: 14,
+  scrollViewContent: {
+    paddingTop: screenHeight * 0.12,
+    padding: 20,
+    alignItems: 'center',
   },
-  flatList: {width: '100%'},
-  timerContainer: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  scrollView: {width: '100%'},
+  roomCodeTitle: {
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFE992',
   },
-  timer: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  roomCode: {
+    padding: 5,
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#FFE992',
+    textAlign: 'center',
   },
-  timerUrgent: {
-    color: '#FF6B6B',
+  footer: {padding: 20},
+  rowText: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFE992',
   },
+  optionRow: {padding: 5, flexDirection: 'row'},
 });
 
 export default LobbyScreen;

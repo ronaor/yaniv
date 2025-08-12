@@ -27,16 +27,16 @@ const SimpleButton = ({
       disabled={disabled}
       style={({pressed}) => [
         styles.container,
-        disabled && styles.disabled,
+        disabled
+          ? styles.disabled
+          : {backgroundColor: colors[colors.length - 1]},
         pressed && !disabled && styles.pressed,
-        {backgroundColor: colors[colors.length - 1]},
       ]}>
       <LinearGradient style={styles.gradient} colors={gradientColors}>
         <View
           style={[
             styles.content,
-            disabled && styles.contentDisabled,
-            {backgroundColor: mainColor},
+            disabled ? styles.contentDisabled : {backgroundColor: mainColor},
           ]}>
           <Text style={styles.text}>{text}</Text>
         </View>

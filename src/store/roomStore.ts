@@ -147,7 +147,7 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
         players,
         config,
         gameState: 'waiting',
-        // isAdminOfPrivateRoom: true,
+        isAdminOfPrivateRoom: true,
         isInRoom: true,
         isLoading: false,
         error: null,
