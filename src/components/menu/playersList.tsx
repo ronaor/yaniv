@@ -1,8 +1,8 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import {User} from '~/types/player';
 import {normalize} from '~/utils/ui';
+import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 
 interface PlayersListProps {
   players: User[];
@@ -10,66 +10,46 @@ interface PlayersListProps {
 
 interface PlayerItemProps {
   player: User;
-  index: number;
-  isLast: boolean;
+  isFirst?: boolean;
+  isLast?: boolean;
+  index?: number;
 }
 
-function PlayerItem({player, index, isLast}: PlayerItemProps) {
-  const isOdd = index % 2 === 1;
+interface PlayersHeaderProps {
+  isFirst?: boolean;
+  isLast?: boolean;
+  index?: number;
+}
 
+function PlayersHeader({}: PlayersHeaderProps) {
   return (
-    <View
-      style={[
-        styles.playerItemOuter,
-        isOdd ? styles.playerItemOuterOdd : styles.playerItemOuterEven,
-        isLast && styles.playerItemOuterLast,
-      ]}>
-      <View
-        style={[
-          styles.playerItemInner,
-          isOdd ? styles.playerItemInnerOdd : styles.playerItemInnerEven,
-          isLast && styles.playerItemInnerLast,
-        ]}>
-        <View style={styles.playerAvatar} />
-        <Text style={styles.playerName}>{player.nickName}</Text>
-      </View>
+    <View style={styles.headerContent}>
+      <Text style={styles.headerTitle}>Players</Text>
+    </View>
+  );
+}
+
+function PlayerItem({player}: PlayerItemProps) {
+  return (
+    <View style={styles.playerItem}>
+      <View style={styles.playerAvatar} />
+      <Text style={styles.playerName}>{player.nickName}</Text>
     </View>
   );
 }
 
 function PlayersList({players}: PlayersListProps) {
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        style={styles.headerGradient}
-        colors={['#DE8216', '#702900']}>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Players</Text>
-        </View>
-      </LinearGradient>
-      {players.map((player, index) => (
-        <PlayerItem
-          key={player.id}
-          player={player}
-          index={index}
-          isLast={index === players.length - 1}
-        />
+    <AlternatingRowsList>
+      <PlayersHeader />
+      {players.map(player => (
+        <PlayerItem key={player.id} player={player} />
       ))}
-    </View>
+    </AlternatingRowsList>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#502404',
-    padding: 3,
-    borderRadius: 28,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
   headerGradient: {
     backgroundColor: '#843402',
     borderTopLeftRadius: 25,
@@ -78,7 +58,6 @@ const styles = StyleSheet.create({
     paddingTop: 3,
   },
   headerContent: {
-    backgroundColor: '#A9500F',
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     padding: 5,
@@ -90,35 +69,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     paddingBottom: 3,
   },
-  playerItemOuter: {
-    paddingHorizontal: 3,
-  },
-  playerItemOuterEven: {
-    backgroundColor: '#702900',
-  },
-  playerItemOuterOdd: {
-    backgroundColor: '#903300',
-  },
-  playerItemOuterLast: {
-    borderBottomRightRadius: 25,
-    borderBottomLeftRadius: 25,
-    paddingBottom: 3,
-  },
-  playerItemInner: {
+  playerItem: {
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-  },
-  playerItemInnerEven: {
-    backgroundColor: '#7C3709',
-  },
-  playerItemInnerOdd: {
-    backgroundColor: '#AA4E08',
-  },
-  playerItemInnerLast: {
-    borderBottomRightRadius: 25,
-    borderBottomLeftRadius: 25,
   },
   playerAvatar: {
     aspectRatio: 1,
