@@ -7,10 +7,16 @@ import {normalize} from '~/utils/ui';
 interface MenuButtonProps {
   children?: ReactNode;
   text: string;
-  choices?: {name: string; choice: any}[];
+  activeChoices?: {name: string; choice: any}[];
+  choices: any[];
 }
 
-const LogContainer = ({children, text, choices}: MenuButtonProps) => {
+const LogContainer = ({
+  children,
+  text,
+  choices,
+  activeChoices,
+}: MenuButtonProps) => {
   return (
     <View style={styles.container}>
       <LinearGradient style={styles.gradient} colors={['#DE8216', '#702900']}>
@@ -19,7 +25,7 @@ const LogContainer = ({children, text, choices}: MenuButtonProps) => {
             <Text style={styles.text}>{text}</Text>
             {children}
           </View>
-          {choices ? <Poll choices={choices} /> : null}
+          <Poll choices={choices} activeChoices={activeChoices ?? []} />
         </View>
       </LinearGradient>
     </View>

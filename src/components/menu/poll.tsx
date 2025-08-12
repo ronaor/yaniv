@@ -10,10 +10,11 @@ import {useRoomStore} from '~/store/roomStore';
 import {normalize} from '~/utils/ui';
 
 interface PollProps {
-  choices: {
+  activeChoices: {
     name: string;
     choice: any;
   }[];
+  choices: any[];
 }
 
 interface VoteData {
@@ -59,7 +60,15 @@ const AnimatedVoteBar = ({vote, containerWidth}: AnimatedVoteBarProps) => {
   );
 };
 
-function Poll({choices}: PollProps) {
+interface PollProps {
+  activeChoices: {
+    name: string;
+    choice: any;
+  }[];
+  choices: any[];
+}
+
+function Poll({activeChoices, choices}: PollProps) {
   const {nickName} = useRoomStore();
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -68,11 +77,12 @@ function Poll({choices}: PollProps) {
   };
 
   const votes = useMemo((): VoteData[] => {
-    if (choices.length === 0) {
+    if (activeChoices.length === 0) {
       return [];
     }
 
-    const groupedChoices = choices.reduce<Record<string, string[]>>(
+    // Group actual votes by choice
+    const groupedChoices = activeChoices.reduce<Record<string, string[]>>(
       (acc, playerChoice) => {
         const choiceKey = String(playerChoice.choice);
         acc[choiceKey] = acc[choiceKey] || [];
@@ -82,23 +92,30 @@ function Poll({choices}: PollProps) {
       {},
     );
 
-    const totalVotes = choices.length;
+    const totalVotes = activeChoices.length;
 
-    return Object.entries(groupedChoices).map(([choice, users]) => ({
-      choice,
-      numVotes: users.length,
-      percentage: Math.round((users.length / totalVotes) * 100),
-      users,
-      isUserChoice: users.includes(nickName),
-    }));
-  }, [choices, nickName]);
+    // Map ALL possible choices to VoteData (including those with 0 votes)
+    return choices.map(choice => {
+      const choiceKey = String(choice);
+      const users = groupedChoices[choiceKey] || [];
+
+      return {
+        choice: choiceKey,
+        numVotes: users.length,
+        percentage:
+          totalVotes > 0 ? Math.round((users.length / totalVotes) * 100) : 0,
+        users,
+        isUserChoice: users.includes(nickName),
+      };
+    });
+  }, [activeChoices, choices, nickName]);
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
       {containerWidth > 0 &&
         votes.map(vote => (
           <AnimatedVoteBar
-            key={vote.choice}
+            key={vote.choice} // Now stable - never changes
             vote={vote}
             containerWidth={containerWidth}
           />

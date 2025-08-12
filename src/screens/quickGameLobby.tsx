@@ -124,17 +124,26 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           </View>
 
           <View style={styles.options}>
-            <LogContainer choices={choices.slapDown} text="Enable Slap-Down">
+            <LogContainer
+              choices={[true, false]}
+              activeChoices={choices.slapDown}
+              text="Enable Slap-Down">
               <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
             </LogContainer>
-            <LogContainer choices={choices.canCallYaniv} text="Call Yaniv at">
+            <LogContainer
+              choices={GAME_CONFIG.CALL_YANIV_OPTIONS}
+              activeChoices={choices.canCallYaniv}
+              text="Call Yaniv at">
               <SelectionBar
                 selectionIndex={callYanivAt}
                 setSelection={setCallYanivAt}
                 elements={GAME_CONFIG.CALL_YANIV_OPTIONS}
               />
             </LogContainer>
-            <LogContainer choices={choices.maxMatchPoints} text="Max Score">
+            <LogContainer
+              choices={GAME_CONFIG.MAX_SCORE_OPTIONS}
+              activeChoices={choices.maxMatchPoints}
+              text="Max Score">
               <SelectionBar
                 selectionIndex={maxScoreLimit}
                 setSelection={setMaxScoreLimit}
