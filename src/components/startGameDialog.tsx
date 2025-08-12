@@ -7,9 +7,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import {normalize} from '~/utils/ui';
 import CreateButton from './menu/createButton';
 import {GAME_CONFIG} from '~/utils/constants';
+import XButton from './menu/xButton';
 
 type StartGameDialogProps = {
   onCreateRoom: (data: RoomConfig) => void;
+  onClose: () => void;
 };
 
 interface RowItemProps {
@@ -42,7 +44,10 @@ function RowItem({text, children, index, isLast = false}: RowItemProps) {
   );
 }
 
-export default function StartGameDialog({onCreateRoom}: StartGameDialogProps) {
+export default function StartGameDialog({
+  onCreateRoom,
+  onClose,
+}: StartGameDialogProps) {
   const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
   const [callYanivAt, setCallYanivAt] = useState(
     GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
@@ -62,6 +67,9 @@ export default function StartGameDialog({onCreateRoom}: StartGameDialogProps) {
   return (
     <View style={styles.dialogBody}>
       <View style={styles.body}>
+        <View style={styles.xButton}>
+          <XButton onPress={onClose} />
+        </View>
         <LinearGradient
           style={styles.gradientHeader}
           colors={['#DE8216', '#702900']}>
@@ -160,13 +168,12 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
   },
   itemInner: {
-    padding: 10,
+    paddingHorizontal: 15,
     paddingVertical: 13,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 15,
-    width: '100%',
   },
   itemInnerEven: {
     backgroundColor: '#873D00',
@@ -178,17 +185,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 25,
     borderBottomLeftRadius: 25,
   },
-  playerAvatar: {
-    aspectRatio: 1,
-    width: 25,
-    backgroundColor: '#F7AD02',
-    borderRadius: 25,
-    borderColor: '#3B1603',
-    borderWidth: 2,
-  },
   title: {
     color: '#F9F09D',
-    fontSize: normalize(20),
+    fontSize: normalize(18),
     textAlign: 'left',
     fontWeight: '700',
   },
@@ -197,4 +196,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  xButton: {position: 'absolute', zIndex: 10, right: -20, top: -20},
 });

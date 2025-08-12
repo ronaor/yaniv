@@ -17,6 +17,8 @@ import {useRoomStore} from '~/store/roomStore';
 import StartGameDialog from '~/components/startGameDialog';
 import {RoomConfig} from '~/types/player';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import LeaveButton from '~/components/menu/leaveButton';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -78,20 +80,34 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
       <ImageBackground
         source={require('~/assets/images/background.png')}
         style={styles.screen}>
+        <View style={styles.topBar}>
+          <LeaveButton text={'Exit'} onPress={navigation.goBack} />
+        </View>
         <View style={styles.body}>
+          <View style={styles.headerContainer}>
+            <LinearGradient
+              style={styles.headerGradient}
+              colors={['#DE8216', '#702900']}>
+              <View style={styles.headerContent}>
+                <Text style={styles.title}>{'Game with Friends'}</Text>
+              </View>
+            </LinearGradient>
+          </View>
           <View style={styles.container}>
-            <Text style={[textStyles.title, styles.title]}>
-              {'משחק עם חברים'}
-            </Text>
             <View style={styles.menuButtons}>
-              <MenuButton text={'צור חדר'} onPress={createARoom} />
-              <MenuButton text={'כנס לחדר'} onPress={enterARoom} />
+              <MenuButton text={'Create Room'} onPress={createARoom} />
+              <MenuButton text={'Enter Room'} onPress={enterARoom} />
             </View>
           </View>
           <Dialog
             isModalOpen={newRoomModalOpen}
-            onBackgroundPress={() => setNewRoomModalOpen(false)}>
-            <StartGameDialog onCreateRoom={handleCreateRoom} />
+            onBackgroundPress={() => {
+              setNewRoomModalOpen(false);
+            }}>
+            <StartGameDialog
+              onCreateRoom={handleCreateRoom}
+              onClose={() => setNewRoomModalOpen(false)}
+            />
           </Dialog>
           <Dialog
             isModalOpen={enterRoomModalOpen}
@@ -125,38 +141,33 @@ const styles = StyleSheet.create({
   safeArea: {flex: 1},
   screen: {flex: 1},
   body: {
-    flex: 1,
-    padding: 20,
+    flex: 2,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 50,
   },
   container: {
     flexDirection: 'column',
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
-    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 2,
+    gap: 50,
   },
   title: {
-    marginBottom: 32,
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   menuButtons: {
     padding: 20,
     borderRadius: 20,
-    backgroundColor: colors.accent,
     gap: 16,
     marginTop: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
     width: '100%',
     alignItems: 'stretch',
   },
@@ -173,7 +184,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 8,
     padding: 8,
     marginVertical: 5,
@@ -189,6 +199,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 100,
   },
+  headerContainer: {
+    backgroundColor: '#502404',
+    padding: 3,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  headerGradient: {
+    backgroundColor: '#843402',
+    borderRadius: 20,
+    paddingHorizontal: 3,
+    paddingTop: 3,
+    flexDirection: 'column',
+  },
+  headerContent: {
+    backgroundColor: '#A9500F',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  topBar: {padding: 20, flexDirection: 'row'},
 });
 
 export default GameWithFriendsScreen;
