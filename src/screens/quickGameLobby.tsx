@@ -34,18 +34,20 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   }, [navigation, gameState]);
 
   const handleLeave = useCallback(() => {
-    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-      {text: 'ביטול', style: 'cancel'},
-      {
-        text: 'צא',
-        style: 'destructive',
-        onPress: () => {
-          leaveRoom(nickName);
-          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    if (players.length > 1) {
+      Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
+        {text: 'ביטול', style: 'cancel'},
+        {
+          text: 'צא',
+          style: 'destructive',
+          onPress: () => {
+            leaveRoom(nickName);
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          },
         },
-      },
-    ]);
-  }, [navigation, leaveRoom, nickName]);
+      ]);
+    }
+  }, [players.length, leaveRoom, nickName, navigation]);
 
   const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
   const [callYanivAt, setCallYanivAt] = useState(

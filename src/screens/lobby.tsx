@@ -63,18 +63,20 @@ function LobbyScreen({navigation}: LobbyProps) {
   }, [navigation, gameState]);
 
   const handleLeave = useCallback(() => {
-    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-      {text: 'ביטול', style: 'cancel'},
-      {
-        text: 'צא',
-        style: 'destructive',
-        onPress: () => {
-          leaveRoom(nickName);
-          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    if (players.length > 1) {
+      Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
+        {text: 'ביטול', style: 'cancel'},
+        {
+          text: 'צא',
+          style: 'destructive',
+          onPress: () => {
+            leaveRoom(nickName);
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          },
         },
-      },
-    ]);
-  }, [leaveRoom, nickName, navigation]);
+      ]);
+    }
+  }, [players.length, leaveRoom, nickName, navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
