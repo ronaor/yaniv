@@ -17,3 +17,14 @@ export const CIRCLE_CENTER = {
   y: screenHeight / 2 - CARD_HEIGHT * 1.5,
   deg: 0,
 };
+
+// constants/gameConfig.ts
+export const GAME_CONFIG = {
+  CALL_YANIV_OPTIONS: ['3', '5', '7'],
+  MAX_SCORE_OPTIONS: ['50', '100', '200'],
+  DEFAULT_VALUES: {
+    slapDown: true,
+    callYanivIndex: 2, // '7'
+    maxScoreIndex: 1, // '100'
+  },
+};

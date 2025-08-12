@@ -1,25 +1,32 @@
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
   Alert,
   ActivityIndicator,
+  ImageBackground,
+  Dimensions,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menu/menuButton';
 import Dialog from '~/components/dialog';
 import {GameWithFriendsProps} from '~/types/navigation';
-import {colors, textStyles} from '~/theme';
+import {colors} from '~/theme';
 import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
-import StartGameDialog from '~/components/startGameDialog';
+import CreateRoomDialog from '~/components/dialogs/createRoomDialog';
 import {RoomConfig} from '~/types/player';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import LeaveButton from '~/components/menu/leaveButton';
+import {OutlinedText} from '~/components/cartoonText';
+import JoinRoomDialog from '~/components/dialogs/joinRoomDialog';
+
+const {width: screenWidth} = Dimensions.get('screen');
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
-  const [roomCode, setRoomCode] = useState<string>('');
   const {name} = useUser();
   const {
     createRoom,
@@ -63,7 +70,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     createRoom(name, data);
   };
 
-  const handleJoinRoom = () => {
+  const onJoinRoom = (roomCode: string) => {
     if (!name || !roomCode) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן ומזהה חדר');
       return;
@@ -72,80 +79,100 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   };
 
   return (
-    <View style={styles.body}>
-      <View style={styles.container}>
-        <Text style={[textStyles.title, styles.title]}>{'משחק עם חברים'}</Text>
-        <View style={styles.menuButtons}>
-          <MenuButton text={'צור חדר'} onPress={createARoom} />
-          <MenuButton text={'כנס לחדר'} onPress={enterARoom} />
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
+        <View style={styles.topBar}>
+          <LeaveButton text={'Exit'} onPress={navigation.goBack} />
         </View>
-      </View>
-      <Dialog
-        isModalOpen={newRoomModalOpen}
-        onBackgroundPress={() => setNewRoomModalOpen(false)}>
-        <StartGameDialog onCreateRoom={handleCreateRoom} />
-      </Dialog>
-      <Dialog
-        isModalOpen={enterRoomModalOpen}
-        onBackgroundPress={() => setEnterRoomModalOpen(false)}>
-        <Text style={textStyles.subtitle}>{'כניסה לחדר'}</Text>
-        <View style={styles.dialogBody}>
-          <Text style={textStyles.body}>{'מזהה חדר'}</Text>
-          <TextInput
-            value={roomCode}
-            onChangeText={setRoomCode}
-            style={styles.input}
-            placeholder="הכנס קוד חדר"
-            autoCapitalize="characters"
-            placeholderTextColor={colors.textSecondary}
-          />
-          <MenuButton onPress={handleJoinRoom} text="כנס" />
+        <View style={styles.body}>
+          <View style={styles.headerContainer}>
+            <LinearGradient
+              style={styles.headerGradient}
+              colors={['#DE8216', '#702900']}>
+              <View style={styles.headerContent}>
+                <Text style={styles.title}>{'Game with Friends'}</Text>
+              </View>
+            </LinearGradient>
+          </View>
+
+          <View style={styles.container}>
+            <View style={styles.menuButtons}>
+              <MenuButton text={'Create Room'} onPress={createARoom} />
+              <MenuButton text={'Enter Room'} onPress={enterARoom} />
+            </View>
+            <OutlinedText
+              text="Play online with your friends."
+              fontSize={20}
+              width={screenWidth}
+              height={32}
+              fillColor={'#FEF3C7'}
+              strokeColor={'#A9490A'}
+              strokeWidth={3}
+              fontWeight={'700'}
+            />
+          </View>
+          <Dialog
+            isModalOpen={newRoomModalOpen}
+            onBackgroundPress={() => {
+              setNewRoomModalOpen(false);
+            }}>
+            <CreateRoomDialog
+              onCreateRoom={handleCreateRoom}
+              onClose={() => setNewRoomModalOpen(false)}
+            />
+          </Dialog>
+          <Dialog
+            isModalOpen={enterRoomModalOpen}
+            onBackgroundPress={() => setEnterRoomModalOpen(false)}>
+            <JoinRoomDialog
+              onJoinRoom={onJoinRoom}
+              onClose={() => setEnterRoomModalOpen(false)}
+            />
+          </Dialog>
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          )}
         </View>
-      </Dialog>
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      )}
-    </View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {flex: 1},
+  screen: {flex: 1},
   body: {
-    flex: 1,
-    backgroundColor: colors.background,
-    padding: 20,
+    flex: 2,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 50,
   },
   container: {
     flexDirection: 'column',
     width: '100%',
     maxWidth: 400,
     alignItems: 'center',
-    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 2,
+    gap: 50,
   },
   title: {
-    marginBottom: 32,
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   menuButtons: {
     padding: 20,
     borderRadius: 20,
-    backgroundColor: colors.accent,
     gap: 16,
     marginTop: 0,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
     width: '100%',
     alignItems: 'stretch',
   },
@@ -162,7 +189,6 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 8,
     padding: 8,
     marginVertical: 5,
@@ -178,6 +204,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 100,
   },
+  headerContainer: {
+    backgroundColor: '#502404',
+    padding: 3,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  headerGradient: {
+    backgroundColor: '#843402',
+    borderRadius: 20,
+    paddingHorizontal: 3,
+    paddingTop: 3,
+    flexDirection: 'column',
+  },
+  headerContent: {
+    backgroundColor: '#A9500F',
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    gap: 10,
+  },
+  topBar: {padding: 20, flexDirection: 'row'},
 });
 
 export default GameWithFriendsScreen;

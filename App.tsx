@@ -48,7 +48,10 @@ const App = () => {
 
       // Check if we were in lobby and now we're not in game screen
       // This means user navigated away from lobby (back to home or other screen)
-      if (previousRouteName === 'Lobby' && currentRouteName !== 'Game') {
+      if (
+        (previousRouteName === 'Lobby' || previousRouteName === 'QuickLobby') &&
+        currentRouteName !== 'Game'
+      ) {
         leaveRoom(nickName);
       }
     },

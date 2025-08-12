@@ -1,22 +1,31 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import {isUndefined} from 'lodash';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Alert,
-  FlatList,
+  Dimensions,
+  ImageBackground,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  ScrollView,
 } from 'react-native';
-import StartGameDialog from '~/components/startGameDialog';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {OutlinedText} from '~/components/cartoonText';
+
+import LeaveButton from '~/components/menu/leaveButton';
+import LogContainer from '~/components/menu/logContainer';
+import SelectionBar from '~/components/menu/mainSelectionBar';
+import MenuToggle from '~/components/menu/mainToggleSwitch';
+import PlayersList from '~/components/menu/playersList';
+import RoomTimer from '~/components/menu/roomTimer';
 import {useRoomStore} from '~/store/roomStore';
-import {colors, textStyles} from '~/theme';
 import {QuickGameLobbyProps} from '~/types/navigation';
+import {GAME_CONFIG} from '~/utils/constants';
+import {normalize} from '~/utils/ui';
+
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
-  const {players, gameState, nickName, canStartTimer, leaveRoom} =
-    useRoomStore();
-
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const {players, gameState, nickName, leaveRoom} = useRoomStore();
 
   useEffect(() => {
     if (gameState === 'started') {
@@ -24,158 +33,176 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     }
   }, [navigation, gameState]);
 
-  useEffect(() => {
-    // On unmount, always leave the room
-    return () => {
-      if (gameState === 'waiting') {
-        leaveRoom(nickName);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaveRoom]);
-
-  useEffect(() => {
-    if (players.length < 2) {
-      setTimeRemaining(0);
-      return;
-    }
-
-    let targetSeconds = 0;
-    if (players.length === 2) {
-      targetSeconds = 15;
-    } else if (players.length === 3) {
-      targetSeconds = 10;
-    } else if (players.length >= 4) {
-      targetSeconds = 7;
-    }
-
-    const startTime = Date.now();
-    const endTime = startTime + targetSeconds * 1000;
-
-    const interval = setInterval(() => {
-      const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
-      setTimeRemaining(remaining);
-
-      if (remaining <= 0) {
-        clearInterval(interval);
-        // Let the backend handle game start
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [players.length, canStartTimer]);
-
   const handleLeave = useCallback(() => {
-    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-      {text: 'ביטול', style: 'cancel'},
-      {
-        text: 'צא',
-        style: 'destructive',
-        onPress: () => {
-          leaveRoom(nickName);
-          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    if (players.length > 1) {
+      Alert.alert('Leave Room', 'Are you sure you want to leave?', [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () => {
+            leaveRoom(nickName);
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          },
         },
-      },
-    ]);
-  }, [navigation, leaveRoom, nickName]);
+      ]);
+    } else {
+      leaveRoom(nickName);
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    }
+  }, [players.length, leaveRoom, nickName, navigation]);
+
+  const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
+  const [callYanivAt, setCallYanivAt] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
+  );
+  const [maxScoreLimit, setMaxScoreLimit] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.maxScoreIndex,
+  );
+
+  const {votes, setQuickGameConfig} = useRoomStore();
+
+  const choices = useMemo(() => {
+    const initialValues = {
+      slapDown: [],
+      canCallYaniv: [],
+      maxMatchPoints: [],
+    };
+
+    if (isUndefined(votes)) {
+      return initialValues;
+    }
+
+    return Object.entries(votes).reduce<{
+      slapDown: {name: string; choice: boolean}[];
+      canCallYaniv: {name: string; choice: number}[];
+      maxMatchPoints: {name: string; choice: number}[];
+    }>((res, [name, value]) => {
+      res.slapDown.push({name, choice: value.slapDown});
+      res.canCallYaniv.push({name, choice: value.canCallYaniv});
+      res.maxMatchPoints.push({name, choice: value.maxMatchPoints});
+      return res;
+    }, initialValues);
+  }, [votes]);
+
+  useEffect(() => {
+    let config = {
+      slapDown,
+      canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[callYanivAt],
+      maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[maxScoreLimit],
+    };
+    setQuickGameConfig(config);
+  }, [setQuickGameConfig, slapDown, callYanivAt, maxScoreLimit]);
 
   return (
-    <View style={styles.body}>
-      <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-        <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-      </TouchableOpacity>
-      <View style={styles.timerContainer}>
-        <Text style={[styles.timer]}>{timeRemaining}s</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('~/assets/images/background.png')}
+        style={styles.screen}>
+        <View style={styles.header}>
+          <LeaveButton text={'Leave'} onPress={handleLeave} />
+        </View>
 
-      <Text style={textStyles.subtitle}>{'שחקנים בחדר:'}</Text>
-      <View style={styles.playerListContainer}>
-        <FlatList
-          data={players}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <Text style={styles.player}>{item.nickName}</Text>
-          )}
-          style={styles.flatList}
-        />
-      </View>
-      <Text style={styles.status}>
-        {gameState === 'started'
-          ? 'המשחק התחיל!'
-          : `ממתין לשחקנים... (${players.length}/4)`}
-      </Text>
-      <StartGameDialog onCreateRoom={() => {}} isQuickGameLobby />
-    </View>
+        <ScrollView
+          horizontal={false}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.playersContainer}>
+            <PlayersList players={players} />
+          </View>
+
+          <View style={styles.betweenText}>
+            <OutlinedText
+              text={
+                gameState === 'started'
+                  ? 'The Game Begin!'
+                  : `Waiting for players... (${players.length}/4)`
+              }
+              fontSize={normalize(17)}
+              width={screenWidth}
+              height={normalize(60)}
+              fillColor={'#FFFFFF'}
+              strokeColor={'#644008'}
+              fontWeight={'700'}
+              strokeWidth={3}
+            />
+          </View>
+
+          <View style={styles.options}>
+            <LogContainer
+              choices={[true, false]}
+              activeChoices={choices.slapDown}
+              text="Enable Slap-Down">
+              <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
+            </LogContainer>
+            <LogContainer
+              choices={GAME_CONFIG.CALL_YANIV_OPTIONS}
+              activeChoices={choices.canCallYaniv}
+              text="Call Yaniv at">
+              <SelectionBar
+                selectionIndex={callYanivAt}
+                setSelection={setCallYanivAt}
+                elements={GAME_CONFIG.CALL_YANIV_OPTIONS}
+              />
+            </LogContainer>
+            <LogContainer
+              choices={GAME_CONFIG.MAX_SCORE_OPTIONS}
+              activeChoices={choices.maxMatchPoints}
+              text="Max Score">
+              <SelectionBar
+                selectionIndex={maxScoreLimit}
+                setSelection={setMaxScoreLimit}
+                elements={GAME_CONFIG.MAX_SCORE_OPTIONS}
+              />
+            </LogContainer>
+          </View>
+        </ScrollView>
+
+        <RoomTimer />
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  body: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
-    padding: 20,
+  },
+  screen: {
+    flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  playerListContainer: {
-    width: '100%',
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 12,
-    marginVertical: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 1,
-  },
-  player: {
-    fontSize: 18,
-    color: colors.text,
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    textAlign: 'center',
-  },
-  status: {
-    fontSize: 20,
-    color: colors.primary,
-    marginTop: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  loaderOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    zIndex: 10,
+    justifyContent: 'space-between',
+    width: screenWidth,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    position: 'absolute',
+  },
+  playersContainer: {
+    width: screenWidth * 0.75,
+  },
+  betweenText: {
+    height: 40,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  leaveBtn: {
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+  options: {
+    width: screenWidth * 0.9,
+    paddingTop: 10,
+    paddingBottom: screenHeight * 0.08,
+    gap: 10,
   },
-  leaveBtnText: {
-    color: colors.primary,
-    fontWeight: 'bold',
-    fontSize: 14,
+  scrollViewContent: {
+    paddingTop: screenHeight * 0.12,
+    padding: 20,
+    alignItems: 'center',
   },
-  flatList: {width: '100%'},
-  timerContainer: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  timer: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  timerUrgent: {
-    color: '#FF6B6B',
-  },
+  scrollView: {width: '100%'},
 });
 
 export default QuickGameLobby;

@@ -286,7 +286,7 @@ function GameScreen({navigation}: any) {
             roundResults.playersRoundScore[roundResults.yanivCaller];
         }
         extraDelay += roundResults.playersRoundScore[playerId].length - 1;
-        prev[playerId] = roundResults.playersRoundScore[playerId];
+        prev[playerId] = [...roundResults.playersRoundScore[playerId]];
 
         return {...prev};
       });
