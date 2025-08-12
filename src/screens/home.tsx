@@ -17,6 +17,7 @@ import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
 import {useRoomStore} from '~/store/roomStore';
+import {openNamePromptEdit} from '~/components/namePrompt';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
@@ -72,7 +73,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
               {name ? `hello ${name}! welcome` : ''}
             </Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Game')}
+              onPress={() => openNamePromptEdit(name)}
               style={styles.changeNameBtn}>
               <Text style={styles.changeNameText}>change name</Text>
             </TouchableOpacity>
