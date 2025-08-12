@@ -4,16 +4,22 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import {normalize} from '~/utils/ui';
 
-interface CreateButtonProps {
+interface SimpleButtonProps {
   text: string;
   onPress: () => void;
   disabled?: boolean;
+  colors: [string, string];
+  mainColor: string;
 }
 
-const CreateButton = ({text, onPress, disabled = false}: CreateButtonProps) => {
-  const gradientColors = disabled
-    ? ['#BBBBBB', '#999999']
-    : ['#A0D72C', '#2C8408'];
+const SimpleButton = ({
+  colors,
+  mainColor,
+  text,
+  onPress,
+  disabled = false,
+}: SimpleButtonProps) => {
+  const gradientColors = disabled ? ['#BBBBBB', '#999999'] : colors;
 
   return (
     <Pressable
@@ -23,9 +29,15 @@ const CreateButton = ({text, onPress, disabled = false}: CreateButtonProps) => {
         styles.container,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,
+        {backgroundColor: colors[colors.length - 1]},
       ]}>
       <LinearGradient style={styles.gradient} colors={gradientColors}>
-        <View style={[styles.content, disabled && styles.contentDisabled]}>
+        <View
+          style={[
+            styles.content,
+            disabled && styles.contentDisabled,
+            {backgroundColor: mainColor},
+          ]}>
           <Text style={styles.text}>{text}</Text>
         </View>
       </LinearGradient>
@@ -35,7 +47,6 @@ const CreateButton = ({text, onPress, disabled = false}: CreateButtonProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2C8408',
     borderRadius: 27,
     borderWidth: 3,
     borderColor: '#622800',
@@ -80,4 +91,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateButton;
+export default SimpleButton;

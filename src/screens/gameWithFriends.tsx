@@ -1,29 +1,32 @@
 import {
   StyleSheet,
   Text,
-  TextInput,
   View,
   Alert,
   ActivityIndicator,
   ImageBackground,
+  Dimensions,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menu/menuButton';
 import Dialog from '~/components/dialog';
 import {GameWithFriendsProps} from '~/types/navigation';
-import {colors, textStyles} from '~/theme';
+import {colors} from '~/theme';
 import {useUser} from '~/store/userStore';
 import {useRoomStore} from '~/store/roomStore';
-import StartGameDialog from '~/components/startGameDialog';
+import CreateRoomDialog from '~/components/dialogs/createRoomDialog';
 import {RoomConfig} from '~/types/player';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import LeaveButton from '~/components/menu/leaveButton';
+import {OutlinedText} from '~/components/cartoonText';
+import JoinRoomDialog from '~/components/dialogs/joinRoomDialog';
+
+const {width: screenWidth} = Dimensions.get('screen');
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
-  const [roomCode, setRoomCode] = useState<string>('');
   const {name} = useUser();
   const {
     createRoom,
@@ -67,7 +70,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     createRoom(name, data);
   };
 
-  const handleJoinRoom = () => {
+  const onJoinRoom = (roomCode: string) => {
     if (!name || !roomCode) {
       Alert.alert('שגיאה', 'יש להזין שם שחקן ומזהה חדר');
       return;
@@ -93,18 +96,29 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
               </View>
             </LinearGradient>
           </View>
+
           <View style={styles.container}>
             <View style={styles.menuButtons}>
               <MenuButton text={'Create Room'} onPress={createARoom} />
               <MenuButton text={'Enter Room'} onPress={enterARoom} />
             </View>
+            <OutlinedText
+              text="Play online with your friends."
+              fontSize={20}
+              width={screenWidth}
+              height={32}
+              fillColor={'#FEF3C7'}
+              strokeColor={'#A9490A'}
+              strokeWidth={3}
+              fontWeight={'700'}
+            />
           </View>
           <Dialog
             isModalOpen={newRoomModalOpen}
             onBackgroundPress={() => {
               setNewRoomModalOpen(false);
             }}>
-            <StartGameDialog
+            <CreateRoomDialog
               onCreateRoom={handleCreateRoom}
               onClose={() => setNewRoomModalOpen(false)}
             />
@@ -112,19 +126,10 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
           <Dialog
             isModalOpen={enterRoomModalOpen}
             onBackgroundPress={() => setEnterRoomModalOpen(false)}>
-            <Text style={textStyles.subtitle}>{'כניסה לחדר'}</Text>
-            <View style={styles.dialogBody}>
-              <Text style={textStyles.body}>{'מזהה חדר'}</Text>
-              <TextInput
-                value={roomCode}
-                onChangeText={setRoomCode}
-                style={styles.input}
-                placeholder="הכנס קוד חדר"
-                autoCapitalize="characters"
-                placeholderTextColor={colors.textSecondary}
-              />
-              <MenuButton onPress={handleJoinRoom} text="כנס" />
-            </View>
+            <JoinRoomDialog
+              onJoinRoom={onJoinRoom}
+              onClose={() => setEnterRoomModalOpen(false)}
+            />
           </Dialog>
           {isLoading && (
             <View style={styles.loadingOverlay}>

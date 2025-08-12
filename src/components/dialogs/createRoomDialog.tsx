@@ -2,14 +2,14 @@ import React, {ReactNode, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
 import {RoomConfig} from '~/types/player';
-import SelectionBar from './menu/mainSelectionBar';
+import SelectionBar from '../menu/mainSelectionBar';
 import LinearGradient from 'react-native-linear-gradient';
 import {normalize} from '~/utils/ui';
-import CreateButton from './menu/createButton';
 import {GAME_CONFIG} from '~/utils/constants';
-import XButton from './menu/xButton';
+import XButton from '../menu/xButton';
+import SimpleButton from '../menu/simpleButton';
 
-type StartGameDialogProps = {
+type CreateRoomDialogProps = {
   onCreateRoom: (data: RoomConfig) => void;
   onClose: () => void;
 };
@@ -44,10 +44,10 @@ function RowItem({text, children, index, isLast = false}: RowItemProps) {
   );
 }
 
-export default function StartGameDialog({
+export default function CreateRoomDialog({
   onCreateRoom,
   onClose,
-}: StartGameDialogProps) {
+}: CreateRoomDialogProps) {
   const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
   const [callYanivAt, setCallYanivAt] = useState(
     GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
@@ -96,7 +96,12 @@ export default function StartGameDialog({
         </RowItem>
         <RowItem index={3} isLast={true}>
           <View style={styles.buttonAdjuster}>
-            <CreateButton text="CREATE" onPress={handleCreateRoom} />
+            <SimpleButton
+              text="CREATE"
+              onPress={handleCreateRoom}
+              colors={['#A0D72C', '#2C8408']}
+              mainColor={'#3BA209'}
+            />
           </View>
         </RowItem>
       </View>
