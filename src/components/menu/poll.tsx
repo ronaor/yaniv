@@ -50,7 +50,11 @@ const AnimatedVoteBar = ({vote, containerWidth}: AnimatedVoteBarProps) => {
       style={[
         styles.voteBar,
         animatedStyle,
-        vote.isUserChoice ? styles.userVoteBar : styles.otherVoteBar,
+        vote.percentage === 0
+          ? styles.inactiveVoteBar
+          : vote.isUserChoice
+          ? styles.userVoteBar
+          : styles.otherVoteBar,
       ]}>
       <View style={styles.voteContent}>
         <Text style={styles.choiceText}>{vote.choice}</Text>
@@ -144,6 +148,9 @@ const styles = StyleSheet.create({
   },
   otherVoteBar: {
     backgroundColor: '#ffaa01',
+  },
+  inactiveVoteBar: {
+    backgroundColor: '#a2a2a2ff',
   },
   voteContent: {
     flexDirection: 'row',
