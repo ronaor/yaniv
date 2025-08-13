@@ -16,7 +16,6 @@ import {
   Skia,
 } from '@shopify/react-native-skia';
 import {OutlinedText} from '../cartoonText';
-import {isEqual} from 'lodash';
 
 interface UserAvatarProps {
   name: string;
@@ -96,7 +95,7 @@ function UserAvatar({
 
   // Round score absorption animation
   useEffect(() => {
-    if (roundScore.length === 0 || isEqual(refRoundScore.current, roundScore)) {
+    if (roundScore.length === 0 || refRoundScore.current === roundScore) {
       return;
     }
     refRoundScore.current = roundScore;

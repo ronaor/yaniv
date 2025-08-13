@@ -276,21 +276,20 @@ function GameScreen({navigation}: any) {
       let extraDelay = 0;
 
       setPlayersResultedScores(prev => {
-        const newScores = {...prev};
         if (roundResults.yanivCaller === playerId) {
-          return newScores;
+          return prev;
         }
         if (roundResults.assafCaller === playerId) {
           extraDelay +=
             roundResults.playersRoundScore[roundResults.yanivCaller].length - 1;
-          newScores[roundResults.yanivCaller] = [
+          prev[roundResults.yanivCaller] = [
             ...roundResults.playersRoundScore[roundResults.yanivCaller],
           ];
         }
         extraDelay += roundResults.playersRoundScore[playerId].length - 1;
-        newScores[playerId] = [...roundResults.playersRoundScore[playerId]];
+        prev[playerId] = [...roundResults.playersRoundScore[playerId]];
 
-        return newScores;
+        return {...prev};
       });
       return extraDelay * LOOK_MOMENT;
     };
