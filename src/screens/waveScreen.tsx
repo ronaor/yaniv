@@ -196,7 +196,7 @@ const WaveAnimationBackground = () => {
     seaColor,
   ]);
 
-  const image = useImage(require('~/assets/images/sand.png'));
+  const image = useImage(require('~/assets/images/beach_1.png'));
 
   return (
     <Canvas style={styles.canvas}>
@@ -204,8 +204,8 @@ const WaveAnimationBackground = () => {
       <Image
         image={image}
         width={dimension.width}
-        height={dimension.height}
-        fit={'scaleDown'}
+        height={dimension.height - 50}
+        fit={'fill'}
       />
 
       {/* Wave memory snapshot - masked to exclude current wave area */}
