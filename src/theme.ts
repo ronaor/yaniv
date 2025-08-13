@@ -10,7 +10,7 @@ export const colors = {
   textSecondary: '#555',
   border: '#EEE',
   error: '#D32F2F',
-  success: '#388E3C',
+  success: '#78BE5E',
   info: '#1976D2',
   warning: '#FF9800', // Orange for warning state
 };

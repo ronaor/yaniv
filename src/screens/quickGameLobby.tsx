@@ -42,13 +42,13 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           style: 'destructive',
           onPress: () => {
             leaveRoom(nickName);
-            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+            navigation.goBack();
           },
         },
       ]);
     } else {
       leaveRoom(nickName);
-      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+      navigation.goBack();
     }
   }, [players.length, leaveRoom, nickName, navigation]);
 

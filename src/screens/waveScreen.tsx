@@ -100,7 +100,7 @@ const WaveAnimationBackground = () => {
 
     // Tidal cycle calculation
     const cycle = interpolate(
-      Math.sin((frameInfo.timestamp / 750) * 0.5),
+      Math.sin((frameInfo.timestamp / 2000) * 0.5),
       [-1, 1],
       [0, 1],
     );

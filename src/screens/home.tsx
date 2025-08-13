@@ -1,12 +1,5 @@
 import React, {useCallback} from 'react';
-import {
-  Dimensions,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Dimensions, ImageBackground, StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
@@ -17,14 +10,14 @@ import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
 import {useRoomStore} from '~/store/roomStore';
-import {openNamePromptEdit} from '~/components/namePrompt';
+import UserTopBar from '~/components/user/userTopBar';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
 
-  const {isConnected, isConnecting} = useSocket();
+  const {isConnected} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const {name} = useUser();
 
@@ -67,40 +60,6 @@ function HomeScreen({navigation}: HomeScreenProps) {
       <ImageBackground
         source={require('~/assets/images/background.png')}
         style={styles.screen}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.welcome}>
-              {name ? `hello ${name}! welcome` : ''}
-            </Text>
-            <TouchableOpacity
-              onPress={() => openNamePromptEdit(name)}
-              style={styles.changeNameBtn}>
-              <Text style={styles.changeNameText}>change name</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.connectionStatus}>
-            <View
-              style={[
-                styles.connectionDot,
-                {
-                  backgroundColor: isConnected
-                    ? colors.success
-                    : isConnecting
-                    ? colors.warning
-                    : colors.error,
-                },
-              ]}
-            />
-            <Text style={styles.connectionText}>
-              {isConnected
-                ? 'connected'
-                : isConnecting
-                ? 'connecting...'
-                : 'disconnected'}
-            </Text>
-          </View>
-        </View>
-
         <View style={styles.body}>
           <GameLogo />
           <View style={styles.menuButtons}>
@@ -109,13 +68,18 @@ function HomeScreen({navigation}: HomeScreenProps) {
               onPress={quickGameHandler}
               disabled={!isConnected}
             />
-            <MenuButton text={'Play with Friends'} onPress={gameWithFriends} />
+            <MenuButton
+              text={'Play with Friends'}
+              onPress={gameWithFriends}
+              disabled={!isConnected}
+            />
             <MenuButton
               text={'Play vs Computer'}
               onPress={() => navigation.navigate('BotDifficulty')}
             />
           </View>
         </View>
+        <UserTopBar />
       </ImageBackground>
     </SafeAreaView>
   );
@@ -125,12 +89,13 @@ const styles = StyleSheet.create({
   safeArea: {flex: 1},
   screen: {
     flex: 1,
-    padding: 20,
+
     flexDirection: 'column',
     alignItems: 'center',
   },
   body: {
     flex: 1,
+    padding: 20,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
@@ -158,8 +123,9 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   connectionText: {
-    fontSize: 12,
-    color: colors.textSecondary,
+    fontSize: 16,
+    color: '#8FCDCA',
+    fontWeight: '600',
   },
   welcome: {
     ...textStyles.body,
@@ -199,6 +165,24 @@ const styles = StyleSheet.create({
     gap: 16,
     width: '100%',
   },
+  top: {
+    width: '100%',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#00515B',
+    borderBottomRightRadius: 25,
+    position: 'absolute',
+  },
+  avatar: {
+    backgroundColor: '#13AEAF',
+    aspectRatio: 1,
+    height: 40,
+    borderRadius: 25,
+  },
+  name: {fontSize: 18, color: '#FDF9D1', fontWeight: '700'},
+  user: {flexDirection: 'row', alignItems: 'center', gap: 10},
 });
 
 export default HomeScreen;
