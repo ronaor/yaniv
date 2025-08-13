@@ -161,20 +161,14 @@ const CardPointer = ({
     delay,
   ]);
 
-  const animatedPointerStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
-  }));
-
   const animatedStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
     transform: [
-      {translateY: translateY.value},
+      {translateX: translateX.value},
+      {translateY: translateY.value + translateInternalY.value},
       {rotate: `${cardDeg.value}deg`},
     ],
     zIndex: index,
-  }));
-
-  const animatedSelectionStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: translateInternalY.value}],
   }));
 
   const animatedFrontFlipStyle = useAnimatedStyle(() => ({
@@ -197,23 +191,19 @@ const CardPointer = ({
   }));
 
   return (
-    <Animated.View style={[styles.pointers, animatedPointerStyle]}>
-      <Animated.View style={animatedStyle}>
-        <Animated.View style={animatedSelectionStyle}>
-          <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
-            <Animated.View style={animatedFrontFlipStyle}>
-              {isSlap ? (
-                <GlowingCardComponent card={card} />
-              ) : (
-                <CardComponent card={card} />
-              )}
-            </Animated.View>
-            <Animated.View style={animatedBackFlipStyle}>
-              <CardBack />
-            </Animated.View>
-          </Pressable>
+    <Animated.View style={animatedStyle}>
+      <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
+        <Animated.View style={animatedFrontFlipStyle}>
+          {isSlap ? (
+            <GlowingCardComponent card={card} />
+          ) : (
+            <CardComponent card={card} />
+          )}
         </Animated.View>
-      </Animated.View>
+        <Animated.View style={animatedBackFlipStyle}>
+          <CardBack />
+        </Animated.View>
+      </Pressable>
     </Animated.View>
   );
 };

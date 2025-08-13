@@ -282,8 +282,9 @@ function GameScreen({navigation}: any) {
         if (roundResults.assafCaller === playerId) {
           extraDelay +=
             roundResults.playersRoundScore[roundResults.yanivCaller].length - 1;
-          prev[roundResults.yanivCaller] =
-            roundResults.playersRoundScore[roundResults.yanivCaller];
+          prev[roundResults.yanivCaller] = [
+            ...roundResults.playersRoundScore[roundResults.yanivCaller],
+          ];
         }
         extraDelay += roundResults.playersRoundScore[playerId].length - 1;
         prev[playerId] = [...roundResults.playersRoundScore[playerId]];

@@ -145,12 +145,10 @@ const HiddenCardPointer = ({
     reveal,
   ]);
 
-  const animatedPointerStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
-  }));
-
   const animatedStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
     transform: [
+      {translateX: translateX.value},
       {translateY: translateY.value},
       {rotate: `${cardDeg.value}deg`},
     ],
@@ -175,14 +173,12 @@ const HiddenCardPointer = ({
   }));
 
   return (
-    <Animated.View style={[styles.pointers, animatedPointerStyle]}>
-      <Animated.View style={animatedStyle}>
-        <Animated.View style={animatedFrontFlipStyle}>
-          <CardComponent card={card} />
-        </Animated.View>
-        <Animated.View style={animatedBackFlipStyle}>
-          <CardBack />
-        </Animated.View>
+    <Animated.View style={animatedStyle}>
+      <Animated.View style={animatedFrontFlipStyle}>
+        <CardComponent card={card} />
+      </Animated.View>
+      <Animated.View style={animatedBackFlipStyle}>
+        <CardBack />
       </Animated.View>
     </Animated.View>
   );
