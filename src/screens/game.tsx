@@ -276,20 +276,21 @@ function GameScreen({navigation}: any) {
       let extraDelay = 0;
 
       setPlayersResultedScores(prev => {
+        const newScores = {...prev};
         if (roundResults.yanivCaller === playerId) {
-          return prev;
+          return newScores;
         }
         if (roundResults.assafCaller === playerId) {
           extraDelay +=
             roundResults.playersRoundScore[roundResults.yanivCaller].length - 1;
-          prev[roundResults.yanivCaller] = [
+          newScores[roundResults.yanivCaller] = [
             ...roundResults.playersRoundScore[roundResults.yanivCaller],
           ];
         }
         extraDelay += roundResults.playersRoundScore[playerId].length - 1;
-        prev[playerId] = [...roundResults.playersRoundScore[playerId]];
+        newScores[playerId] = [...roundResults.playersRoundScore[playerId]];
 
-        return {...prev};
+        return newScores;
       });
       return extraDelay * LOOK_MOMENT;
     };
@@ -378,17 +379,19 @@ function GameScreen({navigation}: any) {
             isActive={myTurn}
             timePerPlayer={game.rules.timePerPlayer}
           />
-          <OutlinedText
-            text={`${handValue}  Points`}
-            fontSize={20}
-            width={125}
-            height={100}
-            fillColor={'#FFD61B'}
-            strokeColor={'#6A3900'}
-            strokeWidth={5}
-            fontWeight={'900'}
-          />
-          {/* <Text style={styles.handTitle}>{handValue} Points</Text> */}
+          {currentPlayer?.stats?.playerStatus === 'active' &&
+          !isNil(game.currentTurn) ? (
+            <OutlinedText
+              text={`${handValue}  Points`}
+              fontSize={20}
+              width={125}
+              height={100}
+              fillColor={'#FFD61B'}
+              strokeColor={'#6A3900'}
+              strokeWidth={5}
+              fontWeight={'900'}
+            />
+          ) : null}
           <YanivButton
             onPress={emit.callYaniv}
             disabled={handValue > game.rules.canCallYaniv || !myTurn}
