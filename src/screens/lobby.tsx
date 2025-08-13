@@ -23,15 +23,21 @@ import LeaveButton from '~/components/menu/leaveButton';
 import {normalize} from '~/utils/ui';
 import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import SimpleButton from '~/components/menu/simpleButton';
+import Svg, {Image} from 'react-native-svg';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 interface RoomOptionRowProps {
   text: string;
+  src: string;
 }
-function RoomOptionRow({text}: RoomOptionRowProps) {
+
+function RoomOptionRow({text, src}: RoomOptionRowProps) {
   return (
     <View style={styles.optionRow}>
+      <Svg width={32} height={32} viewBox="0 0 100 100">
+        <Image width="100" height="100" href={src} />
+      </Svg>
       <Text style={styles.rowText}>{text}</Text>
     </View>
   );
@@ -130,9 +136,18 @@ function LobbyScreen({navigation}: LobbyProps) {
           {config ? (
             <View style={styles.options}>
               <AlternatingRowsList>
-                <RoomOptionRow text={`Enable Slap-Down: ${config.slapDown}`} />
-                <RoomOptionRow text={`Call Yaniv at: ${config.canCallYaniv}`} />
-                <RoomOptionRow text={`Max Score: ${config.maxMatchPoints}`} />
+                <RoomOptionRow
+                  src={require('~/assets/images/icon_slapDown.png')}
+                  text={`Enable Slap-Down: ${config.slapDown}`}
+                />
+                <RoomOptionRow
+                  src={require('~/assets/images/icon_megaphone.png')}
+                  text={`Call Yaniv at: ${config.canCallYaniv}`}
+                />
+                <RoomOptionRow
+                  src={require('~/assets/images/icon_skull.png')}
+                  text={`Max Score: ${config.maxMatchPoints}`}
+                />
               </AlternatingRowsList>
             </View>
           ) : null}
