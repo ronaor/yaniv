@@ -42,7 +42,7 @@ const generateRandomMinY = () => {
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
 
-const waveColors = ['#46c8e2b4', '#46c8e2'];
+const waveColors = ['#91f7d5ac', '#46c8e2'];
 const surfColors = ['#91f7d56b', '#91f7d5ac'];
 const seaColor = '#0087b8f7';
 
@@ -100,7 +100,7 @@ const WaveAnimationBackground = () => {
 
     // Tidal cycle calculation
     const cycle = interpolate(
-      Math.sin((frameInfo.timestamp / 2000) * 0.5),
+      Math.sin((frameInfo.timestamp / 1000) * 0.5),
       [-1, 1],
       [0, 1],
     );
@@ -196,6 +196,12 @@ const WaveAnimationBackground = () => {
     seaColor,
   ]);
 
+  const animatedStrokeWidth = useDerivedValue(() => {
+    const progress =
+      (verticalOffset.value - waveMinY.value) / (waveMaxY - waveMinY.value);
+    return interpolate(progress, [0, 1], [20, 5]);
+  });
+
   const image = useImage(require('~/assets/images/beach_1.png'));
 
   return (
@@ -229,8 +235,7 @@ const WaveAnimationBackground = () => {
       <Path
         path={wavePath}
         style="stroke"
-        transform={[{translateY: -8}]}
-        strokeWidth={15}
+        strokeWidth={animatedStrokeWidth}
         color="#FFFFFFF0"
       />
     </Canvas>
