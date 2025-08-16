@@ -5,8 +5,7 @@ import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
 import {Card} from 'server/cards';
 import {DirectionName, Position} from '~/types/cards';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import {isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {PlayerId} from '~/store/yanivGameStore';
 import CardsSpread from './cardsSpread';
 import Animated, {
   useAnimatedStyle,
@@ -48,46 +47,25 @@ interface GameBoardProps {
   disabled?: boolean;
   round: number;
   gameId: string;
-  selectedCards: Card[];
   activeDirections: Record<PlayerId, DirectionName>;
-  onReady?: () => void;
+  onReady?: (round: number) => void;
+  handlePickupCard: (number: number) => void;
+  handleDrawFromDeck: () => void;
 }
 
 function GameBoard({
   pickup,
-  selectedCards,
   round,
+  gameId,
   disabled = false,
   activeDirections,
   onReady,
-  gameId,
+  handlePickupCard,
+  handleDrawFromDeck,
 }: GameBoardProps) {
   const {pickupPile, lastPickedCard, tookFrom} = pickup;
 
   const [lastGameId, setLastGameId] = useState<string>(gameId);
-
-  const {emit} = useYanivGameStore();
-
-  const handleDrawFromDeck = useCallback(() => {
-    if (!isValidCardSet(selectedCards, true)) {
-      return false;
-    }
-    emit.completeTurn({choice: 'deck'}, selectedCards);
-  }, [emit, selectedCards]);
-
-  const handlePickupCard = useCallback(
-    (pickupIndex: number) => {
-      if (
-        !isCanPickupCard(pickupPile.length, pickupIndex) ||
-        !isValidCardSet(selectedCards, true)
-      ) {
-        return false;
-      }
-
-      emit.completeTurn({choice: 'pickup', pickupIndex}, selectedCards);
-    },
-    [emit, pickupPile.length, selectedCards],
-  );
 
   const [pickupReady, setPickupReady] = useState<boolean>(false);
   const [deckReady, setDeckReady] = useState<boolean>(false);
@@ -103,8 +81,8 @@ function GameBoard({
   }, []);
 
   const onFinishShuffled = useCallback(() => {
-    onReady?.();
-  }, [onReady]);
+    onReady?.(round);
+  }, [onReady, round]);
 
   const onFinishSpread = useCallback(() => {
     setPickupReady(true);
@@ -115,7 +93,7 @@ function GameBoard({
       <TouchableOpacity
         style={styles.deck}
         onPress={handleDrawFromDeck}
-        disabled={disabled || selectedCards.length === 0 || !deckReady}>
+        disabled={disabled || !deckReady}>
         {deckReady && (
           <>
             <CardBackRotated position={{x: 0, y: 0, deg: 10}} />

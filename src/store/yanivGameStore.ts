@@ -598,12 +598,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       roundPlayers: PlayerId[];
       playersRoundScore: Record<PlayerId, number[]>;
     }) => {
-      console.log(
-        'Round Ended ,',
-        data.playersStats,
-        data.roundPlayers,
-        data.playersRoundScore,
-      );
+      // console.log(
+      //   'Round Ended ,',
+      //   data.playersStats,
+      //   data.roundPlayers,
+      //   data.playersRoundScore,
+      // );
       set(state => {
         return {
           ...state,

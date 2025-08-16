@@ -1,4 +1,11 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
 import {CardComponent, GlowingCardComponent} from './cardVisual';
 import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
@@ -22,9 +29,9 @@ const {width, height} = Dimensions.get('screen');
 
 interface CardPointsListProps {
   cards: Card[];
-  onCardSelect: (index: number) => void;
+  // onCardSelect: (index: number) => void;
   slapCardIndex?: number;
-  selectedCardsIndexes: number[];
+  // selectedCardsIndexes: number[];
   onCardSlapped: () => void;
   fromPosition?: Position;
   direction: DirectionName;
@@ -33,50 +40,78 @@ interface CardPointsListProps {
   withDelay?: {delay: number; gap: number};
 }
 
-const CardPointsList = ({
-  cards,
-  onCardSelect,
-  slapCardIndex = -1,
-  selectedCardsIndexes,
-  onCardSlapped,
-  fromPosition,
-  direction,
-  action,
-  isReady = true,
-  withDelay,
-}: CardPointsListProps) => {
-  const cardsPositions = useMemo(
-    () => calculateCardsPositions(cards.length, direction),
-    [cards.length, direction],
-  );
+export interface CardListRef {
+  getSelectedCards: () => Card[];
+  clearSelection: () => void;
+}
 
-  return (
-    <View style={styles.body} pointerEvents="box-none">
-      {isReady &&
-        cards.map((card, index) => (
-          <CardPointer
-            key={getCardKey(card)}
-            index={index}
-            onCardSelect={() => onCardSelect(index)}
-            card={card}
-            isSelected={selectedCardsIndexes.includes(index)}
-            isSlap={index === slapCardIndex}
-            onCardSlapped={onCardSlapped}
-            from={fromPosition ?? CIRCLE_CENTER}
-            dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
-            action={action ?? 'DRAG_FROM_DECK'}
-            delay={
-              fromPosition
-                ? DELAY
-                : withDelay
-                ? withDelay.delay + index * withDelay.gap
-                : 0
-            }
-          />
-        ))}
-    </View>
-  );
-};
+const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
+  (props, ref) => {
+    const {
+      cards,
+      slapCardIndex = -1,
+      onCardSlapped,
+      fromPosition,
+      direction,
+      action,
+      isReady = true,
+      withDelay,
+    } = props;
+    const cardsPositions = useMemo(
+      () => calculateCardsPositions(cards.length, direction),
+      [cards.length, direction],
+    );
+
+    const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+
+    const toggleCardSelection = (index: number) => {
+      setSelectedIndexes(prev => {
+        const isSelected = prev.includes(index);
+        if (isSelected) {
+          return prev.filter(i => i !== index);
+        }
+        return [...prev, index];
+      });
+    };
+
+    useImperativeHandle(ref, () => ({
+      getSelectedCards: () => {
+        return selectedIndexes.map(i => props.cards[i]);
+      },
+      clearSelection: () => {
+        setSelectedIndexes([]);
+      },
+      // other methods for board operations
+    }));
+
+    return (
+      <View style={styles.body} pointerEvents="box-none">
+        {isReady &&
+          cards.map((card, index) => (
+            <CardPointer
+              key={getCardKey(card)}
+              index={index}
+              onCardSelect={() => toggleCardSelection(index)}
+              card={card}
+              isSelected={selectedIndexes.includes(index)}
+              isSlap={index === slapCardIndex}
+              onCardSlapped={onCardSlapped}
+              from={fromPosition ?? CIRCLE_CENTER}
+              dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+              action={action ?? 'DRAG_FROM_DECK'}
+              delay={
+                fromPosition
+                  ? DELAY
+                  : withDelay
+                  ? withDelay.delay + index * withDelay.gap
+                  : 0
+              }
+            />
+          ))}
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   body: {

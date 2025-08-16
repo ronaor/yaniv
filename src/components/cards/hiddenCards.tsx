@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {memo, useEffect, useMemo} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
 import {Dimensions, Platform, StyleSheet, View} from 'react-native';
 import Animated, {
@@ -184,4 +184,4 @@ const HiddenCardPointer = ({
   );
 };
 
-export default HiddenCardPointsList;
+export default memo(HiddenCardPointsList);

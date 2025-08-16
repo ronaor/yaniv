@@ -75,7 +75,6 @@ export const DiscardPointer = ({
     throwTarget.x,
     throwTarget.y,
     throwTarget.deg,
-
     card,
     opacity,
     cardOpacity,

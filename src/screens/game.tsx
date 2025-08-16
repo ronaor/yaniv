@@ -14,12 +14,12 @@ import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
 
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {getHandValue} from '~/utils/gameRules';
+import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
-import {isNil} from 'lodash';
+import {isNil, isUndefined} from 'lodash';
 import AssafBubble from '~/components/bubbles/assaf';
 import YanivBubble from '~/components/bubbles/yaniv';
-import CardPointsList from '~/components/cards/cardsPoint';
+import CardPointsList, {CardListRef} from '~/components/cards/cardsPoint';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
 import {OutlinedText} from '~/components/cartoonText';
 import EndGameDialog, {
@@ -39,14 +39,12 @@ import {
   SMALL_DELAY,
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
+import GameTimer from '~/components/game/timer';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore();
-  const [selectedCardsIndexes, setSelectedCardsIndexes] = useState<number[]>(
-    [],
-  );
 
   const {
     game,
@@ -62,6 +60,7 @@ function GameScreen({navigation}: any) {
   } = useYanivGameStore();
 
   const {name: nickName} = useUser();
+  const cardsListRef = useRef<CardListRef>(null);
 
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
@@ -74,19 +73,12 @@ function GameScreen({navigation}: any) {
     };
   }, [game.currentTurn, gamePlayers]);
 
-  const selectedCards = useMemo(
-    () => selectedCardsIndexes.map(i => playerHand[i]),
-    [playerHand, selectedCardsIndexes],
-  );
-
   const playersName = useMemo(() => {
     return players.reduce<Record<PlayerId, string>>((res, user) => {
       res[user.id] = user.nickName;
       return res;
     }, {});
   }, [players]);
-
-  const [timeRemaining, setTimeRemaining] = useState(0);
 
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
@@ -116,43 +108,38 @@ function GameScreen({navigation}: any) {
 
   useEffect(() => {
     if (!myTurn) {
-      setSelectedCardsIndexes([]);
+      cardsListRef.current?.clearSelection();
+    }
+  }, [myTurn, cardsListRef]);
+
+  const handleDrawFromDeck = useCallback(() => {
+    const selectedCards = cardsListRef.current?.getSelectedCards();
+    if (
+      isUndefined(selectedCards) ||
+      selectedCards.length === 0 ||
+      !isValidCardSet(selectedCards, true)
+    ) {
       return;
     }
-  }, [myTurn]);
+    emit.completeTurn({choice: 'deck'}, selectedCards);
+  }, [emit, cardsListRef]);
 
-  // Timer for remaining time
-  useEffect(() => {
-    if (isNil(game.currentTurn)) {
-      setSelectedCardsIndexes([]);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      const startTime = game.currentTurn?.startTime;
-      if (!startTime) {
+  const handlePickupCard = useCallback(
+    (pickupIndex: number) => {
+      const selectedCards = cardsListRef.current?.getSelectedCards();
+      if (
+        isUndefined(selectedCards) ||
+        selectedCards.length === 0 ||
+        !isCanPickupCard(board.pickupPile.length, pickupIndex) ||
+        !isValidCardSet(selectedCards, true)
+      ) {
         return;
       }
 
-      const elapsed = (Date.now() - new Date(startTime).getTime()) / 1000;
-      const remaining = game.rules.timePerPlayer - Math.floor(elapsed);
-
-      setTimeRemaining(remaining);
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-
-    setTimeRemaining(game.rules.timePerPlayer);
-    return () => clearInterval(interval);
-  }, [
-    myTurn,
-    gamePlayers,
-    game.playersStats,
-    game.currentTurn,
-    game.rules.timePerPlayer,
-    game.phase,
-  ]);
+      emit.completeTurn({choice: 'pickup', pickupIndex}, selectedCards);
+    },
+    [emit, board.pickupPile.length, cardsListRef],
+  );
 
   // Handle leave game
   const handleLeave = useCallback(() => {
@@ -183,16 +170,6 @@ function GameScreen({navigation}: any) {
     const timer = setTimeout(resetSlapDown, 3000);
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
-
-  const toggleCardSelection = (index: number) => {
-    setSelectedCardsIndexes(prev => {
-      const isSelected = prev.includes(index);
-      if (isSelected) {
-        return prev.filter(i => i !== index);
-      }
-      return [...prev, index];
-    });
-  };
 
   const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
   const slapCardIndex = useMemo(
@@ -237,10 +214,14 @@ function GameScreen({navigation}: any) {
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
-  const playersActive = useMemo(() => {
-    return gamePlayers.order.filter(
+  const cardsDelay = useMemo(() => {
+    const playersActive = gamePlayers.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
     );
+    return playersActive.map((_, i) => ({
+      delay: i * SMALL_DELAY,
+      gap: playersActive.length * SMALL_DELAY,
+    }));
   }, [game.playersStats, gamePlayers.order]);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -339,11 +320,7 @@ function GameScreen({navigation}: any) {
             <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
               <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
             </TouchableOpacity>
-            {myTurn && (
-              <View style={styles.timerContainer}>
-                <Text style={[styles.timer]}>{timeRemaining}s</Text>
-              </View>
-            )}
+            <GameTimer />
           </View>
         </View>
         {gamePlayers.order.map((playerId, i) => (
@@ -365,10 +342,11 @@ function GameScreen({navigation}: any) {
           }}
           round={game.round}
           gameId={gameId}
-          selectedCards={selectedCards}
           disabled={!myTurn}
           activeDirections={activeDirections}
-          onReady={() => setRoundReadyFor(game.round)}
+          onReady={setRoundReadyFor}
+          handlePickupCard={handlePickupCard}
+          handleDrawFromDeck={handleDrawFromDeck}
         />
         <View style={styles.actionButtons}>
           <UserAvatar
@@ -397,11 +375,10 @@ function GameScreen({navigation}: any) {
           />
         </View>
         <CardPointsList
+          ref={cardsListRef}
           key={gamePlayers.current}
           cards={playerHand}
-          onCardSelect={toggleCardSelection}
           slapCardIndex={slapCardIndex}
-          selectedCardsIndexes={selectedCardsIndexes}
           onCardSlapped={onSlapCard}
           fromPosition={
             gamePlayers.current === game.currentTurn?.prevTurn?.playerId
@@ -411,10 +388,7 @@ function GameScreen({navigation}: any) {
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
           isReady={roundReadyFor === game.round}
-          withDelay={{
-            delay: 0,
-            gap: playersActive.length * SMALL_DELAY,
-          }}
+          withDelay={cardsDelay[0]}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -427,13 +401,14 @@ function GameScreen({navigation}: any) {
                 ? game.currentTurn?.prevTurn?.draw?.cardPosition
                 : undefined
             }
-            action={game.currentTurn?.prevTurn?.action}
+            action={
+              playerId === game.currentTurn?.prevTurn?.playerId
+                ? game.currentTurn?.prevTurn?.action
+                : undefined
+            }
             reveal={!!playersRevealing[playerId]}
             isReady={roundReadyFor === game.round}
-            withDelay={{
-              delay: (i + 1) * SMALL_DELAY,
-              gap: playersActive.length * SMALL_DELAY,
-            }}
+            withDelay={cardsDelay[i + 1]}
           />
           <View style={recordStyle[directions[i + 1]]}>
             {/* we got reveal to trigger update score */}

@@ -7,7 +7,7 @@ import {colors} from '~/theme';
 function GameTimer() {
   const {game, players: gamePlayers} = useYanivGameStore();
 
-  const isMyTurn = gamePlayers.all[gamePlayers.current]?.isMyTurn;
+  const isMyTurn = game.currentTurn?.playerId === gamePlayers.current || false;
 
   const timeRemaining = useTimer(
     isMyTurn,
