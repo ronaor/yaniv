@@ -11,6 +11,7 @@ import {CardComponent, GlowingCardComponent} from './cardVisual';
 import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
   withTiming,
@@ -24,6 +25,7 @@ import {
 } from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
+import {interpolate} from 'react-native-reanimated';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -152,77 +154,108 @@ const CardPointer = ({
   action,
   delay,
 }: CardPointerProps) => {
-  const prevStateSelection = useRef<boolean>(false);
-  const translateY = useSharedValue<number>(from?.y ?? dest.y);
+  // Position animation (reusable, resets)
+  const currentPos = useSharedValue<Position>(from ?? dest);
+  const destPos = useSharedValue<Position>(dest);
+  const progress = useSharedValue<number>(from ? 0 : 1);
+
+  // Draw animation (one-time, combines flip + scale)
+  const drewProgress = useSharedValue(0);
+
+  // Selection animation
   const translateInternalY = useSharedValue<number>(0);
-  const translateX = useSharedValue<number>(from?.x ?? dest.x);
-  const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
+  const prevStateSelection = useRef<boolean>(false);
 
-  const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
-  const scale = useSharedValue(1);
-
+  // Selection animation
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
       translateInternalY.value = withSpring(
         isSelected ? -CARD_SELECT_OFFSET : 0,
-      ); //no using withSpring temporary until will fix this
+      );
       prevStateSelection.current = isSelected;
     }
-  }, [dest.y, isSelected, translateInternalY]);
+  }, [isSelected, translateInternalY]);
 
-  // Animate to target position
+  // Main animation
   useEffect(() => {
-    const targetRotation = dest.deg;
     const timer = setTimeout(() => {
-      translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
-      translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
-      cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
-      flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
-      scale.value = withTiming(1.25, {duration: MOVE_DURATION});
+      // Update destination
+      destPos.value = dest;
+
+      // Position animation
+      progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
+        'worklet';
+        if (finished) {
+          currentPos.value = destPos.value;
+          progress.value = 0;
+        }
+      });
+      drewProgress.value = withTiming(1, {duration: MOVE_DURATION});
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [
-    translateX,
-    translateY,
-    translateInternalY,
-    cardDeg,
-    dest.deg,
-    dest.x,
-    dest.y,
-    flipRotation,
-    scale,
-    index,
-    delay,
-  ]);
+  }, [action, currentPos, delay, dest, destPos, drewProgress, progress]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    transform: [
-      {translateX: translateX.value},
-      {translateY: translateY.value + translateInternalY.value},
-      {rotate: `${cardDeg.value}deg`},
-    ],
-    zIndex: index,
+  // Position style
+  const animatedStyle = useAnimatedStyle(() => {
+    const currentX = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.x, destPos.value.x],
+    );
+    const currentY = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.y, destPos.value.y],
+    );
+    const currentDeg = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.deg, destPos.value.deg],
+    );
+
+    return {
+      position: 'absolute',
+      transform: [
+        {translateX: currentX},
+        {translateY: currentY + translateInternalY.value},
+        {rotate: `${currentDeg}deg`},
+      ],
+      zIndex: index,
+    };
+  });
+
+  const flipValues = useDerivedValue(() => ({
+    flipRotation: interpolate(
+      drewProgress.value,
+      [0, 0.5, 1],
+      [action === 'DRAG_FROM_DECK' ? 1 : 0, 0, 0],
+    ),
+    scale: interpolate(drewProgress.value, [0, 1], [1, 1.25]),
   }));
 
   const animatedFrontFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
+        scaleX:
+          flipValues.value.flipRotation > 0.5
+            ? 0
+            : (0.5 - flipValues.value.flipRotation) * 2,
       },
-      {scale: scale.value},
+      {scale: flipValues.value.scale},
     ],
   }));
 
   const animatedBackFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
+        scaleX:
+          flipValues.value.flipRotation <= 0.5
+            ? 0
+            : (flipValues.value.flipRotation - 0.5) * 2,
       },
-      {scale: scale.value},
+      {scale: flipValues.value.scale},
     ],
-    position: 'absolute',
   }));
 
   return (
