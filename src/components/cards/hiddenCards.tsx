@@ -128,6 +128,10 @@ const HiddenCardPointer = ({
   // Main animation
   useEffect(() => {
     if (!ready) {
+      currentPos.value = from ?? dest;
+      destPos.value = dest;
+      progress.value = from ? 0 : 1;
+      flipProgress.value = 0;
       return;
     }
     // Update destination
@@ -146,7 +150,7 @@ const HiddenCardPointer = ({
       delay,
       withTiming(1, {duration: MOVE_DURATION / 2}),
     );
-  }, [ready, currentPos, delay, dest, destPos, flipProgress, progress]);
+  }, [ready, currentPos, delay, dest, destPos, flipProgress, progress, from]);
 
   // Position style with interpolation
   const animatedStyle = useAnimatedStyle(() => {

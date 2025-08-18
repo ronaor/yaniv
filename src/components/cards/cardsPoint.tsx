@@ -182,6 +182,10 @@ const CardPointer = ({
   // Main animation
   useEffect(() => {
     if (!ready) {
+      currentPos.value = from ?? dest;
+      destPos.value = dest;
+      progress.value = from ? 0 : 1;
+      drewProgress.value = 0;
       return;
     }
     destPos.value = dest;
@@ -201,7 +205,7 @@ const CardPointer = ({
       delay,
       withTiming(1, {duration: MOVE_DURATION}),
     );
-  }, [ready, currentPos, delay, dest, destPos, drewProgress, progress]);
+  }, [ready, currentPos, delay, dest, destPos, drewProgress, progress, from]);
 
   // Position style
   const animatedStyle = useAnimatedStyle(() => {
