@@ -25,7 +25,7 @@ interface UserAvatarProps {
   timePerPlayer?: number;
 }
 
-const CIRCLE_SIZE = 75;
+const CIRCLE_SIZE = 60;
 const LOOK_MOMENT = 2000;
 
 function UserAvatar({
@@ -41,18 +41,21 @@ function UserAvatar({
   const roundScoreScale = useSharedValue<number>(0);
   const roundScoreX = useSharedValue<number>(-30);
   const scoreScale = useSharedValue<number>(1);
+  const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
   const [displayAddScore, setDisplayAddScore] = useState<number>(0);
 
   // Timer progress animation
   useEffect(() => {
     if (timePerPlayer && isActive) {
+      avatarScale.value = withTiming(1.25);
       circleProgress.value = 0;
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
+      avatarScale.value = withTiming(1);
     }
-  }, [circleProgress, isActive, timePerPlayer]);
+  }, [avatarScale, circleProgress, isActive, timePerPlayer]);
 
   const scoreMergingAnimation = useCallback(
     (addedScore: number) => {
@@ -166,9 +169,13 @@ function UserAvatar({
     ],
   }));
 
+  const avatarStyle = useAnimatedStyle(() => ({
+    transform: [{scale: avatarScale.value}],
+  }));
+
   return (
     <View style={styles.container}>
-      <View style={styles.circleContainer}>
+      <Animated.View style={[styles.circleContainer, avatarStyle]}>
         <Animated.View style={[circleStyle, styles.circle]} />
         {isActive && (
           <Canvas style={styles.progressCanvas}>
@@ -181,7 +188,7 @@ function UserAvatar({
             />
           </Canvas>
         )}
-      </View>
+      </Animated.View>
       <View style={styles.logContainer}>
         <View style={styles.gradientWrap}>
           <LinearGradient
@@ -234,7 +241,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   circleContainer: {
-    marginBottom: -8,
+    marginBottom: -5,
     position: 'relative',
   },
   progressCanvas: {

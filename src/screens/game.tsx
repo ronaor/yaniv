@@ -40,6 +40,7 @@ import {
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
+import LoadingOverlay from '~/components/game/loadingOverlay';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -64,7 +65,6 @@ function GameScreen({navigation}: any) {
 
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
-
     return {
       currentPlayer: $currentPlayer,
       playerHand: $currentPlayer?.hand || [],
@@ -183,6 +183,8 @@ function GameScreen({navigation}: any) {
         : -1,
     [lastPickedCard, playerHand, slapDownAvailable],
   );
+
+  const [loadingOverlay, setLoadingOverlay] = useState<boolean>(true);
 
   const onSlapCard = useCallback(() => {
     const cardToSlap = playerHand[slapCardIndex];
@@ -305,6 +307,7 @@ function GameScreen({navigation}: any) {
     };
   }, [roundResults, game.phase, gamePlayers.order]);
 
+  const onGameReady = useCallback(() => setLoadingOverlay(false), []);
   return (
     <>
       <StatusBar
@@ -312,7 +315,8 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <WaveAnimationBackground />
+      <WaveAnimationBackground setReady={onGameReady} />
+
       <SafeAreaView style={styles.surface}>
         <View style={styles.body}>
           {/* Header */}
@@ -323,6 +327,7 @@ function GameScreen({navigation}: any) {
             <GameTimer />
           </View>
         </View>
+
         {gamePlayers.order.map((playerId, i) => (
           <LightAround
             key={`light-${playerId}`}
@@ -423,11 +428,12 @@ function GameScreen({navigation}: any) {
           </View>
         </View>
       ))}
-
       {/* Yaniv/Asaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
+
       <EndGameDialog />
+      {loadingOverlay && <LoadingOverlay />}
     </>
   );
 }
@@ -453,17 +459,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: 'bold',
     fontSize: 14,
-  },
-  timerContainer: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  timer: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   gameArea: {
     position: 'absolute',
