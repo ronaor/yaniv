@@ -178,10 +178,8 @@ const CardPointer = ({
 
   // Main animation
   useEffect(() => {
+    destPos.value = dest;
     const timer = setTimeout(() => {
-      // Update destination
-      destPos.value = dest;
-
       // Position animation
       progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
         'worklet';
@@ -256,6 +254,7 @@ const CardPointer = ({
       },
       {scale: flipValues.value.scale},
     ],
+    position: 'absolute',
   }));
 
   return (

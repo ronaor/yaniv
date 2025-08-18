@@ -126,10 +126,9 @@ const HiddenCardPointer = ({
 
   // Main animation
   useEffect(() => {
+    // Update destination
+    destPos.value = dest;
     const timer = setTimeout(() => {
-      // Update destination
-      destPos.value = dest;
-
       // Position animation
       progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
         'worklet';
