@@ -393,7 +393,7 @@ function GameScreen({navigation}: any) {
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
           isReady={roundReadyFor === game.round}
-          withDelay={cardsDelay[0]}
+          cardsDelay={cardsDelay[0]}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -413,7 +413,7 @@ function GameScreen({navigation}: any) {
             }
             reveal={!!playersRevealing[playerId]}
             isReady={roundReadyFor === game.round}
-            withDelay={cardsDelay[i + 1]}
+            cardsDelay={cardsDelay[i + 1]}
           />
           <View style={recordStyle[directions[i + 1]]}>
             {/* we got reveal to trigger update score */}

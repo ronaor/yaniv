@@ -185,7 +185,7 @@ const CardShuffle = ({
 
       if (loops > 0) {
         spread.value = withDelay(
-          total + 1000,
+          total,
           withTiming(0, {duration: MOVE_DUR}, done => {
             'worklet';
             if (done && onFinish) {

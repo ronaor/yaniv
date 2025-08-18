@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   interpolate,
+  withDelay,
 } from 'react-native-reanimated';
 import {
   calculateCardsPositions,
@@ -27,7 +28,7 @@ interface HiddenCardPointsListProps {
   action?: TurnState['action'];
   reveal: boolean;
   isReady?: boolean;
-  withDelay?: {delay: number; gap: number};
+  cardsDelay?: {delay: number; gap: number};
 }
 
 const HiddenCardPointsList = ({
@@ -37,7 +38,7 @@ const HiddenCardPointsList = ({
   action,
   reveal,
   isReady = true,
-  withDelay,
+  cardsDelay,
 }: HiddenCardPointsListProps) => {
   const cardsHiddenPositions = useMemo(
     () => calculateHiddenCardsPositions(cards.length, direction),
@@ -51,35 +52,33 @@ const HiddenCardPointsList = ({
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {isReady &&
-        cards.map((card, index) => (
-          <HiddenCardPointer
-            key={getCardKey(card)}
-            index={index}
-            from={fromPosition ?? CIRCLE_CENTER}
-            dest={
-              (reveal
-                ? cardsPositions[index]
-                : cardsHiddenPositions[index]) ?? {
-                x: 0,
-                y: 0,
-                deg: 0,
-              }
+      {cards.map((card, index) => (
+        <HiddenCardPointer
+          key={getCardKey(card)}
+          index={index}
+          from={fromPosition ?? CIRCLE_CENTER}
+          dest={
+            (reveal ? cardsPositions[index] : cardsHiddenPositions[index]) ?? {
+              x: 0,
+              y: 0,
+              deg: 0,
             }
-            card={card}
-            action={action}
-            reveal={reveal}
-            delay={
-              reveal
-                ? 0
-                : fromPosition
-                ? DELAY
-                : withDelay
-                ? withDelay.delay + index * withDelay.gap
-                : 0
-            }
-          />
-        ))}
+          }
+          card={card}
+          action={action}
+          reveal={reveal}
+          delay={
+            reveal
+              ? 0
+              : fromPosition
+              ? DELAY
+              : cardsDelay
+              ? cardsDelay.delay + index * cardsDelay.gap
+              : 0
+          }
+          ready={isReady}
+        />
+      ))}
     </View>
   );
 };
@@ -103,6 +102,7 @@ interface HiddenCardPointerProps {
   action?: TurnState['action'];
   reveal: boolean;
   delay?: number;
+  ready: boolean;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -115,6 +115,7 @@ const HiddenCardPointer = ({
   action,
   reveal,
   delay = 0,
+  ready,
 }: HiddenCardPointerProps) => {
   // Position animation (reusable, resets)
   const currentPos = useSharedValue<Position>(from ?? dest);
@@ -126,24 +127,26 @@ const HiddenCardPointer = ({
 
   // Main animation
   useEffect(() => {
+    if (!ready) {
+      return;
+    }
     // Update destination
     destPos.value = dest;
-    const timer = setTimeout(() => {
-      // Position animation
-      progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
+    progress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}, finished => {
         'worklet';
         if (finished) {
           currentPos.value = destPos.value;
           progress.value = 0;
         }
-      });
-
-      // Flip animation
-      flipProgress.value = withTiming(1, {duration: MOVE_DURATION / 2});
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [currentPos, delay, dest, destPos, flipProgress, progress]);
+      }),
+    );
+    flipProgress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION / 2}),
+    );
+  }, [ready, currentPos, delay, dest, destPos, flipProgress, progress]);
 
   // Position style with interpolation
   const animatedStyle = useAnimatedStyle(() => {
@@ -206,9 +209,10 @@ const HiddenCardPointer = ({
     ],
     position: 'absolute',
   }));
+  const opacityStyle = {opacity: ready ? 1 : 0};
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, opacityStyle]}>
       <Animated.View style={animatedFrontFlipStyle}>
         <CardComponent card={card} />
       </Animated.View>

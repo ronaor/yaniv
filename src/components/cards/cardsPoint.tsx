@@ -13,6 +13,7 @@ import Animated, {
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withDelay,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -39,7 +40,7 @@ interface CardPointsListProps {
   direction: DirectionName;
   action?: TurnState['action'];
   isReady?: boolean;
-  withDelay?: {delay: number; gap: number};
+  cardsDelay?: {delay: number; gap: number};
 }
 
 export interface CardListRef {
@@ -57,7 +58,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       direction,
       action,
       isReady = true,
-      withDelay,
+      cardsDelay,
     } = props;
     const cardsPositions = useMemo(
       () => calculateCardsPositions(cards.length, direction),
@@ -88,28 +89,28 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
 
     return (
       <View style={styles.body} pointerEvents="box-none">
-        {isReady &&
-          cards.map((card, index) => (
-            <CardPointer
-              key={getCardKey(card)}
-              index={index}
-              onCardSelect={() => toggleCardSelection(index)}
-              card={card}
-              isSelected={selectedIndexes.includes(index)}
-              isSlap={index === slapCardIndex}
-              onCardSlapped={onCardSlapped}
-              from={fromPosition ?? CIRCLE_CENTER}
-              dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
-              action={action ?? 'DRAG_FROM_DECK'}
-              delay={
-                fromPosition
-                  ? DELAY
-                  : withDelay
-                  ? withDelay.delay + index * withDelay.gap
-                  : 0
-              }
-            />
-          ))}
+        {cards.map((card, index) => (
+          <CardPointer
+            key={getCardKey(card)}
+            index={index}
+            onCardSelect={() => toggleCardSelection(index)}
+            card={card}
+            ready={isReady}
+            isSelected={selectedIndexes.includes(index)}
+            isSlap={index === slapCardIndex}
+            onCardSlapped={onCardSlapped}
+            from={fromPosition ?? CIRCLE_CENTER}
+            dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+            action={action ?? 'DRAG_FROM_DECK'}
+            delay={
+              fromPosition
+                ? DELAY
+                : cardsDelay
+                ? cardsDelay.delay + index * cardsDelay.gap
+                : 0
+            }
+          />
+        ))}
       </View>
     );
   },
@@ -137,7 +138,8 @@ interface CardPointerProps {
   from?: Position;
   dest: Position;
   action?: TurnState['action'];
-  delay?: number;
+  delay: number;
+  ready: boolean;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -153,6 +155,7 @@ const CardPointer = ({
   dest,
   action,
   delay,
+  ready,
 }: CardPointerProps) => {
   // Position animation (reusable, resets)
   const currentPos = useSharedValue<Position>(from ?? dest);
@@ -178,21 +181,27 @@ const CardPointer = ({
 
   // Main animation
   useEffect(() => {
+    if (!ready) {
+      return;
+    }
     destPos.value = dest;
-    const timer = setTimeout(() => {
-      // Position animation
-      progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
+
+    progress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}, finished => {
         'worklet';
         if (finished) {
           currentPos.value = destPos.value;
           progress.value = 0;
         }
-      });
-      drewProgress.value = withTiming(1, {duration: MOVE_DURATION});
-    }, delay);
+      }),
+    );
 
-    return () => clearTimeout(timer);
-  }, [action, currentPos, delay, dest, destPos, drewProgress, progress]);
+    drewProgress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}),
+    );
+  }, [ready, currentPos, delay, dest, destPos, drewProgress, progress]);
 
   // Position style
   const animatedStyle = useAnimatedStyle(() => {
@@ -257,8 +266,9 @@ const CardPointer = ({
     position: 'absolute',
   }));
 
+  const opacityStyle = {opacity: ready ? 1 : 0};
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, opacityStyle]}>
       <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
         <Animated.View style={animatedFrontFlipStyle}>
           {isSlap ? (
