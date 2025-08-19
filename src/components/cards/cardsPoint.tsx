@@ -10,10 +10,10 @@ import {Card, DirectionName, Position} from '~/types/cards';
 import {CardComponent, GlowingCardComponent} from './cardVisual';
 import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
-  withDelay,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -87,6 +87,13 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       // other methods for board operations
     }));
 
+    const maxDelay = cardsDelay
+      ? cardsDelay.delay + (cards.length - 1) * cardsDelay.gap
+      : fromPosition
+      ? DELAY
+      : 0;
+    const totalDuration = maxDelay + MOVE_DURATION;
+
     return (
       <View style={styles.body} pointerEvents="box-none">
         {cards.map((card, index) => (
@@ -109,6 +116,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
                 ? cardsDelay.delay + index * cardsDelay.gap
                 : 0
             }
+            totalDuration={totalDuration}
           />
         ))}
       </View>
@@ -140,6 +148,7 @@ interface CardPointerProps {
   action?: TurnState['action'];
   delay: number;
   ready: boolean;
+  totalDuration: number;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -156,11 +165,15 @@ const CardPointer = ({
   action,
   delay,
   ready,
+  totalDuration,
 }: CardPointerProps) => {
   // Position animation (reusable, resets)
   const currentPos = useSharedValue<Position>(from ?? dest);
   const destPos = useSharedValue<Position>(dest);
   const progress = useSharedValue<number>(from ? 0 : 1);
+
+  const delayRelative1 = delay / totalDuration;
+  const delayRelative2 = (delay + MOVE_DURATION) / totalDuration;
 
   // Draw animation (one-time, combines flip + scale)
   const drewProgress = useSharedValue(0);
@@ -190,39 +203,67 @@ const CardPointer = ({
     }
     destPos.value = dest;
 
-    progress.value = withDelay(
-      delay,
-      withTiming(1, {duration: MOVE_DURATION}, finished => {
+    progress.value = withTiming(
+      1,
+      {duration: totalDuration, easing: Easing.linear},
+      finished => {
         'worklet';
         if (finished) {
           currentPos.value = destPos.value;
           progress.value = 0;
         }
-      }),
+      },
     );
-
-    drewProgress.value = withDelay(
-      delay,
-      withTiming(1, {duration: MOVE_DURATION}),
-    );
-  }, [ready, currentPos, delay, dest, destPos, drewProgress, progress, from]);
+    drewProgress.value = withTiming(1, {
+      duration: totalDuration,
+      easing: Easing.linear,
+    });
+  }, [
+    ready,
+    currentPos,
+    delay,
+    dest,
+    destPos,
+    drewProgress,
+    progress,
+    from,
+    totalDuration,
+  ]);
 
   // Position style
   const animatedStyle = useAnimatedStyle(() => {
     const currentX = interpolate(
       progress.value,
-      [0, 1],
-      [currentPos.value.x, destPos.value.x],
+      [0, delayRelative1, delayRelative2, 1],
+      [
+        currentPos.value.x,
+        currentPos.value.x,
+        destPos.value.x,
+        destPos.value.x,
+      ],
+      'clamp',
     );
     const currentY = interpolate(
       progress.value,
-      [0, 1],
-      [currentPos.value.y, destPos.value.y],
+      [0, delayRelative1, delayRelative2, 1],
+      [
+        currentPos.value.y,
+        currentPos.value.y,
+        destPos.value.y,
+        destPos.value.y,
+      ],
+      'clamp',
     );
     const currentDeg = interpolate(
       progress.value,
-      [0, 1],
-      [currentPos.value.deg, destPos.value.deg],
+      [0, delayRelative1, delayRelative2, 1],
+      [
+        currentPos.value.deg,
+        currentPos.value.deg,
+        destPos.value.deg,
+        destPos.value.deg,
+      ],
+      'clamp',
     );
 
     return {
@@ -239,10 +280,19 @@ const CardPointer = ({
   const flipValues = useDerivedValue(() => ({
     flipRotation: interpolate(
       drewProgress.value,
-      [0, 0.5, 1],
-      [action === 'DRAG_FROM_DECK' ? 1 : 0, 0, 0],
+      [0, delayRelative1, delayRelative2, 1],
+      [
+        action === 'DRAG_FROM_DECK' ? 1 : 0,
+        action === 'DRAG_FROM_DECK' ? 1 : 0,
+        0,
+        0,
+      ],
     ),
-    scale: interpolate(drewProgress.value, [0, 1], [1, 1.25]),
+    scale: interpolate(
+      drewProgress.value,
+      [0, delayRelative1, delayRelative2, 1],
+      [1, 1, 1.25, 1.25],
+    ),
   }));
 
   const animatedFrontFlipStyle = useAnimatedStyle(() => ({
