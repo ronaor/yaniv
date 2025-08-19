@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
   interpolate,
-  Easing,
+  withDelay,
 } from 'react-native-reanimated';
 import {
   calculateCardsPositions,
@@ -50,13 +50,6 @@ const HiddenCardPointsList = ({
     [cards.length, direction],
   );
 
-  const maxDelay = cardsDelay
-    ? cardsDelay.delay + (cards.length - 1) * cardsDelay.gap
-    : fromPosition
-    ? DELAY
-    : 0;
-  const totalDuration = maxDelay + MOVE_DURATION;
-
   return (
     <View style={styles.body} pointerEvents="box-none">
       {cards.map((card, index) => (
@@ -84,7 +77,6 @@ const HiddenCardPointsList = ({
               : 0
           }
           ready={isReady}
-          totalDuration={totalDuration}
         />
       ))}
     </View>
@@ -111,7 +103,6 @@ interface HiddenCardPointerProps {
   reveal: boolean;
   delay?: number;
   ready: boolean;
-  totalDuration: number;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -125,16 +116,15 @@ const HiddenCardPointer = ({
   reveal,
   delay = 0,
   ready,
-  totalDuration,
 }: HiddenCardPointerProps) => {
   // Position animation (reusable, resets)
   const currentPos = useSharedValue<Position>(from ?? dest);
   const destPos = useSharedValue<Position>(dest);
   const progress = useSharedValue<number>(from ? 0 : 1);
+
   // Flip animation
   const flipProgress = useSharedValue(0);
-  const delayRelative1 = delay / totalDuration;
-  const delayRelative2 = (delay + MOVE_DURATION) / totalDuration;
+
   // Main animation
   useEffect(() => {
     if (!ready) {
@@ -146,64 +136,38 @@ const HiddenCardPointer = ({
     }
     // Update destination
     destPos.value = dest;
-    progress.value = withTiming(
-      1,
-      {duration: totalDuration, easing: Easing.linear},
-      finished => {
+    progress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}, finished => {
         'worklet';
         if (finished) {
           currentPos.value = destPos.value;
           progress.value = 0;
         }
-      },
+      }),
     );
-    flipProgress.value = withTiming(1, {
-      duration: totalDuration / 2,
-      easing: Easing.linear,
-    });
-  }, [
-    ready,
-    currentPos,
-    delay,
-    dest,
-    destPos,
-    flipProgress,
-    progress,
-    from,
-    totalDuration,
-  ]);
+    flipProgress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION / 2}),
+    );
+  }, [ready, currentPos, delay, dest, destPos, flipProgress, progress, from]);
 
   // Position style with interpolation
   const animatedStyle = useAnimatedStyle(() => {
     const currentX = interpolate(
       progress.value,
-      [0, delayRelative1, delayRelative2, 1],
-      [
-        currentPos.value.x,
-        currentPos.value.x,
-        destPos.value.x,
-        destPos.value.x,
-      ],
+      [0, 1],
+      [currentPos.value.x, destPos.value.x],
     );
     const currentY = interpolate(
       progress.value,
-      [0, delayRelative1, delayRelative2, 1],
-      [
-        currentPos.value.y,
-        currentPos.value.y,
-        destPos.value.y,
-        destPos.value.y,
-      ],
+      [0, 1],
+      [currentPos.value.y, destPos.value.y],
     );
     const currentDeg = interpolate(
       progress.value,
-      [0, delayRelative1, delayRelative2, 1],
-      [
-        currentPos.value.deg,
-        currentPos.value.deg,
-        destPos.value.deg,
-        destPos.value.deg,
-      ],
+      [0, 1],
+      [currentPos.value.deg, destPos.value.deg],
     );
 
     return {
@@ -221,13 +185,8 @@ const HiddenCardPointer = ({
   const flipValues = useDerivedValue(() => ({
     flipRotation: interpolate(
       flipProgress.value,
-      [0, delayRelative1, delayRelative2, 1],
-      [
-        action === 'DRAG_FROM_PICKUP' ? 0 : 1,
-        action === 'DRAG_FROM_PICKUP' ? 0 : 1,
-        reveal ? 0 : 1,
-        reveal ? 0 : 1,
-      ],
+      [0, 1],
+      [action === 'DRAG_FROM_PICKUP' ? 0 : 1, reveal ? 0 : 1],
     ),
   }));
 
