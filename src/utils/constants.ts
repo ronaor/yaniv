@@ -20,9 +20,13 @@ export const CIRCLE_CENTER = {
 
 // constants/gameConfig.ts
 export const GAME_CONFIG = {
+  DIFFICULTY: ['Easy', 'Medium', 'Hard'],
+  NUMBER_OF_PLAYERS: ['2', '3', '4'],
   CALL_YANIV_OPTIONS: ['3', '5', '7'],
   MAX_SCORE_OPTIONS: ['50', '100', '200'],
   DEFAULT_VALUES: {
+    difficulty: 1, // M
+    numberOfPlayers: 2, //4
     slapDown: true,
     callYanivIndex: 2, // '7'
     maxScoreIndex: 1, // '100'

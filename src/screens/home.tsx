@@ -1,21 +1,32 @@
-import React, {useCallback} from 'react';
-import {Dimensions, ImageBackground, StyleSheet, View} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {
+  Alert,
+  Dimensions,
+  ImageBackground,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
 import MenuButton from '~/components/menu/menuButton';
 
+import Dialog from '~/components/dialog';
+import CreateRoomDialog from '~/components/dialogs/createRoomDialog';
+import UserTopBar from '~/components/user/userTopBar';
+import {useRoomStore} from '~/store/roomStore';
 import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
-import {useRoomStore} from '~/store/roomStore';
-import UserTopBar from '~/components/user/userTopBar';
+import {RoomConfig} from '~/types/player';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
+  const {emit} = useSocket();
+  const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
 
   const {isConnected} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
@@ -55,6 +66,15 @@ function HomeScreen({navigation}: HomeScreenProps) {
     }
   }, [name, navigation, quickGame]);
 
+  const handleCreateRoom = (config: RoomConfig) => {
+    if (!name) {
+      Alert.alert('שגיאה', 'יש להזין שם שחקן');
+      return;
+    }
+    emit('create_bot_room', {nickName: name, config});
+    navigation.navigate('Game');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ImageBackground
@@ -75,10 +95,22 @@ function HomeScreen({navigation}: HomeScreenProps) {
             />
             <MenuButton
               text={'Play vs Computer'}
-              onPress={() => navigation.navigate('BotDifficulty')}
+              onPress={() => setNewRoomModalOpen(true)}
             />
           </View>
         </View>
+
+        <Dialog
+          isModalOpen={newRoomModalOpen}
+          onBackgroundPress={() => {
+            setNewRoomModalOpen(false);
+          }}>
+          <CreateRoomDialog
+            isPlayWithComputer
+            onCreateRoom={handleCreateRoom}
+            onClose={() => setNewRoomModalOpen(false)}
+          />
+        </Dialog>
         <UserTopBar />
       </ImageBackground>
     </SafeAreaView>
