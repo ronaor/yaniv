@@ -354,13 +354,7 @@ function GameScreen({navigation}: any) {
           handleDrawFromDeck={handleDrawFromDeck}
         />
         <View style={styles.actionButtons}>
-          <UserAvatar
-            name={playersName[gamePlayers.current]}
-            score={currentPlayer?.stats?.score ?? 0}
-            roundScore={playersResultedScores[gamePlayers.current]}
-            isActive={myTurn}
-            timePerPlayer={game.rules.timePerPlayer}
-          />
+          <View style={{aspectRatio: 1, width: 80}} />
           {currentPlayer?.stats?.playerStatus === 'active' &&
           !isNil(game.currentTurn) ? (
             <OutlinedText
@@ -428,6 +422,20 @@ function GameScreen({navigation}: any) {
           </View>
         </View>
       ))}
+      {gamePlayers.current && (
+        <View style={recordStyle[directions[0]]}>
+          {/* we got reveal to trigger update score */}
+          {/* score is now listened immidiatly from the store */}
+          <UserAvatar
+            name={playersName[gamePlayers.current]}
+            score={currentPlayer?.stats?.score ?? 0}
+            roundScore={playersResultedScores[gamePlayers.current]}
+            isActive={myTurn}
+            timePerPlayer={game.rules.timePerPlayer}
+          />
+        </View>
+      )}
+
       {/* Yaniv/Asaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
@@ -531,17 +539,19 @@ const styles = StyleSheet.create({
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: 0, left: 10},
-  up: {position: 'absolute', top: 80, left: 30},
+  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
+  up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 140,
+    top: screenHeight / 2 - 160,
+    zIndex: 100,
   },
   right: {
     position: 'absolute',
     right: 10,
-    top: screenHeight / 2 - 140,
+    top: screenHeight / 2 - 160,
+    zIndex: 100,
   },
 };
 

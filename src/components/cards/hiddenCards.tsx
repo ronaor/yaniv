@@ -10,8 +10,8 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import {
-  calculateCardsPositions,
   calculateHiddenCardsPositions,
+  calculateRevealCardsPositions,
 } from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
@@ -46,7 +46,7 @@ const HiddenCardPointsList = ({
   );
 
   const cardsPositions = useMemo(
-    () => calculateCardsPositions(cards.length, direction),
+    () => calculateRevealCardsPositions(cards.length, direction),
     [cards.length, direction],
   );
 
