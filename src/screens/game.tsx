@@ -217,13 +217,19 @@ function GameScreen({navigation}: any) {
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
   const cardsDelay = useMemo(() => {
-    const playersActive = gamePlayers.order.filter(
+    const activePlayers = gamePlayers.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
     );
-    return playersActive.map((_, i) => ({
-      delay: i * SMALL_DELAY,
-      gap: playersActive.length * SMALL_DELAY,
-    }));
+
+    let activeIndex = 0;
+    return gamePlayers.order.map(pId =>
+      game.playersStats[pId].playerStatus === 'active'
+        ? {
+            delay: activeIndex++ * SMALL_DELAY,
+            gap: activePlayers.length * SMALL_DELAY,
+          }
+        : undefined,
+    );
   }, [game.playersStats, gamePlayers.order]);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
