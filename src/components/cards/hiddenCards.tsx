@@ -3,12 +3,15 @@ import {Card, DirectionName, Position} from '~/types/cards';
 import {Dimensions, Platform, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withTiming,
+  interpolate,
+  withDelay,
 } from 'react-native-reanimated';
 import {
-  calculateCardsPositions,
   calculateHiddenCardsPositions,
+  calculateRevealCardsPositions,
 } from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
@@ -25,7 +28,7 @@ interface HiddenCardPointsListProps {
   action?: TurnState['action'];
   reveal: boolean;
   isReady?: boolean;
-  withDelay?: {delay: number; gap: number};
+  cardsDelay?: {delay: number; gap: number};
 }
 
 const HiddenCardPointsList = ({
@@ -35,7 +38,7 @@ const HiddenCardPointsList = ({
   action,
   reveal,
   isReady = true,
-  withDelay,
+  cardsDelay,
 }: HiddenCardPointsListProps) => {
   const cardsHiddenPositions = useMemo(
     () => calculateHiddenCardsPositions(cards.length, direction),
@@ -43,41 +46,39 @@ const HiddenCardPointsList = ({
   );
 
   const cardsPositions = useMemo(
-    () => calculateCardsPositions(cards.length, direction),
+    () => calculateRevealCardsPositions(cards.length, direction),
     [cards.length, direction],
   );
 
   return (
     <View style={styles.body} pointerEvents="box-none">
-      {isReady &&
-        cards.map((card, index) => (
-          <HiddenCardPointer
-            key={getCardKey(card)}
-            index={index}
-            from={fromPosition ?? CIRCLE_CENTER}
-            dest={
-              (reveal
-                ? cardsPositions[index]
-                : cardsHiddenPositions[index]) ?? {
-                x: 0,
-                y: 0,
-                deg: 0,
-              }
+      {cards.map((card, index) => (
+        <HiddenCardPointer
+          key={getCardKey(card)}
+          index={index}
+          from={fromPosition ?? CIRCLE_CENTER}
+          dest={
+            (reveal ? cardsPositions[index] : cardsHiddenPositions[index]) ?? {
+              x: 0,
+              y: 0,
+              deg: 0,
             }
-            card={card}
-            action={action}
-            reveal={reveal}
-            delay={
-              reveal
-                ? 0
-                : fromPosition
-                ? DELAY
-                : withDelay
-                ? withDelay.delay + index * withDelay.gap
-                : 0
-            }
-          />
-        ))}
+          }
+          card={card}
+          action={action}
+          reveal={reveal}
+          delay={
+            reveal
+              ? 0
+              : fromPosition
+              ? DELAY
+              : cardsDelay
+              ? cardsDelay.delay + index * cardsDelay.gap
+              : 0
+          }
+          ready={isReady}
+        />
+      ))}
     </View>
   );
 };
@@ -101,6 +102,7 @@ interface HiddenCardPointerProps {
   action?: TurnState['action'];
   reveal: boolean;
   delay?: number;
+  ready: boolean;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -113,52 +115,96 @@ const HiddenCardPointer = ({
   action,
   reveal,
   delay = 0,
+  ready,
 }: HiddenCardPointerProps) => {
-  const translateY = useSharedValue<number>(from?.y ?? dest.y);
-  const translateX = useSharedValue<number>(from?.x ?? dest.x);
-  const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
+  // Position animation (reusable, resets)
+  const currentPos = useSharedValue<Position>(from ?? dest);
+  const destPos = useSharedValue<Position>(dest);
+  const progress = useSharedValue<number>(from ? 0 : 1);
 
-  const flipRotation = useSharedValue(action === 'DRAG_FROM_PICKUP' ? 0 : 1);
+  // Flip animation
+  const flipProgress = useSharedValue(0);
 
-  // Animate to target position
+  // Main animation
   useEffect(() => {
-    const targetRotation = dest.deg;
-    const timer = setTimeout(() => {
-      translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
-      translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
-      cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
-      flipRotation.value = withTiming(reveal ? 0 : 1, {
-        duration: MOVE_DURATION / 2,
-      });
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [
-    translateX,
-    translateY,
-    cardDeg,
-    dest.deg,
-    dest.x,
-    dest.y,
-    flipRotation,
-    delay,
-    index,
-    reveal,
-  ]);
+    if (!ready) {
+      currentPos.value = from ?? dest;
+      destPos.value = dest;
+      progress.value = from ? 0 : 1;
+      flipProgress.value = 0;
+      return;
+    }
+    // Update destination
+    destPos.value = dest;
+    progress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}, finished => {
+        'worklet';
+        if (finished) {
+          currentPos.value = destPos.value;
+          progress.value = 0;
+        }
+      }),
+    );
+    flipProgress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION / 2}),
+    );
+  }, [ready, currentPos, delay, dest, destPos, flipProgress, progress, from]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    transform: [
-      {translateX: translateX.value},
-      {translateY: translateY.value},
-      {rotate: `${cardDeg.value}deg`},
-    ],
-    zIndex: index,
+  useEffect(() => {
+    if (reveal) {
+      flipProgress.value = 0;
+      flipProgress.value = withTiming(1, {duration: MOVE_DURATION / 2});
+    }
+  }, [flipProgress, reveal]);
+
+  // Position style with interpolation
+  const animatedStyle = useAnimatedStyle(() => {
+    const currentX = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.x, destPos.value.x],
+    );
+    const currentY = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.y, destPos.value.y],
+    );
+    const currentDeg = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.deg, destPos.value.deg],
+    );
+
+    return {
+      position: 'absolute',
+      transform: [
+        {translateX: currentX},
+        {translateY: currentY},
+        {rotate: `${currentDeg}deg`},
+      ],
+      zIndex: index,
+    };
+  });
+
+  // Derived flip values
+  const flipValues = useDerivedValue(() => ({
+    flipRotation: interpolate(
+      flipProgress.value,
+      [0, 1],
+      [action === 'DRAG_FROM_PICKUP' ? 0 : 1, reveal ? 0 : 1],
+    ),
   }));
 
+  // Flip styles using derived values
   const animatedFrontFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
+        scaleX:
+          flipValues.value.flipRotation > 0.5
+            ? 0
+            : (0.5 - flipValues.value.flipRotation) * 2,
       },
     ],
   }));
@@ -166,14 +212,18 @@ const HiddenCardPointer = ({
   const animatedBackFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
+        scaleX:
+          flipValues.value.flipRotation <= 0.5
+            ? 0
+            : (flipValues.value.flipRotation - 0.5) * 2,
       },
     ],
     position: 'absolute',
   }));
+  const opacityStyle = {opacity: ready ? 1 : 0};
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, opacityStyle]}>
       <Animated.View style={animatedFrontFlipStyle}>
         <CardComponent card={card} />
       </Animated.View>

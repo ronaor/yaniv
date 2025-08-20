@@ -11,7 +11,9 @@ import {CardComponent, GlowingCardComponent} from './cardVisual';
 import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
+  withDelay,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -24,6 +26,7 @@ import {
 } from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
+import {interpolate} from 'react-native-reanimated';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -37,7 +40,7 @@ interface CardPointsListProps {
   direction: DirectionName;
   action?: TurnState['action'];
   isReady?: boolean;
-  withDelay?: {delay: number; gap: number};
+  cardsDelay?: {delay: number; gap: number};
 }
 
 export interface CardListRef {
@@ -55,7 +58,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       direction,
       action,
       isReady = true,
-      withDelay,
+      cardsDelay,
     } = props;
     const cardsPositions = useMemo(
       () => calculateCardsPositions(cards.length, direction),
@@ -86,28 +89,28 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
 
     return (
       <View style={styles.body} pointerEvents="box-none">
-        {isReady &&
-          cards.map((card, index) => (
-            <CardPointer
-              key={getCardKey(card)}
-              index={index}
-              onCardSelect={() => toggleCardSelection(index)}
-              card={card}
-              isSelected={selectedIndexes.includes(index)}
-              isSlap={index === slapCardIndex}
-              onCardSlapped={onCardSlapped}
-              from={fromPosition ?? CIRCLE_CENTER}
-              dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
-              action={action ?? 'DRAG_FROM_DECK'}
-              delay={
-                fromPosition
-                  ? DELAY
-                  : withDelay
-                  ? withDelay.delay + index * withDelay.gap
-                  : 0
-              }
-            />
-          ))}
+        {cards.map((card, index) => (
+          <CardPointer
+            key={getCardKey(card)}
+            index={index}
+            onCardSelect={() => toggleCardSelection(index)}
+            card={card}
+            ready={isReady}
+            isSelected={selectedIndexes.includes(index)}
+            isSlap={index === slapCardIndex}
+            onCardSlapped={onCardSlapped}
+            from={fromPosition ?? CIRCLE_CENTER}
+            dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
+            action={action ?? 'DRAG_FROM_DECK'}
+            delay={
+              fromPosition
+                ? DELAY
+                : cardsDelay
+                ? cardsDelay.delay + index * cardsDelay.gap
+                : 0
+            }
+          />
+        ))}
       </View>
     );
   },
@@ -135,7 +138,8 @@ interface CardPointerProps {
   from?: Position;
   dest: Position;
   action?: TurnState['action'];
-  delay?: number;
+  delay: number;
+  ready: boolean;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -151,82 +155,124 @@ const CardPointer = ({
   dest,
   action,
   delay,
+  ready,
 }: CardPointerProps) => {
-  const prevStateSelection = useRef<boolean>(false);
-  const translateY = useSharedValue<number>(from?.y ?? dest.y);
+  // Position animation (reusable, resets)
+  const currentPos = useSharedValue<Position>(from ?? dest);
+  const destPos = useSharedValue<Position>(dest);
+  const progress = useSharedValue<number>(from ? 0 : 1);
+
+  // Draw animation (one-time, combines flip + scale)
+  const drewProgress = useSharedValue(0);
+
+  // Selection animation
   const translateInternalY = useSharedValue<number>(0);
-  const translateX = useSharedValue<number>(from?.x ?? dest.x);
-  const cardDeg = useSharedValue<number>(from?.deg ?? dest.deg);
+  const prevStateSelection = useRef<boolean>(false);
 
-  const flipRotation = useSharedValue(action === 'DRAG_FROM_DECK' ? 1 : 0);
-  const scale = useSharedValue(1);
-
+  // Selection animation
   useEffect(() => {
     if (prevStateSelection.current !== isSelected) {
       translateInternalY.value = withSpring(
         isSelected ? -CARD_SELECT_OFFSET : 0,
-      ); //no using withSpring temporary until will fix this
+      );
       prevStateSelection.current = isSelected;
     }
-  }, [dest.y, isSelected, translateInternalY]);
+  }, [isSelected, translateInternalY]);
 
-  // Animate to target position
+  // Main animation
   useEffect(() => {
-    const targetRotation = dest.deg;
-    const timer = setTimeout(() => {
-      translateX.value = withTiming(dest.x, {duration: MOVE_DURATION});
-      translateY.value = withTiming(dest.y, {duration: MOVE_DURATION});
-      cardDeg.value = withTiming(targetRotation, {duration: MOVE_DURATION});
-      flipRotation.value = withTiming(0, {duration: MOVE_DURATION / 2});
-      scale.value = withTiming(1.25, {duration: MOVE_DURATION});
-    }, delay);
+    if (!ready) {
+      currentPos.value = from ?? dest;
+      destPos.value = dest;
+      progress.value = from ? 0 : 1;
+      drewProgress.value = 0;
+      return;
+    }
+    destPos.value = dest;
 
-    return () => clearTimeout(timer);
-  }, [
-    translateX,
-    translateY,
-    translateInternalY,
-    cardDeg,
-    dest.deg,
-    dest.x,
-    dest.y,
-    flipRotation,
-    scale,
-    index,
-    delay,
-  ]);
+    progress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}, finished => {
+        'worklet';
+        if (finished) {
+          currentPos.value = destPos.value;
+          progress.value = 0;
+        }
+      }),
+    );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    transform: [
-      {translateX: translateX.value},
-      {translateY: translateY.value + translateInternalY.value},
-      {rotate: `${cardDeg.value}deg`},
-    ],
-    zIndex: index,
+    drewProgress.value = withDelay(
+      delay,
+      withTiming(1, {duration: MOVE_DURATION}),
+    );
+  }, [ready, currentPos, delay, dest, destPos, drewProgress, progress, from]);
+
+  // Position style
+  const animatedStyle = useAnimatedStyle(() => {
+    const currentX = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.x, destPos.value.x],
+    );
+    const currentY = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.y, destPos.value.y],
+    );
+    const currentDeg = interpolate(
+      progress.value,
+      [0, 1],
+      [currentPos.value.deg, destPos.value.deg],
+    );
+
+    return {
+      position: 'absolute',
+      transform: [
+        {translateX: currentX},
+        {translateY: currentY + translateInternalY.value},
+        {rotate: `${currentDeg}deg`},
+      ],
+      zIndex: index,
+    };
+  });
+
+  const flipValues = useDerivedValue(() => ({
+    flipRotation: interpolate(
+      drewProgress.value,
+      [0, 0.5, 1],
+      [action === 'DRAG_FROM_DECK' ? 1 : 0, 0, 0],
+    ),
+    scale: interpolate(drewProgress.value, [0, 1], [1, 1.25]),
   }));
 
   const animatedFrontFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
+        scaleX:
+          flipValues.value.flipRotation > 0.5
+            ? 0
+            : (0.5 - flipValues.value.flipRotation) * 2,
       },
-      {scale: scale.value},
+      {scale: flipValues.value.scale},
     ],
   }));
 
   const animatedBackFlipStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
+        scaleX:
+          flipValues.value.flipRotation <= 0.5
+            ? 0
+            : (flipValues.value.flipRotation - 0.5) * 2,
       },
-      {scale: scale.value},
+      {scale: flipValues.value.scale},
     ],
     position: 'absolute',
   }));
 
+  const opacityStyle = {opacity: ready ? 1 : 0};
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={[animatedStyle, opacityStyle]}>
       <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
         <Animated.View style={animatedFrontFlipStyle}>
           {isSlap ? (

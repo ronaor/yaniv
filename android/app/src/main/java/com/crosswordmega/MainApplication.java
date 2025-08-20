@@ -63,7 +63,7 @@ public class MainApplication extends Application implements ReactApplication {
     }
     // Flipper is only available in debug builds
     if (BuildConfig.DEBUG) {
-      ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+//      ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     }
   }
 }

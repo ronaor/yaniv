@@ -37,7 +37,7 @@ const CardsSpread = ({
   const [startShuffle, setStartShuffle] = useState(!shouldGroupCards);
 
   const specialCardYOffset = useSharedValue<number>(0);
-  const overlayOpacity = useSharedValue<number>(0);
+  const overlayOpacity = useSharedValue<number>(shouldGroupCards ? 0 : 1);
 
   const {game, players} = useYanivGameStore();
   const playersActive = useMemo(() => {
@@ -114,6 +114,7 @@ const CardsSpread = ({
           ) : (
             <CardShuffle
               startAnimation={true}
+              startShuffle={!shouldGroupCards}
               loops={NUM_LOOPS}
               onFinish={onFinishShuffle}
             />

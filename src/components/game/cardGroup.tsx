@@ -1,6 +1,10 @@
 import React, {useEffect, useMemo} from 'react';
 import {Dimensions, StyleSheet, View} from 'react-native';
 import Animated, {
+  Easing,
+  SharedValue,
+  interpolate,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -11,7 +15,10 @@ import CardBack from '~/components/cards//cardBack';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {getCardKey} from '~/utils/gameRules';
 import {directions, MOVE_DURATION} from '~/utils/constants';
-import {calculateCardsPositions} from '~/utils/logic';
+import {
+  calculateCardsPositions,
+  calculateRevealCardsPositions,
+} from '~/utils/logic';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -21,6 +28,9 @@ const COLLECTION_CENTER = {
   y: screenHeight / 2 - 35, // Adjust for card height
 };
 
+// stagger between cards (ms)
+const STAGGER = 50;
+
 interface CardsGroupProps {
   shouldCollect: boolean;
   onComplete: () => void;
@@ -29,54 +39,85 @@ interface CardsGroupProps {
 interface AnimatedCardProps {
   card: Card;
   startPosition: Position;
+  index: number;
+  progress: SharedValue<number>; // shared across all cards
+  totalDuration: number; // parent-computed total duration (includes stagger)
+  shouldScale?: boolean;
 }
 
-const AnimatedCard = ({card, startPosition}: AnimatedCardProps) => {
-  const translateX = useSharedValue(startPosition.x);
-  const translateY = useSharedValue(startPosition.y);
-  const rotation = useSharedValue(startPosition.deg);
-  const flipRotation = useSharedValue(0); // Start showing front
+const AnimatedCard = ({
+  card,
+  startPosition,
+  index,
+  progress,
+  totalDuration,
+  shouldScale = false,
+}: AnimatedCardProps) => {
+  // normalized window for this card within [0..1] global progress
+  const startT = (index * STAGGER) / totalDuration;
+  const endT = (index * STAGGER + MOVE_DURATION) / totalDuration;
 
-  useEffect(() => {
-    flipRotation.value = withTiming(1, {duration: MOVE_DURATION / 2});
+  const animatedStyle = useAnimatedStyle(() => {
+    const x = interpolate(
+      progress.value,
+      [0, startT, endT, 1],
+      [
+        startPosition.x,
+        startPosition.x,
+        COLLECTION_CENTER.x,
+        COLLECTION_CENTER.x,
+      ],
+    );
+    const y = interpolate(
+      progress.value,
+      [0, startT, endT, 1],
+      [
+        startPosition.y,
+        startPosition.y,
+        COLLECTION_CENTER.y,
+        COLLECTION_CENTER.y,
+      ],
+    );
+    const rot = interpolate(
+      progress.value,
+      [0, startT, endT, 1],
+      [startPosition.deg, startPosition.deg, 0, 0],
+    );
 
-    // Move to center
-    translateX.value = withTiming(COLLECTION_CENTER.x, {
-      duration: MOVE_DURATION,
-    });
-    translateY.value = withTiming(COLLECTION_CENTER.y, {
-      duration: MOVE_DURATION,
-    });
-    rotation.value = withTiming(0, {
-      duration: MOVE_DURATION,
-    });
-  }, [translateX, translateY, rotation, flipRotation]);
+    const scale = interpolate(
+      progress.value,
+      [0, startT, endT, 1],
+      [shouldScale ? 1.25 : 1, shouldScale ? 1.25 : 1, 1, 1],
+    );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    transform: [
-      {translateX: translateX.value},
-      {translateY: translateY.value},
-      {rotate: `${rotation.value}deg`},
-    ],
-  }));
+    return {
+      position: 'absolute',
+      transform: [
+        {translateX: x},
+        {translateY: y},
+        {rotate: `${rot}deg`},
+        {scale: scale},
+      ],
+    };
+  });
 
-  const animatedFrontStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scaleX: flipRotation.value > 0.5 ? 0 : (0.5 - flipRotation.value) * 2,
-      },
-    ],
-  }));
+  // flip finishes halfway through this card's window
+  const animatedFrontStyle = useAnimatedStyle(() => {
+    const localP = interpolate(progress.value, [startT, endT], [0, 1], 'clamp');
+    const flip = interpolate(localP, [0, 0.5, 1], [0, 1, 1]); // 0->1 in first half, then hold
+    return {
+      transform: [{scaleX: flip > 0.5 ? 0 : (0.5 - flip) * 2}],
+    };
+  });
 
-  const animatedBackStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        scaleX: flipRotation.value <= 0.5 ? 0 : (flipRotation.value - 0.5) * 2,
-      },
-    ],
-    position: 'absolute',
-  }));
+  const animatedBackStyle = useAnimatedStyle(() => {
+    const localP = interpolate(progress.value, [startT, endT], [0, 1], 'clamp');
+    const flip = interpolate(localP, [0, 0.5, 1], [0, 1, 1]);
+    return {
+      transform: [{scaleX: flip <= 0.5 ? 0 : (flip - 0.5) * 2}],
+      position: 'absolute',
+    };
+  });
 
   return (
     <Animated.View style={animatedStyle}>
@@ -100,46 +141,63 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
     if (!shouldCollect) {
       return [];
     }
-
-    const cardsData: Array<{
-      card: Card;
-      position: Position;
-      playerId: string;
-    }> = [];
+    const cardsData: Array<{card: Card; position: Position; playerId: string}> =
+      [];
 
     const updatedCardPositions: Record<PlayerId, Position[]> = {};
     players.order.forEach((playerId, index) => {
-      updatedCardPositions[playerId] = calculateCardsPositions(
-        lastHands[playerId]?.length ?? 0,
-        directions[index],
-      );
+      if (players.current === playerId) {
+        updatedCardPositions[playerId] = calculateCardsPositions(
+          lastHands[playerId]?.length ?? 0,
+          directions[index],
+        );
+      } else {
+        updatedCardPositions[playerId] = calculateRevealCardsPositions(
+          lastHands[playerId]?.length ?? 0,
+          directions[index],
+        );
+      }
     });
 
     players.order.forEach(playerId => {
       const playerCards = lastHands[playerId] || [];
       const playerPositions = updatedCardPositions[playerId] || [];
-
       playerCards.forEach((card, index) => {
         if (playerPositions[index]) {
-          cardsData.push({
-            card,
-            position: playerPositions[index],
-            playerId,
-          });
+          cardsData.push({card, position: playerPositions[index], playerId});
         }
       });
     });
 
     return cardsData;
-  }, [shouldCollect, players.order, lastHands]);
+  }, [shouldCollect, players, lastHands]);
+
+  // one shared progress for the whole group
+  const progress = useSharedValue(0);
+
+  // totalDuration includes the stagger span so the last card finishes at progress=1
+  const totalDuration =
+    MOVE_DURATION + Math.max(0, allCardsWithPositions.length - 1) * STAGGER;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onComplete();
-    }, allCardsWithPositions.length * 50 + MOVE_DURATION);
+    if (!shouldCollect || allCardsWithPositions.length === 0) {
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, [allCardsWithPositions.length, onComplete]);
+    progress.value = 0;
+    progress.value = withTiming(
+      1,
+      {duration: totalDuration, easing: Easing.linear},
+      finished => {
+        'worklet';
+        if (finished) {
+          // call back to JS once, right when the whole group is done
+          onComplete && runOnJS(onComplete)();
+        }
+      },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldCollect, totalDuration, allCardsWithPositions.length]);
 
   return (
     <View style={styles.container} pointerEvents="none">
@@ -148,6 +206,10 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
           key={`${cardData.playerId}-${getCardKey(cardData.card)}-${index}`}
           card={cardData.card}
           startPosition={cardData.position}
+          index={index}
+          progress={progress}
+          totalDuration={totalDuration}
+          shouldScale={players.current === cardData.playerId}
         />
       ))}
     </View>
@@ -162,4 +224,5 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
 });
+
 export default CardsGroup;

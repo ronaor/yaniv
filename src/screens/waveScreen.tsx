@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Dimensions, StyleSheet} from 'react-native';
 
 import {
@@ -11,6 +11,7 @@ import {
   Image,
   useImage,
   PathOp,
+  Group,
 } from '@shopify/react-native-skia';
 import {
   useSharedValue,
@@ -19,6 +20,7 @@ import {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
+import {isNull} from 'lodash';
 
 const dimension = Dimensions.get('screen');
 const width = dimension.width;
@@ -46,7 +48,11 @@ const waveColors = ['#91f7d5ac', '#46c8e2'];
 const surfColors = ['#91f7d56b', '#91f7d5ac'];
 const seaColor = '#0087b8f7';
 
-const WaveAnimationBackground = () => {
+interface WaveAnimationBackgroundProp {
+  setReady?: () => void;
+}
+
+const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
   const verticalOffset = useSharedValue(initialVerticalOffset);
   const amplitude = useSharedValue(initialAmplitude);
   const time = useSharedValue(0);
@@ -204,6 +210,12 @@ const WaveAnimationBackground = () => {
 
   const image = useImage(require('~/assets/images/beach_1.png'));
 
+  useEffect(() => {
+    if (!isNull(image)) {
+      setReady?.();
+    }
+  }, [image, setReady]);
+
   return (
     <Canvas style={styles.canvas}>
       {/* Background */}
@@ -214,30 +226,32 @@ const WaveAnimationBackground = () => {
         fit={'fill'}
       />
 
-      {/* Wave memory snapshot - masked to exclude current wave area */}
-      <Path
-        path={maskedSnapshotPath}
-        style="fill"
-        color={'#17a6c32d'}
-        opacity={snapshotOpacity}
-      />
-
-      {/* Main wave */}
-      <Path path={wavePath} style="fill">
-        <LinearGradient
-          start={gradientStart}
-          end={gradientEnd}
-          colors={gradientColors}
+      <Group>
+        {/* Wave memory snapshot - masked to exclude current wave area */}
+        <Path
+          path={maskedSnapshotPath}
+          style="fill"
+          color={'#17a6c32d'}
+          opacity={snapshotOpacity}
         />
-      </Path>
 
-      {/* Wave stroke */}
-      <Path
-        path={wavePath}
-        style="stroke"
-        strokeWidth={animatedStrokeWidth}
-        color="#FFFFFFF0"
-      />
+        {/* Main wave */}
+        <Path path={wavePath} style="fill">
+          <LinearGradient
+            start={gradientStart}
+            end={gradientEnd}
+            colors={gradientColors}
+          />
+        </Path>
+
+        {/* Wave stroke */}
+        <Path
+          path={wavePath}
+          style="stroke"
+          strokeWidth={animatedStrokeWidth}
+          color="#FFFFFFF0"
+        />
+      </Group>
     </Canvas>
   );
 };
@@ -248,7 +262,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     transform: [{scaleX: 1.05}],
-    backgroundColor: '#FDDA87',
+    backgroundColor: '#FED163',
   },
 });
 

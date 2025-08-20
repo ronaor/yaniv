@@ -15,20 +15,16 @@ import Animated, {
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
-const CardBackRotated = ({position}: {position: Position}) => {
+const CardBackRotated = ({deg}: {deg: number}) => {
   const rotation = useSharedValue<number>(0);
   const rotationStyle = useAnimatedStyle(() => ({
     position: 'absolute',
-    transform: [
-      {translateX: position.x},
-      {translateY: position.y},
-      {rotate: `${rotation.value}deg`},
-    ],
+    transform: [{rotate: `${rotation.value}deg`}],
   }));
 
   useEffect(() => {
-    rotation.value = withTiming(position.deg, {duration: 300});
-  }, [position.deg, rotation]);
+    rotation.value = withTiming(deg, {duration: 300});
+  }, [deg, rotation]);
 
   return (
     <Animated.View style={rotationStyle}>
@@ -96,10 +92,10 @@ function GameBoard({
         disabled={disabled || !deckReady}>
         {deckReady && (
           <>
-            <CardBackRotated position={{x: 0, y: 0, deg: 10}} />
-            <CardBackRotated position={{x: 0, y: 0, deg: 5}} />
-            <CardBackRotated position={{x: 0, y: 0, deg: 0}} />
-            <CardBackRotated position={{x: 0, y: 0, deg: -5}} />
+            <CardBackRotated deg={10} />
+            <CardBackRotated deg={5} />
+            <CardBackRotated deg={0} />
+            <CardBackRotated deg={-5} />
           </>
         )}
       </TouchableOpacity>

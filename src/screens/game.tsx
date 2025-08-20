@@ -40,7 +40,6 @@ import {
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
-
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
@@ -64,7 +63,6 @@ function GameScreen({navigation}: any) {
 
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
-
     return {
       currentPlayer: $currentPlayer,
       playerHand: $currentPlayer?.hand || [],
@@ -313,6 +311,7 @@ function GameScreen({navigation}: any) {
         barStyle="light-content"
       />
       <WaveAnimationBackground />
+
       <SafeAreaView style={styles.surface}>
         <View style={styles.body}>
           {/* Header */}
@@ -323,6 +322,7 @@ function GameScreen({navigation}: any) {
             <GameTimer />
           </View>
         </View>
+
         {gamePlayers.order.map((playerId, i) => (
           <LightAround
             key={`light-${playerId}`}
@@ -349,13 +349,7 @@ function GameScreen({navigation}: any) {
           handleDrawFromDeck={handleDrawFromDeck}
         />
         <View style={styles.actionButtons}>
-          <UserAvatar
-            name={playersName[gamePlayers.current]}
-            score={currentPlayer?.stats?.score ?? 0}
-            roundScore={playersResultedScores[gamePlayers.current]}
-            isActive={myTurn}
-            timePerPlayer={game.rules.timePerPlayer}
-          />
+          <View style={{aspectRatio: 1, width: 80}} />
           {currentPlayer?.stats?.playerStatus === 'active' &&
           !isNil(game.currentTurn) ? (
             <OutlinedText
@@ -388,7 +382,7 @@ function GameScreen({navigation}: any) {
           action={game.currentTurn?.prevTurn?.action}
           direction={directions[0]}
           isReady={roundReadyFor === game.round}
-          withDelay={cardsDelay[0]}
+          cardsDelay={cardsDelay[0]}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -408,7 +402,7 @@ function GameScreen({navigation}: any) {
             }
             reveal={!!playersRevealing[playerId]}
             isReady={roundReadyFor === game.round}
-            withDelay={cardsDelay[i + 1]}
+            cardsDelay={cardsDelay[i + 1]}
           />
           <View style={recordStyle[directions[i + 1]]}>
             {/* we got reveal to trigger update score */}
@@ -423,10 +417,24 @@ function GameScreen({navigation}: any) {
           </View>
         </View>
       ))}
+      {gamePlayers.current && (
+        <View style={recordStyle[directions[0]]}>
+          {/* we got reveal to trigger update score */}
+          {/* score is now listened immidiatly from the store */}
+          <UserAvatar
+            name={playersName[gamePlayers.current]}
+            score={currentPlayer?.stats?.score ?? 0}
+            roundScore={playersResultedScores[gamePlayers.current]}
+            isActive={myTurn}
+            timePerPlayer={game.rules.timePerPlayer}
+          />
+        </View>
+      )}
 
       {/* Yaniv/Asaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
+
       <EndGameDialog />
     </>
   );
@@ -453,17 +461,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: 'bold',
     fontSize: 14,
-  },
-  timerContainer: {
-    backgroundColor: colors.primary,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  timer: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   gameArea: {
     position: 'absolute',
@@ -536,17 +533,19 @@ const styles = StyleSheet.create({
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: 0, left: 10},
-  up: {position: 'absolute', top: 80, left: 30},
+  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
+  up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 140,
+    top: screenHeight / 2 - 160,
+    zIndex: 100,
   },
   right: {
     position: 'absolute',
     right: 10,
-    top: screenHeight / 2 - 140,
+    top: screenHeight / 2 - 160,
+    zIndex: 100,
   },
 };
 
