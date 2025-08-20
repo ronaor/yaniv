@@ -6,7 +6,6 @@ export type RootStackParamList = {
   Lobby?: undefined;
   QuickLobby?: undefined;
   Game?: undefined;
-  BotDifficulty?: undefined;
 };
 
 export type HomeScreenProps = NativeStackScreenProps<
@@ -26,8 +25,4 @@ export type GameScreenProps = NativeStackScreenProps<
 export type QuickGameLobbyProps = NativeStackScreenProps<
   RootStackParamList,
   'QuickLobby'
->;
-export type BotDifficultyProps = NativeStackScreenProps<
-  RootStackParamList,
-  'BotDifficulty'
 >;

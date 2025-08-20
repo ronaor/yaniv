@@ -1,15 +1,16 @@
 import React, {ReactNode, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
+import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
 import {RoomConfig} from '~/types/player';
-import SelectionBar from '../menu/mainSelectionBar';
-import {normalize} from '~/utils/ui';
 import {GAME_CONFIG} from '~/utils/constants';
-import XButton from '../menu/xButton';
+import {normalize} from '~/utils/ui';
+import SelectionBar from '../menu/mainSelectionBar';
 import SimpleButton from '../menu/simpleButton';
-import AlternatingRowsList from '~/components/menu/alternatingRowsList';
+import XButton from '../menu/xButton';
 
 type CreateRoomDialogProps = {
+  isPlayWithComputer?: boolean;
   onCreateRoom: (data: RoomConfig) => void;
   onClose: () => void;
 };
@@ -32,9 +33,16 @@ function RowItem({text, children}: RowItemProps) {
 }
 
 export default function CreateRoomDialog({
+  isPlayWithComputer,
   onCreateRoom,
   onClose,
 }: CreateRoomDialogProps) {
+  const [difficulty, setGameLevel] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.difficulty,
+  );
+  const [numberOfPlayers, setNumberOfPlayers] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.numberOfPlayers,
+  );
   const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
   const [callYanivAt, setCallYanivAt] = useState(
     GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
@@ -48,6 +56,10 @@ export default function CreateRoomDialog({
       slapDown,
       canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[callYanivAt],
       maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[maxScoreLimit],
+      ...(isPlayWithComputer && {
+        difficulty: GAME_CONFIG.DIFFICULTY[difficulty],
+        numberOfPlayers: +GAME_CONFIG.NUMBER_OF_PLAYERS[numberOfPlayers],
+      }),
     });
   };
 
@@ -61,6 +73,26 @@ export default function CreateRoomDialog({
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>{'CREATE ROOM'}</Text>
           </View>
+
+          {isPlayWithComputer && (
+            <RowItem text={'Difficulty'}>
+              <SelectionBar
+                selectionIndex={difficulty}
+                setSelection={setGameLevel}
+                elements={GAME_CONFIG.DIFFICULTY}
+              />
+            </RowItem>
+          )}
+
+          {isPlayWithComputer && (
+            <RowItem text={'Number of Players'}>
+              <SelectionBar
+                selectionIndex={numberOfPlayers}
+                setSelection={setNumberOfPlayers}
+                elements={GAME_CONFIG.NUMBER_OF_PLAYERS}
+              />
+            </RowItem>
+          )}
           <RowItem text={'Enable Slap-Down'}>
             <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
           </RowItem>
