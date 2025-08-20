@@ -68,7 +68,7 @@ const HiddenCardPointsList = ({
           action={action}
           reveal={reveal}
           delay={
-            reveal
+            reveal && isReady
               ? 0
               : fromPosition
               ? DELAY
