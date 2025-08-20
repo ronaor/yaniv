@@ -4,8 +4,6 @@ import {
   Dimensions,
   StatusBar,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
@@ -40,6 +38,8 @@ import {
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
+import LeaveButton from '~/components/menu/leaveButton';
+
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
@@ -139,20 +139,24 @@ function GameScreen({navigation}: any) {
     [emit, board.pickupPile.length, cardsListRef],
   );
 
-  // Handle leave game
   const handleLeave = useCallback(() => {
-    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-      {text: 'ביטול', style: 'cancel'},
-      {
-        text: 'צא',
-        style: 'destructive',
-        onPress: () => {
-          leaveRoom(nickName);
-          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    if (players.length > 1) {
+      Alert.alert('Leave Room', 'Are you sure you want to leave?', [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () => {
+            leaveRoom(nickName);
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          },
         },
-      },
-    ]);
-  }, [navigation, leaveRoom, nickName]);
+      ]);
+    } else {
+      leaveRoom(nickName);
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    }
+  }, [players.length, leaveRoom, nickName, navigation]);
 
   // Handle game errors
   useEffect(() => {
@@ -316,9 +320,7 @@ function GameScreen({navigation}: any) {
         <View style={styles.body}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity style={styles.leaveBtn} onPress={handleLeave}>
-              <Text style={styles.leaveBtnText}>⟵ עזוב</Text>
-            </TouchableOpacity>
+            <LeaveButton text={'Leave'} onPress={handleLeave} />
             <GameTimer />
           </View>
         </View>

@@ -48,7 +48,7 @@ function UserAvatar({
   // Timer progress animation
   useEffect(() => {
     if (timePerPlayer && isActive) {
-      avatarScale.value = withTiming(1.25);
+      avatarScale.value = withTiming(1.1);
       circleProgress.value = 0;
       circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
     } else {

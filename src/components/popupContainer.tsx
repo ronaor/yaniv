@@ -12,7 +12,7 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
 const {width: wWidth, height: wHeight} = Dimensions.get('screen');
 
@@ -47,11 +47,15 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
     useAnimatedReaction(
       () => (isModalOpen ? 1 : 0),
       dest =>
-        (progress.value = withTiming(dest, undefined, isFinish => {
-          if (isFinish ?? false) {
-            runOnJS(setModalActive)(dest === 1);
-          }
-        })),
+        (progress.value = withSpring(
+          dest,
+          {damping: 20, stiffness: 320},
+          isFinish => {
+            if (isFinish ?? false) {
+              runOnJS(setModalActive)(dest === 1);
+            }
+          },
+        )),
     );
     const bgAnimStyle = useAnimatedStyle(() => ({
       opacity: progress.value * 0.5,

@@ -35,29 +35,6 @@ const useEndGameStore = create<EndGameStore>(set => ({
   open: (mode, thisPlayerId, playersIds, playersStats) => {
     return set({isOpen: true, mode, thisPlayerId, playersIds, playersStats});
   },
-  //Mock data
-  // open: (mode, thisPlayerId, playersIds, playersStats) => {
-  //   console.log('🚀 ~ playersStats:', playersStats);
-  //   console.log('🚀 ~ playersIds:', playersIds);
-  //   return set({
-  //     isOpen: true,
-  //     mode,
-  //     thisPlayerId,//: 'sN5hKQRukcgY4rxwAACh',
-  //     playersIds ,://['sN5hKQRukcgY4rxwAACh', 'j7E3vEMByHXiMWhZAACg'],
-  //     playersStats: {
-  //       sN5hKQRukcgY4rxwAACh: {
-  //         playerName: 'lolkk',
-  //         playerStatus: 'active',
-  //         score: 0,
-  //       },
-  //       j7E3vEMByHXiMWhZAACg: {
-  //         playerName: 'Fff',
-  //         playerStatus: 'leave',
-  //         score: 0,
-  //       },
-  //     },
-  //   });
-  // },
   close: () => set({isOpen: false}),
 }));
 
@@ -107,25 +84,31 @@ const EndGameDialog: React.FC = () => {
     ).length;
   }, [playersStats, thisPlayerId]);
 
-  // Handle leave game
   const handleLeave = useCallback(() => {
-    Alert.alert('יציאה מהמשחק', 'האם אתה בטוח שברצונך לעזוב?', [
-      {text: 'ביטול', style: 'cancel'},
-      {
-        text: 'צא',
-        style: 'destructive',
-        onPress: () => {
-          close();
-          leaveRoom(playersStats[thisPlayerId].playerName);
-          navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    const nickName = playersStats[thisPlayerId].playerName;
+    if (playersIds.length > 1) {
+      Alert.alert('Leave Room', 'Are you sure you want to leave?', [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () => {
+            leaveRoom(nickName);
+            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+          },
         },
-      },
-    ]);
-  }, [navigation, leaveRoom, playersStats, thisPlayerId, close]);
+      ]);
+    } else {
+      leaveRoom(nickName);
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    }
+  }, [leaveRoom, navigation, playersIds.length, playersStats, thisPlayerId]);
 
   const renderPlayer = (playerId: string) => {
     const player = playersStats[playerId];
-    if (!player) return <View />;
+    if (!player) {
+      return <View />;
+    }
 
     let statusText = '';
     if (player.playerStatus === 'leave') statusText = 'סליחה, חייב ללכת 😢';
