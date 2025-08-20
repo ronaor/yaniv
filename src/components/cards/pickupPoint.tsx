@@ -4,7 +4,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import {CardComponent} from './cardVisual';
-import {Pressable, StyleSheet} from 'react-native';
+import {Pressable} from 'react-native';
 import React, {useEffect} from 'react';
 import {Card, Position} from '~/types/cards';
 import {CARD_WIDTH, MOVE_DURATION} from '~/utils/constants';
@@ -16,6 +16,7 @@ interface PickupPointerProps {
   onPress: () => void;
   disabled: boolean;
   isHidden?: boolean;
+  totalCards: number;
 }
 
 const PickupPointer = ({
@@ -25,8 +26,12 @@ const PickupPointer = ({
   onPress,
   disabled,
   isHidden = false,
+  totalCards,
 }: PickupPointerProps) => {
-  const targetX = index * CARD_WIDTH;
+  const totalWidth = (totalCards - 1) * CARD_WIDTH;
+  const startX = -totalWidth / 2;
+  const targetX = startX + index * CARD_WIDTH;
+
   const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
   const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
   const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
@@ -39,12 +44,10 @@ const PickupPointer = ({
     scale.value = withTiming(1, {duration: MOVE_DURATION});
   }, [translateX, translateY, cardDeg, card, targetX, scale]);
 
-  const animatedPointerStyle = useAnimatedStyle(() => ({
-    transform: [{translateX: translateX.value}],
-  }));
-
   const animatedStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
     transform: [
+      {translateX: translateX.value},
       {translateY: translateY.value},
       {rotate: `${cardDeg.value}deg`},
       {scale: scale.value},
@@ -52,20 +55,12 @@ const PickupPointer = ({
   }));
 
   return (
-    <Animated.View style={[styles.pointers, animatedPointerStyle]}>
-      <Animated.View style={animatedStyle}>
-        <Pressable disabled={disabled} onPress={onPress}>
-          <CardComponent card={card} />
-        </Pressable>
-      </Animated.View>
+    <Animated.View style={animatedStyle}>
+      <Pressable disabled={disabled} onPress={onPress}>
+        <CardComponent card={card} />
+      </Pressable>
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  pointers: {
-    position: 'absolute',
-  },
-});
 
 export default PickupPointer;
