@@ -40,8 +40,6 @@ import {
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
-import LoadingOverlay from '~/components/game/loadingOverlay';
-
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
@@ -184,8 +182,6 @@ function GameScreen({navigation}: any) {
     [lastPickedCard, playerHand, slapDownAvailable],
   );
 
-  const [loadingOverlay, setLoadingOverlay] = useState<boolean>(true);
-
   const onSlapCard = useCallback(() => {
     const cardToSlap = playerHand[slapCardIndex];
     if (cardToSlap) {
@@ -307,7 +303,6 @@ function GameScreen({navigation}: any) {
     };
   }, [roundResults, game.phase, gamePlayers.order]);
 
-  const onGameReady = useCallback(() => setLoadingOverlay(false), []);
   return (
     <>
       <StatusBar
@@ -315,7 +310,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <WaveAnimationBackground setReady={onGameReady} />
+      <WaveAnimationBackground />
 
       <SafeAreaView style={styles.surface}>
         <View style={styles.body}>
@@ -441,7 +436,6 @@ function GameScreen({navigation}: any) {
       <AssafBubble direction={assafCall} />
 
       <EndGameDialog />
-      {loadingOverlay && <LoadingOverlay />}
     </>
   );
 }

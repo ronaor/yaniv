@@ -1,5 +1,5 @@
 import React, {ReactNode, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
 import {RoomConfig} from '~/types/player';
@@ -8,6 +8,8 @@ import {normalize} from '~/utils/ui';
 import SelectionBar from '../menu/mainSelectionBar';
 import SimpleButton from '../menu/simpleButton';
 import XButton from '../menu/xButton';
+
+const {width: screenWidth} = Dimensions.get('screen');
 
 type CreateRoomDialogProps = {
   isPlayWithComputer?: boolean;
@@ -80,12 +82,13 @@ export default function CreateRoomDialog({
                 selectionIndex={difficulty}
                 setSelection={setGameLevel}
                 elements={GAME_CONFIG.DIFFICULTY}
+                fontSize={15}
               />
             </RowItem>
           )}
 
           {isPlayWithComputer && (
-            <RowItem text={'Number of Players'}>
+            <RowItem text={'Players'}>
               <SelectionBar
                 selectionIndex={numberOfPlayers}
                 setSelection={setNumberOfPlayers}
@@ -131,7 +134,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  body: {},
+  body: {
+    maxWidth: screenWidth - 42,
+  },
   gradientHeader: {
     backgroundColor: '#843402',
     borderTopLeftRadius: 25,

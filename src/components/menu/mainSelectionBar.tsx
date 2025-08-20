@@ -7,9 +7,15 @@ interface SelectionElementProps {
   value: string;
   isSelected: boolean;
   onPress: () => void;
+  fontSize: number;
 }
 
-function SelectionElement({value, isSelected, onPress}: SelectionElementProps) {
+function SelectionElement({
+  value,
+  isSelected,
+  onPress,
+  fontSize,
+}: SelectionElementProps) {
   const activeStyle = {
     borderColor: '#3C4A01',
     endColor: '#247916',
@@ -36,7 +42,13 @@ function SelectionElement({value, isSelected, onPress}: SelectionElementProps) {
         style={styles.gradient}
         colors={[colors.startColor, colors.endColor]}>
         <View style={[styles.content, {backgroundColor: colors.mainColor}]}>
-          <Text style={[styles.text, {color: colors.fontColor}]}>{value}</Text>
+          <Text
+            style={[
+              styles.text,
+              {color: colors.fontColor, fontSize: normalize(fontSize)},
+            ]}>
+            {value}
+          </Text>
         </View>
       </LinearGradient>
     </Pressable>
@@ -47,12 +59,14 @@ interface SelectionBarProps {
   selectionIndex: number;
   setSelection: React.Dispatch<React.SetStateAction<number>>;
   elements: string[];
+  fontSize?: number;
 }
 
 function SelectionBar({
   selectionIndex,
   setSelection,
   elements,
+  fontSize = 19,
 }: SelectionBarProps) {
   return (
     <View style={styles.container}>
@@ -62,6 +76,7 @@ function SelectionBar({
           value={element}
           onPress={() => setSelection(index)}
           isSelected={selectionIndex === index}
+          fontSize={fontSize}
         />
       ))}
     </View>
@@ -94,7 +109,6 @@ const styles = StyleSheet.create({
     minWidth: 32,
   },
   text: {
-    fontSize: normalize(19),
     textAlign: 'center',
     fontWeight: '700',
     paddingHorizontal: 2,

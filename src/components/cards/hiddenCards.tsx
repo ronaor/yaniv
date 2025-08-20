@@ -152,6 +152,13 @@ const HiddenCardPointer = ({
     );
   }, [ready, currentPos, delay, dest, destPos, flipProgress, progress, from]);
 
+  useEffect(() => {
+    if (reveal) {
+      flipProgress.value = 0;
+      flipProgress.value = withTiming(1, {duration: MOVE_DURATION / 2});
+    }
+  }, [flipProgress, reveal]);
+
   // Position style with interpolation
   const animatedStyle = useAnimatedStyle(() => {
     const currentX = interpolate(

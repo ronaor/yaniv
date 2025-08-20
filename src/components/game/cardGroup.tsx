@@ -15,7 +15,10 @@ import CardBack from '~/components/cards//cardBack';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {getCardKey} from '~/utils/gameRules';
 import {directions, MOVE_DURATION} from '~/utils/constants';
-import {calculateRevealCardsPositions} from '~/utils/logic';
+import {
+  calculateCardsPositions,
+  calculateRevealCardsPositions,
+} from '~/utils/logic';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -39,6 +42,7 @@ interface AnimatedCardProps {
   index: number;
   progress: SharedValue<number>; // shared across all cards
   totalDuration: number; // parent-computed total duration (includes stagger)
+  shouldScale?: boolean;
 }
 
 const AnimatedCard = ({
@@ -47,6 +51,7 @@ const AnimatedCard = ({
   index,
   progress,
   totalDuration,
+  shouldScale = false,
 }: AnimatedCardProps) => {
   // normalized window for this card within [0..1] global progress
   const startT = (index * STAGGER) / totalDuration;
@@ -79,9 +84,20 @@ const AnimatedCard = ({
       [startPosition.deg, startPosition.deg, 0, 0],
     );
 
+    const scale = interpolate(
+      progress.value,
+      [0, startT, endT, 1],
+      [shouldScale ? 1.25 : 1, shouldScale ? 1.25 : 1, 1, 1],
+    );
+
     return {
       position: 'absolute',
-      transform: [{translateX: x}, {translateY: y}, {rotate: `${rot}deg`}],
+      transform: [
+        {translateX: x},
+        {translateY: y},
+        {rotate: `${rot}deg`},
+        {scale: scale},
+      ],
     };
   });
 
@@ -130,10 +146,17 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
 
     const updatedCardPositions: Record<PlayerId, Position[]> = {};
     players.order.forEach((playerId, index) => {
-      updatedCardPositions[playerId] = calculateRevealCardsPositions(
-        lastHands[playerId]?.length ?? 0,
-        directions[index],
-      );
+      if (players.current === playerId) {
+        updatedCardPositions[playerId] = calculateCardsPositions(
+          lastHands[playerId]?.length ?? 0,
+          directions[index],
+        );
+      } else {
+        updatedCardPositions[playerId] = calculateRevealCardsPositions(
+          lastHands[playerId]?.length ?? 0,
+          directions[index],
+        );
+      }
     });
 
     players.order.forEach(playerId => {
@@ -147,7 +170,7 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
     });
 
     return cardsData;
-  }, [shouldCollect, players.order, lastHands]);
+  }, [shouldCollect, players, lastHands]);
 
   // one shared progress for the whole group
   const progress = useSharedValue(0);
@@ -186,6 +209,7 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
           index={index}
           progress={progress}
           totalDuration={totalDuration}
+          shouldScale={players.current === cardData.playerId}
         />
       ))}
     </View>

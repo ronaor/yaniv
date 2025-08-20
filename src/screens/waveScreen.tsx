@@ -49,7 +49,7 @@ const surfColors = ['#91f7d56b', '#91f7d5ac'];
 const seaColor = '#0087b8f7';
 
 interface WaveAnimationBackgroundProp {
-  setReady: () => void;
+  setReady?: () => void;
 }
 
 const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
@@ -212,7 +212,7 @@ const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
 
   useEffect(() => {
     if (!isNull(image)) {
-      setReady();
+      setReady?.();
     }
   }, [image, setReady]);
 
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     transform: [{scaleX: 1.05}],
+    backgroundColor: '#FED163',
   },
 });
 
