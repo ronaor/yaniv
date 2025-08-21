@@ -17,9 +17,16 @@ function GameTimer() {
     game.phase,
   );
   const styleOpacity = useMemo(
-    () => ({
-      opacity: game.phase === 'active' ? 1 : 0,
-    }),
+    () =>
+      game.phase === 'active'
+        ? {
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.25,
+            shadowRadius: 5,
+            elevation: 5,
+          }
+        : {opacity: 0},
     [game.phase],
   );
 
@@ -48,11 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 80,
     height: 70,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   timer: {
     position: 'absolute',
