@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     transform: [{scaleX: 1.05}],
-    backgroundColor: '#f5ca89ff',
+    backgroundColor: '#FDCF60',
   },
 });
 
