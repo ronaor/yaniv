@@ -4,9 +4,9 @@ import {DirectionName} from '~/types/cards';
 import React, {useEffect} from 'react';
 import Animated, {
   useSharedValue,
-  useAnimatedStyle,
   withSpring,
   withTiming,
+  useDerivedValue,
 } from 'react-native-reanimated';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -29,10 +29,6 @@ function LightAround({direction, isActive}: LightAroundProps) {
       : withTiming(0, {duration: 300});
   }, [isActive, scale]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{scale: scale.value}],
-  }));
-
   const getPosition = () => {
     switch (direction) {
       case 'down':
@@ -46,12 +42,14 @@ function LightAround({direction, isActive}: LightAroundProps) {
     }
   };
 
+  const r = useDerivedValue(() => 200 * scale.value, [scale]);
+
   const {cx, cy} = getPosition();
 
   return (
-    <Animated.View style={[styles.overlay, animatedStyle]}>
+    <Animated.View style={styles.overlay}>
       <Canvas style={StyleSheet.absoluteFillObject}>
-        <Circle cx={cx} cy={cy} r={200}>
+        <Circle cx={cx} cy={cy} r={r}>
           <RadialGradient
             c={vec(cx, cy)}
             r={200}
