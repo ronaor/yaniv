@@ -44,8 +44,8 @@ const generateRandomMinY = () => {
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
 
-const waveColors = ['#91f7d5ac', '#46c8e2'];
-const surfColors = ['#91f7d56b', '#91f7d5ac'];
+const waveColors = ['#6af3ecff', '#46c8e2'];
+const surfColors = ['#b6ffe738', '#91f7d5ac'];
 const seaColor = '#0087b8f7';
 
 interface WaveAnimationBackgroundProp {
@@ -208,7 +208,7 @@ const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
     return interpolate(progress, [0, 1], [20, 5]);
   });
 
-  const image = useImage(require('~/assets/images/beach_1.png'));
+  const image = useImage(require('~/assets/images/beach_4.png'));
 
   useEffect(() => {
     if (!isNull(image)) {
@@ -231,7 +231,7 @@ const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
         <Path
           path={maskedSnapshotPath}
           style="fill"
-          color={'#17a6c32d'}
+          color={'#937c5e2e'}
           opacity={snapshotOpacity}
         />
 
@@ -249,7 +249,7 @@ const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
           path={wavePath}
           style="stroke"
           strokeWidth={animatedStrokeWidth}
-          color="#FFFFFFF0"
+          color="#ffffffd8"
         />
       </Group>
     </Canvas>
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     transform: [{scaleX: 1.05}],
-    backgroundColor: '#FED163',
+    backgroundColor: '#f5ca89ff',
   },
 });
 
