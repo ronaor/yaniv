@@ -10,6 +10,7 @@ interface SimpleButtonProps {
   disabled?: boolean;
   colors: [string, string, string];
   borderColor?: string;
+  size?: 'small' | 'medium';
 }
 
 const SimpleButton = ({
@@ -18,10 +19,25 @@ const SimpleButton = ({
   text,
   onPress,
   disabled = false,
+  size = 'medium',
 }: SimpleButtonProps) => {
   const gradientColors = disabled
     ? ['#BBBBBB', '#999999']
     : [colors[0], colors[2]];
+
+  const textStyle = {
+    fontSize: size === 'medium' ? normalize(20) : normalize(15),
+  };
+  const contentStyle =
+    size === 'medium'
+      ? {
+          paddingVertical: 10,
+          paddingHorizontal: 15,
+        }
+      : {
+          paddingVertical: 5,
+          paddingHorizontal: 10,
+        };
 
   return (
     <Pressable
@@ -39,9 +55,10 @@ const SimpleButton = ({
         <View
           style={[
             styles.content,
+            contentStyle,
             disabled ? styles.contentDisabled : {backgroundColor: colors[1]},
           ]}>
-          <Text style={styles.text}>{text}</Text>
+          <Text style={[styles.text, textStyle]}>{text}</Text>
         </View>
       </LinearGradient>
     </Pressable>
@@ -73,8 +90,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#3BA209',
     borderRadius: 25,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
   },
   contentDisabled: {
     backgroundColor: '#CCCCCC',
@@ -87,7 +102,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   text: {
-    fontSize: normalize(20),
     color: '#FFFFFF',
     fontWeight: '700',
   },

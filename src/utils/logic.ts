@@ -53,14 +53,14 @@ export function calculateCardsPositions(
       case 'right': // right side, pointing left
         return {
           x: width - 150 + arcOffset + CARD_WIDTH * 1.5,
-          y: height / 2 + (cardsLen / 2) * spread - index * spread,
+          y: height / 2 + (cardsLen / 2) * spread - index * spread - 135,
           deg: -90 + shift * tiltStep,
         };
 
       case 'left': // left side, pointing right
         return {
           x: 25 - arcOffset,
-          y: height / 2 - (cardsLen / 2) * spread + index * spread,
+          y: height / 2 - (cardsLen / 2) * spread + index * spread - 125,
           deg: 90 + shift * tiltStep,
         };
 

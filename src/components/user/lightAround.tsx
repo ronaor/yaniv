@@ -40,9 +40,9 @@ function LightAround({direction, isActive}: LightAroundProps) {
       case 'up':
         return {cx: screenWidth / 2, cy: 40};
       case 'left':
-        return {cx: -70, cy: screenHeight / 2};
+        return {cx: -70, cy: screenHeight / 2 - 50};
       case 'right':
-        return {cx: screenWidth + 70, cy: screenHeight / 2};
+        return {cx: screenWidth + 70, cy: screenHeight / 2 - 50};
     }
   };
 

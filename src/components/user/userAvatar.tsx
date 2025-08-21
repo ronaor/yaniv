@@ -16,6 +16,7 @@ import {
   Skia,
 } from '@shopify/react-native-skia';
 import {OutlinedText} from '../cartoonText';
+import {normalize} from '~/utils/ui';
 
 interface UserAvatarProps {
   name: string;
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 40,
     borderWidth: 5,
-    backgroundColor: '#199BC9',
+    backgroundColor: '#04a8e3ff',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
@@ -259,7 +260,7 @@ const styles = StyleSheet.create({
   name: {
     paddingHorizontal: 5,
     paddingVertical: 3,
-    fontSize: 17,
+    fontSize: normalize(13),
     fontWeight: '900',
     color: '#FDEBC0',
   },

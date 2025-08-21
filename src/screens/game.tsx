@@ -38,7 +38,8 @@ import {
 } from '~/utils/constants';
 import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
-import LeaveButton from '~/components/menu/leaveButton';
+import SimpleButton from '~/components/menu/simpleButton';
+import LoadingOverlay from '~/components/game/loadingOverlay';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -323,10 +324,15 @@ function GameScreen({navigation}: any) {
       <WaveAnimationBackground />
 
       <SafeAreaView style={styles.surface}>
-        <View style={styles.body}>
+        <View style={styles.body} pointerEvents={'box-none'}>
           {/* Header */}
           <View style={styles.header}>
-            <LeaveButton text={'Leave'} onPress={handleLeave} />
+            <SimpleButton
+              text={'Leave'}
+              onPress={handleLeave}
+              colors={['#E64E08', '#db300eff', '#D02A07']}
+              size="small"
+            />
             <GameTimer />
           </View>
         </View>
@@ -338,6 +344,8 @@ function GameScreen({navigation}: any) {
             isActive={game.currentTurn?.playerId === playerId}
           />
         ))}
+
+        {roundReadyFor !== game.round && <LoadingOverlay />}
 
         {/* Game Area */}
         <GameBoard
@@ -365,10 +373,10 @@ function GameScreen({navigation}: any) {
               fontSize={20}
               width={125}
               height={100}
-              fillColor={'#FFD61B'}
-              strokeColor={'#6A3900'}
-              strokeWidth={5}
-              fontWeight={'900'}
+              fillColor={'#ffffffff'}
+              strokeColor={'#562e1399'}
+              strokeWidth={4}
+              fontWeight={'700'}
             />
           ) : null}
           <YanivButton
@@ -453,6 +461,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     padding: 12,
+    zIndex: 99,
   },
   header: {
     gap: 8,
@@ -546,13 +555,13 @@ const recordStyle: Record<DirectionName, ViewStyle> = {
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 160,
+    top: screenHeight / 2 - 20,
     zIndex: 100,
   },
   right: {
     position: 'absolute',
     right: 10,
-    top: screenHeight / 2 - 160,
+    top: screenHeight / 2 - 20,
     zIndex: 100,
   },
 };
