@@ -208,7 +208,7 @@ const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
     return interpolate(progress, [0, 1], [20, 5]);
   });
 
-  const image = useImage(require('~/assets/images/beach_4.png'));
+  const image = useImage(require('~/assets/images/beach_1.png'));
 
   useEffect(() => {
     if (!isNull(image)) {

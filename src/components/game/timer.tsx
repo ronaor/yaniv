@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Svg, {Image} from 'react-native-svg';
 import {useTimer} from '~/hooks/useTimer';
 import {useYanivGameStore} from '~/store/yanivGameStore';
 import {OutlinedText} from '../cartoonText';
+
+const image = require('~/assets/images/float.png');
 
 function GameTimer() {
   const {game} = useYanivGameStore();
@@ -14,27 +16,28 @@ function GameTimer() {
     game.rules.timePerPlayer,
     game.phase,
   );
+  const styleOpacity = useMemo(
+    () => ({
+      opacity: game.phase === 'active' ? 1 : 0,
+    }),
+    [game.phase],
+  );
+
   return (
-    <View style={styles.timerContainer}>
-      {game.phase === 'active' && (
-        <Svg width={70} height={70} viewBox="0 0 100 100">
-          <Image
-            width="100"
-            height="100"
-            href={require('~/assets/images/float.png')}
-          />
-          <OutlinedText
-            text={`${timeRemaining}`}
-            fontSize={30}
-            width={100}
-            height={98}
-            fillColor={'#FFC606'}
-            strokeColor={'#5B2500'}
-            strokeWidth={4}
-            fontWeight={'700'}
-          />
-        </Svg>
-      )}
+    <View style={[styles.timerContainer, styleOpacity]}>
+      <Svg width={70} height={70} viewBox="0 0 100 100">
+        <Image width="100" height="100" href={image} />
+        <OutlinedText
+          text={`${timeRemaining}`}
+          fontSize={30}
+          width={100}
+          height={98}
+          fillColor={'#FFC606'}
+          strokeColor={'#5B2500'}
+          strokeWidth={4}
+          fontWeight={'700'}
+        />
+      </Svg>
     </View>
   );
 }
