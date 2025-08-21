@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -190,15 +189,9 @@ function UserAvatar({
           </Canvas>
         )}
       </Animated.View>
-      <View style={styles.logContainer}>
+      <View>
         <View style={styles.gradientWrap}>
-          <LinearGradient
-            style={styles.gradient}
-            colors={['#E05F0B', '#AE4906', '#AE4906']}>
-            <View style={styles.log}>
-              <Text style={styles.name}>{name}</Text>
-            </View>
-          </LinearGradient>
+          <Text style={styles.name}>{name}</Text>
         </View>
         <View>
           <Animated.View style={[styles.gradientScore, scoreStyle]}>
@@ -208,7 +201,7 @@ function UserAvatar({
             <Animated.View style={[styles.roundScore, roundScoreStyle]}>
               <OutlinedText
                 text={`${displayAddScore >= 0 ? '+' : ''}${displayAddScore}`}
-                fontSize={16}
+                fontSize={normalize(12)}
                 width={50}
                 height={30}
                 strokeWidth={5}
@@ -256,10 +249,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logContainer: {},
   name: {
-    paddingHorizontal: 5,
-    paddingVertical: 3,
     fontSize: normalize(13),
     fontWeight: '900',
     color: '#FDEBC0',
@@ -267,7 +257,7 @@ const styles = StyleSheet.create({
   score: {
     paddingVertical: 2,
     paddingHorizontal: 3,
-    fontSize: 13,
+    fontSize: normalize(10),
     fontWeight: '900',
     color: '#FDEBC0',
     textAlign: 'center',
@@ -277,23 +267,19 @@ const styles = StyleSheet.create({
   gradientWrap: {
     borderWidth: 2,
     borderColor: '#732C03',
-    backgroundColor: '#732C03',
+    backgroundColor: '#BB550C',
     borderRadius: 15,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   gradient: {
     paddingVertical: 3,
     borderRadius: 13,
-  },
-  log: {
-    backgroundColor: '#BB550C',
-    flexDirection: 'row',
-    borderRadius: 13,
-    paddingHorizontal: 5,
   },
   scoreContainer: {
     position: 'relative',
@@ -306,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    borderColor: '#732C03',
+    borderColor: '#994a00ff',
     borderWidth: 2,
     backgroundColor: '#E9872A',
     minWidth: 24,
@@ -315,7 +301,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     paddingVertical: 2,
     paddingHorizontal: 3,
-    fontSize: 15,
+    fontSize: normalize(10),
     fontWeight: '900',
     color: '#17a6ffff',
     textAlign: 'center',

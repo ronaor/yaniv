@@ -29,7 +29,7 @@ const COLLECTION_CENTER = {
 };
 
 // stagger between cards (ms)
-const STAGGER = 50;
+const STAGGER = 30;
 
 interface CardsGroupProps {
   shouldCollect: boolean;

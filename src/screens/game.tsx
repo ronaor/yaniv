@@ -365,18 +365,18 @@ function GameScreen({navigation}: any) {
           handleDrawFromDeck={handleDrawFromDeck}
         />
         <View style={styles.actionButtons}>
-          <View style={{aspectRatio: 1, width: 80}} />
+          <View style={styles.avatarHolder} />
           {currentPlayer?.stats?.playerStatus === 'active' &&
           !isNil(game.currentTurn) ? (
             <OutlinedText
-              text={`${handValue}  Points`}
+              text={`Hand: ${handValue}`}
               fontSize={20}
               width={125}
               height={100}
               fillColor={'#ffffffff'}
               strokeColor={'#562e1399'}
               strokeWidth={4}
-              fontWeight={'700'}
+              fontWeight={'800'}
             />
           ) : null}
           <YanivButton
@@ -547,6 +547,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   absolute: {position: 'absolute', width: screenWidth},
+  avatarHolder: {aspectRatio: 1, width: 80},
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {

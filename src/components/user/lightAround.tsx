@@ -42,7 +42,7 @@ function LightAround({direction, isActive}: LightAroundProps) {
     }
   };
 
-  const r = useDerivedValue(() => 200 * scale.value, [scale]);
+  const r = useDerivedValue(() => 200 * scale.value);
 
   const {cx, cy} = getPosition();
 
