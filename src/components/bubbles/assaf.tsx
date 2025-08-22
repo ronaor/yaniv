@@ -37,6 +37,8 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 
   const bubbleDirection = activeDirection ?? direction;
 
+  const tailPath = tailPaths[bubbleDirection ?? 'down'];
+
   const pivotX = bubbleDirection === 'right' ? -50 : 50;
   const pivotY = bubbleDirection === 'up' ? 120 : -120;
   useEffect(() => {
@@ -86,21 +88,25 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
       <AnimatedSvg
         width={250}
         height={180}
-        viewBox="0 0 660 574"
+        viewBox="0 0 691 534"
         fill="none"
         style={animatedStyle}
         animatedProps={animatedProps}>
         <Path
-          d="M341.5 480.5L267.5 569.5L290 504L267.5 507L280 437.5C253 454 249 454.5 230.5 477.5C221 402 181 393 98.5 441C119.46 389.884 103.5 357.5 21.5 365.5C80 316.5 87.5 273.5 19 238C93 224 109.5 192 80 134.5C155 160 196.5 135 185 74C248.5 123 280.688 96.3152 292.5 32.5C357.186 99.4139 385.063 85.6487 429 17C445.054 116.989 488.646 93.5194 562.5 51.5C538.067 139.846 561.396 160.043 646 162C574.682 240.871 566 310 619.5 359C523 348 506.469 376.584 532.5 445C446 391.5 405.5 400.5 392 480.5C377.14 460.318 371 448.5 344 433L314 473.5L341.5 480.5Z"
-          fill="#FFEEC2"
+          d="M548.5 463.417C462 409.917 421.5 418.917 408 498.917C340.719 431.779 305.416 431.89 246.5 495.917C237 420.417 197 411.417 114.5 459.417C135.46 408.301 119.5 375.917 37.5 383.917C96 334.917 103.5 291.917 35 256.417C109 242.417 125.5 210.417 96 152.917C171 178.417 212.5 153.417 201 92.417C264.5 141.417 296.688 114.732 308.5 50.917C373.186 117.831 401.063 104.066 445 35.417C461.054 135.406 504.646 111.936 578.5 69.917C554.067 158.263 577.396 178.46 662 180.417C590.682 259.288 582 328.417 635.5 377.417C539 366.417 522.469 395.001 548.5 463.417Z"
+          fill="#472304"
           stroke="#472304"
           strokeWidth={12}
-          transform={bubbleDirection && pathTransform[bubbleDirection]}
+        />
+
+        <Path d={tailPath} fill="#FFEEC2" stroke="#472304" strokeWidth={12} />
+        <Path
+          d="M543.12 453.717C459.38 402.929 420.171 411.473 407.102 487.417C341.967 423.683 307.79 423.788 250.754 484.569C241.557 412.897 202.833 404.353 122.964 449.92C143.255 401.395 127.805 370.653 48.4203 378.248C105.054 331.732 112.315 290.912 46 257.212C117.64 243.922 133.613 213.544 105.054 158.96C177.662 183.167 217.838 159.434 206.705 101.527C268.179 148.043 299.341 122.711 310.776 62.1311C373.399 125.652 400.386 112.585 442.922 47.417C458.464 142.336 500.665 120.057 572.164 80.1678C548.51 164.035 571.095 183.207 653 185.065C583.957 259.937 575.552 325.562 627.345 372.077C533.923 361.635 517.92 388.77 543.12 453.717Z"
+          fill="#FFEEC2"
         />
         <Image
-          translateY={bubbleDirection === 'up' ? 50 : 0}
-          x="50"
-          y="-10"
+          x="60"
+          y="10"
           width="610"
           height="500"
           href={require('~/assets/images/assaf.png')}
@@ -112,27 +118,28 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: screenHeight - 450, left: 0, zIndex: 5},
-  up: {position: 'absolute', top: 150, left: 30, zIndex: 5},
+  down: {position: 'absolute', top: screenHeight - 390, left: 60, zIndex: 5},
+  up: {position: 'absolute', top: 170, left: 60, zIndex: 5},
   right: {
     position: 'absolute',
-    left: screenWidth - 250,
-    top: screenHeight / 2 - 330,
+    left: screenWidth - 310,
+    top: screenHeight / 2 - 170,
     zIndex: 5,
   },
   left: {
     position: 'absolute',
-    left: 0,
-    top: screenHeight / 2 - 330,
+    left: 60,
+    top: screenHeight / 2 - 170,
     zIndex: 5,
   },
 };
 
-const pathTransform: Record<DirectionName, string | undefined> = {
-  left: undefined,
-  down: undefined,
-  right: 'scale(-1, 1) translate(-660, 0)',
-  up: 'scale(1, -1) translate(0, -574)',
+const tailPaths: Record<DirectionName, string> = {
+  right:
+    'M499 467.917L611 508.918L556 462.418L576.5 453.418L525.5 394.417L474.5 426.918L523 446.417L499 467.917Z',
+  left: 'M160.5 464.917L55.0001 495.417L105 456.917L89.0001 446.917L132 396.417L174.5 427.917L137.5 440.917L160.5 464.917Z',
+  down: 'M160.5 464.917L55.0001 495.417L105 456.917L89.0001 446.917L132 396.417L174.5 427.917L137.5 440.917L160.5 464.917Z',
+  up: 'M234.5 82.7192L130 31.4175L180 82.7192L158 90.4177L202.5 152.417L252 124.917L216 99.9175L234.5 82.7192Z',
 };
 
 export default AssafBubble;

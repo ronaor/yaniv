@@ -88,33 +88,33 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
       <AnimatedSvg
         width={200}
         height={150}
-        viewBox="0 0 605 478"
+        viewBox="0 0 691 534"
         fill="none"
         style={animatedStyle}
         animatedProps={animatedProps}>
         <Ellipse
-          cx={302.439}
-          cy={225.12}
+          cx={343.057}
+          cy={276.034}
           rx={288.429}
           ry={205.441}
-          transform="rotate(-4 302.439 225.12)"
+          transform="rotate(-4 343.057 276.034)"
           fill="#472304"
         />
 
         <Path d={tailPath} fill="#FFEEC2" stroke="#472304" strokeWidth={12} />
 
         <Ellipse
-          cx={303.366}
-          cy={225.81}
+          cx={343.984}
+          cy={276.724}
           rx={275.716}
           ry={193.021}
-          transform="rotate(-4 303.366 225.81)"
+          transform="rotate(-4 343.984 276.724)"
           fill="#FFEEC2"
         />
 
         <Image
-          x="10"
-          y="-20"
+          x="40"
+          y="30"
           width="610"
           height="500"
           href={require('~/assets/images/yaniv.png')}
@@ -126,26 +126,26 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: screenHeight - 430, left: 10, zIndex: 5},
+  down: {position: 'absolute', top: screenHeight - 380, left: 60, zIndex: 5},
   up: {position: 'absolute', top: 170, left: 50},
   right: {
     position: 'absolute',
-    left: screenWidth - 220,
-    top: screenHeight / 2 - 300,
+    left: screenWidth - 260,
+    top: screenHeight / 2 - 140,
   },
   left: {
     position: 'absolute',
-    left: 10,
-    top: screenHeight / 2 - 300,
+    left: 50,
+    top: screenHeight / 2 - 140,
   },
 };
 
 const tailPaths: Record<DirectionName, string> = {
-  left: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
-  down: 'M282 401C275.998 419.082 266.621 445.107 254 469C306.189 457.628 328.069 430.173 352 401H282Z',
   right:
-    'M323 401C329.002 419.082 338.379 445.107 351 469C298.811 457.628 276.931 430.173 253 401H323Z',
-  up: 'M282 77C275.998 58.918 266.621 32.893 254 9C306.189 20.372 328.069 47.827 352 77H282Z',
+    'M537.5 317.973C560.41 390.253 575.54 407.066 617.523 436.291C543.907 443.951 494.905 400.584 429 348.78L537.5 317.973Z',
+  left: 'M186.194 365.247C161.682 436.405 147.435 453.782 109 485.307C172.696 486.448 218.139 440.786 278.847 385.622L186.194 365.247Z',
+  down: 'M186.194 365.247C161.682 436.405 147.435 453.782 109 485.307C172.696 486.448 218.139 440.786 278.847 385.622L186.194 365.247Z',
+  up: 'M275.5 103C275.5 65 265.5 48.5 234 14.4998C275.5 21.5 315.5 41 348 89.7655L275.5 103Z',
 };
 
 export default YanivBubble;
