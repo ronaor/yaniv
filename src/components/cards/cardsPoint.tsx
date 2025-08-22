@@ -29,6 +29,7 @@ import {
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 import {interpolate} from 'react-native-reanimated';
+import {isUndefined} from 'lodash';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -74,25 +75,32 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
           setDisabledCards([]);
           return newSet;
         }
-        const card = newSet[newSet.length - 1];
-        if (newSet.length === 1 && card.value !== 0) {
-          setDisabledCards(
-            cards.filter(c => c.value !== card.value && c.suit !== card.suit),
-          );
+        const card = newSet.find(c => c.value !== 0);
+        if (isUndefined(card)) {
           return newSet;
         }
-        if (newSet.every(c => c.value === card.value || c.value === 0)) {
-          setDisabledCards(
-            cards.filter(c => c.value !== card.value && c.value !== 0),
+        let dCards: Card[] = [];
+        if (newSet.length === 1) {
+          dCards = cards.filter(
+            c =>
+              c.value !== card.value && c.suit !== card.suit && c.value !== 0,
           );
-          return newSet;
-        }
-        if (newSet.every(c => c.suit === card.suit || c.value === 0)) {
-          setDisabledCards(
-            cards.filter(c => c.suit !== card.suit && c.value !== 0),
+        } else if (
+          newSet.every(c => c.value === card.value || c.value === 0) &&
+          newSet.every(c => c.suit === card.suit || c.value === 0)
+        ) {
+          dCards = cards.filter(
+            c =>
+              c.value !== card.value && c.suit !== card.suit && c.value !== 0,
           );
-          return newSet;
+        } else if (newSet.every(c => c.value === card.value || c.value === 0)) {
+          dCards = cards.filter(c => c.value !== card.value && c.value !== 0);
+        } else if (newSet.every(c => c.suit === card.suit || c.value === 0)) {
+          dCards = cards.filter(c => c.suit !== card.suit && c.value !== 0);
         }
+        setDisabledCards(dCards);
+
+        return newSet;
       },
       [cards],
     );
