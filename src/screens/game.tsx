@@ -112,7 +112,7 @@ function GameScreen({navigation}: any) {
   }, [myTurn, cardsListRef]);
 
   const handleDrawFromDeck = useCallback(() => {
-    const selectedCards = cardsListRef.current?.getSelectedCards();
+    const selectedCards = cardsListRef.current?.selectedCards;
     if (
       isUndefined(selectedCards) ||
       selectedCards.length === 0 ||
@@ -125,7 +125,7 @@ function GameScreen({navigation}: any) {
 
   const handlePickupCard = useCallback(
     (pickupIndex: number) => {
-      const selectedCards = cardsListRef.current?.getSelectedCards();
+      const selectedCards = cardsListRef.current?.selectedCards;
       if (
         isUndefined(selectedCards) ||
         selectedCards.length === 0 ||

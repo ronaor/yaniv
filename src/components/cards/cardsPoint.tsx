@@ -1,5 +1,6 @@
 import React, {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -14,6 +15,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withDelay,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -32,9 +34,7 @@ const {width, height} = Dimensions.get('screen');
 
 interface CardPointsListProps {
   cards: Card[];
-  // onCardSelect: (index: number) => void;
   slapCardIndex?: number;
-  // selectedCardsIndexes: number[];
   onCardSlapped: () => void;
   fromPosition?: Position;
   direction: DirectionName;
@@ -44,8 +44,8 @@ interface CardPointsListProps {
 }
 
 export interface CardListRef {
-  getSelectedCards: () => Card[];
   clearSelection: () => void;
+  selectedCards: Card[];
 }
 
 const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
@@ -65,26 +65,59 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       [cards.length, direction],
     );
 
-    const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+    const [selectedCards, setSelectedCards] = useState<Card[]>([]);
+    const [disabledCards, setDisabledCards] = useState<Card[]>([]);
 
-    const toggleCardSelection = (index: number) => {
-      setSelectedIndexes(prev => {
-        const isSelected = prev.includes(index);
-        if (isSelected) {
-          return prev.filter(i => i !== index);
+    const validateDisabledCards = useCallback(
+      (newSet: Card[]) => {
+        if (newSet.length === 0) {
+          setDisabledCards([]);
+          return newSet;
         }
-        return [...prev, index];
-      });
-    };
+        const card = newSet[newSet.length - 1];
+        if (newSet.length === 1 && card.value !== 0) {
+          setDisabledCards(
+            cards.filter(c => c.value !== card.value && c.suit !== card.suit),
+          );
+          return newSet;
+        }
+        if (newSet.every(c => c.value === card.value || c.value === 0)) {
+          setDisabledCards(
+            cards.filter(c => c.value !== card.value && c.value !== 0),
+          );
+          return newSet;
+        }
+        if (newSet.every(c => c.suit === card.suit || c.value === 0)) {
+          setDisabledCards(
+            cards.filter(c => c.suit !== card.suit && c.value !== 0),
+          );
+          return newSet;
+        }
+      },
+      [cards],
+    );
+
+    const toggleCardSelection = useCallback(
+      (card: Card) => {
+        setSelectedCards(prev => {
+          const isSelected = prev.includes(card);
+          const newSet = isSelected
+            ? prev.filter(c => c !== card)
+            : [...prev, card];
+          return validateDisabledCards(newSet) ?? prev;
+        });
+      },
+      [validateDisabledCards],
+    );
+
+    const clearSelection = useCallback(() => {
+      setSelectedCards([]);
+      setDisabledCards([]);
+    }, []);
 
     useImperativeHandle(ref, () => ({
-      getSelectedCards: () => {
-        return selectedIndexes.map(i => props.cards[i]);
-      },
-      clearSelection: () => {
-        setSelectedIndexes([]);
-      },
-      // other methods for board operations
+      clearSelection,
+      selectedCards,
     }));
 
     return (
@@ -93,10 +126,11 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
           <CardPointer
             key={getCardKey(card)}
             index={index}
-            onCardSelect={() => toggleCardSelection(index)}
+            onCardSelect={() => toggleCardSelection(card)}
             card={card}
             ready={isReady}
-            isSelected={selectedIndexes.includes(index)}
+            isSelected={selectedCards.includes(card)}
+            disabled={disabledCards.includes(card)}
             isSlap={index === slapCardIndex}
             onCardSlapped={onCardSlapped}
             from={fromPosition ?? CIRCLE_CENTER}
@@ -140,6 +174,7 @@ interface CardPointerProps {
   action?: TurnState['action'];
   delay: number;
   ready: boolean;
+  disabled?: boolean;
 }
 
 const DELAY = Platform.OS === 'android' ? MOVE_DURATION : MOVE_DURATION * 0.5;
@@ -156,6 +191,7 @@ const CardPointer = ({
   action,
   delay,
   ready,
+  disabled = false,
 }: CardPointerProps) => {
   // Position animation (reusable, resets)
   const currentPos = useSharedValue<Position>(from ?? dest);
@@ -167,6 +203,7 @@ const CardPointer = ({
 
   // Selection animation
   const translateInternalY = useSharedValue<number>(0);
+  const translateInternalDeg = useSharedValue<number>(0);
   const prevStateSelection = useRef<boolean>(false);
 
   // Selection animation
@@ -178,6 +215,20 @@ const CardPointer = ({
       prevStateSelection.current = isSelected;
     }
   }, [isSelected, translateInternalY]);
+
+  const $onCardSelect = useCallback(() => {
+    if (disabled) {
+      translateInternalDeg.value = withSequence(
+        withTiming(-4, {duration: 60}),
+        withTiming(4, {duration: 60}),
+        withTiming(-3, {duration: 60}),
+        withTiming(3, {duration: 60}),
+        withTiming(0, {duration: 60}),
+      );
+    } else {
+      onCardSelect();
+    }
+  }, [onCardSelect, disabled, translateInternalDeg]);
 
   // Main animation
   useEffect(() => {
@@ -230,7 +281,7 @@ const CardPointer = ({
       transform: [
         {translateX: currentX},
         {translateY: currentY + translateInternalY.value},
-        {rotate: `${currentDeg}deg`},
+        {rotate: `${currentDeg + translateInternalDeg.value}deg`},
       ],
       zIndex: index,
     };
@@ -273,9 +324,9 @@ const CardPointer = ({
   const opacityStyle = {opacity: ready ? 1 : 0};
   return (
     <Animated.View style={[animatedStyle, opacityStyle]}>
-      <Pressable onPress={isSlap ? onCardSlapped : onCardSelect}>
+      <Pressable onPress={isSlap ? onCardSlapped : $onCardSelect}>
         <Animated.View style={animatedFrontFlipStyle}>
-          {isSlap ? (
+          {isSlap && !disabled ? (
             <GlowingCardComponent card={card} />
           ) : (
             <CardComponent card={card} />
