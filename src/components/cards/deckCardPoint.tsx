@@ -95,16 +95,14 @@ const DeckCardPointers = ({
       );
 
       if (removedCards.length > 0) {
-        const newLayer = [
-          ...removedCards
-            .filter(card =>
-              pickedCard ? getCardKey(pickedCard) !== getCardKey(card) : true,
-            )
-            .map(card => ({
-              ...card,
-              deg: Math.random() * 20,
-            })),
-        ];
+        const newLayer = removedCards
+          .filter(card =>
+            pickedCard ? getCardKey(pickedCard) !== getCardKey(card) : true,
+          )
+          .map(card => ({
+            ...card,
+            deg: Math.random() * 20,
+          }));
         if (newLayer.length > 0) {
           setLayerHistory(prev => ({
             layer3: [...prev.layer2],

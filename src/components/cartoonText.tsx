@@ -35,7 +35,7 @@ export const OutlinedText = ({
   const getX = () => {
     switch (textAnchor) {
       case 'start':
-        return 0;
+        return 3;
       case 'end':
         return width;
       case 'middle':

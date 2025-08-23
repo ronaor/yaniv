@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Animated, {
   useSharedValue,
@@ -103,11 +103,12 @@ function UserAvatar({
     (addedScore: number) => {
       // Reset position
       roundScoreScale.value = 0;
-      roundScoreX.value = 133;
-      roundScoreY.value = -40;
+      roundScoreX.value = Platform.OS === 'ios' ? 133 : 110;
+      roundScoreY.value = Platform.OS === 'ios' ? -41 : -39;
+      const roundInitialScale = Platform.OS === 'ios' ? 1.33 : 1.5;
       setDisplayAddScore(addedScore);
       // Phase 1: Bump in with bounce effect
-      roundScoreScale.value = withSpring(1.33, {
+      roundScoreScale.value = withSpring(roundInitialScale, {
         damping: 10,
         stiffness: 200,
         mass: 0.8,
@@ -253,10 +254,10 @@ function UserAvatar({
             <Animated.View style={[styles.roundScore, roundScoreStyle]}>
               <OutlinedText
                 text={`${displayAddScore >= 0 ? '+' : ''}${displayAddScore}`}
-                fontSize={normalize(12)}
+                fontSize={14}
                 width={50}
                 height={30}
-                strokeWidth={5}
+                strokeWidth={4}
                 fillColor={'#FFFFFF'}
                 strokeColor={`${
                   displayAddScore >= 0 ? '#158ac9ff' : '#15c924ff'
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
   score: {
     paddingVertical: 2,
     paddingHorizontal: 3,
-    fontSize: normalize(10),
+    fontSize: 12,
     fontWeight: '900',
     color: '#FDEBC0',
     textAlign: 'center',
