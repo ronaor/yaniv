@@ -365,21 +365,6 @@ function GameScreen({navigation}: any) {
         />
         <View style={styles.actionButtons}>
           <View style={styles.avatarHolder} />
-          {roundReadyFor === game.round ? (
-            <OutlinedText
-              text={`Hand: ${
-                playersResultedScores[gamePlayers.current] ? '' : handValue
-              }`}
-              fontSize={20}
-              width={125}
-              height={100}
-              fillColor={'#ffffffff'}
-              strokeColor={'#562e1399'}
-              strokeWidth={4}
-              fontWeight={'800'}
-              textAnchor={'start'}
-            />
-          ) : null}
           <YanivButton
             onPress={emit.callYaniv}
             disabled={handValue > game.rules.canCallYaniv || !myTurn}
@@ -435,20 +420,36 @@ function GameScreen({navigation}: any) {
           </View>
         </View>
       ))}
-      {gamePlayers.current && (
-        <View style={recordStyle[directions[0]]}>
-          {/* we got reveal to trigger update score */}
-          {/* score is now listened immediately from the store */}
-          <UserAvatar
-            name={playersName[gamePlayers.current]}
-            score={currentPlayer?.stats?.score ?? 0}
-            roundScore={playersResultedScores[gamePlayers.current]}
-            isActive={myTurn}
-            timePerPlayer={game.rules.timePerPlayer}
-            isUser={true}
+
+      <View style={styles.playerHand}>
+        {roundReadyFor === game.round ? (
+          <OutlinedText
+            text={`Hand: ${
+              playersResultedScores[gamePlayers.current] ? '' : handValue
+            }`}
+            fontSize={20}
+            width={125}
+            height={100}
+            fillColor={'#ffffffff'}
+            strokeColor={'#562e1399'}
+            strokeWidth={4}
+            fontWeight={'800'}
+            textAnchor={'start'}
           />
-        </View>
-      )}
+        ) : null}
+      </View>
+      <View style={recordStyle[directions[0]]}>
+        {/* we got reveal to trigger update score */}
+        {/* score is now listened immediately from the store */}
+        <UserAvatar
+          name={playersName[gamePlayers.current]}
+          score={currentPlayer?.stats?.score ?? 0}
+          roundScore={playersResultedScores[gamePlayers.current]}
+          isActive={myTurn}
+          timePerPlayer={game.rules.timePerPlayer}
+          isUser={true}
+        />
+      </View>
 
       {/* Yaniv/Assaf Overlay */}
       <YanivBubble direction={yanivCall} />
@@ -551,6 +552,12 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
   avatarHolder: {aspectRatio: 1, width: 80},
+  playerHand: {
+    position: 'absolute',
+    bottom: 98,
+    left: screenWidth / 2 - 80,
+    zIndex: 100,
+  },
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {

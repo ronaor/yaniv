@@ -1,4 +1,4 @@
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Animated, {
   useSharedValue,
@@ -28,6 +28,7 @@ interface UserAvatarProps {
 
 const CIRCLE_SIZE = 60;
 const LOOK_MOMENT = 2000;
+const {width: screenWidth} = Dimensions.get('screen');
 
 function UserAvatar({
   name,
@@ -103,9 +104,9 @@ function UserAvatar({
     (addedScore: number) => {
       // Reset position
       roundScoreScale.value = 0;
-      roundScoreX.value = Platform.OS === 'ios' ? 133 : 110;
-      roundScoreY.value = Platform.OS === 'ios' ? -41 : -39;
-      const roundInitialScale = Platform.OS === 'ios' ? 1.33 : 1.5;
+      roundScoreX.value = screenWidth / 2 - 50;
+      roundScoreY.value = -39;
+      const roundInitialScale = 1.48;
       setDisplayAddScore(addedScore);
       // Phase 1: Bump in with bounce effect
       roundScoreScale.value = withSpring(roundInitialScale, {
