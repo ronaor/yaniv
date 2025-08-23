@@ -41,6 +41,7 @@ interface CardPointsListProps {
   action?: TurnState['action'];
   isReady?: boolean;
   cardsDelay?: {delay: number; gap: number};
+  disabled?: boolean;
 }
 
 export interface CardListRef {
@@ -59,6 +60,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       action,
       isReady = true,
       cardsDelay,
+      disabled = false,
     } = props;
     const cardsPositions = useMemo(
       () => calculateCardsPositions(cards.length, direction),
@@ -119,6 +121,12 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
       selectedCards,
     }));
 
+    useEffect(() => {
+      if (disabled) {
+        clearSelection();
+      }
+    }, [clearSelection, disabled]);
+
     return (
       <View style={styles.body} pointerEvents="box-none">
         {cards.map((card, index) => (
@@ -129,7 +137,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
             card={card}
             ready={isReady}
             isSelected={selectedCards.includes(card)}
-            disabled={disabledCards.includes(card)}
+            disabled={disabled || disabledCards.includes(card)}
             isSlap={index === slapCardIndex}
             onCardSlapped={onCardSlapped}
             from={fromPosition ?? CIRCLE_CENTER}

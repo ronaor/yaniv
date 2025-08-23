@@ -1,6 +1,9 @@
 import React from 'react';
 import Svg, {FontWeight, Text} from 'react-native-svg';
 
+type TextAnchor = 'start' | 'middle' | 'end';
+type AlignmentBaseline = 'top' | 'central' | 'bottom';
+
 interface OutlinedTextProps {
   text: string;
   fontSize: number;
@@ -11,6 +14,8 @@ interface OutlinedTextProps {
   strokeWidth?: number;
   fontFamily?: string;
   fontWeight?: FontWeight;
+  textAnchor?: TextAnchor;
+  alignmentBaseline?: AlignmentBaseline;
 }
 
 export const OutlinedText = ({
@@ -23,17 +28,42 @@ export const OutlinedText = ({
   strokeWidth = 3,
   fontFamily,
   fontWeight,
+  textAnchor = 'middle',
+  alignmentBaseline = 'central',
 }: OutlinedTextProps) => {
-  const centerX = width / 2;
-  const centerY = height / 2;
+  // Calculate x position based on anchor
+  const getX = () => {
+    switch (textAnchor) {
+      case 'start':
+        return 0;
+      case 'end':
+        return width;
+      case 'middle':
+      default:
+        return width / 2;
+    }
+  };
+
+  // Calculate y position based on baseline
+  const getY = () => {
+    switch (alignmentBaseline) {
+      case 'top':
+        return fontSize;
+      case 'bottom':
+        return height;
+      case 'central':
+      default:
+        return height / 2 + 2.5;
+    }
+  };
 
   const textProps = {
     fontSize,
     fontWeight,
-    x: centerX,
-    y: centerY + 2.5,
-    textAnchor: 'middle' as const,
-    alignmentBaseline: 'central' as const,
+    x: getX(),
+    y: getY(),
+    textAnchor,
+    alignmentBaseline,
     fontFamily,
   };
 

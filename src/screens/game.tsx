@@ -10,11 +10,10 @@ import {
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
-
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
 
-import {isNil, isUndefined} from 'lodash';
+import {isUndefined} from 'lodash';
 import AssafBubble from '~/components/bubbles/assaf';
 import YanivBubble from '~/components/bubbles/yaniv';
 import CardPointsList, {CardListRef} from '~/components/cards/cardsPoint';
@@ -366,10 +365,11 @@ function GameScreen({navigation}: any) {
         />
         <View style={styles.actionButtons}>
           <View style={styles.avatarHolder} />
-          {currentPlayer?.stats?.playerStatus === 'active' &&
-          !isNil(game.currentTurn) ? (
+          {roundReadyFor === game.round ? (
             <OutlinedText
-              text={`Hand: ${handValue}`}
+              text={`Hand: ${
+                playersResultedScores[gamePlayers.current] ? '' : handValue
+              }`}
               fontSize={20}
               width={125}
               height={100}
@@ -377,6 +377,7 @@ function GameScreen({navigation}: any) {
               strokeColor={'#562e1399'}
               strokeWidth={4}
               fontWeight={'800'}
+              textAnchor={'start'}
             />
           ) : null}
           <YanivButton
@@ -399,6 +400,7 @@ function GameScreen({navigation}: any) {
           direction={directions[0]}
           isReady={roundReadyFor === game.round}
           cardsDelay={cardsDelay[0]}
+          disabled={!!roundResults}
         />
       </SafeAreaView>
       {gamePlayers.order.slice(1).map((playerId, i) => (
@@ -422,7 +424,7 @@ function GameScreen({navigation}: any) {
           />
           <View style={recordStyle[directions[i + 1]]}>
             {/* we got reveal to trigger update score */}
-            {/* score is now listened immidiatly from the store */}
+            {/* score is now listened immediately from the store */}
             <UserAvatar
               name={playersName[playerId]}
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
@@ -436,18 +438,19 @@ function GameScreen({navigation}: any) {
       {gamePlayers.current && (
         <View style={recordStyle[directions[0]]}>
           {/* we got reveal to trigger update score */}
-          {/* score is now listened immidiatly from the store */}
+          {/* score is now listened immediately from the store */}
           <UserAvatar
             name={playersName[gamePlayers.current]}
             score={currentPlayer?.stats?.score ?? 0}
             roundScore={playersResultedScores[gamePlayers.current]}
             isActive={myTurn}
             timePerPlayer={game.rules.timePerPlayer}
+            isUser={true}
           />
         </View>
       )}
 
-      {/* Yaniv/Asaf Overlay */}
+      {/* Yaniv/Assaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
 

@@ -23,6 +23,7 @@ interface UserAvatarProps {
   roundScore: number[] | undefined;
   isActive: boolean;
   timePerPlayer?: number;
+  isUser?: boolean;
 }
 
 const CIRCLE_SIZE = 60;
@@ -34,12 +35,14 @@ function UserAvatar({
   roundScore = [],
   isActive,
   timePerPlayer,
+  isUser = false,
 }: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
   const refRoundScore = useRef<number[]>([]);
   // Round score animation values
   const roundScoreScale = useSharedValue<number>(0);
   const roundScoreX = useSharedValue<number>(-30);
+  const roundScoreY = useSharedValue<number>(0);
   const scoreScale = useSharedValue<number>(1);
   const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
@@ -96,6 +99,50 @@ function UserAvatar({
     [roundScoreScale, roundScoreX, scoreScale],
   );
 
+  const scoreMergingUserAnimation = useCallback(
+    (addedScore: number) => {
+      // Reset position
+      roundScoreScale.value = 0;
+      roundScoreX.value = 133;
+      roundScoreY.value = -40;
+      setDisplayAddScore(addedScore);
+      // Phase 1: Bump in with bounce effect
+      roundScoreScale.value = withSpring(1.33, {
+        damping: 10,
+        stiffness: 200,
+        mass: 0.8,
+      });
+
+      // Phase 2: After brief pause, accelerate toward score bubble
+      setTimeout(() => {
+        roundScoreX.value = withTiming(0, {
+          duration: 500,
+          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+        });
+        roundScoreY.value = withTiming(0, {
+          duration: 500,
+          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+        });
+      }, 700);
+
+      // Phase 3: Absorption animation - happens much faster as it "speeds up"
+      setTimeout(() => {
+        // Round score gets absorbed instantly (it's moving very fast now)
+        roundScoreScale.value = withTiming(0, {duration: 150});
+
+        // Score bubble pulses with explosive energy
+        scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+          if (finished) {
+            scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+          }
+        });
+
+        setDisplayScore(prev => prev + addedScore);
+      }, 1200);
+    },
+    [roundScoreScale, roundScoreX, roundScoreY, scoreScale],
+  );
+
   // Round score absorption animation
   useEffect(() => {
     if (roundScore.length === 0 || refRoundScore.current === roundScore) {
@@ -103,7 +150,11 @@ function UserAvatar({
     }
     refRoundScore.current = roundScore;
 
-    scoreMergingAnimation(roundScore[0]);
+    if (isUser) {
+      scoreMergingUserAnimation(roundScore[0]);
+    } else {
+      scoreMergingAnimation(roundScore[0]);
+    }
     let i = 1;
     const interval = setInterval(() => {
       if (i < roundScore.length) {
@@ -115,7 +166,7 @@ function UserAvatar({
     }, LOOK_MOMENT);
 
     return () => clearInterval(interval);
-  }, [roundScore, scoreMergingAnimation]);
+  }, [isUser, roundScore, scoreMergingAnimation, scoreMergingUserAnimation]);
 
   useEffect(() => {
     if (roundScore.length === 0) {
@@ -165,6 +216,7 @@ function UserAvatar({
   const roundScoreStyle = useAnimatedStyle(() => ({
     transform: [
       {translateX: roundScoreX.value},
+      {translateY: roundScoreY.value},
       {scale: roundScoreScale.value},
     ],
   }));
