@@ -29,7 +29,6 @@ import {
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 import {interpolate} from 'react-native-reanimated';
-import {isUndefined} from 'lodash';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -72,35 +71,26 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
     const validateDisabledCards = useCallback(
       (newSet: Card[]) => {
         if (newSet.length === 0) {
-          setDisabledCards([]);
-          return newSet;
+          return [];
         }
         const card = newSet.find(c => c.value !== 0);
-        if (isUndefined(card)) {
-          return newSet;
+        if (!card) {
+          return [];
         }
-        let dCards: Card[] = [];
+        let dCards: Card[] = cards.filter(c => c.value !== 0);
         if (newSet.length === 1) {
-          dCards = cards.filter(
-            c =>
-              c.value !== card.value && c.suit !== card.suit && c.value !== 0,
+          dCards = dCards.filter(
+            c => c.value !== card.value && c.suit !== card.suit,
           );
-        } else if (
-          newSet.every(c => c.value === card.value || c.value === 0) &&
-          newSet.every(c => c.suit === card.suit || c.value === 0)
-        ) {
-          dCards = cards.filter(
-            c =>
-              c.value !== card.value && c.suit !== card.suit && c.value !== 0,
-          );
-        } else if (newSet.every(c => c.value === card.value || c.value === 0)) {
-          dCards = cards.filter(c => c.value !== card.value && c.value !== 0);
-        } else if (newSet.every(c => c.suit === card.suit || c.value === 0)) {
-          dCards = cards.filter(c => c.suit !== card.suit && c.value !== 0);
+          return dCards;
         }
-        setDisabledCards(dCards);
-
-        return newSet;
+        if (newSet.every(c => c.value === card.value || c.value === 0)) {
+          dCards = dCards.filter(c => c.value !== card.value);
+        }
+        if (newSet.every(c => c.suit === card.suit || c.value === 0)) {
+          dCards = dCards.filter(c => c.suit !== card.suit);
+        }
+        return dCards;
       },
       [cards],
     );
@@ -112,7 +102,8 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
           const newSet = isSelected
             ? prev.filter(c => c !== card)
             : [...prev, card];
-          return validateDisabledCards(newSet) ?? prev;
+          setDisabledCards(validateDisabledCards(newSet));
+          return newSet;
         });
       },
       [validateDisabledCards],
