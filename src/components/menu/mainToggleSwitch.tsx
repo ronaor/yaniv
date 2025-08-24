@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect} from 'react';
-import {Pressable, View, StyleSheet} from 'react-native';
 import {
   Canvas,
   Rect,
   LinearGradient as SkiaLinearGradient,
   vec,
 } from '@shopify/react-native-skia';
+import React, {useCallback, useEffect} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useDerivedValue,
@@ -15,7 +15,7 @@ import Animated, {
 
 interface MenuToggleSwitchProps {
   isOn: boolean;
-  setIsOn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOn: (isOn: boolean) => void;
 }
 
 function MenuToggleSwitch({isOn, setIsOn}: MenuToggleSwitchProps) {
@@ -50,7 +50,7 @@ function MenuToggleSwitch({isOn, setIsOn}: MenuToggleSwitchProps) {
     ballPosition.value = withTiming(isOn ? 0 : -25);
   }, [ballPosition, endColor, isOn, mainColor, startColor]);
 
-  const onPress = useCallback(() => setIsOn(prev => !prev), [setIsOn]);
+  const onPress = useCallback(() => setIsOn(!isOn), [isOn, setIsOn]);
 
   return (
     <Pressable onPress={onPress} style={styles.pressable}>

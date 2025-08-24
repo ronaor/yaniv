@@ -34,35 +34,56 @@ function RowItem({text, children}: RowItemProps) {
   );
 }
 
+type DifficultyKey = keyof typeof GAME_CONFIG.DEFAULT_VALUES; // 'Easy' | 'Medium' | 'Hard'
+
+type RoomSettings = {
+  difficulty: number;
+  numberOfPlayers: number;
+  slapDown: boolean;
+  callYanivAt: number;
+  maxScoreLimit: number;
+};
+
+const fromDifficultyKey = (key: DifficultyKey): RoomSettings => {
+  const d = GAME_CONFIG.DEFAULT_VALUES[key];
+  return {
+    difficulty: d.difficulty,
+    numberOfPlayers: d.numberOfPlayers,
+    slapDown: d.slapDown,
+    callYanivAt: d.callYanivIndex,
+    maxScoreLimit: d.maxScoreIndex,
+  };
+};
+
 export default function CreateRoomDialog({
   isPlayWithComputer,
   onCreateRoom,
   onClose,
 }: CreateRoomDialogProps) {
-  const [difficulty, setGameLevel] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.difficulty,
-  );
-  const [numberOfPlayers, setNumberOfPlayers] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.numberOfPlayers,
-  );
-  const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
-  const [callYanivAt, setCallYanivAt] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
-  );
-  const [maxScoreLimit, setMaxScoreLimit] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.maxScoreIndex,
+  // סטייט יחיד שמחזיק את כל ההגדרות
+  const [config, setConfig] = useState<RoomSettings>(() =>
+    fromDifficultyKey('Medium'),
   );
 
   const handleCreateRoom = () => {
+    console.log(
+      'GAME_CONFIG.DIFFICULTY[config.difficulty] ',
+      GAME_CONFIG.DIFFICULTY[config.difficulty],
+    );
     onCreateRoom({
-      slapDown,
-      canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[callYanivAt],
-      maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[maxScoreLimit],
+      slapDown: config.slapDown,
+      canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[config.callYanivAt],
+      maxMatchPoints: +GAME_CONFIG.MAX_SCORE_OPTIONS[config.maxScoreLimit],
       ...(isPlayWithComputer && {
-        difficulty: GAME_CONFIG.DIFFICULTY[difficulty],
-        numberOfPlayers: +GAME_CONFIG.NUMBER_OF_PLAYERS[numberOfPlayers],
+        difficulty: GAME_CONFIG.DIFFICULTY[config.difficulty] as DifficultyKey,
+        numberOfPlayers: +GAME_CONFIG.NUMBER_OF_PLAYERS[config.numberOfPlayers],
       }),
     });
+  };
+
+  const onSetGameDifficulty = (index: number) => {
+    const key = GAME_CONFIG.DIFFICULTY[index] as DifficultyKey;
+    setConfig(fromDifficultyKey(key));
   };
 
   return (
@@ -71,6 +92,7 @@ export default function CreateRoomDialog({
         <View style={styles.xButton}>
           <XButton onPress={onClose} />
         </View>
+
         <AlternatingRowsList colorOdd={['#692a00', '#873D00', '#7d3301']}>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>{'CREATE ROOM'}</Text>
@@ -79,8 +101,8 @@ export default function CreateRoomDialog({
           {isPlayWithComputer && (
             <RowItem text={'Difficulty'}>
               <SelectionBar
-                selectionIndex={difficulty}
-                setSelection={setGameLevel}
+                selectionIndex={config.difficulty}
+                setSelection={onSetGameDifficulty}
                 elements={GAME_CONFIG.DIFFICULTY}
                 fontSize={15}
               />
@@ -90,29 +112,38 @@ export default function CreateRoomDialog({
           {isPlayWithComputer && (
             <RowItem text={'Players'}>
               <SelectionBar
-                selectionIndex={numberOfPlayers}
-                setSelection={setNumberOfPlayers}
+                selectionIndex={config.numberOfPlayers}
+                setSelection={idx =>
+                  setConfig(s => ({...s, numberOfPlayers: idx}))
+                }
                 elements={GAME_CONFIG.NUMBER_OF_PLAYERS}
               />
             </RowItem>
           )}
+
           <RowItem text={'Enable Slap-Down'}>
-            <MenuToggle isOn={slapDown} setIsOn={setSlapDown} />
+            <MenuToggle
+              isOn={config.slapDown}
+              setIsOn={v => setConfig(s => ({...s, slapDown: v}))}
+            />
           </RowItem>
+
           <RowItem text={'Call Yaniv at'}>
             <SelectionBar
-              selectionIndex={callYanivAt}
-              setSelection={setCallYanivAt}
+              selectionIndex={config.callYanivAt}
+              setSelection={idx => setConfig(s => ({...s, callYanivAt: idx}))}
               elements={GAME_CONFIG.CALL_YANIV_OPTIONS}
             />
           </RowItem>
+
           <RowItem text={'Max Score'}>
             <SelectionBar
-              selectionIndex={maxScoreLimit}
-              setSelection={setMaxScoreLimit}
+              selectionIndex={config.maxScoreLimit}
+              setSelection={idx => setConfig(s => ({...s, maxScoreLimit: idx}))}
               elements={GAME_CONFIG.MAX_SCORE_OPTIONS}
             />
           </RowItem>
+
           <RowItem>
             <View style={styles.buttonAdjuster}>
               <SimpleButton
