@@ -12,6 +12,7 @@ export type PlayerStatus = {
 };
 
 export interface RoomConfig {
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
   slapDown: boolean;
   timePerPlayer?: number;
   canCallYaniv: number;

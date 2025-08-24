@@ -4,9 +4,9 @@ import {
   Alert,
   Dimensions,
   ImageBackground,
+  ScrollView,
   StyleSheet,
   View,
-  ScrollView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {OutlinedText} from '~/components/cartoonText';
@@ -52,12 +52,14 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     }
   }, [players.length, leaveRoom, nickName, navigation]);
 
-  const [slapDown, setSlapDown] = useState(GAME_CONFIG.DEFAULT_VALUES.slapDown);
+  const [slapDown, setSlapDown] = useState(
+    GAME_CONFIG.DEFAULT_VALUES.Hard.slapDown,
+  );
   const [callYanivAt, setCallYanivAt] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.callYanivIndex,
+    GAME_CONFIG.DEFAULT_VALUES.Hard.callYanivIndex,
   );
   const [maxScoreLimit, setMaxScoreLimit] = useState(
-    GAME_CONFIG.DEFAULT_VALUES.maxScoreIndex,
+    GAME_CONFIG.DEFAULT_VALUES.Hard.maxScoreIndex,
   );
 
   const {votes, setQuickGameConfig} = useRoomStore();

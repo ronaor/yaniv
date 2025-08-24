@@ -25,10 +25,26 @@ export const GAME_CONFIG = {
   CALL_YANIV_OPTIONS: ['3', '5', '7'],
   MAX_SCORE_OPTIONS: ['50', '100', '200'],
   DEFAULT_VALUES: {
-    difficulty: 1, // M
-    numberOfPlayers: 2, //4
-    slapDown: true,
-    callYanivIndex: 2, // '7'
-    maxScoreIndex: 1, // '100'
+    Easy: {
+      difficulty: 0, // E
+      numberOfPlayers: 0, //4
+      slapDown: false,
+      callYanivIndex: 2, // '7'
+      maxScoreIndex: 1, // '100'
+    },
+    Medium: {
+      difficulty: 1, // M
+      numberOfPlayers: 1, //4
+      slapDown: true,
+      callYanivIndex: 2, // '7'
+      maxScoreIndex: 1, // '100'
+    },
+    Hard: {
+      difficulty: 2, // H
+      numberOfPlayers: 2, //4
+      slapDown: true,
+      callYanivIndex: 2, // '7'
+      maxScoreIndex: 1, // '100'
+    },
   },
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Pressable, Text, View, StyleSheet} from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {normalize} from '~/utils/ui';
 
@@ -57,7 +57,7 @@ function SelectionElement({
 
 interface SelectionBarProps {
   selectionIndex: number;
-  setSelection: React.Dispatch<React.SetStateAction<number>>;
+  setSelection: (index: number) => void;
   elements: string[];
   fontSize?: number;
 }
