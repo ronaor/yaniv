@@ -16,6 +16,7 @@ import {
 } from '@shopify/react-native-skia';
 import {OutlinedText} from '../cartoonText';
 import {normalize} from '~/utils/ui';
+import {Location} from '~/types/cards';
 
 interface UserAvatarProps {
   name: string;
@@ -26,8 +27,22 @@ interface UserAvatarProps {
   isUser?: boolean;
 }
 
+const SECOND = 1000;
+const ANIMATION_TIMING = {
+  BUMP_DELAY: 700,
+  MOVE_DURATION: 500,
+  ABSORB_DELAY: 1200,
+  ABSORB_DURATION: 150,
+  LOOK_MOMENT: 2000,
+};
 const CIRCLE_SIZE = 60;
-const LOOK_MOMENT = 2000;
+const CIRCLE_RADIUS = (CIRCLE_SIZE - 5) / 2;
+const CIRCLE_AREA = {
+  x: CIRCLE_SIZE / 2 - CIRCLE_RADIUS,
+  y: CIRCLE_SIZE / 2 - CIRCLE_RADIUS,
+  width: CIRCLE_RADIUS * 2,
+  height: CIRCLE_RADIUS * 2,
+};
 const {width: screenWidth} = Dimensions.get('screen');
 
 function UserAvatar({
@@ -54,95 +69,77 @@ function UserAvatar({
     if (timePerPlayer && isActive) {
       avatarScale.value = withTiming(1.1);
       circleProgress.value = 0;
-      circleProgress.value = withTiming(1, {duration: timePerPlayer * 1000});
+      circleProgress.value = withTiming(1, {duration: timePerPlayer * SECOND});
     } else {
       circleProgress.value = withTiming(0, {duration: 200});
       avatarScale.value = withTiming(1);
     }
   }, [avatarScale, circleProgress, isActive, timePerPlayer]);
 
-  const scoreMergingAnimation = useCallback(
-    (addedScore: number) => {
-      // Reset position
-      roundScoreScale.value = 0;
-      roundScoreX.value = -30;
-      setDisplayAddScore(addedScore);
-      // Phase 1: Bump in with bounce effect
-      roundScoreScale.value = withSpring(1, {
-        damping: 10,
-        stiffness: 200,
-        mass: 0.8,
-      });
-
-      // Phase 2: After brief pause, accelerate toward score bubble
-      setTimeout(() => {
-        roundScoreX.value = withTiming(0, {
-          duration: 500,
-          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
-        });
-      }, 700);
-
-      // Phase 3: Absorption animation - happens much faster as it "speeds up"
-      setTimeout(() => {
-        // Round score gets absorbed instantly (it's moving very fast now)
-        roundScoreScale.value = withTiming(0, {duration: 150});
-
-        // Score bubble pulses with explosive energy
-        scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
-          if (finished) {
-            scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
-          }
-        });
-
-        setDisplayScore(prev => prev + addedScore);
-      }, 1200);
+  const runAnimations = useCallback(
+    (phases: {action: () => void; delay?: number}[]) => {
+      phases.forEach(({delay, action}) =>
+        !delay ? action() : setTimeout(action, delay),
+      );
     },
-    [roundScoreScale, roundScoreX, scoreScale],
+    [],
   );
 
-  const scoreMergingUserAnimation = useCallback(
-    (addedScore: number) => {
+  const scoreMergingAnimation = useCallback(
+    (
+      addedScore: number,
+      from: Location & {scale: number} = {x: -30, y: 0, scale: 1},
+    ) => {
       // Reset position
       roundScoreScale.value = 0;
-      roundScoreX.value = screenWidth / 2 - 50;
-      roundScoreY.value = -39;
-      const roundInitialScale = 1.48;
-      setDisplayAddScore(addedScore);
-      // Phase 1: Bump in with bounce effect
-      roundScoreScale.value = withSpring(roundInitialScale, {
-        damping: 10,
-        stiffness: 200,
-        mass: 0.8,
-      });
+      roundScoreX.value = from.x;
+      roundScoreY.value = from.y;
 
-      // Phase 2: After brief pause, accelerate toward score bubble
-      setTimeout(() => {
-        roundScoreX.value = withTiming(0, {
-          duration: 500,
-          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
-        });
-        roundScoreY.value = withTiming(0, {
-          duration: 500,
-          easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
-        });
-      }, 700);
-
-      // Phase 3: Absorption animation - happens much faster as it "speeds up"
-      setTimeout(() => {
-        // Round score gets absorbed instantly (it's moving very fast now)
-        roundScoreScale.value = withTiming(0, {duration: 150});
-
-        // Score bubble pulses with explosive energy
-        scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
-          if (finished) {
-            scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
-          }
-        });
-
-        setDisplayScore(prev => prev + addedScore);
-      }, 1200);
+      runAnimations([
+        {
+          // Phase 1: Bump in with bounce effect
+          action: () => {
+            setDisplayAddScore(addedScore);
+            roundScoreScale.value = withSpring(from.scale, {
+              damping: 10,
+              stiffness: 200,
+              mass: 0.8,
+            });
+          },
+        },
+        {
+          // Phase 2: After brief pause, accelerate toward score bubble
+          action: () => {
+            roundScoreX.value = withTiming(0, {
+              duration: ANIMATION_TIMING.MOVE_DURATION,
+              easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+            });
+            roundScoreY.value = withTiming(0, {
+              duration: ANIMATION_TIMING.MOVE_DURATION,
+              easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+            });
+          },
+          delay: ANIMATION_TIMING.BUMP_DELAY,
+        },
+        {
+          action: () => {
+            // Round score gets absorbed instantly (it's moving very fast now)
+            roundScoreScale.value = withTiming(0, {
+              duration: ANIMATION_TIMING.ABSORB_DURATION,
+            });
+            // Score bubble pulses with explosive energy
+            scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
+              if (finished) {
+                scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
+              }
+            });
+            setDisplayScore(prev => prev + addedScore);
+          },
+          delay: ANIMATION_TIMING.ABSORB_DELAY,
+        },
+      ]);
     },
-    [roundScoreScale, roundScoreX, roundScoreY, scoreScale],
+    [roundScoreScale, roundScoreX, roundScoreY, runAnimations, scoreScale],
   );
 
   // Round score absorption animation
@@ -153,7 +150,11 @@ function UserAvatar({
     refRoundScore.current = roundScore;
 
     if (isUser) {
-      scoreMergingUserAnimation(roundScore[0]);
+      scoreMergingAnimation(roundScore[0], {
+        x: screenWidth / 2 - 50,
+        y: -39,
+        scale: 1.48,
+      });
     } else {
       scoreMergingAnimation(roundScore[0]);
     }
@@ -165,10 +166,10 @@ function UserAvatar({
       } else {
         clearInterval(interval);
       }
-    }, LOOK_MOMENT);
+    }, ANIMATION_TIMING.LOOK_MOMENT);
 
     return () => clearInterval(interval);
-  }, [isUser, roundScore, scoreMergingAnimation, scoreMergingUserAnimation]);
+  }, [isUser, roundScore, scoreMergingAnimation]);
 
   useEffect(() => {
     if (roundScore.length === 0) {
@@ -177,27 +178,16 @@ function UserAvatar({
   }, [score, roundScore]);
 
   const progressPath = useDerivedValue(() => {
-    const radius = (CIRCLE_SIZE - 5) / 2;
-    const centerX = CIRCLE_SIZE / 2;
-    const centerY = CIRCLE_SIZE / 2;
     const sweepAngle = circleProgress.value * 360;
-
     if (sweepAngle === 0) {
       return Skia.Path.Make();
     }
-
     const path = Skia.Path.Make();
     path.addArc(
-      {
-        x: centerX - radius,
-        y: centerY - radius,
-        width: radius * 2,
-        height: radius * 2,
-      },
+      CIRCLE_AREA,
       -90, // Start from top
       sweepAngle,
     );
-
     return path;
   });
 

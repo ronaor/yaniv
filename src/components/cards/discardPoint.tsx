@@ -1,12 +1,14 @@
 import Animated, {
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withTiming,
 } from 'react-native-reanimated';
 import {CardComponent} from './cardVisual';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Card, Position} from '~/types/cards';
-import {CARD_WIDTH, MOVE_DURATION} from '~/utils/constants';
+import {CARD_WIDTH, MOVE_DURATION, SMALL_DELAY} from '~/utils/constants';
 import {StyleSheet} from 'react-native';
 
 interface DiscardedPointerProps {
@@ -49,6 +51,7 @@ interface DiscardPointerProps {
   card: Card;
   throwTarget: Position;
   opacity: number;
+  totalCards: number;
 }
 
 export const DiscardPointer = ({
@@ -56,39 +59,55 @@ export const DiscardPointer = ({
   card,
   throwTarget,
   opacity,
+  totalCards,
 }: DiscardPointerProps) => {
-  const targetX = index * CARD_WIDTH;
-  const translateY = useSharedValue<number>(0);
-  const translateX = useSharedValue<number>(targetX);
-  const cardDeg = useSharedValue<number>(0);
-  const cardOpacity = useSharedValue<number>(1);
+  const totalWidth = (totalCards - 1) * CARD_WIDTH;
+  const startX = -totalWidth / 2;
+  const targetX = startX + index * CARD_WIDTH;
+
+  const lastCard = useRef<Card | undefined>(undefined);
+  const progress = useSharedValue<number>(0);
+  const destPos = useSharedValue<Position>(throwTarget);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const currentX = interpolate(
+      progress.value,
+      [0, 1],
+      [targetX, destPos.value.x],
+    );
+    const currentY = interpolate(progress.value, [0, 1], [0, destPos.value.y]);
+    const currentDeg = interpolate(
+      progress.value,
+      [0, 1],
+      [0, destPos.value.deg],
+    );
+
+    const cardOpacity = interpolate(progress.value, [0, 1], [1, opacity]);
+
+    return {
+      position: 'absolute',
+      transform: [
+        {translateX: currentX},
+        {translateY: currentY},
+        {rotate: `${currentDeg}deg`},
+      ],
+      zIndex: index,
+      opacity: cardOpacity,
+    };
+  });
 
   useEffect(() => {
-    translateX.value = withTiming(throwTarget.x, {duration: MOVE_DURATION});
-    translateY.value = withTiming(throwTarget.y, {duration: MOVE_DURATION});
-    cardDeg.value = withTiming(throwTarget.deg, {duration: MOVE_DURATION});
-    cardOpacity.value = withTiming(opacity, {duration: MOVE_DURATION});
-  }, [
-    translateX,
-    translateY,
-    cardDeg,
-    throwTarget.x,
-    throwTarget.y,
-    throwTarget.deg,
-    card,
-    opacity,
-    cardOpacity,
-  ]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
-    transform: [
-      {translateX: translateX.value},
-      {translateY: translateY.value},
-      {rotate: `${cardDeg.value}deg`},
-    ],
-    opacity: cardOpacity.value,
-  }));
+    if (lastCard.current === card) {
+      return;
+    }
+    lastCard.current = card;
+    progress.value = 0;
+    destPos.value = throwTarget;
+    progress.value = withDelay(
+      SMALL_DELAY,
+      withTiming(1, {duration: MOVE_DURATION}),
+    );
+  }, [card, destPos, progress, throwTarget]);
 
   return (
     <Animated.View style={animatedStyle}>
