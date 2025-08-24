@@ -7,18 +7,27 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import {isUndefined} from 'lodash';
+import {SafeAreaView} from 'react-native-safe-area-context';
+
+import {colors} from '~/theme';
+
 import {useRoomStore} from '~/store/roomStore';
 import {useUser} from '~/store/userStore';
-import {colors} from '~/theme';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 
-import {isUndefined} from 'lodash';
+import {getHandValue, isCanPickupCard, isValidCardSet} from '~/utils/gameRules';
+import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  directions,
+  SMALL_DELAY,
+} from '~/utils/constants';
+
 import AssafBubble from '~/components/bubbles/assaf';
 import YanivBubble from '~/components/bubbles/yaniv';
 import CardPointsList, {CardListRef} from '~/components/cards/cardsPoint';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
-import {OutlinedText} from '~/components/cartoonText';
 import EndGameDialog, {
   closeEndGameDialog,
   openEndGameDialog,
@@ -27,18 +36,13 @@ import GameBoard from '~/components/game/board';
 import LightAround from '~/components/user/lightAround';
 import UserAvatar from '~/components/user/userAvatar';
 import YanivButton from '~/components/yanivButton';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
-import {DirectionName} from '~/types/cards';
-import {
-  CARD_HEIGHT,
-  CARD_WIDTH,
-  directions,
-  SMALL_DELAY,
-} from '~/utils/constants';
-import WaveAnimationBackground from './waveScreen';
 import GameTimer from '~/components/game/timer';
 import SimpleButton from '~/components/menu/simpleButton';
 import LoadingOverlay from '~/components/game/loadingOverlay';
+import PlayerHand from '~/components/user/playerHand';
+import {DirectionName} from '~/types/cards';
+
+import WaveAnimationBackground from './waveScreen';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -421,23 +425,13 @@ function GameScreen({navigation}: any) {
         </View>
       ))}
 
-      <View style={styles.playerHand}>
-        {roundReadyFor === game.round ? (
-          <OutlinedText
-            text={`Hand: ${
-              playersResultedScores[gamePlayers.current] ? '' : handValue
-            }`}
-            fontSize={20}
-            width={125}
-            height={100}
-            fillColor={'#ffffffff'}
-            strokeColor={'#562e1399'}
-            strokeWidth={4}
-            fontWeight={'800'}
-            textAnchor={'start'}
-          />
-        ) : null}
-      </View>
+      <PlayerHand
+        hidden={roundReadyFor !== game.round}
+        handValue={
+          playersResultedScores[gamePlayers.current] ? undefined : handValue
+        }
+      />
+
       <View style={recordStyle[directions[0]]}>
         {/* we got reveal to trigger update score */}
         {/* score is now listened immediately from the store */}
@@ -552,12 +546,6 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
   avatarHolder: {aspectRatio: 1, width: 80},
-  playerHand: {
-    position: 'absolute',
-    bottom: 98,
-    left: screenWidth / 2 - 80,
-    zIndex: 100,
-  },
 });
 
 const recordStyle: Record<DirectionName, ViewStyle> = {
