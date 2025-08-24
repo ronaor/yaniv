@@ -118,6 +118,9 @@ function UserAvatar({
               duration: ANIMATION_TIMING.MOVE_DURATION,
               easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
             });
+            roundScoreScale.value = withTiming(1, {
+              duration: ANIMATION_TIMING.MOVE_DURATION,
+            });
           },
           delay: ANIMATION_TIMING.BUMP_DELAY,
         },
