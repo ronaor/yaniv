@@ -28,10 +28,7 @@ import AssafBubble from '~/components/bubbles/assaf';
 import YanivBubble from '~/components/bubbles/yaniv';
 import CardPointsList, {CardListRef} from '~/components/cards/cardsPoint';
 import HiddenCardPointsList from '~/components/cards/hiddenCards';
-import EndGameDialog, {
-  closeEndGameDialog,
-  openEndGameDialog,
-} from '~/components/dialogs/endGameDialog';
+
 import GameBoard from '~/components/game/board';
 import LightAround from '~/components/user/lightAround';
 import UserAvatar from '~/components/user/userAvatar';
@@ -43,6 +40,9 @@ import PlayerHand from '~/components/user/playerHand';
 import {DirectionName} from '~/types/cards';
 
 import WaveAnimationBackground from './waveScreen';
+import EndGameDialog, {
+  EndGameDialogRef,
+} from '~/components/dialogs/endGameDialog';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -64,6 +64,7 @@ function GameScreen({navigation}: any) {
 
   const {name: nickName} = useUser();
   const cardsListRef = useRef<CardListRef>(null);
+  const endGameDialogRef = useRef<EndGameDialogRef>(null);
 
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
@@ -92,21 +93,22 @@ function GameScreen({navigation}: any) {
   useEffect(() => {
     switch (game.phase) {
       case 'active': {
-        closeEndGameDialog();
+        endGameDialogRef?.current?.close();
         break;
       }
       case 'game-end': {
-        openEndGameDialog(
-          'finish',
-          gamePlayers.current,
-          gamePlayers.order,
-          game.playersStats ?? {},
+        endGameDialogRef?.current?.open(
+          gamePlayers.order.map(pId => ({
+            id: pId,
+            name: playersName[pId],
+            status: gamePlayers.all[pId].stats,
+          })),
         );
         setRoundReadyFor(-1);
         break;
       }
     }
-  }, [game.phase, game.playersStats, gamePlayers]);
+  }, [game.phase, game.playersStats, gamePlayers, playersName]);
 
   useEffect(() => {
     if (!myTurn) {
@@ -142,6 +144,8 @@ function GameScreen({navigation}: any) {
     },
     [emit, board.pickupPile.length, cardsListRef],
   );
+
+  const handlePlayAgain = useCallback(() => emit.playAgain(), [emit]);
 
   const handleLeave = useCallback(() => {
     if (players.length > 1) {
@@ -348,6 +352,18 @@ function GameScreen({navigation}: any) {
           />
         ))}
 
+        <View style={recordStyle[directions[0]]}>
+          {/* we got reveal to trigger update score */}
+          {/* score is now listened immediately from the store */}
+          <UserAvatar
+            name={playersName[gamePlayers.current]}
+            score={currentPlayer?.stats?.score ?? 0}
+            roundScore={playersResultedScores[gamePlayers.current]}
+            isActive={myTurn}
+            timePerPlayer={game.rules.timePerPlayer}
+            isUser={true}
+          />
+        </View>
         {roundReadyFor !== game.round && <LoadingOverlay />}
 
         {/* Game Area */}
@@ -432,24 +448,15 @@ function GameScreen({navigation}: any) {
         }
       />
 
-      <View style={recordStyle[directions[0]]}>
-        {/* we got reveal to trigger update score */}
-        {/* score is now listened immediately from the store */}
-        <UserAvatar
-          name={playersName[gamePlayers.current]}
-          score={currentPlayer?.stats?.score ?? 0}
-          roundScore={playersResultedScores[gamePlayers.current]}
-          isActive={myTurn}
-          timePerPlayer={game.rules.timePerPlayer}
-          isUser={true}
-        />
-      </View>
-
       {/* Yaniv/Assaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
 
-      <EndGameDialog />
+      <EndGameDialog
+        ref={endGameDialogRef}
+        playAgain={handlePlayAgain}
+        handleLeave={handleLeave}
+      />
     </>
   );
 }
