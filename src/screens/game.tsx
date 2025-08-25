@@ -101,7 +101,7 @@ function GameScreen({navigation}: any) {
           gamePlayers.order.map(pId => ({
             id: pId,
             name: playersName[pId],
-            status: gamePlayers.all[pId].stats,
+            status: game.playersStats[pId],
           })),
         );
         setRoundReadyFor(-1);
@@ -454,7 +454,7 @@ function GameScreen({navigation}: any) {
 
       <EndGameDialog
         ref={endGameDialogRef}
-        playAgain={handlePlayAgain}
+        handlePlayAgain={handlePlayAgain}
         handleLeave={handleLeave}
       />
     </>

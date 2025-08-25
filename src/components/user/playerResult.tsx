@@ -10,7 +10,6 @@ import Animated, {
 
 interface PlayerResultRowProps {
   id: string;
-  name: string;
   status: PlayerStatus;
   color: string;
   index: number;
@@ -22,7 +21,7 @@ const bronze = ['#E17402', '#B84F00'];
 const simple = ['#05ACC4', '#05ACC4'];
 const borderColors = [gold, silver, bronze];
 
-function PlayerResultRow({name, status, color, index}: PlayerResultRowProps) {
+function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
   const avatarColors = borderColors[index] ?? simple;
   return (
     <View style={[styles.body, {backgroundColor: color}]}>
@@ -32,7 +31,7 @@ function PlayerResultRow({name, status, color, index}: PlayerResultRowProps) {
       <View style={styles.nameWrapper}>
         <View style={styles.row}>
           <Text numberOfLines={1} style={styles.nameText}>
-            {name}
+            {status.playerName}
           </Text>
           {status.playerStatus === 'playAgain' && (
             <Animated.Text

@@ -22,11 +22,12 @@ const SimpleButton = ({
   size = 'medium',
 }: SimpleButtonProps) => {
   const gradientColors = disabled
-    ? ['#BBBBBB', '#999999']
+    ? ['#cececeff', '#acacacff']
     : [colors[0], colors[2]];
 
   const textStyle = {
     fontSize: size === 'medium' ? normalize(20) : normalize(15),
+    color: disabled ? '#7c7c7cff' : '#FFFFFF',
   };
   const contentStyle =
     size === 'medium'
@@ -92,17 +93,13 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   contentDisabled: {
-    backgroundColor: '#CCCCCC',
-  },
-  textDisabled: {
-    color: '#F0F0F0',
+    backgroundColor: '#b8b8b8ff',
   },
   pressed: {
     paddingBottom: 0,
     marginTop: 3,
   },
   text: {
-    color: '#FFFFFF',
     fontWeight: '700',
   },
 });

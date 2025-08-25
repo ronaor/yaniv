@@ -1,5 +1,5 @@
 import {noop} from 'lodash';
-import React, {forwardRef, useImperativeHandle, useState} from 'react';
+import React, {forwardRef, memo, useImperativeHandle, useState} from 'react';
 import Dialog from '../dialog';
 import {PlayerStatus} from '~/types/player';
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
@@ -38,7 +38,7 @@ interface Player {
 
 interface EndGameDialogProps {
   handleLeave: () => void;
-  playAgain: () => void;
+  handlePlayAgain: () => void;
 }
 
 export interface EndGameDialogRef {
@@ -48,11 +48,15 @@ export interface EndGameDialogRef {
 
 const MAIN_COLORS = ['#6f3200ff', '#783e12ff'];
 
-const EndGameDialog = forwardRef<EndGameDialogRef, EndGameDialogProps>(
-  (props, ref) => {
-    const {handleLeave, playAgain} = props;
+const EndGameDialog = memo(
+  forwardRef<EndGameDialogRef, EndGameDialogProps>((props, ref) => {
+    const {handleLeave, handlePlayAgain} = props;
     const [isOpen, setIsOpen] = useState(false);
     const [players, setPlayers] = useState<Player[]>([]);
+
+    const gameGone =
+      players.filter(p => p.status.playerStatus === 'leave').length ===
+      players.length - 1;
 
     useImperativeHandle(ref, () => ({
       open: (playersData: Player[]) => {
@@ -99,9 +103,10 @@ const EndGameDialog = forwardRef<EndGameDialogRef, EndGameDialogProps>(
               <SimpleButton
                 text={'Play Again'}
                 borderColor="#2B4200"
-                onPress={playAgain}
+                onPress={handlePlayAgain}
                 colors={['#8BB501', '#418800', '#266B02']}
                 size="small"
+                disabled={gameGone}
               />
             </View>
             <View style={styles.buttonWrapper}>
@@ -116,7 +121,7 @@ const EndGameDialog = forwardRef<EndGameDialogRef, EndGameDialogProps>(
         </View>
       </Dialog>
     );
-  },
+  }),
 );
 
 const styles = StyleSheet.create({
