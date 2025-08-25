@@ -39,10 +39,10 @@ import LoadingOverlay from '~/components/game/loadingOverlay';
 import PlayerHand from '~/components/user/playerHand';
 import {DirectionName} from '~/types/cards';
 
-import WaveAnimationBackground from './waveScreen';
 import EndGameDialog, {
   EndGameDialogRef,
 } from '~/components/dialogs/endGameDialog';
+import BeachBackground from '~/backgrounds/beach';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -328,7 +328,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <WaveAnimationBackground />
+      <BeachBackground />
 
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>

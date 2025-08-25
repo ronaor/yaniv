@@ -48,11 +48,11 @@ const waveColors = ['#6af3ecff', '#46c8e2'];
 const surfColors = ['#b6ffe738', '#91f7d5ac'];
 const seaColor = '#0087b8f7';
 
-interface WaveAnimationBackgroundProp {
+interface BeachBackgroundProp {
   setReady?: () => void;
 }
 
-const WaveAnimationBackground = ({setReady}: WaveAnimationBackgroundProp) => {
+const BeachBackground = ({setReady}: BeachBackgroundProp) => {
   const verticalOffset = useSharedValue(initialVerticalOffset);
   const amplitude = useSharedValue(initialAmplitude);
   const time = useSharedValue(0);
@@ -266,4 +266,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default WaveAnimationBackground;
+export default BeachBackground;

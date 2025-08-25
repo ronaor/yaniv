@@ -7,6 +7,7 @@ import Animated, {
   FadeOutDown,
   LinearTransition,
 } from 'react-native-reanimated';
+import Svg, {Image} from 'react-native-svg';
 
 interface PlayerResultRowProps {
   id: string;
@@ -21,10 +22,19 @@ const bronze = ['#E17402', '#B84F00'];
 const simple = ['#05ACC4', '#05ACC4'];
 const borderColors = [gold, silver, bronze];
 
+const src = [
+  require('~/assets/images/1st.png'),
+  require('~/assets/images/2nd.png'),
+  require('~/assets/images/3rd.png'),
+];
+
 function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
   const avatarColors = borderColors[index] ?? simple;
   return (
     <View style={[styles.body, {backgroundColor: color}]}>
+      <Svg width={52} height={52} viewBox="0 0 100 100">
+        {index < 3 && <Image width="100" height="100" href={src[index]} />}
+      </Svg>
       <View style={[styles.avatarWrapper, {borderColor: avatarColors[1]}]}>
         <View style={[styles.avatarCircle, {borderColor: avatarColors[0]}]} />
       </View>
@@ -67,10 +77,9 @@ export default PlayerResultRow;
 const styles = StyleSheet.create({
   body: {
     paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingEnd: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
   avatarWrapper: {
     borderWidth: 2,
@@ -84,6 +93,7 @@ const styles = StyleSheet.create({
     borderWidth: 5,
   },
   nameWrapper: {
+    paddingStart: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
