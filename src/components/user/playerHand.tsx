@@ -61,6 +61,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 98,
     left: screenWidth / 2 - 80,
-    zIndex: 100,
   },
 });
