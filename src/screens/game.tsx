@@ -94,12 +94,15 @@ function GameScreen({navigation}: any) {
 
   useEffect(() => {
     if (gameResults) {
-      endGameDialogRef.current?.open(gameResults);
+      endGameDialogRef.current?.open({
+        places: gameResults.places,
+        playersStats: game.playersStats,
+      });
       setRoundReadyFor(-1);
     } else {
       endGameDialogRef.current?.close();
     }
-  }, [gameResults]);
+  }, [gameResults, game.playersStats]);
 
   useEffect(() => {
     if (!myTurn) {
