@@ -17,6 +17,7 @@ import {
 import {OutlinedText} from '../cartoonText';
 import {normalize} from '~/utils/ui';
 import {Location} from '~/types/cards';
+import AvatarImage from './avatarImage';
 
 interface UserAvatarProps {
   name: string;
@@ -222,8 +223,12 @@ function UserAvatar({
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.circleContainer, avatarStyle]}>
-        <Animated.View style={[circleStyle, styles.circle]} />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.circleContainer, avatarStyle]}>
+        <Animated.View style={[circleStyle, styles.circle]}>
+          <AvatarImage size={CIRCLE_SIZE - 5} index={42} />
+        </Animated.View>
         {isActive && (
           <Canvas style={styles.progressCanvas}>
             <Path
@@ -280,6 +285,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 1,
   },
   circleContainer: {
     marginBottom: -5,
