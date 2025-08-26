@@ -32,7 +32,7 @@ const App = () => {
 
   useSocketIO();
 
-  const {leaveRoom, nickName} = useRoomStore();
+  const {leaveRoom, user} = useRoomStore();
 
   const onStateChange = useCallback(
     (state: NavigationState | undefined) => {
@@ -51,10 +51,10 @@ const App = () => {
         (previousRouteName === 'Lobby' || previousRouteName === 'QuickLobby') &&
         currentRouteName !== 'Game'
       ) {
-        leaveRoom(nickName);
+        leaveRoom(user);
       }
     },
-    [leaveRoom, nickName],
+    [leaveRoom, user],
   );
 
   return (

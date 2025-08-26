@@ -25,7 +25,7 @@ import {normalize} from '~/utils/ui';
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
-  const {players, gameState, nickName, leaveRoom} = useRoomStore();
+  const {players, gameState, user, leaveRoom} = useRoomStore();
 
   useEffect(() => {
     if (gameState === 'started') {
@@ -41,16 +41,16 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
           text: 'Leave',
           style: 'destructive',
           onPress: () => {
-            leaveRoom(nickName);
+            leaveRoom(user);
             navigation.goBack();
           },
         },
       ]);
     } else {
-      leaveRoom(nickName);
+      leaveRoom(user);
       navigation.goBack();
     }
-  }, [players.length, leaveRoom, nickName, navigation]);
+  }, [players.length, leaveRoom, user, navigation]);
 
   const [slapDown, setSlapDown] = useState(
     GAME_CONFIG.DEFAULT_VALUES.Hard.slapDown,

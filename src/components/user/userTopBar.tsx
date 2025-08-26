@@ -20,7 +20,7 @@ const SettingsIcon = () => (
 
 function UserTopBar() {
   const {isConnected, isConnecting} = useSocket();
-  const {name, avatarIndex} = useUser();
+  const {user} = useUser();
 
   const scale = useSharedValue<number>(0);
 
@@ -41,11 +41,11 @@ function UserTopBar() {
     <Animated.View style={[styles.top, animatedStyle]}>
       <TouchableOpacity
         style={styles.user}
-        onPress={() => openEditProfileDialogEdit(name, avatarIndex)}>
+        onPress={() => openEditProfileDialogEdit(user)}>
         <View style={styles.avatarContainer}>
-          <AvatarImage index={avatarIndex} size={40} />
+          <AvatarImage index={user.avatarIndex} size={40} />
         </View>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name}>{user.nickName}</Text>
       </TouchableOpacity>
 
       <View style={styles.leftSide}>

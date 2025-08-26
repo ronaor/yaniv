@@ -5,7 +5,7 @@ import {useSocket} from './socketStore';
 
 export interface RoomState {
   roomId: string | null;
-  nickName: string; //TODO
+  user: User;
   players: User[];
   config: RoomConfig | null;
   votes: Record<string, RoomConfig>;
@@ -19,13 +19,13 @@ export interface RoomState {
 }
 
 interface RoomStore extends Omit<RoomState, 'callbacks'> {
-  createRoom: (nickName: string, config: RoomConfig) => void;
+  createRoom: (user: User, config: RoomConfig) => void;
   getRemainingTimeToStartGame: () => number;
-  joinRoom: (roomId: string, nickName: string) => void;
+  joinRoom: (roomId: string, user: User) => void;
   setQuickGameConfig: (config: RoomConfig) => void;
   startPrivateGame: (roomId: string) => void;
-  quickGame: (nickName: string) => void;
-  leaveRoom: (nickName: string) => void;
+  quickGame: (user: User) => void;
+  leaveRoom: (user: User) => void;
   checkRoomState: (roomId: string, cb: (state: any) => void) => void;
   clearError: () => void;
   registerCallback: (event: string, cb: ((data: any) => void) | null) => void;
@@ -57,14 +57,14 @@ interface RoomStore extends Omit<RoomState, 'callbacks'> {
 
 const initialState: RoomState = {
   roomId: null,
-  nickName: '', //TODO
+  user: {id: '', nickName: '', avatarIndex: 0},
   players: [],
   config: null,
   gameState: null,
   votes: {},
   isInRoom: false,
   isAdminOfPrivateRoom: false,
-  canStartTimer: null, //TODO
+  canStartTimer: null,
   isLoading: false,
   error: null,
   callbacks: {},
@@ -73,15 +73,15 @@ const initialState: RoomState = {
 export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
   return {
     ...initialState,
-    createRoom: (nickName, config) => {
+    createRoom: (user, config) => {
       set((state: RoomState) => ({
         ...state,
-        nickName,
+        user,
         isLoading: true,
         error: null,
       }));
       useSocket.getState().emit('create_room', {
-        nickName,
+        user,
         config,
       });
     },
@@ -96,41 +96,41 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
 
       return Math.max(0, Math.floor(remaining / 1000));
     },
-    joinRoom: (roomId, nickName) => {
+    joinRoom: (roomId, user) => {
       set((state: RoomState) => ({
         ...state,
         isLoading: true,
         error: null,
-        nickName,
+        user,
       }));
-      useSocket.getState().emit('join_room', {roomId, nickName});
+      useSocket.getState().emit('join_room', {roomId, user});
     },
-    quickGame: nickName => {
+    quickGame: user => {
       set((state: RoomState) => ({
         ...state,
         isLoading: true,
         error: null,
-        nickName,
+        user,
       }));
       useSocket.getState().emit('quick_game', {
-        nickName,
+        user,
       });
     },
     setQuickGameConfig: config => {
       set((state: RoomState) => {
         useSocket.getState().emit('set_quick_game_config', {
           roomId: state.roomId,
-          nickName: state.nickName,
+          user: state.user,
           config,
         });
         return {...state, isLoading: true, error: null};
       });
     },
-    leaveRoom: (nickName: string) => {
+    leaveRoom: (user: User) => {
       set((state: RoomState) => {
         useSocket
           .getState()
-          .emit('leave_room', {nickName, isAdmin: state.isAdminOfPrivateRoom});
+          .emit('leave_room', {user, isAdmin: state.isAdminOfPrivateRoom});
         return {...initialState};
       });
     },

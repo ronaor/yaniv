@@ -22,6 +22,7 @@ import Animated, {
   FadeOutUp,
   LinearTransition,
 } from 'react-native-reanimated';
+import {User} from '~/types/player';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
@@ -53,17 +54,14 @@ const useEditProfileDialogStore = create<EditProfileDialogStore>(set => ({
   setSelectedAvatarIndex: index => set({selectedAvatarIndex: index}),
 }));
 
-export function openEditProfileDialogEdit(
-  currentName: string,
-  currentAvatarIndex: number = 0,
-) {
+export function openEditProfileDialogEdit(user: User) {
   useEditProfileDialogStore
     .getState()
-    .open('edit', currentName, currentAvatarIndex);
+    .open('edit', user.nickName, user.avatarIndex);
 }
 
 const EditProfileDialog: React.FC = () => {
-  const {name, avatarIndex, setName, setAvatarIndex, loading} = useUser();
+  const {user, setName, setAvatarIndex, loading} = useUser();
   const {
     isOpen,
     mode,
@@ -94,10 +92,10 @@ const EditProfileDialog: React.FC = () => {
 
   // Show dialog on first app entry
   React.useEffect(() => {
-    if (!loading && !name && !isOpen) {
-      open('first', '', avatarIndex);
+    if (!loading && !user.nickName && !isOpen) {
+      open('first', '', 0);
     }
-  }, [loading, name, isOpen, open, avatarIndex]);
+  }, [loading, user.nickName, isOpen, open]);
 
   if (loading) {
     return (

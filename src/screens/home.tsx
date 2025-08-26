@@ -1,11 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {
-  Alert,
-  Dimensions,
-  ImageBackground,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {Dimensions, ImageBackground, StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
@@ -30,15 +24,11 @@ function HomeScreen({navigation}: HomeScreenProps) {
 
   const {isConnected} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
-  const {name} = useUser();
+  const {user} = useUser();
 
   const quickGameHandler = useCallback(async () => {
-    if (!name) {
-      return;
-    }
-
     // Emit the request
-    quickGame(name);
+    quickGame(user);
 
     // Wait for roomId to be set in the store
     const checkRoomCreated = () => {
@@ -64,14 +54,10 @@ function HomeScreen({navigation}: HomeScreenProps) {
     } else {
       console.error('Room creation timeout');
     }
-  }, [name, navigation, quickGame]);
+  }, [user, navigation, quickGame]);
 
   const handleCreateRoom = (config: RoomConfig) => {
-    if (!name) {
-      Alert.alert('שגיאה', 'יש להזין שם שחקן');
-      return;
-    }
-    emit('create_bot_room', {nickName: name, config});
+    emit('create_bot_room', {user, config});
     navigation.navigate('Game');
   };
 

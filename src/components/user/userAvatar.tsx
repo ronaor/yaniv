@@ -21,6 +21,7 @@ import AvatarImage from './avatarImage';
 
 interface UserAvatarProps {
   name: string;
+  avatarIndex: number;
   score: number;
   roundScore: number[] | undefined;
   isActive: boolean;
@@ -48,6 +49,7 @@ const {width: screenWidth} = Dimensions.get('screen');
 
 function UserAvatar({
   name,
+  avatarIndex,
   score,
   roundScore = [],
   isActive,
@@ -227,7 +229,7 @@ function UserAvatar({
         pointerEvents="none"
         style={[styles.circleContainer, avatarStyle]}>
         <Animated.View style={[circleStyle, styles.circle]}>
-          <AvatarImage size={CIRCLE_SIZE - 5} index={42} />
+          <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
         </Animated.View>
         {isActive && (
           <Canvas style={styles.progressCanvas}>

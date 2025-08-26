@@ -43,6 +43,7 @@ import EndGameDialog, {
   EndGameDialogRef,
 } from '~/components/dialogs/endGameDialog';
 import RandomBackground from '~/backgrounds/randomBGPicker';
+import {User} from '~/types/player';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -62,7 +63,7 @@ function GameScreen({navigation}: any) {
     gameId,
   } = useYanivGameStore();
 
-  const {name: nickName} = useUser();
+  const {user} = useUser();
   const cardsListRef = useRef<CardListRef>(null);
   const endGameDialogRef = useRef<EndGameDialogRef>(null);
 
@@ -76,9 +77,9 @@ function GameScreen({navigation}: any) {
     };
   }, [game.currentTurn, gamePlayers]);
 
-  const playersName = useMemo(() => {
-    return players.reduce<Record<PlayerId, string>>((res, user) => {
-      res[user.id] = user.nickName;
+  const playersMap = useMemo(() => {
+    return players.reduce<Record<PlayerId, User>>((res, usr) => {
+      res[usr.id] = usr;
       return res;
     }, {});
   }, [players]);
@@ -100,7 +101,7 @@ function GameScreen({navigation}: any) {
         endGameDialogRef?.current?.open(
           gamePlayers.order.map(pId => ({
             id: pId,
-            name: playersName[pId],
+            name: playersMap[pId].nickName,
             status: game.playersStats[pId],
           })),
         );
@@ -108,7 +109,7 @@ function GameScreen({navigation}: any) {
         break;
       }
     }
-  }, [game.phase, game.playersStats, gamePlayers, playersName]);
+  }, [game.phase, game.playersStats, gamePlayers, playersMap]);
 
   useEffect(() => {
     if (!myTurn) {
@@ -155,16 +156,16 @@ function GameScreen({navigation}: any) {
           text: 'Leave',
           style: 'destructive',
           onPress: () => {
-            leaveRoom(nickName);
+            leaveRoom(user);
             navigation.reset({index: 0, routes: [{name: 'Home'}]});
           },
         },
       ]);
     } else {
-      leaveRoom(nickName);
+      leaveRoom(user);
       navigation.reset({index: 0, routes: [{name: 'Home'}]});
     }
-  }, [players.length, leaveRoom, nickName, navigation]);
+  }, [players.length, leaveRoom, user, navigation]);
 
   // Handle game errors
   useEffect(() => {
@@ -356,7 +357,8 @@ function GameScreen({navigation}: any) {
           {/* we got reveal to trigger update score */}
           {/* score is now listened immediately from the store */}
           <UserAvatar
-            name={playersName[gamePlayers.current]}
+            name={user.nickName}
+            avatarIndex={user.avatarIndex}
             score={currentPlayer?.stats?.score ?? 0}
             roundScore={playersResultedScores[gamePlayers.current]}
             isActive={myTurn}
@@ -431,7 +433,8 @@ function GameScreen({navigation}: any) {
             {/* we got reveal to trigger update score */}
             {/* score is now listened immediately from the store */}
             <UserAvatar
-              name={playersName[playerId]}
+              name={playersMap[playerId].nickName}
+              avatarIndex={playersMap[playerId].avatarIndex}
               score={gamePlayers.all[playerId]?.stats?.score ?? 0}
               roundScore={playersResultedScores[playerId]}
               isActive={game.currentTurn?.playerId === playerId}

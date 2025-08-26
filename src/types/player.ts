@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   nickName: string;
+  avatarIndex: number;
 }
 
 type PlayerStatusType = 'active' | 'lost' | 'winner' | 'playAgain' | 'leave';

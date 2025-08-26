@@ -1,9 +1,10 @@
 import {create} from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {User} from '~/types/player';
+import {useSocket} from './socketStore';
 
 interface UserStore {
-  name: string;
-  avatarIndex: number;
+  user: User;
   loading: boolean;
   setName: (name: string) => void;
   setAvatarIndex: (index: number) => void;
@@ -11,24 +12,26 @@ interface UserStore {
 }
 
 export const useUser = create<UserStore>((set, _get) => ({
-  name: '',
-  avatarIndex: 0,
+  user: {id: '', nickName: '', avatarIndex: 0},
   loading: true,
   setName: (newName: string) => {
-    set({name: newName});
+    set(state => ({user: {...state.user, name: newName}}));
     AsyncStorage.setItem('user_name', newName);
   },
   setAvatarIndex: (index: number) => {
-    set({avatarIndex: index});
+    set(state => ({user: {...state.user, avatarIndex: index}}));
     AsyncStorage.setItem('user_avatar_index', index.toString());
   },
   init: async () => {
+    const socketId = useSocket.getState().getSocketId();
     const storedName = await AsyncStorage.getItem('user_name');
     const storedAvatarIndex = await AsyncStorage.getItem('user_avatar_index');
-
     set({
-      name: storedName || '',
-      avatarIndex: storedAvatarIndex ? parseInt(storedAvatarIndex, 10) : 0,
+      user: {
+        id: `${socketId}`,
+        nickName: storedName || '',
+        avatarIndex: storedAvatarIndex ? parseInt(storedAvatarIndex, 10) : 0,
+      },
       loading: false,
     });
   },

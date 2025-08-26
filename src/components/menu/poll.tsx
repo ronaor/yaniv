@@ -73,7 +73,7 @@ interface PollProps {
 }
 
 function Poll({activeChoices, choices}: PollProps) {
-  const {nickName} = useRoomStore();
+  const {user} = useRoomStore();
   const [containerWidth, setContainerWidth] = useState(0);
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -109,10 +109,10 @@ function Poll({activeChoices, choices}: PollProps) {
         percentage:
           totalVotes > 0 ? Math.round((users.length / totalVotes) * 100) : 0,
         users,
-        isUserChoice: users.includes(nickName),
+        isUserChoice: users.includes(user.nickName),
       };
     });
-  }, [activeChoices, choices, nickName]);
+  }, [activeChoices, choices, user.nickName]);
 
   return (
     <View style={styles.container} onLayout={handleLayout}>

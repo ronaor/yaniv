@@ -27,7 +27,7 @@ const {width: screenWidth} = Dimensions.get('screen');
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
   const [enterRoomModalOpen, setEnterRoomModalOpen] = useState<boolean>(false);
-  const {name} = useUser();
+  const {user} = useUser();
   const {
     createRoom,
     joinRoom,
@@ -50,7 +50,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('שגיאה', error, [{text: 'סגור', onPress: clearError}]);
+      Alert.alert('Error', error, [{text: 'close', onPress: clearError}]);
     }
   }, [error, clearError]);
 
@@ -58,24 +58,22 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
     setEnterRoomModalOpen(false);
     setNewRoomModalOpen(true);
   };
+
   const enterARoom = () => {
     setNewRoomModalOpen(false);
     setEnterRoomModalOpen(true);
   };
+
   const handleCreateRoom = (data: RoomConfig) => {
-    if (!name) {
-      Alert.alert('שגיאה', 'יש להזין שם שחקן');
-      return;
-    }
-    createRoom(name, data);
+    createRoom(user, data);
   };
 
   const onJoinRoom = (roomCode: string) => {
-    if (!name || !roomCode) {
-      Alert.alert('שגיאה', 'יש להזין שם שחקן ומזהה חדר');
+    if (!roomCode) {
+      Alert.alert('You must enter room code to enter');
       return;
     }
-    joinRoom(roomCode, name);
+    joinRoom(roomCode, user);
   };
 
   return (

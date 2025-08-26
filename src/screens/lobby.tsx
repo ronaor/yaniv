@@ -48,7 +48,7 @@ function LobbyScreen({navigation}: LobbyProps) {
     roomId,
     players,
     gameState,
-    nickName,
+    user,
     isAdminOfPrivateRoom,
     leaveRoom,
     startPrivateGame,
@@ -76,16 +76,16 @@ function LobbyScreen({navigation}: LobbyProps) {
           text: 'Leave',
           style: 'destructive',
           onPress: () => {
-            leaveRoom(nickName);
+            leaveRoom(user);
             navigation.reset({index: 0, routes: [{name: 'Home'}]});
           },
         },
       ]);
     } else {
-      leaveRoom(nickName);
+      leaveRoom(user);
       navigation.reset({index: 0, routes: [{name: 'Home'}]});
     }
-  }, [players.length, leaveRoom, nickName, navigation]);
+  }, [players.length, leaveRoom, user, navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
