@@ -40,6 +40,8 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
 
   useEffect(() => {
     if (gameState === 'started') {
+      setNewRoomModalOpen(false);
+      setEnterRoomModalOpen(false);
       navigation.replace('Game');
     } else if (isInRoom) {
       setNewRoomModalOpen(false);

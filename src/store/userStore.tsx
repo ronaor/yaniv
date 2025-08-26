@@ -6,33 +6,41 @@ import {useSocket} from './socketStore';
 interface UserStore {
   user: User;
   loading: boolean;
-  setName: (name: string) => void;
-  setAvatarIndex: (index: number) => void;
+  saveProfile: (data: {nickName: string; avatarIndex: number}) => void;
   init: () => void;
 }
 
 export const useUser = create<UserStore>((set, _get) => ({
   user: {id: '', nickName: '', avatarIndex: 0},
   loading: true,
-  setName: (newName: string) => {
-    set(state => ({user: {...state.user, name: newName}}));
-    AsyncStorage.setItem('user_name', newName);
-  },
-  setAvatarIndex: (index: number) => {
-    set(state => ({user: {...state.user, avatarIndex: index}}));
-    AsyncStorage.setItem('user_avatar_index', index.toString());
+  saveProfile: data => {
+    data.avatarIndex;
+    set(state => {
+      const updatedUser = {
+        ...state.user,
+        ...data,
+      };
+      AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+      return {
+        user: updatedUser,
+      };
+    });
   },
   init: async () => {
     const socketId = useSocket.getState().getSocketId();
-    const storedName = await AsyncStorage.getItem('user_name');
-    const storedAvatarIndex = await AsyncStorage.getItem('user_avatar_index');
-    set({
-      user: {
-        id: `${socketId}`,
-        nickName: storedName || '',
-        avatarIndex: storedAvatarIndex ? parseInt(storedAvatarIndex, 10) : 0,
-      },
-      loading: false,
-    });
+    const strData = await AsyncStorage.getItem('user');
+    if (strData) {
+      const storedUser = JSON.parse(strData);
+      set({user: storedUser, loading: false});
+    } else {
+      set({
+        user: {
+          id: `${socketId}`,
+          nickName: '',
+          avatarIndex: 0,
+        },
+        loading: false,
+      });
+    }
   },
 }));

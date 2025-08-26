@@ -61,7 +61,7 @@ export function openEditProfileDialogEdit(user: User) {
 }
 
 const EditProfileDialog: React.FC = () => {
-  const {user, setName, setAvatarIndex, loading} = useUser();
+  const {user, saveProfile, loading} = useUser();
   const {
     isOpen,
     mode,
@@ -77,8 +77,7 @@ const EditProfileDialog: React.FC = () => {
 
   const handleSave = () => {
     if (input.trim().length > 1) {
-      setName(input.trim());
-      setAvatarIndex(selectedAvatarIndex);
+      saveProfile({nickName: input.trim(), avatarIndex: selectedAvatarIndex});
       close();
     }
   };
