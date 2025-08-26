@@ -52,6 +52,7 @@ const PickupPointer = ({
       {rotate: `${cardDeg.value}deg`},
       {scale: scale.value},
     ],
+    opacity: index !== 0 && index !== totalCards - 1 ? 0.8 : 1,
   }));
 
   return (

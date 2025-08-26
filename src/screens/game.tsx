@@ -43,7 +43,6 @@ import EndGameDialog, {
   EndGameDialogRef,
 } from '~/components/dialogs/endGameDialog';
 import RandomBackground from '~/backgrounds/randomBGPicker';
-import {User} from '~/types/player';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -77,13 +76,6 @@ function GameScreen({navigation}: any) {
       slapDownAvailable: $currentPlayer?.slapDownAvailable || false,
     };
   }, [game.currentTurn, gamePlayers]);
-
-  const playersMap = useMemo(() => {
-    return players.reduce<Record<PlayerId, User>>((res, usr) => {
-      res[usr.id] = usr;
-      return res;
-    }, {});
-  }, [players]);
 
   const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
 
@@ -346,19 +338,6 @@ function GameScreen({navigation}: any) {
           />
         ))}
 
-        <View style={recordStyle[directions[0]]}>
-          {/* we got reveal to trigger update score */}
-          {/* score is now listened immediately from the store */}
-          <UserAvatar
-            name={user.nickName}
-            avatarIndex={user.avatarIndex}
-            score={currentPlayer?.stats?.score ?? 0}
-            roundScore={playersResultedScores[gamePlayers.current]}
-            isActive={myTurn}
-            timePerPlayer={game.rules.timePerPlayer}
-            isUser={true}
-          />
-        </View>
         {roundReadyFor !== game.round && <LoadingOverlay />}
 
         {/* Game Area */}
@@ -422,20 +401,16 @@ function GameScreen({navigation}: any) {
             isReady={roundReadyFor === game.round}
             cardsDelay={cardsDelay[i + 1]}
           />
-          {playersMap[playerId] && (
-            <View style={recordStyle[directions[i + 1]]}>
-              {/* we got reveal to trigger update score */}
-              {/* score is now listened immediately from the store */}
-              <UserAvatar
-                name={playersMap[playerId].nickName}
-                avatarIndex={playersMap[playerId].avatarIndex}
-                score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-                roundScore={playersResultedScores[playerId]}
-                isActive={game.currentTurn?.playerId === playerId}
-                timePerPlayer={game.rules.timePerPlayer}
-              />
-            </View>
-          )}
+          <View style={recordStyle[directions[i + 1]]}>
+            <UserAvatar
+              name={game.playersStats[playerId].playerName}
+              avatarIndex={game.playersStats[playerId].avatarIndex}
+              score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+              roundScore={playersResultedScores[playerId]}
+              isActive={game.currentTurn?.playerId === playerId}
+              timePerPlayer={game.rules.timePerPlayer}
+            />
+          </View>
         </View>
       ))}
 
@@ -446,6 +421,19 @@ function GameScreen({navigation}: any) {
         }
       />
 
+      <View style={recordStyle[directions[0]]}>
+        {/* we got reveal to trigger update score */}
+        {/* score is now listened immediately from the store */}
+        <UserAvatar
+          name={user.nickName}
+          avatarIndex={user.avatarIndex}
+          score={currentPlayer?.stats?.score ?? 0}
+          roundScore={playersResultedScores[gamePlayers.current]}
+          isActive={myTurn}
+          timePerPlayer={game.rules.timePerPlayer}
+          isUser={true}
+        />
+      </View>
       {/* Yaniv/Assaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
