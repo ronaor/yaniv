@@ -201,10 +201,11 @@ const styles = StyleSheet.create({
   },
   footerWrapper: {
     borderRadius: 20,
-    backgroundColor: '#aa5200ff',
+    backgroundColor: '#452300be',
     paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  coinsEarn: {fontSize: 25, fontWeight: '700', color: '#FDC200'},
+  coinsEarn: {fontSize: 17, fontWeight: '700', color: '#ffce2bff'},
   buttons: {
     flexDirection: 'row',
     alignItems: 'center',

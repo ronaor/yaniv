@@ -49,7 +49,7 @@ function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
               exiting={FadeOutDown}
               layout={LinearTransition}
               style={styles.playAgain}>
-              {'Lets Play Again'}
+              {"Let's Play Again!"}
             </Animated.Text>
           )}
           {status.playerStatus === 'leave' && (
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   mark: {alignItems: 'flex-start'},
-  playAgain: {color: '#fbf24fff', fontWeight: '700'},
-  leftTheGame: {color: '#bca8a8ed', fontWeight: '600'},
+  playAgain: {fontSize: 13, color: '#fbf24fff', fontWeight: '700'},
+  leftTheGame: {fontSize: 13, color: '#bca8a8ed', fontWeight: '600'},
   row: {gap: 5},
 });
