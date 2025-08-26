@@ -38,10 +38,12 @@ const ANIMATION_TIMING = {
   LOOK_MOMENT: 2000,
 };
 const CIRCLE_SIZE = 65;
-const CIRCLE_RADIUS = (CIRCLE_SIZE - 5) / 2;
+const CANVAS_PADDING = 5;
+
+const CIRCLE_RADIUS = CIRCLE_SIZE / 2;
 const CIRCLE_AREA = {
-  x: CIRCLE_SIZE / 2 - CIRCLE_RADIUS,
-  y: CIRCLE_SIZE / 2 - CIRCLE_RADIUS,
+  x: CIRCLE_SIZE / 2 - CIRCLE_RADIUS + CANVAS_PADDING / 2,
+  y: CIRCLE_SIZE / 2 - CIRCLE_RADIUS + CANVAS_PADDING / 2,
   width: CIRCLE_RADIUS * 2,
   height: CIRCLE_RADIUS * 2,
 };
@@ -66,6 +68,9 @@ function UserAvatar({
   const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
   const [displayAddScore, setDisplayAddScore] = useState<number>(0);
+  const circleStyle = {
+    width: isActive ? CIRCLE_SIZE + CANVAS_PADDING : CIRCLE_SIZE,
+  };
 
   // Timer progress animation
   useEffect(() => {
@@ -226,7 +231,7 @@ function UserAvatar({
       <Animated.View
         pointerEvents="none"
         style={[styles.circleContainer, avatarStyle]}>
-        <Animated.View style={styles.circle}>
+        <Animated.View style={[styles.circle, circleStyle]}>
           <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
         </Animated.View>
         {isActive && (
@@ -296,8 +301,8 @@ const styles = StyleSheet.create({
   },
   progressCanvas: {
     position: 'absolute',
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
+    width: CIRCLE_SIZE + CANVAS_PADDING,
+    height: CIRCLE_SIZE + CANVAS_PADDING,
     top: 0,
     left: 0,
   },
