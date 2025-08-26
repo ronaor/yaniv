@@ -42,7 +42,7 @@ import {DirectionName} from '~/types/cards';
 import EndGameDialog, {
   EndGameDialogRef,
 } from '~/components/dialogs/endGameDialog';
-import BeachBackground from '~/backgrounds/beach';
+import RandomBackground from '~/backgrounds/randomBGPicker';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -328,7 +328,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <BeachBackground />
+      <RandomBackground />
 
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>

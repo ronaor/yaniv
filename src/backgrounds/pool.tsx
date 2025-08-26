@@ -7,11 +7,11 @@ import {isNull} from 'lodash';
 
 const dimension = Dimensions.get('screen');
 
-interface IslandBackgroundProp {
+interface PoolBackgroundProp {
   setReady?: () => void;
 }
 
-const IslandBackground = ({setReady}: IslandBackgroundProp) => {
+const PoolBackground = ({setReady}: PoolBackgroundProp) => {
   const image = useImage(require('~/assets/images/pool_3.png'));
 
   useEffect(() => {
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default IslandBackground;
+export default PoolBackground;
