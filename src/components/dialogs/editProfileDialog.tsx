@@ -117,10 +117,6 @@ const EditProfileDialog: React.FC = () => {
     );
   }
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
     <Dialog isModalOpen={isOpen} onBackgroundPress={handleClose}>
       <View style={styles.body}>
