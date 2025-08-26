@@ -1,5 +1,5 @@
-import React from 'react';
-import {View, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
+import React, {useRef} from 'react';
+import {View, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import AvatarImage from './avatarImage';
 
 interface AvatarPickerProps {
@@ -26,61 +26,79 @@ const CONTAINER_CONFIG = {
 } as const;
 
 const COLORS = {
-  BACKGROUND: '#ffeeb7ff',
+  BACKGROUND: '#FDE5B8',
   BORDER: '#7c401aff',
   SELECTED_BORDER: '#65D000',
   SELECTED_BACKGROUND: '#65D00040',
 } as const;
 
+const data = Array.from({length: AVATAR_CONFIG.TOTAL_COUNT}, (_, i) => i);
+
 const AvatarPicker: React.FC<AvatarPickerProps> = ({
   selectedIndex,
   onSelectAvatar,
 }) => {
-  const renderAvatarRow = (startIndex: number) => {
-    const rowAvatars = [];
-    for (let i = 0; i < AVATAR_CONFIG.PER_ROW; i++) {
-      const index = startIndex + i;
-      if (index >= AVATAR_CONFIG.TOTAL_COUNT) {
-        break;
-      }
+  const flatListRef = useRef<FlatList>(null);
 
-      const isSelected = index === selectedIndex;
-
-      rowAvatars.push(
-        <TouchableOpacity
-          key={index}
-          style={[styles.avatarButton, isSelected && styles.selectedAvatar]}
-          onPress={() => onSelectAvatar(index)}>
-          <AvatarImage index={index} size={AVATAR_CONFIG.SIZE} />
-        </TouchableOpacity>,
-      );
-    }
-    return rowAvatars;
+  // Calculate item layout for scrollToIndex
+  const getItemLayout = (_: any, index: number) => {
+    const itemHeight =
+      AVATAR_CONFIG.SIZE +
+      AVATAR_CONFIG.PADDING * 2 +
+      AVATAR_CONFIG.BORDER_WIDTH * 2;
+    return {
+      length: itemHeight,
+      offset: itemHeight * index,
+      index,
+    };
   };
 
-  const totalRows = Math.ceil(
-    AVATAR_CONFIG.TOTAL_COUNT / AVATAR_CONFIG.PER_ROW,
-  );
-  const selectedRow = Math.floor(selectedIndex / AVATAR_CONFIG.PER_ROW);
-  const rowHeight = AVATAR_CONFIG.SIZE + CONTAINER_CONFIG.SCROLL_PADDING;
-  const initialScrollY = Math.max(
-    0,
-    selectedRow * rowHeight - CONTAINER_CONFIG.MAX_HEIGHT / 3,
-  );
+  // Handle scroll failures
+  const onScrollToIndexFailed = (info: {
+    index: number;
+    highestMeasuredFrameIndex: number;
+    averageItemLength: number;
+  }) => {
+    // Fallback: scroll to offset based on average item length
+    const offset = info.averageItemLength * info.index;
+    flatListRef.current?.scrollToOffset({offset, animated: false});
+
+    // Retry after a short delay
+    setTimeout(() => {
+      flatListRef.current?.scrollToIndex({index: info.index, animated: false});
+    }, 100);
+  };
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      <FlatList
+        ref={flatListRef}
         style={styles.scrollContainer}
-        contentContainerStyle={styles.gridContainer}
-        showsVerticalScrollIndicator={false}
-        contentOffset={{x: 0, y: initialScrollY}}>
-        {Array.from({length: totalRows}, (_, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {renderAvatarRow(rowIndex * AVATAR_CONFIG.PER_ROW)}
-          </View>
-        ))}
-      </ScrollView>
+        data={data}
+        numColumns={AVATAR_CONFIG.PER_ROW}
+        getItemLayout={getItemLayout}
+        onScrollToIndexFailed={onScrollToIndexFailed}
+        renderItem={({item: index}) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.avatarButton,
+              index === selectedIndex && styles.selectedAvatar,
+            ]}
+            onPress={() => onSelectAvatar(index)}>
+            <AvatarImage index={index} size={AVATAR_CONFIG.SIZE} />
+          </TouchableOpacity>
+        )}
+        onContentSizeChange={() => {
+          if (flatListRef.current && selectedIndex >= 0) {
+            const rowIndex = Math.floor(selectedIndex / AVATAR_CONFIG.PER_ROW);
+            flatListRef.current.scrollToIndex({
+              index: rowIndex,
+              animated: false,
+            });
+          }
+        }}
+      />
     </View>
   );
 };
@@ -93,6 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.BACKGROUND,
     borderWidth: CONTAINER_CONFIG.BORDER_WIDTH,
     borderColor: COLORS.BORDER,
+    overflow: 'hidden',
   },
   scrollContainer: {
     flex: 1,

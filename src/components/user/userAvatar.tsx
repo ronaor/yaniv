@@ -205,8 +205,6 @@ function UserAvatar({
     );
   });
 
-  const circleStyle = {borderColor: isActive ? '#0c7599' : '#16C4DD'};
-
   const scoreStyle = useAnimatedStyle(() => ({
     transform: [{scale: scoreScale.value}],
   }));
@@ -228,7 +226,7 @@ function UserAvatar({
       <Animated.View
         pointerEvents="none"
         style={[styles.circleContainer, avatarStyle]}>
-        <Animated.View style={[circleStyle, styles.circle]}>
+        <Animated.View style={styles.circle}>
           <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
         </Animated.View>
         {isActive && (
@@ -281,7 +279,8 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 40,
     borderWidth: 5,
-    backgroundColor: '#04a8e3ff',
+    backgroundColor: '#FDE5B8',
+    borderColor: '#732C03',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,

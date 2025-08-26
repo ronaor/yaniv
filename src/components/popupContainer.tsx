@@ -1,12 +1,6 @@
 import type {FC} from 'react';
-import React, {useEffect, useState} from 'react';
-import {
-  BackHandler,
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import React, {useState} from 'react';
+import {Dimensions, Modal, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedReaction,
@@ -29,21 +23,6 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
     const [isModalActive, setModalActive] = useState<boolean>(false);
     const {isModalOpen, onBackgroundPress} = props;
 
-    useEffect(() => {
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        () => {
-          if (isModalOpen) {
-            onBackgroundPress();
-            return true;
-          }
-          return false;
-        },
-      );
-
-      return () => backHandler.remove();
-    }, [isModalOpen, onBackgroundPress]);
-
     useAnimatedReaction(
       () => (isModalOpen ? 1 : 0),
       dest =>
@@ -57,6 +36,7 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
           },
         )),
     );
+
     const bgAnimStyle = useAnimatedStyle(() => ({
       opacity: progress.value * 0.5,
     }));
@@ -65,38 +45,35 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
       opacity: progress.value,
     }));
 
-    if (!(isModalOpen || isModalActive)) {
-      return <></>;
-    }
-
     return (
-      <View
-        style={[
-          styles.body,
-          {
-            width: wWidth,
-            height: wHeight,
-          },
-        ]}>
-        <Animated.View style={[bgAnimStyle, styles.bg]}>
-          <Pressable
-            accessible={false}
-            disabled={!isModalActive}
-            onPress={onBackgroundPress}
-            style={styles.pressable}
-          />
-        </Animated.View>
-        <Animated.View style={contentAnimStyle}>
-          <Component {...props} />
-        </Animated.View>
-      </View>
+      <Modal transparent visible={isModalOpen || isModalActive}>
+        <View
+          style={[
+            styles.body,
+            {
+              width: wWidth,
+              height: wHeight,
+            },
+          ]}>
+          <Animated.View style={[bgAnimStyle, styles.bg]}>
+            <Pressable
+              accessible={false}
+              disabled={!isModalActive}
+              onPress={onBackgroundPress}
+              style={styles.pressable}
+            />
+          </Animated.View>
+          <Animated.View style={contentAnimStyle}>
+            <Component {...props} />
+          </Animated.View>
+        </View>
+      </Modal>
     );
   };
 }
 
 const styles = StyleSheet.create({
   body: {
-    position: 'absolute',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

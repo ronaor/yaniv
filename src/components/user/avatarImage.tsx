@@ -39,10 +39,11 @@ const AvatarImage: React.FC<AvatarImageProps> = ({index, size}) => {
         {
           width: size,
           height: size,
+          borderRadius: size,
         },
       ]}>
       <Image
-        source={require('~/assets/images/avatars.png')}
+        source={require('~/assets/images/avatars_2.png')}
         style={[
           styles.gridImage,
           {
