@@ -8,10 +8,9 @@ import Animated, {
   LinearTransition,
 } from 'react-native-reanimated';
 import Svg, {Image} from 'react-native-svg';
+import AvatarImage from './avatarImage';
 
-interface PlayerResultRowProps {
-  id: string;
-  status: PlayerStatus;
+interface PlayerResultRowProps extends PlayerStatus {
   color: string;
   index: number;
 }
@@ -28,7 +27,14 @@ const src = [
   require('~/assets/images/3rd.png'),
 ];
 
-function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
+function PlayerResultRow({
+  color,
+  index,
+  avatarIndex,
+  playerName,
+  playerStatus,
+  score,
+}: PlayerResultRowProps) {
   const avatarColors = borderColors[index] ?? simple;
   return (
     <View style={[styles.body, {backgroundColor: color}]}>
@@ -36,14 +42,16 @@ function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
         {index < 3 && <Image width="100" height="100" href={src[index]} />}
       </Svg>
       <View style={[styles.avatarWrapper, {borderColor: avatarColors[1]}]}>
-        <View style={[styles.avatarCircle, {borderColor: avatarColors[0]}]} />
+        <View style={[styles.avatarCircle, {borderColor: avatarColors[0]}]}>
+          <AvatarImage size={57} index={avatarIndex} />
+        </View>
       </View>
       <View style={styles.nameWrapper}>
         <View style={styles.row}>
           <Text numberOfLines={1} style={styles.nameText}>
-            {status.playerName}
+            {playerName}
           </Text>
-          {status.playerStatus === 'playAgain' && (
+          {playerStatus === 'playAgain' && (
             <Animated.Text
               entering={FadeInDown}
               exiting={FadeOutDown}
@@ -52,7 +60,7 @@ function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
               {"Let's Play Again!"}
             </Animated.Text>
           )}
-          {status.playerStatus === 'leave' && (
+          {playerStatus === 'leave' && (
             <Animated.Text
               entering={FadeInDown}
               exiting={FadeOutDown}
@@ -64,7 +72,7 @@ function PlayerResultRow({status, color, index}: PlayerResultRowProps) {
         </View>
         <View style={styles.scoreWrapper}>
           <Text numberOfLines={1} style={styles.scoreText}>
-            {status.score}
+            {score}
           </Text>
         </View>
       </View>
@@ -89,8 +97,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     aspectRatio: 1,
     width: 60,
-    backgroundColor: 'white',
+    backgroundColor: '#402e1eff',
     borderWidth: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   nameWrapper: {
     paddingStart: 10,

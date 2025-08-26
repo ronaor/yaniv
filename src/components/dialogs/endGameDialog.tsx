@@ -9,6 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import SimpleButton from '../menu/simpleButton';
 import PlayerResultRow from '../user/playerResult';
 import Animated, {FadeIn} from 'react-native-reanimated';
+import {PlayerId} from '~/store/yanivGameStore';
 
 const Header = () => (
   <View style={styles.header}>
@@ -30,10 +31,8 @@ const Header = () => (
 
 const {width: screenWidth} = Dimensions.get('screen');
 
-interface Player {
+interface Player extends PlayerStatus {
   id: string;
-  name: string;
-  status: PlayerStatus;
 }
 
 interface EndGameDialogProps {
@@ -41,8 +40,16 @@ interface EndGameDialogProps {
   handlePlayAgain: () => void;
 }
 
+type GameResults = {
+  places: PlayerId[];
+  playersStats: Record<PlayerId, PlayerStatus>;
+};
+
 export interface EndGameDialogRef {
-  open: (players: Player[]) => void;
+  open: (gameResults: {
+    places: string[];
+    playersStats: Record<string, PlayerStatus>;
+  }) => void;
   close: () => void;
 }
 
@@ -55,12 +62,14 @@ const EndGameDialog = memo(
     const [players, setPlayers] = useState<Player[]>([]);
 
     const gameGone =
-      players.filter(p => p.status.playerStatus === 'leave').length ===
+      players.filter(p => p.playerStatus === 'leave').length ===
       players.length - 1;
 
     useImperativeHandle(ref, () => ({
-      open: (playersData: Player[]) => {
-        setPlayers(playersData);
+      open: (gameResults: GameResults) => {
+        setPlayers(
+          gameResults.places.map(id => ({id, ...gameResults.playersStats[id]})),
+        );
         setIsOpen(true);
       },
       close: () => {

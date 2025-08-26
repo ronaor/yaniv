@@ -61,6 +61,7 @@ function GameScreen({navigation}: any) {
     resetSlapDown,
     emit,
     gameId,
+    gameResults,
   } = useYanivGameStore();
 
   const {user} = useUser();
@@ -92,24 +93,13 @@ function GameScreen({navigation}: any) {
   }, []);
 
   useEffect(() => {
-    switch (game.phase) {
-      case 'active': {
-        endGameDialogRef?.current?.close();
-        break;
-      }
-      case 'game-end': {
-        endGameDialogRef?.current?.open(
-          gamePlayers.order.map(pId => ({
-            id: pId,
-            name: playersMap[pId].nickName,
-            status: game.playersStats[pId],
-          })),
-        );
-        setRoundReadyFor(-1);
-        break;
-      }
+    if (gameResults) {
+      endGameDialogRef.current?.open(gameResults);
+      setRoundReadyFor(-1);
+    } else {
+      endGameDialogRef.current?.close();
     }
-  }, [game.phase, game.playersStats, gamePlayers, playersMap]);
+  }, [gameResults]);
 
   useEffect(() => {
     if (!myTurn) {
@@ -429,18 +419,20 @@ function GameScreen({navigation}: any) {
             isReady={roundReadyFor === game.round}
             cardsDelay={cardsDelay[i + 1]}
           />
-          <View style={recordStyle[directions[i + 1]]}>
-            {/* we got reveal to trigger update score */}
-            {/* score is now listened immediately from the store */}
-            <UserAvatar
-              name={playersMap[playerId].nickName}
-              avatarIndex={playersMap[playerId].avatarIndex}
-              score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-              roundScore={playersResultedScores[playerId]}
-              isActive={game.currentTurn?.playerId === playerId}
-              timePerPlayer={game.rules.timePerPlayer}
-            />
-          </View>
+          {playersMap[playerId] && (
+            <View style={recordStyle[directions[i + 1]]}>
+              {/* we got reveal to trigger update score */}
+              {/* score is now listened immediately from the store */}
+              <UserAvatar
+                name={playersMap[playerId].nickName}
+                avatarIndex={playersMap[playerId].avatarIndex}
+                score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+                roundScore={playersResultedScores[playerId]}
+                isActive={game.currentTurn?.playerId === playerId}
+                timePerPlayer={game.rules.timePerPlayer}
+              />
+            </View>
+          )}
         </View>
       ))}
 

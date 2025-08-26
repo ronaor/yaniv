@@ -103,6 +103,10 @@ type YanivGameFields = {
   ui: UIState;
   error?: string;
   gameId: string;
+  gameResults?: {
+    places: PlayerId[];
+    playersStats: Record<PlayerId, PlayerStatus>;
+  };
 };
 
 type YanivGameMethods = {
@@ -152,6 +156,7 @@ type YanivGameMethods = {
       winnerId: string;
       finalScores: Record<string, number>;
       playersStats: Record<string, PlayerStatus>;
+      places: PlayerId[];
     }) => void;
     setGameError: (data: {message: string}) => void;
     setPlayersStatusData: (data: {
@@ -214,6 +219,7 @@ const initialGameFields: YanivGameFields = {
     deckPosition: {x: 0, y: 0},
     pickupPosition: {x: 0, y: 0},
   },
+  gameResults: undefined,
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -325,6 +331,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           pickupPosition,
         },
         roundResults: undefined,
+        gameResults: undefined,
       }));
 
       setTimeout(() => {
@@ -624,12 +631,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         };
       });
     },
-    gameEnded: (data: {
-      winnerId: string;
-      finalScores: Record<string, number>;
-      playersStats: Record<string, PlayerStatus>;
-    }) => {
-      const {playersStats} = data;
+    gameEnded: data => {
+      const {playersStats, places} = data;
       set(state => {
         const updatedPlayers = {...state.players.all};
         Object.keys(updatedPlayers).forEach(playerId => {
@@ -651,6 +654,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             ...state.game,
             phase: 'game-end' as GamePhase,
             currentTurn: null, // No active turn during game end
+            playersStats,
+          },
+          gameResults: {
+            places,
             playersStats,
           },
         };

@@ -10,6 +10,7 @@ export type PlayerStatus = {
   score: number;
   playerStatus: PlayerStatusType;
   playerName: string;
+  avatarIndex: number;
 };
 
 export interface RoomConfig {

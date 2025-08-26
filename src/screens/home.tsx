@@ -14,6 +14,7 @@ import {useUser} from '~/store/userStore';
 import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
 import {RoomConfig} from '~/types/player';
+import EditProfileDialog from '~/components/dialogs/editProfileDialog';
 
 const {width: screenWidth} = Dimensions.get('screen');
 
@@ -84,6 +85,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
               onPress={() => setNewRoomModalOpen(true)}
             />
           </View>
+          <EditProfileDialog />
         </View>
 
         <Dialog
