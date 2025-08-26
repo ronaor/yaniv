@@ -27,7 +27,7 @@ const PoolBackground = ({setReady}: PoolBackgroundProp) => {
         image={image}
         width={dimension.width}
         height={dimension.height - 50}
-        fit={'fill'}
+        fit={'cover'}
       />
     </Canvas>
   );

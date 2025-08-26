@@ -223,7 +223,7 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
         image={image}
         width={dimension.width}
         height={dimension.height - 50}
-        fit={'fill'}
+        fit={'cover'}
       />
 
       <Group>
