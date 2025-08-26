@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {openNamePromptEdit} from '../namePrompt';
+import {openEditProfileDialogEdit} from '../dialogs/editProfileDialog';
 import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
@@ -9,8 +9,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
 import Svg, {Path} from 'react-native-svg';
+import AvatarImage from './avatarImage';
+
 const SettingsIcon = () => (
   <Svg width={30} height={30} viewBox="0 0 24 24" fill="white">
     <Path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
@@ -19,7 +20,7 @@ const SettingsIcon = () => (
 
 function UserTopBar() {
   const {isConnected, isConnecting} = useSocket();
-  const {name} = useUser();
+  const {name, avatarIndex} = useUser();
 
   const scale = useSharedValue<number>(0);
 
@@ -29,7 +30,7 @@ function UserTopBar() {
 
   const animatedStyle = useAnimatedStyle(() => {
     const scaleValue = scale.value;
-    const translateY = -40 * (1 - scaleValue); // Adjust 40 based on your component height
+    const translateY = -40 * (1 - scaleValue);
 
     return {
       transform: [{translateY: translateY}, {scaleY: scaleValue}],
@@ -40,8 +41,10 @@ function UserTopBar() {
     <Animated.View style={[styles.top, animatedStyle]}>
       <TouchableOpacity
         style={styles.user}
-        onPress={() => openNamePromptEdit(name)}>
-        <View style={styles.avatar} />
+        onPress={() => openEditProfileDialogEdit(name, avatarIndex)}>
+        <View style={styles.avatarContainer}>
+          <AvatarImage index={avatarIndex} size={40} />
+        </View>
         <Text style={styles.name}>{name}</Text>
       </TouchableOpacity>
 
@@ -87,11 +90,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
   },
-  avatar: {
-    backgroundColor: '#13AEAF',
-    aspectRatio: 1,
-    height: 40,
+  avatarContainer: {
     borderRadius: 25,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#13AEAF',
   },
   name: {fontSize: 18, color: '#FDF9D1', fontWeight: '700'},
   user: {flexDirection: 'row', alignItems: 'center', gap: 10},

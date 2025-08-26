@@ -3,8 +3,8 @@ import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
 import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
-import {Card} from 'server/cards';
-import {DirectionName, Position} from '~/types/cards';
+
+import {Card, DirectionName, Position} from '~/types/cards';
 import {PlayerId} from '~/store/yanivGameStore';
 import CardsSpread from './cardsSpread';
 import Animated, {

@@ -118,15 +118,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 15,
   },
-  itemInnerEven: {
-    backgroundColor: '#873D00',
-  },
-  itemInnerOdd: {
-    backgroundColor: '#AA4E08',
-  },
-  itemInnerLast: {
-    borderRadius: 25,
-  },
   title: {
     color: '#F9F09D',
     fontSize: normalize(18),
