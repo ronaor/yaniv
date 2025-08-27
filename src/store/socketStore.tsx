@@ -1,5 +1,6 @@
 import {create} from 'zustand';
 import socket from '../socket';
+import {useUser} from './userStore';
 
 interface SocketStore {
   isConnected: boolean;
@@ -29,6 +30,7 @@ export const useSocket = create<SocketStore>((set, get) => ({
 
     socket.on('connect', () => {
       console.log('Socket connected');
+      useUser.getState().init(`${socket.id}`);
       set({isConnected: true, isConnecting: false, error: null});
     });
 

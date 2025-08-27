@@ -1,14 +1,10 @@
 import {useEffect} from 'react';
 import {useRoomStore} from './store/roomStore';
 import {useSocket} from './store/socketStore';
-import {useUser} from './store/userStore';
 import {useYanivGameStore} from './store/yanivGameStore';
 
 const useSocketIO = () => {
   useEffect(() => {
-    // Initialize user store
-    useUser.getState().init();
-
     // Initialize socket connection
     const socket = useSocket.getState();
     socket.connect();
@@ -91,6 +87,8 @@ const useSocketIO = () => {
         playersStats,
       });
     });
+
+    socket.on('human_lost', gameStore.subscribed.humanLost);
 
     // Cleanup on app unmount
     return () => {

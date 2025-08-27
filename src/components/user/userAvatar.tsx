@@ -16,8 +16,9 @@ import {
 } from '@shopify/react-native-skia';
 import {OutlinedText} from '../cartoonText';
 import {normalize} from '~/utils/ui';
-import {Location} from '~/types/cards';
+import {DirectionName, Location} from '~/types/cards';
 import AvatarImage from './avatarImage';
+import {PlayerStatusType} from '~/types/player';
 
 interface UserAvatarProps {
   name: string;
@@ -27,6 +28,10 @@ interface UserAvatarProps {
   isActive: boolean;
   timePerPlayer?: number;
   isUser?: boolean;
+  status: PlayerStatusType;
+  kill: boolean;
+  direction: DirectionName; // seat & kill direction
+  zIndex?: number; // optional stacking override
 }
 
 const SECOND = 1000;
@@ -37,6 +42,7 @@ const ANIMATION_TIMING = {
   ABSORB_DURATION: 150,
   LOOK_MOMENT: 2000,
 };
+
 const CIRCLE_SIZE = 65;
 const CANVAS_PADDING = 5;
 
@@ -47,7 +53,32 @@ const CIRCLE_AREA = {
   width: CIRCLE_RADIUS * 2,
   height: CIRCLE_RADIUS * 2,
 };
-const {width: screenWidth} = Dimensions.get('screen');
+
+const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+
+/** Internal seating layout — same coordinates you used on the screen */
+const seatStyle: Record<DirectionName, any> = {
+  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
+  up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
+  left: {
+    position: 'absolute',
+    left: 10,
+    top: screenHeight / 2 - 20,
+    zIndex: 100,
+  },
+  right: {
+    position: 'absolute',
+    right: 10,
+    top: screenHeight / 2 - 20,
+    zIndex: 100,
+  },
+};
+
+/** Kill (throw-out) constants */
+const KILL_DURATION = 4000;
+const KILL_DIST_BASE = Math.max(screenWidth, screenHeight) * 0.45; // base throw distance
+const KILL_LATERAL_WOBBLE = 30; // px random side wobble
+const KILL_SPIN = 1000; // deg
 
 function UserAvatar({
   name,
@@ -57,6 +88,9 @@ function UserAvatar({
   isActive,
   timePerPlayer,
   isUser = false,
+  kill,
+  direction,
+  zIndex = 100,
 }: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
   const refRoundScore = useRef<number[]>([]);
@@ -68,9 +102,13 @@ function UserAvatar({
   const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
   const [displayAddScore, setDisplayAddScore] = useState<number>(0);
-  const circleStyle = {
-    width: isActive ? CIRCLE_SIZE + CANVAS_PADDING : CIRCLE_SIZE,
-  };
+
+  // Kill wrapper shared values (translate/rotate/scale/opacity)
+  const killTx = useSharedValue(0);
+  const killTy = useSharedValue(0);
+  const killRot = useSharedValue(0);
+  const killScale = useSharedValue(1);
+  const killOpacity = useSharedValue(1);
 
   // Timer progress animation
   useEffect(() => {
@@ -124,7 +162,7 @@ function UserAvatar({
             });
             roundScoreY.value = withTiming(0, {
               duration: ANIMATION_TIMING.MOVE_DURATION,
-              easing: Easing.bezier(0.0, 0, 1, 0), // Super slow start, explosive finish
+              easing: Easing.bezier(0.0, 0, 1, 0),
             });
             roundScoreScale.value = withTiming(1, {
               duration: ANIMATION_TIMING.MOVE_DURATION,
@@ -134,11 +172,11 @@ function UserAvatar({
         },
         {
           action: () => {
-            // Round score gets absorbed instantly (it's moving very fast now)
+            // Round score gets absorbed instantly
             roundScoreScale.value = withTiming(0, {
               duration: ANIMATION_TIMING.ABSORB_DURATION,
             });
-            // Score bubble pulses with explosive energy
+            // Score bubble pulse
             scoreScale.value = withTiming(1.25, {duration: 200}, finished => {
               if (finished) {
                 scoreScale.value = withSpring(1, {damping: 10, stiffness: 200});
@@ -188,17 +226,67 @@ function UserAvatar({
     }
   }, [score, roundScore]);
 
+  /** ----- KILL (throw-out) animation ----- */
+  useEffect(() => {
+    // Direction unit vector
+    const dirMap: Record<DirectionName, {x: number; y: number}> = {
+      up: {x: -1, y: -1},
+      down: {x: -1, y: 2},
+      left: {x: -1, y: 0},
+      right: {x: 1, y: 0},
+    };
+    const d = dirMap[direction] ?? {x: 0, y: -1};
+
+    if (kill) {
+      // randomized distance & lateral wobble
+      const dist = KILL_DIST_BASE * (0.85 + Math.random() * 0.5);
+      const wobbleX = (Math.random() - 0.5) * KILL_LATERAL_WOBBLE;
+      const wobbleY = (Math.random() - 0.5) * KILL_LATERAL_WOBBLE;
+
+      // directional spin sign (left/right mirror)
+      const spinSign =
+        direction === 'left'
+          ? -1
+          : direction === 'right'
+          ? 1
+          : Math.random() < 0.5
+          ? -1
+          : 1;
+      const spins = KILL_SPIN * spinSign;
+
+      // animate out
+      killTx.value = withTiming(d.x * dist + wobbleX, {
+        duration: KILL_DURATION,
+        easing: Easing.out(Easing.quad),
+      });
+      killTy.value = withTiming(d.y * dist + wobbleY, {
+        duration: KILL_DURATION,
+        easing: Easing.out(Easing.quad),
+      });
+      killRot.value = withTiming(spins, {
+        duration: KILL_DURATION,
+        easing: Easing.out(Easing.quad),
+      });
+      killScale.value = withTiming(0.9, {duration: KILL_DURATION});
+      killOpacity.value = withTiming(0.6, {duration: KILL_DURATION});
+    } else {
+      // reset back to seat
+      killTx.value = withTiming(0, {duration: 250});
+      killTy.value = withTiming(0, {duration: 250});
+      killRot.value = withTiming(0, {duration: 250});
+      killScale.value = withTiming(1, {duration: 250});
+      killOpacity.value = withTiming(1, {duration: 250});
+    }
+  }, [kill, direction, killTx, killTy, killRot, killScale, killOpacity]);
+
+  /** Progress ring values */
   const progressPath = useDerivedValue(() => {
     const sweepAngle = circleProgress.value * 360;
     if (sweepAngle === 0) {
       return Skia.Path.Make();
     }
     const path = Skia.Path.Make();
-    path.addArc(
-      CIRCLE_AREA,
-      -90, // Start from top
-      sweepAngle,
-    );
+    path.addArc(CIRCLE_AREA, -90, sweepAngle);
     return path;
   });
 
@@ -209,6 +297,11 @@ function UserAvatar({
       ['#00FF00', '#FFFF00', '#FF0000'],
     );
   });
+
+  /** Visual styles */
+  const circleStyle = {
+    width: isActive ? CIRCLE_SIZE + CANVAS_PADDING : CIRCLE_SIZE,
+  };
 
   const scoreStyle = useAnimatedStyle(() => ({
     transform: [{scale: scoreScale.value}],
@@ -226,53 +319,69 @@ function UserAvatar({
     transform: [{scale: avatarScale.value}],
   }));
 
+  const killedWrapperStyle = useAnimatedStyle(() => ({
+    transform: [
+      {translateX: killTx.value},
+      {translateY: killTy.value},
+      {rotate: `${killRot.value}deg`},
+      {scale: killScale.value},
+    ],
+    opacity: killOpacity.value,
+  }));
+
   return (
-    <View style={styles.container}>
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.circleContainer, avatarStyle]}>
-        <Animated.View style={[styles.circle, circleStyle]}>
-          <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
-        </Animated.View>
-        {isActive && (
-          <Canvas style={styles.progressCanvas}>
-            <Path
-              path={progressPath}
-              style="stroke"
-              strokeWidth={5}
-              strokeCap="round"
-              color={progressColor}
-            />
-          </Canvas>
-        )}
-      </Animated.View>
-      <View>
-        <View style={styles.gradientWrap}>
-          <Text style={styles.name}>{name}</Text>
-        </View>
-        <View>
-          <Animated.View style={[styles.gradientScore, scoreStyle]}>
-            <Text style={styles.score}>{displayScore}</Text>
+    <Animated.View
+      style={[seatStyle[direction], {zIndex}, killedWrapperStyle]}
+      pointerEvents={kill ? 'none' : 'auto'} // optional: ignore touches while flying out
+    >
+      <View style={styles.container}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.circleContainer, avatarStyle]}>
+          <Animated.View style={[styles.circle, circleStyle]}>
+            <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
           </Animated.View>
-          {roundScore.length > 0 && (
-            <Animated.View style={[styles.roundScore, roundScoreStyle]}>
-              <OutlinedText
-                text={`${displayAddScore >= 0 ? '+' : ''}${displayAddScore}`}
-                fontSize={14}
-                width={50}
-                height={30}
-                strokeWidth={4}
-                fillColor={'#FFFFFF'}
-                strokeColor={`${
-                  displayAddScore >= 0 ? '#158ac9ff' : '#15c924ff'
-                }`}
-                fontWeight={'900'}
+          {isActive && (
+            <Canvas style={styles.progressCanvas}>
+              <Path
+                path={progressPath}
+                style="stroke"
+                strokeWidth={5}
+                strokeCap="round"
+                color={progressColor}
               />
-            </Animated.View>
+            </Canvas>
           )}
+        </Animated.View>
+
+        <View>
+          <View style={styles.gradientWrap}>
+            <Text style={styles.name}>{name}</Text>
+          </View>
+          <View>
+            <Animated.View style={[styles.gradientScore, scoreStyle]}>
+              <Text style={styles.score}>{displayScore}</Text>
+            </Animated.View>
+            {roundScore.length > 0 && (
+              <Animated.View style={[styles.roundScore, roundScoreStyle]}>
+                <OutlinedText
+                  text={`${displayAddScore >= 0 ? '+' : ''}${displayAddScore}`}
+                  fontSize={14}
+                  width={50}
+                  height={30}
+                  strokeWidth={4}
+                  fillColor={'#FFFFFF'}
+                  strokeColor={`${
+                    displayAddScore >= 0 ? '#158ac9ff' : '#15c924ff'
+                  }`}
+                  fontWeight={'900'}
+                />
+              </Animated.View>
+            )}
+          </View>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -1,13 +1,12 @@
 import {create} from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {User} from '~/types/player';
-import {useSocket} from './socketStore';
 
 interface UserStore {
   user: User;
   loading: boolean;
   saveProfile: (data: {nickName: string; avatarIndex: number}) => void;
-  init: () => void;
+  init: (id: string) => void;
 }
 
 export const useUser = create<UserStore>((set, _get) => ({
@@ -26,16 +25,15 @@ export const useUser = create<UserStore>((set, _get) => ({
       };
     });
   },
-  init: async () => {
-    const socketId = useSocket.getState().getSocketId();
+  init: async socketId => {
     const strData = await AsyncStorage.getItem('user');
     if (strData) {
-      const storedUser = JSON.parse(strData);
+      const storedUser = {...JSON.parse(strData), id: socketId};
       set({user: storedUser, loading: false});
     } else {
       set({
         user: {
-          id: `${socketId}`,
+          id: socketId,
           nickName: '',
           avatarIndex: 0,
         },

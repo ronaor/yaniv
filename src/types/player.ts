@@ -4,7 +4,12 @@ export interface User {
   avatarIndex: number;
 }
 
-type PlayerStatusType = 'active' | 'lost' | 'winner' | 'playAgain' | 'leave';
+export type PlayerStatusType =
+  | 'active'
+  | 'lost'
+  | 'winner'
+  | 'playAgain'
+  | 'leave';
 
 export type PlayerStatus = {
   score: number;

@@ -1,12 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  Alert,
-  Dimensions,
-  StatusBar,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {Alert, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
 import {isUndefined} from 'lodash';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -43,6 +36,11 @@ import EndGameDialog, {
   EndGameDialogRef,
 } from '~/components/dialogs/endGameDialog';
 import RandomBackground from '~/backgrounds/randomBGPicker';
+import BallsOverlay, {BallsOverlayRef} from '~/components/effects/ballsOverlay';
+import {ThrowBallEvent} from '~/components/effects/ballEvent';
+import UserLostDialog, {
+  UserLostDialogRef,
+} from '~/components/dialogs/userLostDialog';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -61,11 +59,14 @@ function GameScreen({navigation}: any) {
     emit,
     gameId,
     gameResults,
+    humanLost,
   } = useYanivGameStore();
 
   const {user} = useUser();
   const cardsListRef = useRef<CardListRef>(null);
   const endGameDialogRef = useRef<EndGameDialogRef>(null);
+  const userLostDialogRef = useRef<UserLostDialogRef>(null);
+  const ballEventsRef = useRef<BallsOverlayRef>(null);
 
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
@@ -134,7 +135,7 @@ function GameScreen({navigation}: any) {
   const handlePlayAgain = useCallback(() => emit.playAgain(), [emit]);
 
   const handleLeave = useCallback(() => {
-    if (players.length > 1) {
+    if (players.length > 1 && !humanLost) {
       Alert.alert('Leave Room', 'Are you sure you want to leave?', [
         {text: 'Cancel', style: 'cancel'},
         {
@@ -150,7 +151,7 @@ function GameScreen({navigation}: any) {
       leaveRoom(user);
       navigation.reset({index: 0, routes: [{name: 'Home'}]});
     }
-  }, [players.length, leaveRoom, user, navigation]);
+  }, [players.length, leaveRoom, user, navigation, humanLost]);
 
   // Handle game errors
   useEffect(() => {
@@ -193,6 +194,9 @@ function GameScreen({navigation}: any) {
   const [playersResultedScores, setPlayersResultedScores] = useState<
     Record<PlayerId, number[]>
   >({});
+  const [playersKilling, setPlayersKilling] = useState<
+    Record<PlayerId, boolean>
+  >({});
 
   const activeDirections = useMemo(() => {
     return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
@@ -227,6 +231,36 @@ function GameScreen({navigation}: any) {
   }, [game.playersStats, gamePlayers.order]);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
+  const createBallThrowEvents = useCallback(
+    (remaining: PlayerId[], losers: PlayerId[]): ThrowBallEvent[] => {
+      return remaining.map((shooter, index) => ({
+        from: directions[gamePlayers.order.indexOf(shooter)],
+        to: directions[
+          gamePlayers.order.indexOf(losers[index % losers.length])
+        ],
+      }));
+    },
+    [gamePlayers.order],
+  );
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     ballEventsRef.current?.throwBalls(
+  //       createBallThrowEvents([gamePlayers.order[2]], [gamePlayers.order[0]]),
+  //     );
+  //     setTimeout(() => setPlayersKilling(d), 500);
+  //   }, 1000);
+  //   const key = gamePlayers.order[0];
+  //   const d: Record<string, boolean> = {};
+  //   d[key] = true;
+  // }, [createBallThrowEvents, gamePlayers.order]);
+
+  useEffect(() => {
+    if (humanLost) {
+      userLostDialogRef.current?.open();
+    }
+  }, [humanLost]);
 
   useEffect(() => {
     if (!roundResults || game.phase !== 'round-end') {
@@ -279,6 +313,35 @@ function GameScreen({navigation}: any) {
 
     const scheduleReveal = (index: number, accumulatedDelay: number) => {
       if (index >= activePlayers.length) {
+        if (roundResults.losers.length > 0) {
+          const remainingPlayers = gamePlayers.order.filter(
+            p =>
+              roundResults.roundPlayers.includes(p) &&
+              !roundResults.losers.includes(p),
+          );
+          const losers = roundResults.losers;
+
+          // Shuffle losers for randomness
+          for (let i = losers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [losers[i], losers[j]] = [losers[j], losers[i]];
+          }
+
+          ballEventsRef.current?.throwBalls(
+            createBallThrowEvents(remainingPlayers, losers),
+          );
+
+          setTimeout(() => {
+            setPlayersKilling(prev => ({
+              ...prev,
+              ...losers.reduce<Record<string, boolean>>((res, loser) => {
+                res[loser] = true;
+                return res;
+              }, {}),
+            }));
+          }, 1000);
+        }
+
         return;
       }
 
@@ -305,7 +368,7 @@ function GameScreen({navigation}: any) {
       timeoutsRef.current.forEach(clearTimeout);
       timeoutsRef.current = [];
     };
-  }, [roundResults, game.phase, gamePlayers.order]);
+  }, [roundResults, game.phase, gamePlayers.order, createBallThrowEvents]);
 
   return (
     <>
@@ -401,16 +464,17 @@ function GameScreen({navigation}: any) {
             isReady={roundReadyFor === game.round}
             cardsDelay={cardsDelay[i + 1]}
           />
-          <View style={recordStyle[directions[i + 1]]}>
-            <UserAvatar
-              name={game.playersStats[playerId].playerName}
-              avatarIndex={game.playersStats[playerId].avatarIndex}
-              score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-              roundScore={playersResultedScores[playerId]}
-              isActive={game.currentTurn?.playerId === playerId}
-              timePerPlayer={game.rules.timePerPlayer}
-            />
-          </View>
+          <UserAvatar
+            name={game.playersStats[playerId].playerName}
+            avatarIndex={game.playersStats[playerId].avatarIndex}
+            score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+            roundScore={playersResultedScores[playerId]}
+            isActive={game.currentTurn?.playerId === playerId}
+            timePerPlayer={game.rules.timePerPlayer}
+            status={game.playersStats[playerId].playerStatus}
+            kill={playersKilling[playerId]}
+            direction={directions[i + 1]}
+          />
         </View>
       ))}
 
@@ -421,26 +485,32 @@ function GameScreen({navigation}: any) {
         }
       />
 
-      <View style={recordStyle[directions[0]]}>
-        {/* we got reveal to trigger update score */}
-        {/* score is now listened immediately from the store */}
-        <UserAvatar
-          name={user.nickName}
-          avatarIndex={user.avatarIndex}
-          score={currentPlayer?.stats?.score ?? 0}
-          roundScore={playersResultedScores[gamePlayers.current]}
-          isActive={myTurn}
-          timePerPlayer={game.rules.timePerPlayer}
-          isUser={true}
-        />
-      </View>
+      <UserAvatar
+        name={user.nickName}
+        avatarIndex={user.avatarIndex}
+        score={currentPlayer?.stats?.score ?? 0}
+        roundScore={playersResultedScores[gamePlayers.current]}
+        isActive={myTurn}
+        timePerPlayer={game.rules.timePerPlayer}
+        isUser
+        status={game.playersStats[user.id]?.playerStatus ?? 'active'}
+        kill={playersKilling[user.id]}
+        direction={directions[0]}
+      />
+
       {/* Yaniv/Assaf Overlay */}
       <YanivBubble direction={yanivCall} />
       <AssafBubble direction={assafCall} />
 
+      <BallsOverlay round={game.round} ref={ballEventsRef} />
       <EndGameDialog
         ref={endGameDialogRef}
         handlePlayAgain={handlePlayAgain}
+        handleLeave={handleLeave}
+      />
+      <UserLostDialog
+        ref={userLostDialogRef}
+        handleContinue={() => userLostDialogRef.current?.close()}
         handleLeave={handleLeave}
       />
     </>
@@ -540,22 +610,5 @@ const styles = StyleSheet.create({
   absolute: {position: 'absolute', width: screenWidth},
   avatarHolder: {aspectRatio: 1, width: 80},
 });
-
-const recordStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
-  up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
-  left: {
-    position: 'absolute',
-    left: 10,
-    top: screenHeight / 2 - 20,
-    zIndex: 100,
-  },
-  right: {
-    position: 'absolute',
-    right: 10,
-    top: screenHeight / 2 - 20,
-    zIndex: 100,
-  },
-};
 
 export default GameScreen;

@@ -105,8 +105,8 @@ type YanivGameFields = {
   gameId: string;
   gameResults?: {
     places: PlayerId[];
-    playersStats: Record<PlayerId, PlayerStatus>;
   };
+  humanLost: boolean;
 };
 
 type YanivGameMethods = {
@@ -151,6 +151,7 @@ type YanivGameMethods = {
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
       playersRoundScore: Record<PlayerId, number[]>;
+      losers: PlayerId[];
     }) => void;
     gameEnded: (data: {
       winnerId: string;
@@ -164,6 +165,7 @@ type YanivGameMethods = {
       playerId: string;
       playersStats: Record<PlayerId, PlayerStatus>;
     }) => void;
+    humanLost: () => void;
   };
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
@@ -188,6 +190,7 @@ type RoundResults = {
   roundPlayers: PlayerId[];
   playersStats: Record<PlayerId, PlayerStatus>;
   playersRoundScore: Record<PlayerId, number[]>;
+  losers: PlayerId[];
 };
 
 const initialGameFields: YanivGameFields = {
@@ -220,6 +223,7 @@ const initialGameFields: YanivGameFields = {
     pickupPosition: {x: 0, y: 0},
   },
   gameResults: undefined,
+  humanLost: false,
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -332,6 +336,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         },
         roundResults: undefined,
         gameResults: undefined,
+        humanLost: false,
       }));
 
       setTimeout(() => {
@@ -604,13 +609,8 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       playerHands: {[playerId: string]: Card[]};
       roundPlayers: PlayerId[];
       playersRoundScore: Record<PlayerId, number[]>;
+      losers: PlayerId[];
     }) => {
-      // console.log(
-      //   'Round Ended ,',
-      //   data.playersStats,
-      //   data.roundPlayers,
-      //   data.playersRoundScore,
-      // );
       set(state => {
         return {
           ...state,
@@ -627,6 +627,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             roundPlayers: data.roundPlayers,
             playersStats: data.playersStats,
             playersRoundScore: data.playersRoundScore,
+            losers: data.losers,
           },
         };
       });
@@ -681,6 +682,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
         };
       });
+    },
+    humanLost: () => {
+      set(state => ({...state, humanLost: true}));
     },
   },
   emit: {
