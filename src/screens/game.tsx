@@ -327,19 +327,20 @@ function GameScreen({navigation}: any) {
             [losers[i], losers[j]] = [losers[j], losers[i]];
           }
 
-          ballEventsRef.current?.throwBalls(
-            createBallThrowEvents(remainingPlayers, losers),
-          );
-
           setTimeout(() => {
-            setPlayersKilling(prev => ({
-              ...prev,
-              ...losers.reduce<Record<string, boolean>>((res, loser) => {
-                res[loser] = true;
-                return res;
-              }, {}),
-            }));
-          }, 1000);
+            ballEventsRef.current?.throwBalls(
+              createBallThrowEvents(remainingPlayers, losers),
+            );
+            setTimeout(() => {
+              setPlayersKilling(prev => ({
+                ...prev,
+                ...losers.reduce<Record<string, boolean>>((res, loser) => {
+                  res[loser] = true;
+                  return res;
+                }, {}),
+              }));
+            }, 900);
+          }, LOOK_MOMENT);
         }
 
         return;

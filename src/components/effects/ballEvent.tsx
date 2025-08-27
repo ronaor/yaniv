@@ -45,6 +45,7 @@ const REBOUND_DISTANCE_BASE = screenWidth; // pixels
 const MAX_BOUNCE_ANGLE_DEG = 18; // small deflection
 const ARC_HEIGHT_PX = 60;
 const BALL_SIZE = 50;
+const SMALL_DELAY = 700;
 
 interface BallEventProps {
   event: ThrowBallEvent;
@@ -86,7 +87,7 @@ function BallEvent({event, delayIndex, onComplete}: BallEventProps) {
   const ballOpacity = useSharedValue(1);
   const arcOffset = useSharedValue(0);
 
-  const enterDelay = Math.max(0, delayIndex * 200); // 👈 deterministic delay
+  const enterDelay = SMALL_DELAY + Math.max(0, delayIndex * 200); // 👈 deterministic delay
 
   const cleanup = useCallback(() => {
     onComplete?.();
