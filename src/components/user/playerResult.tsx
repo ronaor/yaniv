@@ -9,16 +9,17 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, {Image} from 'react-native-svg';
 import AvatarImage from './avatarImage';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface PlayerResultRowProps extends PlayerStatus {
   color: string;
   index: number;
 }
 
-const gold = ['#fccd68ff', '#F19E00'];
-const silver = ['#CAAE8E', '#AB9579'];
-const bronze = ['#E17402', '#B84F00'];
-const simple = ['#05ACC4', '#05ACC4'];
+const gold = ['#fccd68ff', '#F19E00', '#fccd684e'];
+const silver = ['#CAAE8E', '#AB9579', '#CAAE8E4e'];
+const bronze = ['#E17402', '#B84F00', '#ea841738'];
+const simple = ['#743200ff', '#672d00ff', '#7432004e'];
 const borderColors = [gold, silver, bronze];
 
 const src = [
@@ -37,14 +38,17 @@ function PlayerResultRow({
 }: PlayerResultRowProps) {
   const avatarColors = borderColors[index] ?? simple;
   return (
-    <View style={[styles.body, {backgroundColor: color}]}>
+    <LinearGradient
+      start={{x: -1, y: 0}}
+      end={{x: 0.35, y: 0.15}}
+      colors={[color, index < 3 ? avatarColors[2] : color, color]}
+      style={styles.body}>
       <Svg width={52} height={52} viewBox="0 0 100 100">
         {index < 3 && <Image width="100" height="100" href={src[index]} />}
       </Svg>
+
       <View style={[styles.avatarWrapper, {borderColor: avatarColors[1]}]}>
-        <View style={[styles.avatarCircle, {borderColor: avatarColors[0]}]}>
-          <AvatarImage size={57} index={avatarIndex} />
-        </View>
+        <AvatarImage size={57} index={avatarIndex} />
       </View>
       <View style={styles.nameWrapper}>
         <View style={styles.row}>
@@ -76,7 +80,7 @@ function PlayerResultRow({
           </Text>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 }
 
