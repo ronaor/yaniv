@@ -244,18 +244,6 @@ function GameScreen({navigation}: any) {
     [gamePlayers.order],
   );
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     ballEventsRef.current?.throwBalls(
-  //       createBallThrowEvents([gamePlayers.order[2]], [gamePlayers.order[0]]),
-  //     );
-  //     setTimeout(() => setPlayersKilling(d), 500);
-  //   }, 1000);
-  //   const key = gamePlayers.order[0];
-  //   const d: Record<string, boolean> = {};
-  //   d[key] = true;
-  // }, [createBallThrowEvents, gamePlayers.order]);
-
   useEffect(() => {
     if (humanLost) {
       userLostDialogRef.current?.open();

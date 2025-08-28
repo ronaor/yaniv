@@ -2,8 +2,16 @@ import PoolBackground from './pool';
 import IslandBackground from './island';
 import BeachBackground from './beach';
 import React, {useMemo} from 'react';
+import CruiseShipDeckBackground from './cruiseShipDeck';
+import BridgeBackground from './bridge';
 
-const backgrounds = [BeachBackground, IslandBackground, PoolBackground];
+const backgrounds = [
+  BeachBackground,
+  IslandBackground,
+  PoolBackground,
+  BridgeBackground,
+  CruiseShipDeckBackground,
+];
 const POTENTIAL_BGS = 50;
 const FIVE_MINUTES = 5 * 60 * 1000;
 
