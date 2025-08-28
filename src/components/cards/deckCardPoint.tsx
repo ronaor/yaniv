@@ -1,4 +1,3 @@
-import {StyleSheet, View, ViewStyle} from 'react-native';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
@@ -13,15 +12,6 @@ import PickupPointer from './pickupPoint';
 // 2. animate them when a new state come's up
 //    2.1. animate the cards that are moved to trash
 //    2.2. remove the card that is picked
-
-const cardsShifterStyle = (cardsLen: number): ViewStyle => ({
-  flexDirection: 'row',
-  transform: [
-    {
-      translateX: -((cardsLen - 1) * CARD_WIDTH) / 2,
-    },
-  ],
-});
 
 const findInsertionIndex = (oldCards: Card[], newCards: Card[]): number => {
   const oldCardsKeys = oldCards.map(getCardKey);
@@ -65,10 +55,12 @@ const DeckCardPointers = ({
     layer1: CardConfig[];
     layer2: CardConfig[];
     layer3: CardConfig[];
+    lastLength: number;
   }>({
     layer1: [],
     layer2: [],
     layer3: [],
+    lastLength: 0,
   });
 
   // find first index in cards that is not exists in newCards.current:
@@ -83,6 +75,7 @@ const DeckCardPointers = ({
       layer1: [],
       layer2: [],
       layer3: [],
+      lastLength: 0,
     });
     return () => {
       newCards.current = [];
@@ -108,6 +101,7 @@ const DeckCardPointers = ({
             layer3: [...prev.layer2],
             layer2: [...prev.layer1],
             layer1: newLayer,
+            lastLength: removedCards.length,
           }));
         }
       }
@@ -117,38 +111,30 @@ const DeckCardPointers = ({
 
   return (
     <>
-      <View
-        style={cardsShifterStyle(layerHistory.layer3.length)}
-        pointerEvents="none">
-        {layerHistory.layer3.map(card => (
-          <DiscardedPointer
-            card={card}
-            throwTarget={{
-              x: ((layerHistory.layer3.length - 1) * CARD_WIDTH) / 2,
-              y: 2 * CARD_WIDTH,
-              deg: card.deg,
-            }}
-            key={getCardKey(card)}
-            opacity={{from: 0.4, to: 0.15}}
-          />
-        ))}
-      </View>
-      <View
-        style={cardsShifterStyle(layerHistory.layer2.length)}
-        pointerEvents="none">
-        {layerHistory.layer2.map(card => (
-          <DiscardedPointer
-            card={card}
-            throwTarget={{
-              x: ((layerHistory.layer2.length - 1) * CARD_WIDTH) / 2,
-              y: 2 * CARD_WIDTH,
-              deg: card.deg,
-            }}
-            key={getCardKey(card)}
-            opacity={{from: 0.7, to: 0.4}}
-          />
-        ))}
-      </View>
+      {layerHistory.layer3.map(card => (
+        <DiscardedPointer
+          card={card}
+          throwTarget={{
+            x: 0,
+            y: 2 * CARD_WIDTH,
+            deg: card.deg,
+          }}
+          key={getCardKey(card)}
+          opacity={{from: 0.4, to: 0.15}}
+        />
+      ))}
+      {layerHistory.layer2.map(card => (
+        <DiscardedPointer
+          card={card}
+          throwTarget={{
+            x: 0,
+            y: 2 * CARD_WIDTH,
+            deg: card.deg,
+          }}
+          key={getCardKey(card)}
+          opacity={{from: 0.7, to: 0.4}}
+        />
+      ))}
       {layerHistory.layer1.map(card => (
         <DiscardPointer
           card={card}
@@ -160,34 +146,23 @@ const DeckCardPointers = ({
           }}
           key={getCardKey(card)}
           opacity={0.7}
-          totalCards={layerHistory.layer1.length}
+          totalCards={layerHistory.lastLength}
         />
       ))}
-      <View>
-        {cards.map((card, index) => (
-          <PickupPointer
-            disabled={disabled || !isCanPickupCard(cards.length, index)}
-            onPress={() => onPickUp(index)}
-            index={index}
-            card={card}
-            fromTarget={fromTargets?.[index - insertionIndex] ?? undefined}
-            key={getCardKey(card)}
-            isHidden={!wasPlayer}
-            totalCards={cards.length}
-          />
-        ))}
-      </View>
-      <View style={styles.discard} />
+      {cards.map((card, index) => (
+        <PickupPointer
+          disabled={disabled || !isCanPickupCard(cards.length, index)}
+          onPress={() => onPickUp(index)}
+          index={index}
+          card={card}
+          fromTarget={fromTargets?.[index - insertionIndex] ?? undefined}
+          key={getCardKey(card)}
+          isHidden={!wasPlayer}
+          totalCards={cards.length}
+        />
+      ))}
     </>
   );
 };
 
 export default DeckCardPointers;
-
-const styles = StyleSheet.create({
-  discard: {
-    width: CARD_WIDTH,
-    height: 70,
-    top: CARD_WIDTH * 2,
-  },
-});

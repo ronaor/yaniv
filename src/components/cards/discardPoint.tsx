@@ -9,7 +9,6 @@ import {CardComponent} from './cardVisual';
 import React, {useEffect, useRef} from 'react';
 import {Card, Position} from '~/types/cards';
 import {CARD_WIDTH, MOVE_DURATION, SMALL_DELAY} from '~/utils/constants';
-import {StyleSheet} from 'react-native';
 
 interface DiscardedPointerProps {
   card: Card;
@@ -22,14 +21,14 @@ export const DiscardedPointer = ({
   throwTarget,
   opacity,
 }: DiscardedPointerProps) => {
-  const pointerStyle = {
-    transform: [{translateX: throwTarget.x}],
-  };
-
   const cardOpacity = useSharedValue<number>(opacity.from);
-
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{translateY: throwTarget.y}, {rotate: `${throwTarget.deg}deg`}],
+    position: 'absolute',
+    transform: [
+      {translateX: throwTarget.x},
+      {translateY: throwTarget.y},
+      {rotate: `${throwTarget.deg}deg`},
+    ],
     opacity: cardOpacity.value,
   }));
 
@@ -38,10 +37,8 @@ export const DiscardedPointer = ({
   }, [cardOpacity, opacity.to]);
 
   return (
-    <Animated.View style={[styles.pointers, pointerStyle]}>
-      <Animated.View style={animatedStyle}>
-        <CardComponent card={card} />
-      </Animated.View>
+    <Animated.View style={animatedStyle}>
+      <CardComponent card={card} />
     </Animated.View>
   );
 };
@@ -61,10 +58,7 @@ export const DiscardPointer = ({
   opacity,
   totalCards,
 }: DiscardPointerProps) => {
-  const totalWidth = (totalCards - 1) * CARD_WIDTH;
-  const startX = -totalWidth / 2;
-  const targetX = startX + index * CARD_WIDTH;
-
+  const fromX = index * CARD_WIDTH - (CARD_WIDTH / 2) * (totalCards - 1);
   const lastCard = useRef<Card | undefined>(undefined);
   const progress = useSharedValue<number>(0);
   const destPos = useSharedValue<Position>(throwTarget);
@@ -73,7 +67,7 @@ export const DiscardPointer = ({
     const currentX = interpolate(
       progress.value,
       [0, 1],
-      [targetX, destPos.value.x],
+      [fromX, destPos.value.x],
     );
     const currentY = interpolate(progress.value, [0, 1], [0, destPos.value.y]);
     const currentDeg = interpolate(
@@ -115,9 +109,3 @@ export const DiscardPointer = ({
     </Animated.View>
   );
 };
-
-const styles = StyleSheet.create({
-  pointers: {
-    position: 'absolute',
-  },
-});
