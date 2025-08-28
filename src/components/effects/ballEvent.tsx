@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {Dimensions, StyleSheet, ViewStyle} from 'react-native';
 import Animated, {
   useSharedValue,
@@ -7,10 +7,10 @@ import Animated, {
   withSpring,
   withSequence,
   Easing,
-  runOnJS,
   withDelay,
 } from 'react-native-reanimated';
 import Svg, {Image} from 'react-native-svg';
+import useSound from '~/hooks/useSound';
 import {DirectionName} from '~/types/cards';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -49,8 +49,7 @@ const SMALL_DELAY = 700;
 
 interface BallEventProps {
   event: ThrowBallEvent;
-  delayIndex: number; // 👈 new: delay multiplier
-  onComplete?: () => void;
+  delayIndex: number;
 }
 
 const getPositionFromDirection = (
@@ -75,7 +74,7 @@ const getPositionFromDirection = (
   return {x, y};
 };
 
-function BallEvent({event, delayIndex, onComplete}: BallEventProps) {
+function BallEvent({event, delayIndex}: BallEventProps) {
   const fromPos = getPositionFromDirection(event.from);
   const toPos = getPositionFromDirection(event.to);
 
@@ -86,17 +85,21 @@ function BallEvent({event, delayIndex, onComplete}: BallEventProps) {
   const ballRotation = useSharedValue(0);
   const ballOpacity = useSharedValue(1);
   const arcOffset = useSharedValue(0);
+  const called = useRef<boolean>(false);
 
   const enterDelay = SMALL_DELAY + Math.max(0, delayIndex * 200); // 👈 deterministic delay
 
-  const cleanup = useCallback(() => {
-    onComplete?.();
-  }, [onComplete]);
+  const {playSound} = useSound('ball_hit.wav');
 
   useEffect(() => {
+    if (called.current) {
+      return;
+    }
+    called.current = true;
     // 1) Spawn pop-in
     ballScale.value = withSpring(1, {damping: 12, stiffness: 300});
 
+    setTimeout(playSound, enterDelay - SMALL_DELAY);
     // 2) Spin through throw + bounce (starts with the throw)
     ballRotation.value = withDelay(
       enterDelay,
@@ -188,11 +191,10 @@ function BallEvent({event, delayIndex, onComplete}: BallEventProps) {
             duration: moveDur,
             easing: Easing.out(Easing.quad),
           });
-          ballY.value = withTiming(
-            bounceY,
-            {duration: moveDur, easing: Easing.out(Easing.quad)},
-            end => end && runOnJS(cleanup)(),
-          );
+          ballY.value = withTiming(bounceY, {
+            duration: moveDur,
+            easing: Easing.out(Easing.quad),
+          });
         },
       ),
     );
@@ -203,12 +205,12 @@ function BallEvent({event, delayIndex, onComplete}: BallEventProps) {
     ballX,
     ballY,
     arcOffset,
-    cleanup,
     fromPos.x,
     fromPos.y,
     toPos.x,
     toPos.y,
     enterDelay,
+    playSound,
   ]);
 
   const ballStyle = useAnimatedStyle(() => ({
