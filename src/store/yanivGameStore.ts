@@ -375,11 +375,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           .map(i => playerPositions[i])
           .filter(Boolean)
           .map(pos => ({
-            x:
-              pos.x -
-              screenWidth / 2 +
-              CARD_WIDTH / 2 +
-              (CARD_WIDTH * (data.selectedCardsPositions.length - 1)) / 2,
+            x: pos.x - screenWidth / 2 + CARD_WIDTH / 2,
             y:
               pos.y -
               screenHeight / 2 +
@@ -447,12 +443,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         if (playerIndex > -1) {
           if (socketId === data.playerId) {
             updatedCardPositions[data.playerId] = calculateCardsPositions(
-              data.amountBefore,
+              data.hands.length,
               directions[playerIndex],
             );
           } else {
             updatedCardPositions[data.playerId] = calculateHiddenCardsPositions(
-              data.amountBefore,
+              data.hands.length,
               directions[playerIndex],
             );
           }
