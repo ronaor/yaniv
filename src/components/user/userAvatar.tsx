@@ -134,7 +134,7 @@ function UserAvatar({
   const scoreMergingAnimation = useCallback(
     (
       addedScore: number,
-      from: Location & {scale: number} = {x: -30, y: 0, scale: 1},
+      from: Location & {scale: number} = {x: -35, y: 0, scale: 1},
     ) => {
       // Reset position
       roundScoreScale.value = 0;
@@ -200,8 +200,8 @@ function UserAvatar({
 
     if (isUser) {
       scoreMergingAnimation(roundScore[0], {
-        x: screenWidth / 2 - 50,
-        y: -39,
+        x: screenWidth / 2 - 70,
+        y: -43,
         scale: 1.48,
       });
     } else {
@@ -356,7 +356,14 @@ function UserAvatar({
 
         <View>
           <View style={styles.gradientWrap}>
-            <Text style={styles.name}>{name}</Text>
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.name,
+                {fontSize: normalize(name.length > 5 ? 11 : 13)},
+              ]}>
+              {name}
+            </Text>
           </View>
           <View>
             <Animated.View style={[styles.gradientScore, scoreStyle]}>
@@ -418,6 +425,9 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
+    aspectRatio: 1,
+    width: CIRCLE_SIZE * 1.5,
+    top: 0,
   },
   name: {
     fontSize: normalize(13),
