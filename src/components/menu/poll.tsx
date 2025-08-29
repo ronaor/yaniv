@@ -11,7 +11,7 @@ import {normalize} from '~/utils/ui';
 
 interface PollProps {
   activeChoices: {
-    name: string;
+    id: string;
     choice: any;
   }[];
   choices: any[];
@@ -66,7 +66,7 @@ const AnimatedVoteBar = ({vote, containerWidth}: AnimatedVoteBarProps) => {
 
 interface PollProps {
   activeChoices: {
-    name: string;
+    id: string;
     choice: any;
   }[];
   choices: any[];
@@ -90,7 +90,7 @@ function Poll({activeChoices, choices}: PollProps) {
       (acc, playerChoice) => {
         const choiceKey = String(playerChoice.choice);
         acc[choiceKey] = acc[choiceKey] || [];
-        acc[choiceKey].push(playerChoice.name);
+        acc[choiceKey].push(playerChoice.id);
         return acc;
       },
       {},
@@ -109,10 +109,10 @@ function Poll({activeChoices, choices}: PollProps) {
         percentage:
           totalVotes > 0 ? Math.round((users.length / totalVotes) * 100) : 0,
         users,
-        isUserChoice: users.includes(user.nickName),
+        isUserChoice: users.includes(user.id),
       };
     });
-  }, [activeChoices, choices, user.nickName]);
+  }, [activeChoices, choices, user.id]);
 
   return (
     <View style={styles.container} onLayout={handleLayout}>

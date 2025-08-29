@@ -7,7 +7,7 @@ import {normalize} from '~/utils/ui';
 interface MenuButtonProps {
   children?: ReactNode;
   text: string;
-  activeChoices?: {name: string; choice: any}[];
+  activeChoices?: {id: string; choice: any}[];
   choices: any[];
 }
 

@@ -76,13 +76,13 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
     }
 
     return Object.entries(votes).reduce<{
-      slapDown: {name: string; choice: boolean}[];
-      canCallYaniv: {name: string; choice: number}[];
-      maxMatchPoints: {name: string; choice: number}[];
-    }>((res, [name, value]) => {
-      res.slapDown.push({name, choice: value.slapDown});
-      res.canCallYaniv.push({name, choice: value.canCallYaniv});
-      res.maxMatchPoints.push({name, choice: value.maxMatchPoints});
+      slapDown: {id: string; choice: boolean}[];
+      canCallYaniv: {id: string; choice: number}[];
+      maxMatchPoints: {id: string; choice: number}[];
+    }>((res, [id, value]) => {
+      res.slapDown.push({id, choice: value.slapDown});
+      res.canCallYaniv.push({id, choice: value.canCallYaniv});
+      res.maxMatchPoints.push({id, choice: value.maxMatchPoints});
       return res;
     }, initialValues);
   }, [votes]);

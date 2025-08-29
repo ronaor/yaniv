@@ -157,7 +157,7 @@ export const useRoomStore = create<RoomStore>(((set: any, get: any) => {
       set((state: RoomState) => ({
         ...state,
         roomId,
-        votes: votes,
+        votes,
       }));
     },
 
