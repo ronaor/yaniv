@@ -14,6 +14,8 @@ import Animated, {
   cancelAnimation,
 } from 'react-native-reanimated';
 import CardBack from '~/components/cards/cardBack';
+import useSound from '~/hooks/useSound';
+import {SHUFFLE_CARDS_SOUND} from '~/sounds';
 import {CARD_WIDTH, SMALL_DELAY} from '~/utils/constants';
 
 interface CardShuffleProps {
@@ -121,6 +123,8 @@ const CardShuffle = ({
 }: CardShuffleProps) => {
   const spread = useSharedValue(startShuffle ? 1 : 0);
 
+  const {playSound} = useSound(SHUFFLE_CARDS_SOUND);
+
   // derive rotation on UI thread (no per-frame JS)
   const containerRotation = useDerivedValue(() =>
     interpolate(spread.value, [0, 1], [0, 45]),
@@ -150,7 +154,7 @@ const CardShuffle = ({
     if (!startAnimation) {
       return;
     }
-
+    playSound();
     // 1) open (spread: 0 -> 1)
     spread.value = withTiming(1, {duration: MOVE_DUR}, finished => {
       'worklet';
@@ -206,6 +210,7 @@ const CardShuffle = ({
     c1TranslateY,
     c2TranslateX,
     c2TranslateY,
+    playSound,
   ]);
 
   const shuffleContainerStyle = useAnimatedStyle(() => ({

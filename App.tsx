@@ -12,6 +12,7 @@ import QuickGameLobby from '~/screens/quickGameLobby';
 import {useRoomStore} from '~/store/roomStore';
 import {RootStackParamList} from '~/types/navigation';
 import useSocketIO from '~/useSocketIO';
+import '~/sounds';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

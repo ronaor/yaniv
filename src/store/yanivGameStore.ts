@@ -26,6 +26,8 @@ import {
 } from '~/utils/logic';
 import {useRoomStore} from './roomStore';
 import {useSocket} from './socketStore';
+import {useSoundStore} from '~/hooks/useSound';
+import {MOVE_CARD_SOUND} from '~/sounds';
 
 //region Server Types
 interface PublicGameState {
@@ -365,6 +367,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       currentPlayerId: PlayerId;
     }) => {
       const socketId = useSocket.getState().getSocketId();
+
+      if (useSoundStore.getState().isSoundEnabled) {
+        MOVE_CARD_SOUND.play();
+      }
 
       set(state => {
         // Calculate discard positions from selected cards

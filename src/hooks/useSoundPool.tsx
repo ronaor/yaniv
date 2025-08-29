@@ -1,10 +1,15 @@
 import {useCallback, useRef} from 'react';
 import Sound from 'react-native-sound';
+import {useSoundStore} from './useSound';
 
 const useSoundPool = (soundPool: Sound[]) => {
   const playIndex = useRef(0);
+  const isSoundEnabled = useSoundStore(state => state.isSoundEnabled);
 
   const playSound = useCallback(() => {
+    if (!isSoundEnabled) {
+      return;
+    }
     const sound = soundPool[playIndex.current];
 
     // Cycle to next sound in pool
@@ -15,7 +20,7 @@ const useSoundPool = (soundPool: Sound[]) => {
         console.error('Sound playback failed');
       }
     });
-  }, [soundPool]);
+  }, [isSoundEnabled, soundPool]);
 
   return {playSound};
 };

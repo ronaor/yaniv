@@ -13,7 +13,10 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		61ADAE202E61BA3000A7C63B /* move.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE1F2E61BA3000A7C63B /* move.wav */; };
 		61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933C2E60E2E300F8FE61 /* ball_hit.wav */; };
+		61FD93412E618C5100F8FE61 /* spread.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD93402E618C5100F8FE61 /* spread.wav */; };
+		61FD93422E618C5100F8FE61 /* shuffle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933F2E618C5100F8FE61 /* shuffle.wav */; };
 		7699B88040F8A987B510C191 /* libPods-Yaniv-YanivTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-Yaniv-YanivTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
@@ -43,7 +46,10 @@
 		5709B34CF0A7D63546082F79 /* Pods-Yaniv.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv.release.xcconfig"; path = "Target Support Files/Pods-Yaniv/Pods-Yaniv.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-Yaniv-YanivTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv-YanivTests.debug.xcconfig"; path = "Target Support Files/Pods-Yaniv-YanivTests/Pods-Yaniv-YanivTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-Yaniv.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaniv.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		61ADAE1F2E61BA3000A7C63B /* move.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = move.wav; sourceTree = "<group>"; };
 		61FD933C2E60E2E300F8FE61 /* ball_hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ball_hit.wav; sourceTree = "<group>"; };
+		61FD933F2E618C5100F8FE61 /* shuffle.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shuffle.wav; sourceTree = "<group>"; };
+		61FD93402E618C5100F8FE61 /* spread.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = spread.wav; sourceTree = "<group>"; };
 		7E26780E31554FFABC6AD513 /* LuckiestGuy-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "LuckiestGuy-Regular.ttf"; path = "../src/assets/fonts/LuckiestGuy-Regular.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Yaniv/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-Yaniv-YanivTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv-YanivTests.release.xcconfig"; path = "Target Support Files/Pods-Yaniv-YanivTests/Pods-Yaniv-YanivTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -90,6 +96,9 @@
 		13B07FAE1A68108700A75B9A /* Yaniv */ = {
 			isa = PBXGroup;
 			children = (
+				61ADAE1F2E61BA3000A7C63B /* move.wav */,
+				61FD933F2E618C5100F8FE61 /* shuffle.wav */,
+				61FD93402E618C5100F8FE61 /* spread.wav */,
 				61FD933C2E60E2E300F8FE61 /* ball_hit.wav */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -260,7 +269,10 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				0223D2CF20CD4C728A454F1B /* LuckiestGuy-Regular.ttf in Resources */,
+				61ADAE202E61BA3000A7C63B /* move.wav in Resources */,
 				61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */,
+				61FD93412E618C5100F8FE61 /* spread.wav in Resources */,
+				61FD93422E618C5100F8FE61 /* shuffle.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -37,7 +37,6 @@ import EndGameDialog, {
 } from '~/components/dialogs/endGameDialog';
 import RandomBackground from '~/backgrounds/randomBGPicker';
 import BallsOverlay, {BallsOverlayRef} from '~/components/effects/ballsOverlay';
-import {ThrowBallEvent} from '~/components/effects/ballEvent';
 import UserLostDialog, {
   UserLostDialogRef,
 } from '~/components/dialogs/userLostDialog';
@@ -233,71 +232,6 @@ function GameScreen({navigation}: any) {
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
-  const createBallThrowEvents = useCallback(
-    (remaining: PlayerId[], losers: PlayerId[]): ThrowBallEvent[] => {
-      if (losers.length === 0) {
-        return [];
-      }
-
-      // Case 1: No remaining players (all are losers)
-      if (remaining.length === 0) {
-        // Some losers become throwers - pick roughly half, minimum 1
-        const shuffledLosers = [...losers].sort(() => Math.random() - 0.5);
-        const throwerCount = Math.max(1, Math.floor(losers.length / 2));
-        const throwers = shuffledLosers.slice(0, throwerCount);
-
-        const events: ThrowBallEvent[] = [];
-
-        // Each loser gets a ball thrown at them (except if they're the only one)
-        if (losers.length === 1) {
-          // Edge case: only one loser, no one to throw at them
-          return [];
-        }
-
-        let throwerIndex = 0;
-        for (const target of losers) {
-          // Find a thrower who isn't the target
-          let selectedThrower = throwers[throwerIndex % throwers.length];
-
-          // If selected thrower is the target and we have multiple throwers, pick different one
-          if (selectedThrower === target && throwers.length > 1) {
-            selectedThrower = throwers.find(t => t !== target) || throwers[0];
-          }
-
-          // Skip self-throws (shouldn't happen with proper logic above)
-          if (selectedThrower === target) {
-            continue;
-          }
-
-          events.push({
-            from: directions[gamePlayers.order.indexOf(selectedThrower)],
-            to: directions[gamePlayers.order.indexOf(target)],
-          });
-
-          throwerIndex++;
-        }
-
-        return events;
-      }
-
-      // Case 2: Normal case - remaining players throw at losers
-      // If more losers than remaining, distribute evenly
-      const events: ThrowBallEvent[] = [];
-
-      let remainingIndex = 0;
-      for (const target of losers) {
-        const shooter = remaining[remainingIndex % remaining.length];
-        events.push({
-          from: directions[gamePlayers.order.indexOf(shooter)],
-          to: directions[gamePlayers.order.indexOf(target)],
-        });
-        remainingIndex++;
-      }
-      return events;
-    },
-    [gamePlayers.order],
-  );
-
   useEffect(() => {
     if (humanLost) {
       userLostDialogRef.current?.open();
@@ -416,7 +350,7 @@ function GameScreen({navigation}: any) {
       timeoutsRef.current.forEach(clearTimeout);
       timeoutsRef.current = [];
     };
-  }, [roundResults, game.phase, gamePlayers.order, createBallThrowEvents]);
+  }, [roundResults, game.phase, gamePlayers.order]);
 
   return (
     <>

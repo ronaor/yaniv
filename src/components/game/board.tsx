@@ -12,6 +12,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import {SPREAD_CARDS_SOUND} from '~/sounds';
+import useSound from '~/hooks/useSound';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -66,6 +68,8 @@ function GameBoard({
   const [pickupReady, setPickupReady] = useState<boolean>(false);
   const [deckReady, setDeckReady] = useState<boolean>(false);
 
+  const {playSound} = useSound(SPREAD_CARDS_SOUND);
+
   useEffect(() => {
     setPickupReady(false);
     setDeckReady(false);
@@ -78,7 +82,8 @@ function GameBoard({
 
   const onFinishShuffled = useCallback(() => {
     onReady?.(round);
-  }, [onReady, round]);
+    playSound();
+  }, [onReady, playSound, round]);
 
   const onFinishSpread = useCallback(() => {
     setPickupReady(true);

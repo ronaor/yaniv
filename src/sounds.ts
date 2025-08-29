@@ -23,4 +23,13 @@ const createSoundPool = (soundFile: string, poolSize: number = 4): Sound[] => {
 
 const HIT_BALL_SOUND_POOL = createSoundPool('ball_hit.wav');
 
-export {HIT_BALL_SOUND_POOL};
+const MOVE_CARD_SOUND = createSound('move.wav');
+const SHUFFLE_CARDS_SOUND = createSound('shuffle.wav');
+const SPREAD_CARDS_SOUND = createSound('spread.wav');
+
+export {
+  HIT_BALL_SOUND_POOL,
+  MOVE_CARD_SOUND,
+  SHUFFLE_CARDS_SOUND,
+  SPREAD_CARDS_SOUND,
+};
