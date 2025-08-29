@@ -7,12 +7,12 @@ import {isNull} from 'lodash';
 
 const dimension = Dimensions.get('screen');
 
-interface TempleTableBackgroundProp {
+interface SpaBackgroundProp {
   setReady?: () => void;
 }
 
-const TempleTableBackground = ({setReady}: TempleTableBackgroundProp) => {
-  const image = useImage(require('~/assets/images/templePocker2.png'));
+const SpaBackground = ({setReady}: SpaBackgroundProp) => {
+  const image = useImage(require('~/assets/images/spa.png'));
 
   useEffect(() => {
     if (!isNull(image)) {
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TempleTableBackground;
+export default SpaBackground;

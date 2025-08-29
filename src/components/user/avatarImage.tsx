@@ -2,13 +2,14 @@ import React from 'react';
 import {View, Image, StyleSheet} from 'react-native';
 
 interface AvatarImageProps {
-  index: number; // 0-48 for 7x7 grid
+  index: number; // 0-55 for 7x8 grid
   size: number; // desired output size
 }
 
 const AvatarImage: React.FC<AvatarImageProps> = ({index, size}) => {
   // Grid configuration
   const COLS = 7;
+  const ROWS = 8;
   const FRAME_SIZE = 125;
   const GRID_OFFSET = 1;
   const CROP_INSET = 2; // Small inset to avoid grid lines
@@ -28,8 +29,9 @@ const AvatarImage: React.FC<AvatarImageProps> = ({index, size}) => {
   // Effective frame size after inset
   const effectiveFrameSize = FRAME_SIZE - CROP_INSET * 2;
 
-  // Total grid size
-  const totalGridSize = COLS * FRAME_SIZE + (COLS - 1) * GRID_OFFSET; // 881px
+  // Total grid sizes
+  const totalGridWidth = COLS * FRAME_SIZE + (COLS - 1) * GRID_OFFSET; // 881px
+  const totalGridHeight = ROWS * FRAME_SIZE + (ROWS - 1) * GRID_OFFSET; // 1007px
   const scale = size / effectiveFrameSize; // Scale based on effective frame size
 
   return (
@@ -43,12 +45,12 @@ const AvatarImage: React.FC<AvatarImageProps> = ({index, size}) => {
         },
       ]}>
       <Image
-        source={require('~/assets/images/avatars_2.png')}
+        source={require('~/assets/images/avatars_0.png')}
         style={[
           styles.gridImage,
           {
-            width: totalGridSize * scale,
-            height: totalGridSize * scale,
+            width: totalGridWidth * scale,
+            height: totalGridHeight * scale,
             left: offsetX * scale,
             top: offsetY * scale,
           },

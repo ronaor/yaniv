@@ -10,7 +10,7 @@ interface AvatarPickerProps {
 // Constants for avatar grid configuration
 const AVATAR_CONFIG = {
   SIZE: 64,
-  TOTAL_COUNT: 49, // 7x7 grid
+  TOTAL_COUNT: 56, // 7x7 grid
   PER_ROW: 3,
   BORDER_WIDTH: 3,
   BORDER_RADIUS: 36,

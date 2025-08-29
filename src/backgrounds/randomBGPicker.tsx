@@ -5,6 +5,7 @@ import React, {useMemo} from 'react';
 import CruiseShipDeckBackground from './cruiseShipDeck';
 import BridgeBackground from './bridge';
 import TempleTableBackground from './templeTable';
+import SpaBackground from './spa';
 
 const backgrounds = [
   BeachBackground,
@@ -13,6 +14,7 @@ const backgrounds = [
   BridgeBackground,
   CruiseShipDeckBackground,
   TempleTableBackground,
+  SpaBackground,
 ];
 const POTENTIAL_BGS = 50;
 const FIVE_MINUTES = 5 * 60 * 1000;
