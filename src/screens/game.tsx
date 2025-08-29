@@ -42,7 +42,6 @@ import UserLostDialog, {
   UserLostDialogRef,
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
-import TempleTableBackground from '~/backgrounds/templeTable';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -426,7 +425,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <TempleTableBackground />
+      <RandomBackground />
 
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>
