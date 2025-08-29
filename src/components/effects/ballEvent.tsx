@@ -10,7 +10,6 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 import Svg, {Image} from 'react-native-svg';
-import useSound from '~/hooks/useSound';
 import {DirectionName} from '~/types/cards';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -50,6 +49,7 @@ const SMALL_DELAY = 700;
 interface BallEventProps {
   event: ThrowBallEvent;
   delayIndex: number;
+  playSound: () => void;
 }
 
 const getPositionFromDirection = (
@@ -74,7 +74,7 @@ const getPositionFromDirection = (
   return {x, y};
 };
 
-function BallEvent({event, delayIndex}: BallEventProps) {
+function BallEvent({event, delayIndex, playSound}: BallEventProps) {
   const fromPos = getPositionFromDirection(event.from);
   const toPos = getPositionFromDirection(event.to);
 
@@ -89,8 +89,6 @@ function BallEvent({event, delayIndex}: BallEventProps) {
 
   const enterDelay = SMALL_DELAY + Math.max(0, delayIndex * 200); // 👈 deterministic delay
 
-  const {playSound} = useSound('ball_hit.wav');
-
   useEffect(() => {
     if (called.current) {
       return;
@@ -99,7 +97,7 @@ function BallEvent({event, delayIndex}: BallEventProps) {
     // 1) Spawn pop-in
     ballScale.value = withSpring(1, {damping: 12, stiffness: 300});
 
-    setTimeout(playSound, enterDelay - SMALL_DELAY);
+    setTimeout(playSound, enterDelay);
     // 2) Spin through throw + bounce (starts with the throw)
     ballRotation.value = withDelay(
       enterDelay,

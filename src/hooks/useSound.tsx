@@ -32,7 +32,7 @@ AsyncStorage.getItem(STORAGE_KEY).then(value => {
   }
 });
 
-const useSound = (soundFile: string) => {
+const useSound = (sound: Sound) => {
   const isSoundEnabled = useSoundStore(state => state.isSoundEnabled);
 
   const playSound = () => {
@@ -40,20 +40,10 @@ const useSound = (soundFile: string) => {
       return;
     }
 
-    // Create new sound each time - simple and works
-    const sound = new Sound(soundFile, Sound.MAIN_BUNDLE, error => {
-      if (error) {
-        console.error('Failed to load sound', error, soundFile);
-        return;
+    sound.play(success => {
+      if (!success) {
+        console.error('Sound playback failed');
       }
-
-      sound.play(success => {
-        if (!success) {
-          console.error('Sound playback failed', soundFile);
-        }
-        // Clean up after playing
-        sound.release();
-      });
     });
   };
 

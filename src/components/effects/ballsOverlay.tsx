@@ -6,6 +6,8 @@ import React, {
 } from 'react';
 import {StyleSheet, View} from 'react-native';
 import BallEvent, {ThrowBallEvent} from './ballEvent';
+import useSoundPool from '~/hooks/useSoundPool';
+import {HIT_BALL_SOUND_POOL} from '~/sounds';
 
 export interface BallsOverlayRef {
   throwBalls: (events: ThrowBallEvent[]) => void;
@@ -20,6 +22,8 @@ const BallsOverlay = forwardRef<BallsOverlayRef, BallsOverlayProps>(
     const {round} = props;
 
     const [ballEvents, setBallEvents] = useState<ThrowBallEvent[]>([]);
+
+    const {playSound} = useSoundPool(HIT_BALL_SOUND_POOL);
 
     useEffect(() => {
       setBallEvents([]);
@@ -38,6 +42,7 @@ const BallsOverlay = forwardRef<BallsOverlayRef, BallsOverlayProps>(
             key={`${event.from}-${event.to}`}
             event={event}
             delayIndex={index}
+            playSound={playSound}
           />
         ))}
       </View>
