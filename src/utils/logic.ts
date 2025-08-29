@@ -142,3 +142,47 @@ export const generateUUID = () => {
     return v.toString(16);
   });
 };
+
+type TargetEvent = {shooter: string; target: string};
+export const ballThrownEvent = (
+  remaining: string[],
+  losers: string[],
+): TargetEvent[] => {
+  if (losers.length === 0) {
+    return [];
+  }
+
+  let actualThrowers = remaining;
+
+  // Case: No remaining players (all are losers)
+  if (remaining.length === 0) {
+    if (losers.length === 1) {
+      // Edge case: only one loser, no one to throw at them
+      return [];
+    }
+
+    // Some losers become throwers - pick roughly half, minimum 1
+    const shuffledLosers = [...losers].sort(() => Math.random() - 0.5);
+    const throwerCount = Math.max(1, Math.floor(losers.length / 2));
+    actualThrowers = shuffledLosers.slice(0, throwerCount);
+  }
+
+  // PRESERVE ORIGINAL BEHAVIOR: Each thrower throws at each loser
+  const events: TargetEvent[] = [];
+
+  for (const shooter of actualThrowers) {
+    for (const target of losers) {
+      // Skip self-throws when losers are acting as throwers
+      if (shooter === target) {
+        continue;
+      }
+
+      events.push({
+        shooter,
+        target,
+      });
+    }
+  }
+
+  return events;
+};
