@@ -66,10 +66,6 @@ export default function CreateRoomDialog({
   );
 
   const handleCreateRoom = () => {
-    console.log(
-      'GAME_CONFIG.DIFFICULTY[config.difficulty] ',
-      GAME_CONFIG.DIFFICULTY[config.difficulty],
-    );
     onCreateRoom({
       slapDown: config.slapDown,
       canCallYaniv: +GAME_CONFIG.CALL_YANIV_OPTIONS[config.callYanivAt],

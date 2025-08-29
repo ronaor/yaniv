@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  Pressable,
 } from 'react-native';
 import {useUser} from '~/store/userStore';
 import Dialog from '~/components/dialog';
@@ -170,19 +171,24 @@ const EditProfileDialog: React.FC = () => {
       </View>
       {/* Avatar Picker */}
       {showAvatarPicker && (
-        <Animated.View
-          entering={FadeInUp}
-          exiting={FadeOutUp}
-          layout={LinearTransition}
-          style={styles.avatarPickerContainer}>
-          <AvatarPicker
-            selectedIndex={selectedAvatarIndex}
-            onSelectAvatar={index => {
-              setSelectedAvatarIndex(index);
-              setShowAvatarPicker(false); // Auto-close after selection
-            }}
-          />
-        </Animated.View>
+        <Pressable
+          disabled={!showAvatarPicker}
+          style={[StyleSheet.absoluteFill, styles.overlay]}
+          onPress={() => setShowAvatarPicker(false)}>
+          <Animated.View
+            entering={FadeInUp}
+            exiting={FadeOutUp}
+            layout={LinearTransition}
+            style={styles.avatarPickerContainer}>
+            <AvatarPicker
+              selectedIndex={selectedAvatarIndex}
+              onSelectAvatar={index => {
+                setSelectedAvatarIndex(index);
+                setShowAvatarPicker(false); // Auto-close after selection
+              }}
+            />
+          </Animated.View>
+        </Pressable>
       )}
     </Dialog>
   );
@@ -291,6 +297,7 @@ const styles = StyleSheet.create({
     color: '#642a00',
     textAlign: 'center',
   },
+  overlay: {zIndex: 200},
 });
 
 export default EditProfileDialog;
