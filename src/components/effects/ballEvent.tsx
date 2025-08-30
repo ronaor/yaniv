@@ -94,8 +94,22 @@ function BallEvent({event, delayIndex, playSound}: BallEventProps) {
       return;
     }
     called.current = true;
-    // 1) Spawn pop-in
+
+    // Approach vector + perpendicular
+    const dx = toPos.x - fromPos.x;
+    const dy = toPos.y - fromPos.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const ux = dx / len;
+    const uy = dy / len;
+    const px = -uy; // perpendicular
+    const py = ux;
+    const oppositeX = fromPos.x + -ux * 5;
+    const oppositeY = fromPos.y + -uy * 5;
+
+    // 1) Spawn pop-in and give a reverse move
     ballScale.value = withSpring(1, {damping: 12, stiffness: 300});
+    ballY.value = withTiming(oppositeY, {duration: enterDelay});
+    ballX.value = withTiming(oppositeX, {duration: enterDelay});
 
     setTimeout(playSound, enterDelay);
     // 2) Spin through throw + bounce (starts with the throw)
@@ -107,15 +121,6 @@ function BallEvent({event, delayIndex, playSound}: BallEventProps) {
           ANIMATION_TIMING.TRAVEL_DURATION + ANIMATION_TIMING.EXIT_DURATION,
       }),
     );
-
-    // Approach vector + perpendicular
-    const dx = toPos.x - fromPos.x;
-    const dy = toPos.y - fromPos.y;
-    const len = Math.hypot(dx, dy) || 1;
-    const ux = dx / len;
-    const uy = dy / len;
-    const px = -uy; // perpendicular
-    const py = ux;
 
     // Slightly randomized bounce direction (keeps variety)
     const randDeg = (Math.random() * 2 - 1) * MAX_BOUNCE_ANGLE_DEG; // [-MAX, MAX]
