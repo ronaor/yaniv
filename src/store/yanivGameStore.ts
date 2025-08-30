@@ -27,7 +27,7 @@ import {
 import {useRoomStore} from './roomStore';
 import {useSocket} from './socketStore';
 import {useSoundStore} from '~/hooks/useSound';
-import {MOVE_CARD_SOUND} from '~/sounds';
+import {THROW_CARD_SOUND} from '~/sounds';
 
 //region Server Types
 interface PublicGameState {
@@ -369,7 +369,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const socketId = useSocket.getState().getSocketId();
 
       if (useSoundStore.getState().isSoundEnabled) {
-        MOVE_CARD_SOUND.play();
+        THROW_CARD_SOUND.play();
       }
 
       set(state => {
