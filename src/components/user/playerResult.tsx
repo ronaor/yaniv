@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   avatarWrapper: {
     borderWidth: 2,
     borderRadius: 50,
+    backgroundColor: '#FDE5B8',
   },
   avatarCircle: {
     borderRadius: 30,
