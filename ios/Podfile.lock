@@ -446,6 +446,9 @@ PODS:
     - React-Core
   - RNCClipboard (1.16.3):
     - React-Core
+  - RNGestureHandler (2.16.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - RNGoogleMobileAds (14.2.3):
     - Google-Mobile-Ads-SDK (= 11.7.0)
     - GoogleUserMessagingPlatform (= 2.5.0)
@@ -517,6 +520,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -624,6 +628,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
   RNGoogleMobileAds:
     :path: "../node_modules/react-native-google-mobile-ads"
   RNReanimated:
@@ -687,6 +693,7 @@ SPEC CHECKSUMS:
   ReactCommon: 5f704096ccf7733b390f59043b6fa9cc180ee4f6
   RNCAsyncStorage: d35c79ffba52c1013013e16b1fc295aec2feabb6
   RNCClipboard: dfeb43751adff21e588657b5b6c888c72f3aa68e
+  RNGestureHandler: 69d0a928253547ef857a7be4f453220b9c472e07
   RNGoogleMobileAds: a99d002a58ed2cc03ef7da3f0b65f4c67dd9bbc6
   RNReanimated: 9dfe7a19dd7c3e123b23db42e74bf051725f2ea3
   RNScreens: 80369e822c4f123c3f076c9ea4141991c17770f9

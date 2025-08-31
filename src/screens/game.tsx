@@ -41,6 +41,7 @@ import UserLostDialog, {
   UserLostDialogRef,
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
+import EmojisButton from '~/components/game/emojisButton';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -495,6 +496,9 @@ function GameScreen({navigation}: any) {
         handleContinue={() => userLostDialogRef.current?.close()}
         handleLeave={handleLeave}
       />
+      <View style={styles.emojis}>
+        <EmojisButton />
+      </View>
     </>
   );
 }
@@ -591,6 +595,11 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
   avatarHolder: {aspectRatio: 1, width: 80},
+  emojis: {
+    position: 'absolute',
+    bottom: 175,
+    right: 15,
+  },
 });
 
 export default GameScreen;

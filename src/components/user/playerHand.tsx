@@ -1,10 +1,9 @@
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 import {OutlinedText} from '../cartoonText';
-import {Dimensions, StyleSheet} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {isUndefined} from 'lodash';
-
-const {width: screenWidth} = Dimensions.get('screen');
+import {getAvatarCenterPosition} from './userAvatar';
+import {Platform} from 'react-native';
 
 interface PlayerHandProps {
   hidden: boolean;
@@ -15,6 +14,16 @@ const REMOVAL_DELAY = 1000;
 
 function PlayerHand({hidden, handValue}: PlayerHandProps) {
   const [$hidden, $setHidden] = useState<boolean>(false);
+
+  const playerHandStyles = useMemo(() => {
+    const avatarPos = getAvatarCenterPosition('down');
+    return {
+      position: 'absolute' as const,
+      // Position it to the right of the avatar with some spacing
+      left: avatarPos.x + 90 + (Platform.OS === 'android' ? -15 : 0), // 40px to the right of avatar center
+      top: avatarPos.y - 90, // 50px above avatar center
+    };
+  }, []);
 
   useEffect(() => {
     $setHidden(hidden);
@@ -35,13 +44,10 @@ function PlayerHand({hidden, handValue}: PlayerHandProps) {
   }
 
   return (
-    <Animated.View
-      style={styles.playerHand}
-      entering={FadeIn}
-      exiting={FadeOut}>
+    <Animated.View style={playerHandStyles} entering={FadeIn} exiting={FadeOut}>
       <OutlinedText
         text={`Hand: ${handValue ?? ''}`}
-        fontSize={20}
+        fontSize={18}
         width={125}
         height={100}
         fillColor={'#ffffffff'}
@@ -55,11 +61,3 @@ function PlayerHand({hidden, handValue}: PlayerHandProps) {
 }
 
 export default PlayerHand;
-
-const styles = StyleSheet.create({
-  playerHand: {
-    position: 'absolute',
-    bottom: 98,
-    left: screenWidth / 2 - 80,
-  },
-});

@@ -23,7 +23,7 @@ const createSoundPool = (soundFile: string, poolSize: number = 4): Sound[] => {
 
 const HIT_BALL_SOUND_POOL = createSoundPool('ball_hit.wav');
 
-const THROW_CARD_SOUND = createSound('throw.wav');
+const THROW_CARD_SOUND = createSound('thrown.wav');
 const SHUFFLE_CARDS_SOUND = createSound('shuffle.wav');
 const SPREAD_CARDS_SOUND = createSound('spread.wav');
 

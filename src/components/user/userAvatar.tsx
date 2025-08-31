@@ -58,7 +58,7 @@ const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 /** Internal seating layout — same coordinates you used on the screen */
 const seatStyle: Record<DirectionName, any> = {
-  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
+  down: {position: 'absolute', bottom: 110, left: 10, zIndex: 100},
   up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
   left: {
     position: 'absolute',
@@ -200,8 +200,8 @@ function UserAvatar({
 
     if (isUser) {
       scoreMergingAnimation(roundScore[0], {
-        x: screenWidth / 2 - 70,
-        y: -43,
+        x: screenWidth / 2 - 60,
+        y: -16,
         scale: 1.48,
       });
     } else {
@@ -494,3 +494,35 @@ const styles = StyleSheet.create({
     minWidth: 24,
   },
 });
+
+/**
+ * Calculate avatar center position from direction using the same seatStyle constants
+ * This ensures consistency with the component's positioning
+ */
+export const getAvatarCenterPosition = (
+  direction: DirectionName,
+): {x: number; y: number} => {
+  const style = seatStyle[direction];
+  let x = 0,
+    y = 0;
+
+  if (!style || typeof style !== 'object') {
+    return {x, y};
+  }
+
+  // Calculate X position
+  if (typeof style.left === 'number') {
+    x = style.left + CIRCLE_SIZE / 2;
+  } else if (typeof style.right === 'number') {
+    x = screenWidth - style.right - CIRCLE_SIZE / 2;
+  }
+
+  // Calculate Y position
+  if (typeof style.top === 'number') {
+    y = style.top + CIRCLE_SIZE / 2;
+  } else if (typeof style.bottom === 'number') {
+    y = screenHeight - style.bottom - CIRCLE_SIZE / 2;
+  }
+
+  return {x, y};
+};
