@@ -20,6 +20,7 @@ import {DirectionName, Location} from '~/types/cards';
 import AvatarImage from './avatarImage';
 import {PlayerStatusType} from '~/types/player';
 import EmojiBubble from './emojiBubble';
+import {useRoomStore} from '~/store/roomStore';
 
 interface UserAvatarProps {
   name: string;
@@ -108,6 +109,8 @@ function UserAvatar({
   const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
   const [displayAddScore, setDisplayAddScore] = useState<number>(0);
+  const {config} = useRoomStore();
+  const scoreLimit = config?.maxMatchPoints ?? 100;
 
   // Kill wrapper shared values (translate/rotate/scale/opacity)
   const killTx = useSharedValue(0);
@@ -313,6 +316,10 @@ function UserAvatar({
     transform: [{scale: scoreScale.value}],
   }));
 
+  const scoreValueStyle = {
+    color: scoreLimit < displayScore ? '#da1d0c' : '#FDEBC0',
+  };
+
   const roundScoreStyle = useAnimatedStyle(() => ({
     transform: [
       {translateX: roundScoreX.value},
@@ -377,7 +384,9 @@ function UserAvatar({
           </View>
           <View>
             <Animated.View style={[styles.gradientScore, scoreStyle]}>
-              <Text style={styles.score}>{displayScore}</Text>
+              <Text style={[styles.score, scoreValueStyle]}>
+                {displayScore}
+              </Text>
             </Animated.View>
             {roundScore.length > 0 && (
               <Animated.View style={[styles.roundScore, roundScoreStyle]}>
@@ -532,7 +541,7 @@ export const getAvatarCenterPosition = (
   if (typeof style.top === 'number') {
     y = style.top + CIRCLE_SIZE / 2;
   } else if (typeof style.bottom === 'number') {
-    y = screenHeight - style.bottom - CIRCLE_SIZE / 2;
+    y = screenHeight - style.bottom - CIRCLE_SIZE * 1.75;
   }
 
   return {x, y};
