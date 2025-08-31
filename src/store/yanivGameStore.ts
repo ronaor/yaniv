@@ -109,6 +109,7 @@ type YanivGameFields = {
     places: PlayerId[];
   };
   humanLost: boolean;
+  emojiTriggers: Record<string, {emojiIndex: number; timestamp: number}>;
 };
 
 type YanivGameMethods = {
@@ -168,12 +169,14 @@ type YanivGameMethods = {
       playersStats: Record<PlayerId, PlayerStatus>;
     }) => void;
     humanLost: () => void;
+    showEmoji: (data: {emojiIndex: number; userId: PlayerId}) => void;
   };
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => void;
     callYaniv: () => void;
     slapDown: (card: Card) => void;
     playAgain: () => void;
+    shareEmoji: (emojiIndex: number) => void;
   };
 };
 
@@ -226,6 +229,7 @@ const initialGameFields: YanivGameFields = {
   },
   gameResults: undefined,
   humanLost: false,
+  emojiTriggers: {},
 };
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
@@ -688,6 +692,24 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     humanLost: () => {
       set(state => ({...state, humanLost: true}));
     },
+    showEmoji: ({emojiIndex, userId}) => {
+      set(state => ({
+        ...state,
+        emojiTriggers: {
+          ...state.emojiTriggers,
+          [userId]: {emojiIndex, timestamp: Date.now()},
+        },
+      }));
+
+      // Auto-cleanup after 3 seconds
+      setTimeout(() => {
+        set(state => {
+          const newTriggers = {...state.emojiTriggers};
+          delete newTriggers[userId];
+          return {...state, emojiTriggers: newTriggers};
+        });
+      }, 3000);
+    },
   },
   emit: {
     completeTurn: (action: TurnAction, selectedCards: Card[]) => {
@@ -701,6 +723,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
     },
     playAgain: () => {
       useSocket.getState().emit('player_wants_to_play_again');
+    },
+    shareEmoji: (emojiIndex: number) => {
+      useSocket.getState().emit('share_emoji', {emojiIndex});
     },
   },
 }));

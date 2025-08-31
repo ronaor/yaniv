@@ -45,7 +45,9 @@ function UserTopBar() {
         <View style={styles.avatarContainer}>
           <AvatarImage index={user.avatarIndex} size={40} />
         </View>
-        <Text style={styles.name}>{user.nickName}</Text>
+        <Text numberOfLines={1} style={styles.name}>
+          {user.nickName}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.leftSide}>
@@ -80,7 +82,6 @@ export default UserTopBar;
 
 const styles = StyleSheet.create({
   top: {
-    width: '100%',
     paddingHorizontal: 20,
     paddingVertical: 10,
     flexDirection: 'row',
@@ -96,8 +97,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#13AEAF',
   },
-  name: {fontSize: 18, color: '#FDF9D1', fontWeight: '700'},
-  user: {flexDirection: 'row', alignItems: 'center', gap: 10},
+  name: {flex: 1, fontSize: 18, color: '#FDF9D1', fontWeight: '700'},
+  user: {flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1},
   connectionDot: {
     width: 10,
     aspectRatio: 1,

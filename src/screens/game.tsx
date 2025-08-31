@@ -61,6 +61,7 @@ function GameScreen({navigation}: any) {
     gameId,
     gameResults,
     humanLost,
+    emojiTriggers,
   } = useYanivGameStore();
 
   const {user} = useUser();
@@ -188,6 +189,13 @@ function GameScreen({navigation}: any) {
       emit.slapDown(cardToSlap);
     }
   }, [playerHand, slapCardIndex, emit]);
+
+  const onEmojiSelect = useCallback(
+    (emojiIndex: number) => {
+      emit.shareEmoji(emojiIndex);
+    },
+    [emit],
+  );
 
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
@@ -457,6 +465,7 @@ function GameScreen({navigation}: any) {
             status={game.playersStats[playerId].playerStatus}
             kill={playersKilling[playerId]}
             direction={directions[i + 1]}
+            emoji={emojiTriggers[playerId]}
           />
         </View>
       ))}
@@ -479,6 +488,7 @@ function GameScreen({navigation}: any) {
         status={game.playersStats[user.id]?.playerStatus ?? 'active'}
         kill={playersKilling[user.id]}
         direction={directions[0]}
+        emoji={emojiTriggers[user.id]}
       />
 
       {/* Yaniv/Assaf Overlay */}
@@ -497,7 +507,7 @@ function GameScreen({navigation}: any) {
         handleLeave={handleLeave}
       />
       <View style={styles.emojis}>
-        <EmojisButton />
+        <EmojisButton onEmojiSelect={onEmojiSelect} />
       </View>
     </>
   );

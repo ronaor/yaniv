@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
-import {Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, StyleSheet, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {noop} from 'lodash';
 import BasePressable from '../basePressable';
@@ -9,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
+  runOnJS,
 } from 'react-native-reanimated';
 import EmojiImage from '../emojis/emojiImage';
 import {FlatList} from 'react-native-gesture-handler';
@@ -29,10 +29,18 @@ function EmojiPickerOverlay({
 }: EmojiPickerOverlayProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // NEW: cooldown state (locks the button for ~3s)
+  const [cooldown, setCooldown] = useState(false);
+  const cooldownProgress = useSharedValue(0); // 1 -> 0 over 3s
+  const COOLDOWN_MS = 3000;
+
+  // list ref from previous answer is optional; leaving component focused on cooldown
   const expandAnimation = useSharedValue(0);
   const opacityAnimation = useSharedValue(0);
 
-  const buttonStyle = disabled
+  const isDisabled = disabled || cooldown;
+
+  const buttonStyle = isDisabled
     ? {
         image: emojisPathDisabled,
         gradientColors: ['#acacacff', '#545454ff'],
@@ -46,11 +54,21 @@ function EmojiPickerOverlay({
         borderColor: {borderColor: '#732C03'},
       };
 
-  const handleToggle = () => {
-    if (disabled) {
-      return;
-    }
+  const startCooldown = () => {
+    setCooldown(true);
+    cooldownProgress.value = 1;
+    cooldownProgress.value = withTiming(
+      0,
+      {duration: COOLDOWN_MS},
+      finished => {
+        if (finished) {
+          runOnJS(setCooldown)(false);
+        }
+      },
+    );
+  };
 
+  const handleToggle = () => {
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
 
@@ -65,7 +83,8 @@ function EmojiPickerOverlay({
 
   const handleEmojiPress = (index: number) => {
     onEmojiSelect(index);
-    handleToggle(); // Close after selection
+    handleToggle();
+    startCooldown();
   };
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
@@ -82,6 +101,13 @@ function EmojiPickerOverlay({
     </BasePressable>
   );
 
+  // Cleanup: if component unmounts mid-cooldown, just let it end gracefully
+  useEffect(() => {
+    return () => {
+      // nothing special needed; withTiming will stop with the view
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* Expanded overlay */}
@@ -91,7 +117,6 @@ function EmojiPickerOverlay({
           renderItem={renderEmoji}
           horizontal
           showsHorizontalScrollIndicator={false}
-          initialScrollIndex={EMOJI_DATA.length - 1}
           contentContainerStyle={styles.flatListContent}
           style={styles.overlayContent}
           keyExtractor={item => item.toString()}
@@ -99,15 +124,20 @@ function EmojiPickerOverlay({
       </Animated.View>
 
       {/* Main button */}
-      <BasePressable onPress={handleToggle} style={styles.mainButton}>
+      <BasePressable
+        onPress={handleToggle}
+        style={styles.mainButton}
+        disabled={isDisabled}>
         <LinearGradient
           style={[styles.buttonWrapper, buttonStyle.borderColor]}
           colors={buttonStyle.gradientColors}>
-          <Image
-            source={buttonStyle.image}
-            style={[styles.image, buttonStyle.backgroundStyle]}
-            resizeMode="stretch"
-          />
+          <View style={styles.buttonInner}>
+            <Image
+              source={buttonStyle.image}
+              style={[styles.image, buttonStyle.backgroundStyle]}
+              resizeMode="stretch"
+            />
+          </View>
         </LinearGradient>
       </BasePressable>
     </View>
@@ -126,12 +156,6 @@ const styles = StyleSheet.create({
     top: -50,
     right: 0,
     overflow: 'hidden',
-  },
-  overlayGradient: {
-    flex: 1,
-    borderWidth: 2,
-    borderRadius: 25,
-    padding: 2,
   },
   overlayContent: {
     backgroundColor: '#fdf7e2cc',
@@ -153,11 +177,15 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderColor: '#994a00',
   },
+  buttonInner: {
+    position: 'relative',
+  },
   image: {
     width: 30,
     height: 30,
     borderRadius: 20,
   },
+  // Cooldown progress bar (shrinks from full width to 0 in 3s)
 });
 
 export default EmojiPickerOverlay;

@@ -19,6 +19,7 @@ import {normalize} from '~/utils/ui';
 import {DirectionName, Location} from '~/types/cards';
 import AvatarImage from './avatarImage';
 import {PlayerStatusType} from '~/types/player';
+import EmojiBubble from './emojiBubble';
 
 interface UserAvatarProps {
   name: string;
@@ -32,6 +33,10 @@ interface UserAvatarProps {
   kill: boolean;
   direction: DirectionName; // seat & kill direction
   zIndex?: number; // optional stacking override
+  emoji?: {
+    emojiIndex: number;
+    timestamp: number;
+  };
 }
 
 const SECOND = 1000;
@@ -91,6 +96,7 @@ function UserAvatar({
   kill,
   direction,
   zIndex = 100,
+  emoji,
 }: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
   const refRoundScore = useRef<number[]>([]);
@@ -340,7 +346,11 @@ function UserAvatar({
           style={[styles.circleContainer, avatarStyle]}>
           <Animated.View style={[styles.circle, circleStyle]}>
             <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
+            <View style={styles.emoji}>
+              <EmojiBubble emojiIndex={emoji?.emojiIndex} />
+            </View>
           </Animated.View>
+
           {isActive && (
             <Canvas style={styles.progressCanvas}>
               <Path
@@ -493,6 +503,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     minWidth: 24,
   },
+  emoji: {position: 'absolute', zIndex: 200},
 });
 
 /**
