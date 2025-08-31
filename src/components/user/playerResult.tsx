@@ -135,5 +135,5 @@ const styles = StyleSheet.create({
   mark: {alignItems: 'flex-start'},
   playAgain: {fontSize: 13, color: '#fbf24fff', fontWeight: '700'},
   leftTheGame: {fontSize: 13, color: '#bca8a8ed', fontWeight: '600'},
-  row: {gap: 5},
+  row: {gap: 5, flex: 1},
 });

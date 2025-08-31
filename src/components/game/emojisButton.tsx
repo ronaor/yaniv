@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Image, Dimensions} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {noop} from 'lodash';
 import BasePressable from '../basePressable';
@@ -15,6 +15,8 @@ import {FlatList} from 'react-native-gesture-handler';
 
 const emojisPath = require('~/assets/images/button_emojis2.png');
 const emojisPathDisabled = require('~/assets/images/button_emojis2_d.png');
+
+const {width: screenWidth} = Dimensions.get('screen');
 
 interface EmojiPickerOverlayProps {
   disabled?: boolean;
@@ -88,7 +90,7 @@ function EmojiPickerOverlay({
   };
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
-    width: 260,
+    width: screenWidth - 30,
     transform: [{scale: expandAnimation.value}],
     opacity: opacityAnimation.value,
   }));
