@@ -331,7 +331,8 @@ const CardPointer = ({
   const opacityStyle = {opacity: ready ? 1 : 0};
   return (
     <Animated.View style={[animatedStyle, opacityStyle]}>
-      <Pressable onPress={isSlap ? onCardSlapped : $onCardSelect}>
+      <Pressable
+        onPress={isSlap && !isSelected ? onCardSlapped : $onCardSelect}>
         <Animated.View style={animatedFrontFlipStyle}>
           {isSlap && !disabled ? (
             <GlowingCardComponent card={card} />

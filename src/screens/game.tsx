@@ -88,6 +88,7 @@ function GameScreen({navigation}: any) {
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
 
+  // TODO: move to store
   const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
     const $currentPlayer = gamePlayers.all[gamePlayers.current];
     return {
@@ -121,7 +122,7 @@ function GameScreen({navigation}: any) {
     if (!myTurn) {
       cardsListRef.current?.clearSelection();
     }
-  }, [myTurn, cardsListRef]);
+  }, [myTurn]);
 
   const handleDrawFromDeck = useCallback(() => {
     const selectedCards = cardsListRef.current?.selectedCards;
@@ -188,6 +189,7 @@ function GameScreen({navigation}: any) {
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapDownAvailable]);
 
+  // TODO: move to store
   const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
   const slapCardIndex = useMemo(
     () =>
@@ -225,6 +227,7 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
+  // TODO: move to store
   const activeDirections = useMemo(() => {
     return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
       (res, playerId, i) => {
@@ -241,6 +244,7 @@ function GameScreen({navigation}: any) {
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
+  // TODO: move to store
   const cardsDelay = useMemo(() => {
     const activePlayers = gamePlayers.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
@@ -379,6 +383,7 @@ function GameScreen({navigation}: any) {
     };
   }, [roundResults, game.phase, gamePlayers.order]);
 
+  // TODO: move to store
   const pickup = useMemo(
     () => ({
       pickupPile: board.pickupPile,
