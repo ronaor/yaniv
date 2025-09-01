@@ -88,18 +88,10 @@ function GameScreen({navigation}: any) {
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
 
-  // TODO: move to store
-  const {currentPlayer, playerHand, myTurn, slapDownAvailable} = useMemo(() => {
-    const $currentPlayer = gamePlayers.all[gamePlayers.current];
-    return {
-      currentPlayer: $currentPlayer,
-      playerHand: $currentPlayer?.hand || [],
-      myTurn: game.currentTurn?.playerId === gamePlayers.current || false,
-      slapDownAvailable: $currentPlayer?.slapDownAvailable || false,
-    };
-  }, [game.currentTurn, gamePlayers]);
-
-  const handValue = useMemo(() => getHandValue(playerHand), [playerHand]);
+  const handValue = useMemo(
+    () => getHandValue(gamePlayers.all[user.id]?.hand ?? []),
+    [gamePlayers.all, user.id],
+  );
 
   useEffect(() => {
     return clearGame;
@@ -118,11 +110,12 @@ function GameScreen({navigation}: any) {
     }
   }, [gameResults, game.playersStats]);
 
+  const isMyTurn = game.currentTurn?.playerId === user.id;
   useEffect(() => {
-    if (!myTurn) {
+    if (!isMyTurn) {
       cardsListRef.current?.clearSelection();
     }
-  }, [myTurn]);
+  }, [isMyTurn]);
 
   const handleDrawFromDeck = useCallback(() => {
     const selectedCards = cardsListRef.current?.selectedCards;
@@ -181,42 +174,6 @@ function GameScreen({navigation}: any) {
     }
   }, [error, clearError]);
 
-  useEffect(() => {
-    if (!slapDownAvailable) {
-      return;
-    }
-    const timer = setTimeout(resetSlapDown, 3000);
-    return () => clearTimeout(timer);
-  }, [resetSlapDown, slapDownAvailable]);
-
-  // TODO: move to store
-  const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
-  const slapCardIndex = useMemo(
-    () =>
-      slapDownAvailable && lastPickedCard
-        ? playerHand.findIndex(
-            card =>
-              lastPickedCard?.suit === card.suit &&
-              lastPickedCard?.value === card.value,
-          )
-        : -1,
-    [lastPickedCard, playerHand, slapDownAvailable],
-  );
-
-  const onSlapCard = useCallback(() => {
-    const cardToSlap = playerHand[slapCardIndex];
-    if (cardToSlap) {
-      emit.slapDown(cardToSlap);
-    }
-  }, [playerHand, slapCardIndex, emit]);
-
-  const onEmojiSelect = useCallback(
-    (emojiIndex: number) => {
-      emit.shareEmoji(emojiIndex);
-    },
-    [emit],
-  );
-
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
   >({});
@@ -227,7 +184,6 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
-  // TODO: move to store
   const activeDirections = useMemo(() => {
     return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
       (res, playerId, i) => {
@@ -244,7 +200,6 @@ function GameScreen({navigation}: any) {
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
-  // TODO: move to store
   const cardsDelay = useMemo(() => {
     const activePlayers = gamePlayers.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
@@ -383,8 +338,8 @@ function GameScreen({navigation}: any) {
     };
   }, [roundResults, game.phase, gamePlayers.order]);
 
-  // TODO: move to store
-  const pickup = useMemo(
+  const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
+  const pickupEvent = useMemo(
     () => ({
       pickupPile: board.pickupPile,
       lastPickedCard,
@@ -399,6 +354,29 @@ function GameScreen({navigation}: any) {
       lastPickedCard,
     ],
   );
+  const slapCardIndex = useMemo(() => {
+    const currentUserStats = gamePlayers.all[gamePlayers.current];
+    return currentUserStats?.slapDownAvailable && lastPickedCard
+      ? currentUserStats.hand.findIndex(
+          card =>
+            lastPickedCard?.suit === card.suit &&
+            lastPickedCard?.value === card.value,
+        )
+      : -1;
+  }, [gamePlayers, lastPickedCard]);
+
+  useEffect(() => {
+    if (slapCardIndex < 0) {
+      return;
+    }
+    const timer = setTimeout(resetSlapDown, 3000);
+    return () => clearTimeout(timer);
+  }, [resetSlapDown, slapCardIndex]);
+
+  const onSlapCard = useCallback(() => {
+    const hand = gamePlayers.all[gamePlayers.current].hand;
+    emit.slapDown(hand[slapCardIndex]);
+  }, [gamePlayers, emit, slapCardIndex]);
 
   return (
     <>
@@ -435,10 +413,10 @@ function GameScreen({navigation}: any) {
 
         {/* Game Area */}
         <GameBoard
-          pickup={pickup}
+          pickup={pickupEvent}
           round={game.round}
           gameId={gameId}
-          disabled={!myTurn}
+          disabled={!isMyTurn}
           activeDirections={activeDirections}
           onReady={setRoundReadyFor}
           handlePickupCard={handlePickupCard}
@@ -448,21 +426,25 @@ function GameScreen({navigation}: any) {
           <View style={styles.avatarHolder} />
           <YanivButton
             onPress={emit.callYaniv}
-            disabled={handValue > game.rules.canCallYaniv || !myTurn}
+            disabled={handValue > game.rules.canCallYaniv || !isMyTurn}
           />
         </View>
         <CardPointsList
           ref={cardsListRef}
-          key={gamePlayers.current}
-          cards={playerHand}
+          key={user.id}
+          cards={gamePlayers.all[user.id]?.hand ?? []}
           slapCardIndex={slapCardIndex}
           onCardSlapped={onSlapCard}
           fromPosition={
-            gamePlayers.current === game.currentTurn?.prevTurn?.playerId
+            user.id === game.currentTurn?.prevTurn?.playerId
               ? game.currentTurn?.prevTurn?.draw?.cardPosition
               : undefined
           }
-          action={game.currentTurn?.prevTurn?.action}
+          action={
+            user.id === game.currentTurn?.prevTurn?.playerId
+              ? game.currentTurn?.prevTurn?.action
+              : undefined
+          }
           direction={directions[0]}
           isReady={roundReadyFor === game.round}
           cardsDelay={cardsDelay[0]}
@@ -505,17 +487,15 @@ function GameScreen({navigation}: any) {
 
       <PlayerHand
         hidden={roundReadyFor !== game.round}
-        handValue={
-          playersResultedScores[gamePlayers.current] ? undefined : handValue
-        }
+        handValue={playersResultedScores[user.id] ? undefined : handValue}
       />
 
       <UserAvatar
         name={user.nickName}
         avatarIndex={user.avatarIndex}
-        score={currentPlayer?.stats?.score ?? 0}
-        roundScore={playersResultedScores[gamePlayers.current]}
-        isActive={myTurn}
+        score={gamePlayers.all[user.id]?.stats?.score ?? 0}
+        roundScore={playersResultedScores[user.id]}
+        isActive={isMyTurn}
         timePerPlayer={game.rules.timePerPlayer}
         isUser
         status={game.playersStats[user.id]?.playerStatus ?? 'active'}
@@ -540,7 +520,7 @@ function GameScreen({navigation}: any) {
         handleLeave={handleLeave}
       />
       <View style={styles.emojis}>
-        <EmojisButton onEmojiSelect={onEmojiSelect} />
+        <EmojisButton onEmojiSelect={emit.shareEmoji} />
       </View>
     </>
   );

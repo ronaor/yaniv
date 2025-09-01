@@ -21,6 +21,7 @@ import AvatarImage from './avatarImage';
 import {PlayerStatusType} from '~/types/player';
 import EmojiBubble from './emojiBubble';
 import {useRoomStore} from '~/store/roomStore';
+import {useKillAnimation} from '~/hooks/useKillAnimation';
 
 interface UserAvatarProps {
   name: string;
@@ -80,12 +81,6 @@ const seatStyle: Record<DirectionName, any> = {
   },
 };
 
-/** Kill (throw-out) constants */
-const KILL_DURATION = 4000;
-const KILL_DIST_BASE = Math.max(screenWidth, screenHeight) * 0.45; // base throw distance
-const KILL_LATERAL_WOBBLE = 30; // px random side wobble
-const KILL_SPIN = 1000; // deg
-
 function UserAvatar({
   name,
   avatarIndex,
@@ -112,12 +107,7 @@ function UserAvatar({
   const {config} = useRoomStore();
   const scoreLimit = config?.maxMatchPoints ?? 100;
 
-  // Kill wrapper shared values (translate/rotate/scale/opacity)
-  const killTx = useSharedValue(0);
-  const killTy = useSharedValue(0);
-  const killRot = useSharedValue(0);
-  const killScale = useSharedValue(1);
-  const killOpacity = useSharedValue(1);
+  const {tx, ty, rot, scale, opacity} = useKillAnimation(kill, direction);
 
   // Timer progress animation
   useEffect(() => {
@@ -235,59 +225,6 @@ function UserAvatar({
     }
   }, [score, roundScore]);
 
-  /** ----- KILL (throw-out) animation ----- */
-  useEffect(() => {
-    // Direction unit vector
-    const dirMap: Record<DirectionName, {x: number; y: number}> = {
-      up: {x: -1, y: -1},
-      down: {x: -1, y: 2},
-      left: {x: -1, y: 0},
-      right: {x: 1, y: 0},
-    };
-    const d = dirMap[direction] ?? {x: 0, y: -1};
-
-    if (kill) {
-      // randomized distance & lateral wobble
-      const dist = KILL_DIST_BASE * (0.85 + Math.random() * 0.5);
-      const wobbleX = (Math.random() - 0.5) * KILL_LATERAL_WOBBLE;
-      const wobbleY = (Math.random() - 0.5) * KILL_LATERAL_WOBBLE;
-
-      // directional spin sign (left/right mirror)
-      const spinSign =
-        direction === 'left'
-          ? -1
-          : direction === 'right'
-          ? 1
-          : Math.random() < 0.5
-          ? -1
-          : 1;
-      const spins = KILL_SPIN * spinSign;
-
-      // animate out
-      killTx.value = withTiming(d.x * dist + wobbleX, {
-        duration: KILL_DURATION,
-        easing: Easing.out(Easing.quad),
-      });
-      killTy.value = withTiming(d.y * dist + wobbleY, {
-        duration: KILL_DURATION,
-        easing: Easing.out(Easing.quad),
-      });
-      killRot.value = withTiming(spins, {
-        duration: KILL_DURATION,
-        easing: Easing.out(Easing.quad),
-      });
-      killScale.value = withTiming(0.9, {duration: KILL_DURATION});
-      killOpacity.value = withTiming(0.6, {duration: KILL_DURATION});
-    } else {
-      // reset back to seat
-      killTx.value = withTiming(0, {duration: 250});
-      killTy.value = withTiming(0, {duration: 250});
-      killRot.value = withTiming(0, {duration: 250});
-      killScale.value = withTiming(1, {duration: 250});
-      killOpacity.value = withTiming(1, {duration: 250});
-    }
-  }, [kill, direction, killTx, killTy, killRot, killScale, killOpacity]);
-
   /** Progress ring values */
   const progressPath = useDerivedValue(() => {
     const sweepAngle = circleProgress.value * 360;
@@ -334,12 +271,12 @@ function UserAvatar({
 
   const killedWrapperStyle = useAnimatedStyle(() => ({
     transform: [
-      {translateX: killTx.value},
-      {translateY: killTy.value},
-      {rotate: `${killRot.value}deg`},
-      {scale: killScale.value},
+      {translateX: tx.value},
+      {translateY: ty.value},
+      {rotate: `${rot.value}deg`},
+      {scale: scale.value},
     ],
-    opacity: killOpacity.value,
+    opacity: opacity.value,
   }));
 
   return (
