@@ -210,7 +210,7 @@ function UserAvatar({
     if (isUser) {
       scoreMergingAnimation(roundScore[0], {
         x: screenWidth / 2 - 60,
-        y: -16,
+        y: -38,
         scale: 1.48,
       });
     } else {

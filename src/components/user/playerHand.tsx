@@ -21,7 +21,7 @@ function PlayerHand({hidden, handValue}: PlayerHandProps) {
       position: 'absolute' as const,
       // Position it to the right of the avatar with some spacing
       left: avatarPos.x + 90 + (Platform.OS === 'android' ? -15 : 0), // 40px to the right of avatar center
-      top: avatarPos.y - 90, // 50px above avatar center
+      top: avatarPos.y - 30, // 50px above avatar center
     };
   }, []);
 
