@@ -13,6 +13,7 @@ import {useRoomStore} from '~/store/roomStore';
 import {RootStackParamList} from '~/types/navigation';
 import useSocketIO from '~/useSocketIO';
 import '~/sounds';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -58,7 +59,7 @@ const App = () => {
   );
 
   return (
-    <>
+    <GestureHandlerRootView>
       <NavigationContainer onStateChange={onStateChange}>
         <Stack.Navigator
           initialRouteName="Home"
@@ -106,7 +107,7 @@ const App = () => {
         </Stack.Navigator>
         <GameBannerAd />
       </NavigationContainer>
-    </>
+    </GestureHandlerRootView>
   );
 };
 

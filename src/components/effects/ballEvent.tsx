@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {Dimensions, StyleSheet, ViewStyle} from 'react-native';
+import {Dimensions, StyleSheet} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -11,27 +11,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, {Image} from 'react-native-svg';
 import {DirectionName} from '~/types/cards';
+import {getAvatarCenterPosition} from '../user/userAvatar';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 export type ThrowBallEvent = {from: DirectionName; to: DirectionName};
-
-const recordStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: screenHeight - 256, left: 10, zIndex: 100},
-  up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
-  left: {
-    position: 'absolute',
-    left: 10,
-    top: screenHeight / 2 - 20,
-    zIndex: 100,
-  },
-  right: {
-    position: 'absolute',
-    right: 10,
-    top: screenHeight / 2 - 20,
-    zIndex: 100,
-  },
-};
 
 const ANIMATION_TIMING = {
   TRAVEL_DURATION: 240,
@@ -40,7 +24,7 @@ const ANIMATION_TIMING = {
   CLEANUP_DELAY: 0,
 };
 
-const REBOUND_DISTANCE_BASE = screenWidth; // pixels
+const REBOUND_DISTANCE_BASE = (screenWidth + screenHeight) / 2; // pixels
 const MAX_BOUNCE_ANGLE_DEG = 18; // small deflection
 const ARC_HEIGHT_PX = 60;
 const BALL_SIZE = 50;
@@ -52,31 +36,9 @@ interface BallEventProps {
   playSound: () => void;
 }
 
-const getPositionFromDirection = (
-  direction: DirectionName,
-): {x: number; y: number} => {
-  const style = recordStyle[direction];
-  let x = 0,
-    y = 0;
-  if (!style || typeof style !== 'object') {
-    return {x, y};
-  }
-  if (typeof style.left === 'number') {
-    x = style.left + 40;
-  } else if (typeof style.right === 'number') {
-    x = screenWidth - style.right - 40;
-  }
-  if (typeof style.top === 'number') {
-    y = style.top + 40;
-  } else if (typeof style.bottom === 'number') {
-    y = screenHeight - style.bottom - 40;
-  }
-  return {x, y};
-};
-
 function BallEvent({event, delayIndex, playSound}: BallEventProps) {
-  const fromPos = getPositionFromDirection(event.from);
-  const toPos = getPositionFromDirection(event.to);
+  const fromPos = getAvatarCenterPosition(event.from);
+  const toPos = getAvatarCenterPosition(event.to);
 
   // Animation values
   const ballX = useSharedValue(fromPos.x);
@@ -108,8 +70,8 @@ function BallEvent({event, delayIndex, playSound}: BallEventProps) {
 
     // 1) Spawn pop-in and give a reverse move
     ballScale.value = withSpring(1, {damping: 12, stiffness: 300});
-    ballY.value = withTiming(oppositeY, {duration: enterDelay});
-    ballX.value = withTiming(oppositeX, {duration: enterDelay});
+    ballY.value = fromPos.y;
+    ballX.value = fromPos.x;
 
     setTimeout(playSound, enterDelay);
     // 2) Spin through throw + bounce (starts with the throw)
@@ -135,16 +97,16 @@ function BallEvent({event, delayIndex, playSound}: BallEventProps) {
     const bounceY = toPos.y + by * REBOUND_DISTANCE_BASE;
 
     // 3) Travel to target (starts after enterDelay)
-    ballX.value = withDelay(
-      enterDelay,
+    ballX.value = withSequence(
+      withTiming(oppositeX, {duration: enterDelay}),
       withTiming(toPos.x, {
         duration: ANIMATION_TIMING.TRAVEL_DURATION,
         easing: Easing.inOut(Easing.quad),
       }),
     );
 
-    ballY.value = withDelay(
-      enterDelay,
+    ballY.value = withSequence(
+      withTiming(oppositeY, {duration: enterDelay}),
       withTiming(
         toPos.y,
         {

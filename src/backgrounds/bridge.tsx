@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     transform: [{scaleX: 1.05}],
-    backgroundColor: '#FDCF60',
+    backgroundColor: '#A05D0B',
   },
 });
 

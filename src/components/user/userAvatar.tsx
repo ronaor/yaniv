@@ -19,6 +19,8 @@ import {normalize} from '~/utils/ui';
 import {DirectionName, Location} from '~/types/cards';
 import AvatarImage from './avatarImage';
 import {PlayerStatusType} from '~/types/player';
+import EmojiBubble from './emojiBubble';
+import {useRoomStore} from '~/store/roomStore';
 
 interface UserAvatarProps {
   name: string;
@@ -32,6 +34,10 @@ interface UserAvatarProps {
   kill: boolean;
   direction: DirectionName; // seat & kill direction
   zIndex?: number; // optional stacking override
+  emoji?: {
+    emojiIndex: number;
+    timestamp: number;
+  };
 }
 
 const SECOND = 1000;
@@ -58,7 +64,7 @@ const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 /** Internal seating layout — same coordinates you used on the screen */
 const seatStyle: Record<DirectionName, any> = {
-  down: {position: 'absolute', bottom: 98, left: 10, zIndex: 100},
+  down: {position: 'absolute', bottom: 110, left: 10, zIndex: 100},
   up: {position: 'absolute', top: 80, left: 30, zIndex: 100},
   left: {
     position: 'absolute',
@@ -91,6 +97,7 @@ function UserAvatar({
   kill,
   direction,
   zIndex = 100,
+  emoji,
 }: UserAvatarProps) {
   const circleProgress = useSharedValue<number>(0);
   const refRoundScore = useRef<number[]>([]);
@@ -102,6 +109,8 @@ function UserAvatar({
   const avatarScale = useSharedValue<number>(1);
   const [displayScore, setDisplayScore] = useState<number>(score);
   const [displayAddScore, setDisplayAddScore] = useState<number>(0);
+  const {config} = useRoomStore();
+  const scoreLimit = config?.maxMatchPoints ?? 100;
 
   // Kill wrapper shared values (translate/rotate/scale/opacity)
   const killTx = useSharedValue(0);
@@ -200,8 +209,8 @@ function UserAvatar({
 
     if (isUser) {
       scoreMergingAnimation(roundScore[0], {
-        x: screenWidth / 2 - 70,
-        y: -43,
+        x: screenWidth / 2 - 60,
+        y: -16,
         scale: 1.48,
       });
     } else {
@@ -307,6 +316,10 @@ function UserAvatar({
     transform: [{scale: scoreScale.value}],
   }));
 
+  const scoreValueStyle = {
+    color: scoreLimit < displayScore ? '#da1d0c' : '#FDEBC0',
+  };
+
   const roundScoreStyle = useAnimatedStyle(() => ({
     transform: [
       {translateX: roundScoreX.value},
@@ -340,7 +353,11 @@ function UserAvatar({
           style={[styles.circleContainer, avatarStyle]}>
           <Animated.View style={[styles.circle, circleStyle]}>
             <AvatarImage size={CIRCLE_SIZE - 5} index={avatarIndex} />
+            <View style={styles.emoji}>
+              <EmojiBubble emojiIndex={emoji?.emojiIndex} />
+            </View>
           </Animated.View>
+
           {isActive && (
             <Canvas style={styles.progressCanvas}>
               <Path
@@ -367,7 +384,9 @@ function UserAvatar({
           </View>
           <View>
             <Animated.View style={[styles.gradientScore, scoreStyle]}>
-              <Text style={styles.score}>{displayScore}</Text>
+              <Text style={[styles.score, scoreValueStyle]}>
+                {displayScore}
+              </Text>
             </Animated.View>
             {roundScore.length > 0 && (
               <Animated.View style={[styles.roundScore, roundScoreStyle]}>
@@ -493,4 +512,37 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     minWidth: 24,
   },
+  emoji: {position: 'absolute', zIndex: 200},
 });
+
+/**
+ * Calculate avatar center position from direction using the same seatStyle constants
+ * This ensures consistency with the component's positioning
+ */
+export const getAvatarCenterPosition = (
+  direction: DirectionName,
+): {x: number; y: number} => {
+  const style = seatStyle[direction];
+  let x = 0,
+    y = 0;
+
+  if (!style || typeof style !== 'object') {
+    return {x, y};
+  }
+
+  // Calculate X position
+  if (typeof style.left === 'number') {
+    x = style.left + CIRCLE_SIZE / 2;
+  } else if (typeof style.right === 'number') {
+    x = screenWidth - style.right - CIRCLE_SIZE / 2;
+  }
+
+  // Calculate Y position
+  if (typeof style.top === 'number') {
+    y = style.top + CIRCLE_SIZE / 2;
+  } else if (typeof style.bottom === 'number') {
+    y = screenHeight - style.bottom - CIRCLE_SIZE * 1.75;
+  }
+
+  return {x, y};
+};

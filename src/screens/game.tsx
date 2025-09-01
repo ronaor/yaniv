@@ -41,6 +41,7 @@ import UserLostDialog, {
   UserLostDialogRef,
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
+import EmojisButton from '~/components/game/emojisButton';
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
@@ -60,6 +61,7 @@ function GameScreen({navigation}: any) {
     gameId,
     gameResults,
     humanLost,
+    emojiTriggers,
   } = useYanivGameStore();
 
   const {user} = useUser();
@@ -187,6 +189,13 @@ function GameScreen({navigation}: any) {
       emit.slapDown(cardToSlap);
     }
   }, [playerHand, slapCardIndex, emit]);
+
+  const onEmojiSelect = useCallback(
+    (emojiIndex: number) => {
+      emit.shareEmoji(emojiIndex);
+    },
+    [emit],
+  );
 
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
@@ -456,6 +465,7 @@ function GameScreen({navigation}: any) {
             status={game.playersStats[playerId].playerStatus}
             kill={playersKilling[playerId]}
             direction={directions[i + 1]}
+            emoji={emojiTriggers[playerId]}
           />
         </View>
       ))}
@@ -478,6 +488,7 @@ function GameScreen({navigation}: any) {
         status={game.playersStats[user.id]?.playerStatus ?? 'active'}
         kill={playersKilling[user.id]}
         direction={directions[0]}
+        emoji={emojiTriggers[user.id]}
       />
 
       {/* Yaniv/Assaf Overlay */}
@@ -495,6 +506,9 @@ function GameScreen({navigation}: any) {
         handleContinue={() => userLostDialogRef.current?.close()}
         handleLeave={handleLeave}
       />
+      <View style={styles.emojis}>
+        <EmojisButton onEmojiSelect={onEmojiSelect} />
+      </View>
     </>
   );
 }
@@ -591,6 +605,11 @@ const styles = StyleSheet.create({
   },
   absolute: {position: 'absolute', width: screenWidth},
   avatarHolder: {aspectRatio: 1, width: 80},
+  emojis: {
+    position: 'absolute',
+    bottom: 175,
+    right: 15,
+  },
 });
 
 export default GameScreen;

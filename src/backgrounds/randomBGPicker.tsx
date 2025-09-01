@@ -17,7 +17,7 @@ const backgrounds = [
   SpaBackground,
 ];
 const POTENTIAL_BGS = 50;
-const FIVE_MINUTES = 5 * 60 * 1000;
+const FIVE_MINUTES = 1000;
 
 function RandomBackground() {
   const SelectedBackground = useMemo(() => {

@@ -90,6 +90,8 @@ const useSocketIO = () => {
 
     socket.on('human_lost', gameStore.subscribed.humanLost);
 
+    socket.on('emoji_show', gameStore.subscribed.showEmoji);
+
     // Cleanup on app unmount
     return () => {
       socket.disconnect();
