@@ -180,7 +180,7 @@ type YanivGameMethods = {
   };
 };
 
-type YanivGameStore = YanivGameFields & YanivGameMethods;
+export type YanivGameStore = YanivGameFields & YanivGameMethods;
 
 export type GameUI = {
   deckLocation: Location;

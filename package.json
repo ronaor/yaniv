@@ -39,7 +39,7 @@
     "reactotron-react-native": "^5.1.14",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "zustand": "5.0.0-rc.2"
+    "zustand": "5.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

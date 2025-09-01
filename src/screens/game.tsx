@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
 import {isUndefined} from 'lodash';
 import {SafeAreaView} from 'react-native-safe-area-context';
-
+import {useShallow} from 'zustand/react/shallow';
 import {colors} from '~/theme';
 
 import {useRoomStore} from '~/store/roomStore';
@@ -46,11 +46,13 @@ import EmojisButton from '~/components/game/emojisButton';
 const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
-  const {players, leaveRoom} = useRoomStore();
+  const {players, leaveRoom} = useRoomStore(
+    useShallow(s => ({players: s.players, leaveRoom: s.leaveRoom})),
+  );
 
-  const {
+  const [
     game,
-    players: gamePlayers,
+    gamePlayers,
     board,
     roundResults,
     error,
@@ -62,7 +64,23 @@ function GameScreen({navigation}: any) {
     gameResults,
     humanLost,
     emojiTriggers,
-  } = useYanivGameStore();
+  ] = useYanivGameStore(
+    useShallow(s => [
+      s.game,
+      s.players,
+      s.board,
+      s.roundResults,
+      s.error,
+      s.clearGame,
+      s.clearError,
+      s.resetSlapDown,
+      s.emit,
+      s.gameId,
+      s.gameResults,
+      s.humanLost,
+      s.emojiTriggers,
+    ]),
+  );
 
   const {user} = useUser();
   const cardsListRef = useRef<CardListRef>(null);
@@ -131,7 +149,7 @@ function GameScreen({navigation}: any) {
 
       emit.completeTurn({choice: 'pickup', pickupIndex}, selectedCards);
     },
-    [emit, board.pickupPile.length, cardsListRef],
+    [emit, board.pickupPile.length],
   );
 
   const handlePlayAgain = useCallback(() => emit.playAgain(), [emit]);
@@ -304,7 +322,7 @@ function GameScreen({navigation}: any) {
               roundResults.roundPlayers.includes(p) &&
               !roundResults.losers.includes(p),
           );
-          const losers = roundResults.losers;
+          const losers = [...roundResults.losers];
 
           // Shuffle losers for randomness
           for (let i = losers.length - 1; i > 0; i--) {
@@ -312,7 +330,7 @@ function GameScreen({navigation}: any) {
             [losers[i], losers[j]] = [losers[j], losers[i]];
           }
 
-          setTimeout(() => {
+          const timeoutId = setTimeout(() => {
             const throwBallEvents = ballThrownEvent(
               remainingPlayers,
               losers,
@@ -321,7 +339,7 @@ function GameScreen({navigation}: any) {
               to: directions[gamePlayers.order.indexOf(target)],
             }));
             ballEventsRef.current?.throwBalls(throwBallEvents);
-            setTimeout(() => {
+            const innerTimeoutId = setTimeout(() => {
               setPlayersKilling(prev => ({
                 ...prev,
                 ...losers.reduce<Record<string, boolean>>((res, loser) => {
@@ -330,23 +348,23 @@ function GameScreen({navigation}: any) {
                 }, {}),
               }));
             }, 900);
+            timeoutsRef.current.push(innerTimeoutId);
           }, LOOK_MOMENT);
+          timeoutsRef.current.push(timeoutId);
         }
+      } else {
+        const timeoutId = setTimeout(() => {
+          const extraDelay = executeReveal(index);
+          scheduleReveal(index + 1, LOOK_MOMENT + extraDelay);
+        }, accumulatedDelay);
 
-        return;
+        timeoutsRef.current.push(timeoutId);
       }
-
-      const timeoutId = setTimeout(() => {
-        const extraDelay = executeReveal(index);
-        scheduleReveal(index + 1, LOOK_MOMENT + extraDelay);
-      }, accumulatedDelay);
-
-      timeoutsRef.current.push(timeoutId);
     };
 
     // Clear any existing timeouts
     timeoutsRef.current.forEach(clearTimeout);
-    timeoutsRef.current = [];
+    timeoutsRef.current.length = 0;
 
     // Start sequence
     executeReveal(0);
@@ -360,6 +378,22 @@ function GameScreen({navigation}: any) {
       timeoutsRef.current = [];
     };
   }, [roundResults, game.phase, gamePlayers.order]);
+
+  const pickup = useMemo(
+    () => ({
+      pickupPile: board.pickupPile,
+      lastPickedCard,
+      tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
+      wasPlayer: game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
+    }),
+    [
+      board.pickupPile,
+      game.currentTurn?.prevTurn?.discard.cardsPositions,
+      game.currentTurn?.prevTurn?.playerId,
+      gamePlayers,
+      lastPickedCard,
+    ],
+  );
 
   return (
     <>
@@ -396,13 +430,7 @@ function GameScreen({navigation}: any) {
 
         {/* Game Area */}
         <GameBoard
-          pickup={{
-            pickupPile: board.pickupPile,
-            lastPickedCard,
-            tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
-            wasPlayer:
-              game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
-          }}
+          pickup={pickup}
           round={game.round}
           gameId={gameId}
           disabled={!myTurn}
