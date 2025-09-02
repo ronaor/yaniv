@@ -149,23 +149,23 @@ function GameScreen({navigation}: any) {
   const handlePlayAgain = useCallback(() => emit.playAgain(), [emit]);
 
   const handleLeave = useCallback(() => {
-    if (players.length > 1 && !humanLost) {
+    const leave = () => {
+      leaveRoom(user);
+      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+    };
+    if (humanLost || players.length < 2) {
+      leave();
+    } else {
       Alert.alert('Leave Room', 'Are you sure you want to leave?', [
         {text: 'Cancel', style: 'cancel'},
         {
           text: 'Leave',
           style: 'destructive',
-          onPress: () => {
-            leaveRoom(user);
-            navigation.reset({index: 0, routes: [{name: 'Home'}]});
-          },
+          onPress: leave,
         },
       ]);
-    } else {
-      leaveRoom(user);
-      navigation.reset({index: 0, routes: [{name: 'Home'}]});
     }
-  }, [players.length, leaveRoom, user, navigation, humanLost]);
+  }, [humanLost, leaveRoom, navigation, players, user]);
 
   // Handle game errors
   useEffect(() => {
@@ -184,37 +184,36 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
-  const activeDirections = useMemo(() => {
-    return gamePlayers.order.reduce<Record<PlayerId, DirectionName>>(
-      (res, playerId, i) => {
+  const {activeDirections, activePlayers, cardsDelay} = useMemo(() => {
+    const $activePlayers = gamePlayers.order.filter(
+      pId => game.playersStats[pId].playerStatus === 'active',
+    );
+    let activeIndex = 0;
+    const $cardsDelay = gamePlayers.order.map(pId =>
+      game.playersStats[pId].playerStatus === 'active'
+        ? {
+            delay: activeIndex++ * SMALL_DELAY,
+            gap: $activePlayers.length * SMALL_DELAY,
+          }
+        : undefined,
+    );
+    return {
+      activeDirections: gamePlayers.order.reduce<
+        Record<PlayerId, DirectionName>
+      >((res, playerId, i) => {
         if (game.playersStats[playerId].playerStatus === 'active') {
           res[playerId] = directions[i];
         }
         return res;
-      },
-      {},
-    );
+      }, {}),
+      activePlayers: $activePlayers,
+      cardsDelay: $cardsDelay,
+    };
   }, [game.playersStats, gamePlayers.order]);
 
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
-
-  const cardsDelay = useMemo(() => {
-    const activePlayers = gamePlayers.order.filter(
-      pId => game.playersStats[pId].playerStatus === 'active',
-    );
-
-    let activeIndex = 0;
-    return gamePlayers.order.map(pId =>
-      game.playersStats[pId].playerStatus === 'active'
-        ? {
-            delay: activeIndex++ * SMALL_DELAY,
-            gap: activePlayers.length * SMALL_DELAY,
-          }
-        : undefined,
-    );
-  }, [game.playersStats, gamePlayers.order]);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
 
@@ -233,9 +232,6 @@ function GameScreen({navigation}: any) {
       return;
     }
 
-    const activePlayers = gamePlayers.order.filter(playerId =>
-      roundResults.roundPlayers.includes(playerId),
-    );
     const startIndex = activePlayers.indexOf(roundResults.yanivCaller);
 
     const LOOK_MOMENT = 2000;
@@ -336,7 +332,7 @@ function GameScreen({navigation}: any) {
       timeoutsRef.current.forEach(clearTimeout);
       timeoutsRef.current = [];
     };
-  }, [roundResults, game.phase, gamePlayers.order]);
+  }, [activePlayers, game.phase, gamePlayers.order, roundResults]);
 
   const lastPickedCard = game.currentTurn?.prevTurn?.draw?.card;
   const pickupEvent = useMemo(

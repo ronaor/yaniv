@@ -3,6 +3,8 @@ import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {normalize} from '~/utils/ui';
+import useSound from '~/hooks/useSound';
+import {CLICK_SOUND} from '~/sounds';
 
 interface SimpleButtonProps {
   text: string;
@@ -40,9 +42,12 @@ const SimpleButton = ({
           paddingHorizontal: 10,
         };
 
+  const {playSound} = useSound(CLICK_SOUND);
+
   return (
     <Pressable
       onPress={onPress}
+      onPressOut={playSound}
       disabled={disabled}
       style={({pressed}) => [
         styles.container,

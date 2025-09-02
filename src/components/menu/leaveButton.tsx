@@ -2,6 +2,8 @@ import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {OutlinedText} from '../cartoonText';
+import useSound from '~/hooks/useSound';
+import {CLICK_SOUND} from '~/sounds';
 
 interface LeaveButtonProps {
   text: string;
@@ -18,9 +20,11 @@ const LeaveButton = ({text, onPress, disabled = false}: LeaveButtonProps) => {
     ? ['#CCCCCC', '#CCCCCC']
     : ['#E64E08', '#D02A07'];
 
+  const {playSound} = useSound(CLICK_SOUND);
   return (
     <Pressable
       onPress={onPress}
+      onPressOut={playSound}
       disabled={disabled}
       style={({pressed}) => [
         styles.container,

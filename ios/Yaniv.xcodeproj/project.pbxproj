@@ -14,6 +14,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		61ADAE242E64B44E00A7C63B /* thrown.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE232E64B44E00A7C63B /* thrown.wav */; };
+		61ADAE262E6776CA00A7C63B /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE252E6776CA00A7C63B /* click.wav */; };
 		61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933C2E60E2E300F8FE61 /* ball_hit.wav */; };
 		61FD93412E618C5100F8FE61 /* spread.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD93402E618C5100F8FE61 /* spread.wav */; };
 		61FD93422E618C5100F8FE61 /* shuffle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933F2E618C5100F8FE61 /* shuffle.wav */; };
@@ -47,6 +48,7 @@
 		5B7EB9410499542E8C5724F5 /* Pods-Yaniv-YanivTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Yaniv-YanivTests.debug.xcconfig"; path = "Target Support Files/Pods-Yaniv-YanivTests/Pods-Yaniv-YanivTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-Yaniv.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaniv.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		61ADAE232E64B44E00A7C63B /* thrown.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = thrown.wav; sourceTree = "<group>"; };
+		61ADAE252E6776CA00A7C63B /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		61FD933C2E60E2E300F8FE61 /* ball_hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ball_hit.wav; sourceTree = "<group>"; };
 		61FD933F2E618C5100F8FE61 /* shuffle.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shuffle.wav; sourceTree = "<group>"; };
 		61FD93402E618C5100F8FE61 /* spread.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = spread.wav; sourceTree = "<group>"; };
@@ -96,6 +98,7 @@
 		13B07FAE1A68108700A75B9A /* Yaniv */ = {
 			isa = PBXGroup;
 			children = (
+				61ADAE252E6776CA00A7C63B /* click.wav */,
 				61ADAE232E64B44E00A7C63B /* thrown.wav */,
 				61FD933F2E618C5100F8FE61 /* shuffle.wav */,
 				61FD93402E618C5100F8FE61 /* spread.wav */,
@@ -269,6 +272,7 @@
 				61ADAE242E64B44E00A7C63B /* thrown.wav in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				61ADAE262E6776CA00A7C63B /* click.wav in Resources */,
 				0223D2CF20CD4C728A454F1B /* LuckiestGuy-Regular.ttf in Resources */,
 				61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */,
 				61FD93412E618C5100F8FE61 /* spread.wav in Resources */,
