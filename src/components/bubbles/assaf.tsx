@@ -13,6 +13,8 @@ import {View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
 import {useEffect, useState} from 'react';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
+import {ASSAF_SOUND} from '~/sounds';
+import useSound from '~/hooks/useSound';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
@@ -34,6 +36,8 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
     DirectionName | undefined
   >(direction);
 
+  const {playSound} = useSound(ASSAF_SOUND);
+
   const bubbleDirection = activeDirection ?? direction;
 
   const tailPath = tailPaths[bubbleDirection ?? 'down'];
@@ -44,6 +48,7 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
     const visible = !isUndefined(direction);
 
     if (visible) {
+      playSound();
       // Show: Update position + animate in
       setActiveDirection(direction);
       rotation.value = direction === 'left' || direction === 'down' ? 90 : -90;
@@ -64,7 +69,7 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
       scale.value = withSpring(0.3, springConfig);
       opacity.value = withTiming(0, {duration: 300});
     }
-  }, [activeDirection, direction, opacity, rotation, scale]);
+  }, [activeDirection, direction, opacity, playSound, rotation, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [

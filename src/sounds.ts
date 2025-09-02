@@ -29,6 +29,8 @@ const SHUFFLE_CARDS_SOUND = createSound('shuffle.wav');
 const SPREAD_CARDS_SOUND = createSound('spread.wav');
 const ERROR_SOUND = createSound('error.wav');
 const WRONG_SOUND = createSound('wrong.wav');
+const YANIV_SOUND = createSound('yaniv.wav');
+const ASSAF_SOUND = createSound('assaf.wav');
 
 export {
   HIT_BALL_SOUND_POOL,
@@ -38,4 +40,6 @@ export {
   CLICK_SOUND,
   ERROR_SOUND,
   WRONG_SOUND,
+  YANIV_SOUND,
+  ASSAF_SOUND,
 };

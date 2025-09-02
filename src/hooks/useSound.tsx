@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useCallback} from 'react';
 
 import Sound from 'react-native-sound';
 import {create} from 'zustand';
@@ -35,7 +36,7 @@ AsyncStorage.getItem(STORAGE_KEY).then(value => {
 const useSound = (sound: Sound) => {
   const isSoundEnabled = useSoundStore(state => state.isSoundEnabled);
 
-  const playSound = () => {
+  const playSound = useCallback(() => {
     if (!isSoundEnabled) {
       return;
     }
@@ -45,7 +46,7 @@ const useSound = (sound: Sound) => {
         console.error('Sound playback failed');
       }
     });
-  };
+  }, [isSoundEnabled, sound]);
 
   return {playSound};
 };
