@@ -150,7 +150,6 @@ const EditProfileDialog: React.FC = () => {
                   value={input}
                   onChangeText={setInput}
                   placeholder="Player name"
-                  autoCapitalize="characters"
                   placeholderTextColor={'#A0977D'}
                 />
               </LinearGradient>
