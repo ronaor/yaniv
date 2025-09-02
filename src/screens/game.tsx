@@ -45,6 +45,8 @@ import UserLostDialog, {
 import {ballThrownEvent} from '~/utils/logic';
 import EmojisButton from '~/components/game/emojisButton';
 import {useSongPlayer} from '~/store/songPlayerStore';
+import useSound from '~/hooks/useSound';
+import {ERROR_SOUND} from '~/sounds';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -175,12 +177,14 @@ function GameScreen({navigation}: any) {
     }
   }, [humanLost, leaveRoom, navigation, players, user]);
 
+  const {playSound: playError} = useSound(ERROR_SOUND);
   // Handle game errors
   useEffect(() => {
     if (error) {
+      playError();
       Alert.alert('שגיאת משחק', error, [{text: 'סגור', onPress: clearError}]);
     }
-  }, [error, clearError]);
+  }, [error, clearError, playError]);
 
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
