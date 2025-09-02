@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {ImageBackground, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
@@ -18,11 +18,14 @@ import EditProfileDialog from '~/components/dialogs/editProfileDialog';
 import {SCREEN_WIDTH} from '~/utils/constants';
 import {useSongPlayer} from '~/store/songPlayerStore';
 import {shuffleArray} from '~/utils/logic';
+import ParallaxBackground from '~/backgrounds/parallaxBackground';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
   const {emit} = useSocket();
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
+
+  const [lookPosition, setLookPosition] = useState({x: 0, y: -450});
 
   const {startNewSong} = useSongPlayer();
 
@@ -37,6 +40,10 @@ function HomeScreen({navigation}: HomeScreenProps) {
       withFade: true,
       loop: true,
     });
+
+    setTimeout(() => {
+      setLookPosition({x: 0, y: 100});
+    }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -80,27 +87,45 @@ function HomeScreen({navigation}: HomeScreenProps) {
     navigation.navigate('Game');
   };
 
+  const layers = [
+    {
+      source: require('~/assets/images/main/layer_4.png'), // Your beach image
+      parallaxFactor: {x: 0.6, y: 0.4}, // Fastest foreground
+    },
+    {
+      source: require('~/assets/images/main/layer_3.png'), // Your islands image
+      parallaxFactor: {x: 0.3, y: 0.2}, // Medium speed
+    },
+    {
+      source: require('~/assets/images/main/layer_10.png'), // Your sky image
+      parallaxFactor: {x: 0.1, y: 0.05}, // Very slow background
+      style: {opacity: 0.9},
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ImageBackground
-        source={require('~/assets/images/background.png')}
-        style={styles.screen}>
+      <ParallaxBackground lookPosition={lookPosition} layers={layers} />
+      <View style={styles.screen}>
         <View style={styles.body}>
-          <GameLogo />
+          <GameLogo enableEnterAnimation />
           <View style={styles.menuButtons}>
             <MenuButton
               text={'Quick Game'}
               onPress={quickGameHandler}
               disabled={!isConnected}
+              enableEnterAnimation
             />
             <MenuButton
               text={'Play with Friends'}
               onPress={gameWithFriends}
               disabled={!isConnected}
+              enableEnterAnimation
             />
             <MenuButton
               text={'Play vs Computer'}
               onPress={() => setNewRoomModalOpen(true)}
+              enableEnterAnimation
             />
           </View>
           <EditProfileDialog />
@@ -118,7 +143,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
           />
         </Dialog>
         <UserTopBar />
-      </ImageBackground>
+      </View>
     </SafeAreaView>
   );
 }
