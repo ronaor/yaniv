@@ -44,6 +44,7 @@ import UserLostDialog, {
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
 import EmojisButton from '~/components/game/emojisButton';
+import {useSongPlayer} from '~/store/songPlayerStore';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -87,6 +88,13 @@ function GameScreen({navigation}: any) {
   const endGameDialogRef = useRef<EndGameDialogRef>(null);
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
+
+  const {stopCurrentSong} = useSongPlayer();
+
+  // Add this useEffect to stop music with fade when entering game
+  useEffect(() => {
+    stopCurrentSong({withFade: true});
+  }, [stopCurrentSong]);
 
   const handValue = useMemo(
     () => getHandValue(gamePlayers.all[user.id]?.hand ?? []),

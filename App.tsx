@@ -1,6 +1,6 @@
 import {NavigationContainer, NavigationState} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {I18nManager} from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
 import GameBannerAd from '~/ads/banner';
@@ -14,6 +14,7 @@ import {RootStackParamList} from '~/types/navigation';
 import useSocketIO from '~/useSocketIO';
 import '~/sounds';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {useSongPlayer} from '~/store/songPlayerStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,8 +31,16 @@ const App = () => {
     // backgroundColor: '#FFFFFF',
   };
   I18nManager.allowRTL(false);
-
+  const {startNewSong} = useSongPlayer();
   useSocketIO();
+
+  useEffect(() => {
+    startNewSong(['main.mp3'], {
+      withFade: false,
+      loop: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {leaveRoom, user} = useRoomStore();
 

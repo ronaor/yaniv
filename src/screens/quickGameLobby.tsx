@@ -17,6 +17,7 @@ import MenuToggle from '~/components/menu/mainToggleSwitch';
 import PlayersList from '~/components/menu/playersList';
 import RoomTimer from '~/components/menu/roomTimer';
 import {useRoomStore} from '~/store/roomStore';
+import {useSongPlayer} from '~/store/songPlayerStore';
 import {QuickGameLobbyProps} from '~/types/navigation';
 import {GAME_CONFIG, SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 import {normalize} from '~/utils/ui';
@@ -83,6 +84,15 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
       return res;
     }, initialValues);
   }, [votes]);
+
+  const {startNewSong} = useSongPlayer();
+
+  useEffect(() => {
+    startNewSong(['lobby1.mp3', 'lobby2.mp3', 'lobby3.mp3'], {
+      withFade: true,
+      loop: true,
+    });
+  }, [startNewSong]);
 
   useEffect(() => {
     let config = {
