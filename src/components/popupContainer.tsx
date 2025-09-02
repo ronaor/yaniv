@@ -1,6 +1,6 @@
 import type {FC} from 'react';
 import React, {useState} from 'react';
-import {Dimensions, Modal, Pressable, StyleSheet, View} from 'react-native';
+import {Modal, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedReaction,
@@ -8,7 +8,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-const {width: wWidth, height: wHeight} = Dimensions.get('screen');
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 export interface PopUpContainerProps {
   isModalOpen: boolean;
@@ -51,8 +51,8 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
           style={[
             styles.body,
             {
-              width: wWidth,
-              height: wHeight,
+              width: SCREEN_WIDTH,
+              height: SCREEN_HEIGHT,
             },
           ]}>
           <Animated.View style={[bgAnimStyle, styles.bg]}>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   bg: {
     ...StyleSheet.absoluteFillObject,
     position: 'absolute',
-    height: wHeight,
+    height: SCREEN_HEIGHT,
     backgroundColor: 'black',
     width: '100%',
   },

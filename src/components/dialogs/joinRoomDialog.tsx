@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import {Dimensions, StyleSheet, Text, TextInput, View} from 'react-native';
+import {StyleSheet, Text, TextInput, View} from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
 import {normalize} from '~/utils/ui';
 
 import XButton from '../menu/xButton';
 import SimpleButton from '../menu/simpleButton';
+import {SCREEN_WIDTH} from '~/utils/constants';
 
-const {width: screenWidth} = Dimensions.get('screen');
 type JoinRoomDialogProps = {
   onJoinRoom: (roomIdInput: string) => void;
   onClose: () => void;
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     fontSize: 20,
     fontWeight: '700',
-    minWidth: screenWidth * 0.55,
+    minWidth: SCREEN_WIDTH * 0.55,
     color: '#642a00',
     textAlign: 'center',
   },

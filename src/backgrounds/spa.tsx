@@ -1,11 +1,10 @@
 import React, {useEffect} from 'react';
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 import {Canvas, Image, useImage} from '@shopify/react-native-skia';
 
 import {isNull} from 'lodash';
-
-const dimension = Dimensions.get('screen');
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 interface SpaBackgroundProp {
   setReady?: () => void;
@@ -25,8 +24,8 @@ const SpaBackground = ({setReady}: SpaBackgroundProp) => {
       {/* Background */}
       <Image
         image={image}
-        width={dimension.width}
-        height={dimension.height - 50}
+        width={SCREEN_WIDTH}
+        height={SCREEN_HEIGHT - 50}
         fit={'cover'}
       />
     </Canvas>

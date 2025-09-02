@@ -1,8 +1,13 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import DeckCardPointers from '~/components/cards/deckCardPoint';
 import CardBack from '~/components/cards/cardBack';
-import {CARD_HEIGHT, CARD_WIDTH} from '~/utils/constants';
+import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from '~/utils/constants';
 
 import {Card, DirectionName, Position} from '~/types/cards';
 import {PlayerId} from '~/store/yanivGameStore';
@@ -14,8 +19,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import {SPREAD_CARDS_SOUND} from '~/sounds';
 import useSound from '~/hooks/useSound';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 const CardBackRotated = ({deg}: {deg: number}) => {
   const rotation = useSharedValue<number>(0);
@@ -138,14 +141,14 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     alignItems: 'center',
-    top: screenHeight / 2 - 2 * CARD_HEIGHT,
-    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+    top: SCREEN_HEIGHT / 2 - 2 * CARD_HEIGHT,
+    left: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
   },
   pickup: {
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
-    top: screenHeight / 2 - 1.5 * CARD_HEIGHT,
-    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+    top: SCREEN_HEIGHT / 2 - 1.5 * CARD_HEIGHT,
+    left: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
   },
 });
 

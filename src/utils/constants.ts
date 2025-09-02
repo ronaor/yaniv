@@ -11,10 +11,12 @@ export const SMALL_DELAY = 100;
 
 export const directions: DirectionName[] = ['down', 'right', 'up', 'left'];
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('screen');
+export {SCREEN_WIDTH, SCREEN_HEIGHT};
+
 export const CIRCLE_CENTER = {
-  x: screenWidth / 2 - CARD_WIDTH / 2,
-  y: screenHeight / 2 - CARD_HEIGHT * 1.5,
+  x: SCREEN_WIDTH / 2 - CARD_WIDTH / 2,
+  y: SCREEN_HEIGHT / 2 - CARD_HEIGHT * 1.5,
   deg: 0,
 };
 

@@ -1,7 +1,8 @@
 import Svg, {Image} from 'react-native-svg';
 import React from 'react';
-import {Dimensions, View} from 'react-native';
-const {width: screenWidth} = Dimensions.get('screen');
+import {View} from 'react-native';
+import {SCREEN_WIDTH} from '~/utils/constants';
+
 const width = 240;
 const X = 17 / 24;
 const height = width * X;
@@ -15,7 +16,7 @@ function GameLogo() {
   return (
     <View style={titleStyle}>
       <Svg
-        style={{transform: [{scale: (screenWidth / width) * 0.8}]}}
+        style={{transform: [{scale: (SCREEN_WIDTH / width) * 0.8}]}}
         width={width}
         height={height}
         viewBox={`0 0 ${3 * width} ${3 * height}`}

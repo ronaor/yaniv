@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 import {
   Canvas,
@@ -21,22 +21,19 @@ import {
   interpolate,
 } from 'react-native-reanimated';
 import {isNull} from 'lodash';
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
-const dimension = Dimensions.get('screen');
-const width = dimension.width;
-
-const height = dimension.height;
 const frequency = 2;
 const initialAmplitude = 10;
 const initialVerticalOffset = 100;
 
 // Pre-calculate wave points indices for performance
-const WAVE_POINTS = Math.floor(width / 4);
+const WAVE_POINTS = Math.floor(SCREEN_WIDTH / 4);
 const waveIndices = Array.from({length: WAVE_POINTS}, (_, i) => i);
 
 // Wave range configuration
-const waveMaxY = height - 100; // Fixed bottom position
-const minYRange = [height - 500, height - 200]; // Range for random minY values
+const waveMaxY = SCREEN_HEIGHT - 100; // Fixed bottom position
+const minYRange = [SCREEN_HEIGHT - 500, SCREEN_HEIGHT - 200]; // Range for random minY values
 
 // Function to generate random minY
 const generateRandomMinY = () => {
@@ -129,8 +126,8 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
 
       const current = (time.value / 1000) % 1000;
       const points = waveIndices.map(i => {
-        const x = (i / WAVE_POINTS) * width;
-        const angle = (x / width) * (Math.PI * frequency) + current;
+        const x = (i / WAVE_POINTS) * SCREEN_WIDTH;
+        const angle = (x / SCREEN_WIDTH) * (Math.PI * frequency) + current;
         return [x, amplitude.value * Math.sin(angle) + verticalOffset.value];
       });
 
@@ -138,7 +135,7 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
       for (let i = 1; i < points.length; i++) {
         pathString += ` L${points[i][0]},${points[i][1]}`;
       }
-      pathString += ` L${width},${height} L0,${height} Z`;
+      pathString += ` L${SCREEN_WIDTH},${SCREEN_HEIGHT} L0,${SCREEN_HEIGHT} Z`;
 
       const path = Skia.Path.MakeFromSVGString(pathString);
       if (path) {
@@ -154,8 +151,8 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
     const current = (time.value / 1000) % 1000;
 
     const points = waveIndices.map(i => {
-      const x = (i / WAVE_POINTS) * width;
-      const angle = (x / width) * (Math.PI * frequency) + current;
+      const x = (i / WAVE_POINTS) * SCREEN_WIDTH;
+      const angle = (x / SCREEN_WIDTH) * (Math.PI * frequency) + current;
       return [x, amplitude.value * Math.sin(angle) + verticalOffset.value];
     });
 
@@ -163,7 +160,7 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
     for (let i = 1; i < points.length; i++) {
       pathString += ` L${points[i][0]},${points[i][1]}`;
     }
-    pathString += ` L${width},${height} L0,${height} Z`;
+    pathString += ` L${SCREEN_WIDTH},${SCREEN_HEIGHT} L0,${SCREEN_HEIGHT} Z`;
 
     return Skia.Path.MakeFromSVGString(pathString) || Skia.Path.Make();
   }, [time, verticalOffset, amplitude]);
@@ -221,8 +218,8 @@ const BeachBackground = ({setReady}: BeachBackgroundProp) => {
       {/* Background */}
       <Image
         image={image}
-        width={dimension.width}
-        height={dimension.height - 50}
+        width={SCREEN_WIDTH}
+        height={SCREEN_HEIGHT - 50}
         fit={'cover'}
       />
 

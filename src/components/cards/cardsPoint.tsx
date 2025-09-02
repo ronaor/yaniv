@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
 import {CardComponent, GlowingCardComponent} from './cardVisual';
-import {Dimensions, Platform, Pressable, StyleSheet, View} from 'react-native';
+import {Platform, Pressable, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useDerivedValue,
@@ -25,17 +25,17 @@ import {
   CARD_SELECT_OFFSET,
   MOVE_DURATION,
   CIRCLE_CENTER,
+  SCREEN_WIDTH,
+  SCREEN_HEIGHT,
 } from '~/utils/constants';
 import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 import {interpolate} from 'react-native-reanimated';
 
-const {width, height} = Dimensions.get('screen');
-
 interface CardPointsListProps {
   cards: Card[];
   slapCardIndex?: number;
-  onCardSlapped: () => void;
+  onCardSlapped: (card: Card) => void;
   fromPosition?: Position;
   direction: DirectionName;
   action?: TurnState['action'];
@@ -139,7 +139,7 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
             isSelected={selectedCards.includes(card)}
             disabled={disabled || disabledCards.includes(card)}
             isSlap={index === slapCardIndex}
-            onCardSlapped={onCardSlapped}
+            onCardSlapped={() => onCardSlapped(card)}
             from={fromPosition ?? CIRCLE_CENTER}
             dest={cardsPositions[index] ?? {x: 0, y: 0, deg: 0}}
             action={action ?? 'DRAG_FROM_DECK'}
@@ -159,8 +159,8 @@ const CardPointsList = forwardRef<CardListRef, CardPointsListProps>(
 
 const styles = StyleSheet.create({
   body: {
-    height: height,
-    width: width,
+    height: SCREEN_HEIGHT,
+    width: SCREEN_WIDTH,
     position: 'absolute',
     zIndex: 1,
   },

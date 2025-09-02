@@ -1,15 +1,13 @@
 import React, {ReactNode, useState} from 'react';
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
 import {RoomConfig} from '~/types/player';
-import {GAME_CONFIG} from '~/utils/constants';
+import {GAME_CONFIG, SCREEN_WIDTH} from '~/utils/constants';
 import {normalize} from '~/utils/ui';
 import SelectionBar from '../menu/mainSelectionBar';
 import SimpleButton from '../menu/simpleButton';
 import XButton from '../menu/xButton';
-
-const {width: screenWidth} = Dimensions.get('screen');
 
 type CreateRoomDialogProps = {
   isPlayWithComputer?: boolean;
@@ -162,7 +160,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   body: {
-    maxWidth: screenWidth - 42,
+    maxWidth: SCREEN_WIDTH - 42,
   },
   gradientHeader: {
     backgroundColor: '#843402',

@@ -2,7 +2,6 @@ import {isUndefined} from 'lodash';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   Alert,
-  Dimensions,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -19,10 +18,8 @@ import PlayersList from '~/components/menu/playersList';
 import RoomTimer from '~/components/menu/roomTimer';
 import {useRoomStore} from '~/store/roomStore';
 import {QuickGameLobbyProps} from '~/types/navigation';
-import {GAME_CONFIG} from '~/utils/constants';
+import {GAME_CONFIG, SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 import {normalize} from '~/utils/ui';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function QuickGameLobby({navigation}: QuickGameLobbyProps) {
   const {players, gameState, user, leaveRoom} = useRoomStore();
@@ -121,7 +118,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
                   : `Waiting for players... (${players.length}/4)`
               }
               fontSize={normalize(17)}
-              width={screenWidth}
+              width={SCREEN_WIDTH}
               height={normalize(60)}
               fillColor={'#FFFFFF'}
               strokeColor={'#644008'}
@@ -180,13 +177,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
     justifyContent: 'space-between',
-    width: screenWidth,
+    width: SCREEN_WIDTH,
     paddingHorizontal: 10,
     paddingVertical: 10,
     position: 'absolute',
   },
   playersContainer: {
-    width: screenWidth * 0.75,
+    width: SCREEN_WIDTH * 0.75,
   },
   betweenText: {
     height: 40,
@@ -194,13 +191,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   options: {
-    width: screenWidth * 0.9,
+    width: SCREEN_WIDTH * 0.9,
     paddingTop: 10,
-    paddingBottom: screenHeight * 0.08,
+    paddingBottom: SCREEN_HEIGHT * 0.08,
     gap: 10,
   },
   scrollViewContent: {
-    paddingTop: screenHeight * 0.12,
+    paddingTop: SCREEN_HEIGHT * 0.12,
     padding: 20,
     alignItems: 'center',
   },

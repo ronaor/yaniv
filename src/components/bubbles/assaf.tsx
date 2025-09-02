@@ -9,11 +9,10 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import {DirectionName} from '~/types/cards';
-import {Dimensions, View, ViewStyle} from 'react-native';
+import {View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
 import {useEffect, useState} from 'react';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
@@ -118,18 +117,18 @@ const AssafBubble = ({direction}: AssafBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: screenHeight - 390, left: 60, zIndex: 5},
+  down: {position: 'absolute', top: SCREEN_HEIGHT - 390, left: 60, zIndex: 5},
   up: {position: 'absolute', top: 170, left: 60, zIndex: 5},
   right: {
     position: 'absolute',
-    left: screenWidth - 310,
-    top: screenHeight / 2 - 170,
+    left: SCREEN_WIDTH - 310,
+    top: SCREEN_HEIGHT / 2 - 170,
     zIndex: 5,
   },
   left: {
     position: 'absolute',
     left: 60,
-    top: screenHeight / 2 - 170,
+    top: SCREEN_HEIGHT / 2 - 170,
     zIndex: 5,
   },
 };

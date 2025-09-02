@@ -1,13 +1,11 @@
 import {Easing, withTiming, useSharedValue} from 'react-native-reanimated';
 import {useEffect} from 'react';
 import {DirectionName} from '~/types/cards';
-import {Dimensions} from 'react-native';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from '~/utils/constants';
 
 /** Kill (throw-out) constants */
 const KILL_DURATION = 4000;
-const KILL_DIST_BASE = Math.max(screenWidth, screenHeight) * 0.45; // base throw distance
+const KILL_DIST_BASE = Math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.45; // base throw distance
 const KILL_LATERAL_WOBBLE = 30; // px random side wobble
 const KILL_SPIN = 1000; // deg
 

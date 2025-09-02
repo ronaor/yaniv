@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Animated, {
   useSharedValue,
@@ -22,6 +22,7 @@ import {PlayerStatusType} from '~/types/player';
 import EmojiBubble from './emojiBubble';
 import {useRoomStore} from '~/store/roomStore';
 import {useKillAnimation} from '~/hooks/useKillAnimation';
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 interface UserAvatarProps {
   name: string;
@@ -61,8 +62,6 @@ const CIRCLE_AREA = {
   height: CIRCLE_RADIUS * 2,
 };
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
 /** Internal seating layout — same coordinates you used on the screen */
 const seatStyle: Record<DirectionName, any> = {
   down: {position: 'absolute', bottom: 110, left: 10, zIndex: 100},
@@ -70,13 +69,13 @@ const seatStyle: Record<DirectionName, any> = {
   left: {
     position: 'absolute',
     left: 10,
-    top: screenHeight / 2 - 20,
+    top: SCREEN_HEIGHT / 2 - 20,
     zIndex: 100,
   },
   right: {
     position: 'absolute',
     right: 10,
-    top: screenHeight / 2 - 20,
+    top: SCREEN_HEIGHT / 2 - 20,
     zIndex: 100,
   },
 };
@@ -199,7 +198,7 @@ function UserAvatar({
 
     if (isUser) {
       scoreMergingAnimation(roundScore[0], {
-        x: screenWidth / 2 - 60,
+        x: SCREEN_WIDTH / 2 - 60,
         y: -38,
         scale: 1.48,
       });
@@ -471,14 +470,14 @@ export const getAvatarCenterPosition = (
   if (typeof style.left === 'number') {
     x = style.left + CIRCLE_SIZE / 2;
   } else if (typeof style.right === 'number') {
-    x = screenWidth - style.right - CIRCLE_SIZE / 2;
+    x = SCREEN_WIDTH - style.right - CIRCLE_SIZE / 2;
   }
 
   // Calculate Y position
   if (typeof style.top === 'number') {
     y = style.top + CIRCLE_SIZE / 2;
   } else if (typeof style.bottom === 'number') {
-    y = screenHeight - style.bottom - CIRCLE_SIZE * 1.75;
+    y = SCREEN_HEIGHT - style.bottom - CIRCLE_SIZE * 1.75;
   }
 
   return {x, y};

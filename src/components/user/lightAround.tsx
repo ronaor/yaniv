@@ -1,5 +1,5 @@
 import {Canvas, Circle, RadialGradient, vec} from '@shopify/react-native-skia';
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {DirectionName} from '~/types/cards';
 import React, {useEffect} from 'react';
 import Animated, {
@@ -8,8 +8,7 @@ import Animated, {
   withTiming,
   useDerivedValue,
 } from 'react-native-reanimated';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from '~/utils/constants';
 
 interface LightAroundProps {
   direction: DirectionName;
@@ -32,13 +31,13 @@ function LightAround({direction, isActive}: LightAroundProps) {
   const getPosition = () => {
     switch (direction) {
       case 'down':
-        return {cx: screenWidth / 2, cy: screenHeight};
+        return {cx: SCREEN_WIDTH / 2, cy: SCREEN_HEIGHT};
       case 'up':
-        return {cx: screenWidth / 2, cy: 40};
+        return {cx: SCREEN_WIDTH / 2, cy: 40};
       case 'left':
-        return {cx: -70, cy: screenHeight / 2 - 50};
+        return {cx: -70, cy: SCREEN_HEIGHT / 2 - 50};
       case 'right':
-        return {cx: screenWidth + 70, cy: screenHeight / 2 - 50};
+        return {cx: SCREEN_WIDTH + 70, cy: SCREEN_HEIGHT / 2 - 50};
     }
   };
 
@@ -71,8 +70,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     pointerEvents: 'none',
-    width: screenWidth,
-    height: screenHeight,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     zIndex: -1,
   },
 });

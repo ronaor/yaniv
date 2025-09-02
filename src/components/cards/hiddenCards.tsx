@@ -1,6 +1,6 @@
 import React, {memo, useEffect, useMemo} from 'react';
 import {Card, DirectionName, Position} from '~/types/cards';
-import {Dimensions, Platform, StyleSheet, View} from 'react-native';
+import {Platform, StyleSheet, View} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useDerivedValue,
@@ -15,11 +15,14 @@ import {
 } from '~/utils/logic';
 import CardBack from './cardBack';
 import {getCardKey} from '~/utils/gameRules';
-import {CIRCLE_CENTER, MOVE_DURATION} from '~/utils/constants';
+import {
+  CIRCLE_CENTER,
+  MOVE_DURATION,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from '~/utils/constants';
 import {TurnState} from '~/types/turnState';
 import {CardComponent} from './cardVisual';
-
-const {width, height} = Dimensions.get('screen');
 
 interface HiddenCardPointsListProps {
   cards: Card[];
@@ -85,8 +88,8 @@ const HiddenCardPointsList = ({
 
 const styles = StyleSheet.create({
   body: {
-    height: height,
-    width: width,
+    height: SCREEN_HEIGHT,
+    width: SCREEN_WIDTH,
     position: 'absolute',
   },
   pointers: {

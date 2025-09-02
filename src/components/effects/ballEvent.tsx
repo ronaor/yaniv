@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,8 +12,7 @@ import Animated, {
 import Svg, {Image} from 'react-native-svg';
 import {DirectionName} from '~/types/cards';
 import {getAvatarCenterPosition} from '../user/userAvatar';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_WIDTH, SCREEN_HEIGHT} from '~/utils/constants';
 
 export type ThrowBallEvent = {from: DirectionName; to: DirectionName};
 
@@ -24,7 +23,7 @@ const ANIMATION_TIMING = {
   CLEANUP_DELAY: 0,
 };
 
-const REBOUND_DISTANCE_BASE = (screenWidth + screenHeight) / 2; // pixels
+const REBOUND_DISTANCE_BASE = (SCREEN_WIDTH + SCREEN_HEIGHT) / 2; // pixels
 const MAX_BOUNCE_ANGLE_DEG = 18; // small deflection
 const ARC_HEIGHT_PX = 60;
 const BALL_SIZE = 50;

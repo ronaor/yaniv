@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Alert, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
+import {Alert, StatusBar, StyleSheet, View} from 'react-native';
 import {isUndefined} from 'lodash';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useShallow} from 'zustand/react/shallow';
@@ -14,6 +14,8 @@ import {
   CARD_HEIGHT,
   CARD_WIDTH,
   directions,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
   SMALL_DELAY,
 } from '~/utils/constants';
 
@@ -30,7 +32,7 @@ import GameTimer from '~/components/game/timer';
 import SimpleButton from '~/components/menu/simpleButton';
 import LoadingOverlay from '~/components/game/loadingOverlay';
 import PlayerHand from '~/components/user/playerHand';
-import {DirectionName} from '~/types/cards';
+import {Card, DirectionName} from '~/types/cards';
 
 import EndGameDialog, {
   EndGameDialogRef,
@@ -42,8 +44,6 @@ import UserLostDialog, {
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
 import EmojisButton from '~/components/game/emojisButton';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -373,10 +373,12 @@ function GameScreen({navigation}: any) {
     return () => clearTimeout(timer);
   }, [resetSlapDown, slapCardIndex]);
 
-  const onSlapCard = useCallback(() => {
-    const hand = gamePlayers.all[gamePlayers.current].hand;
-    emit.slapDown(hand[slapCardIndex]);
-  }, [gamePlayers, emit, slapCardIndex]);
+  const onSlapCard = useCallback(
+    (card: Card) => {
+      emit.slapDown(card);
+    },
+    [emit],
+  );
 
   return (
     <>
@@ -445,7 +447,7 @@ function GameScreen({navigation}: any) {
               ? game.currentTurn?.prevTurn?.action
               : undefined
           }
-          direction={directions[0]}
+          direction={'down'}
           isReady={roundReadyFor === game.round}
           cardsDelay={cardsDelay[0]}
           disabled={!!roundResults}
@@ -561,14 +563,14 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     alignItems: 'center',
-    top: screenHeight / 2 - 2 * CARD_HEIGHT,
-    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+    top: SCREEN_HEIGHT / 2 - 2 * CARD_HEIGHT,
+    left: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
   },
   pickup: {
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
-    top: screenHeight / 2 - 1.5 * CARD_HEIGHT,
-    left: screenWidth / 2 - CARD_WIDTH * 0.5,
+    top: SCREEN_HEIGHT / 2 - 1.5 * CARD_HEIGHT,
+    left: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
   },
   handTitle: {
     fontSize: 18,
@@ -616,7 +618,7 @@ const styles = StyleSheet.create({
     color: colors.success,
     marginBottom: 10,
   },
-  absolute: {position: 'absolute', width: screenWidth},
+  absolute: {position: 'absolute', width: SCREEN_WIDTH},
   avatarHolder: {aspectRatio: 1, width: 80},
   emojis: {
     position: 'absolute',

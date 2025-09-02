@@ -1,4 +1,3 @@
-import {Dimensions} from 'react-native';
 import {create} from 'zustand';
 import {
   ActionSource,
@@ -14,6 +13,8 @@ import {
   CARD_SELECT_OFFSET,
   CARD_WIDTH,
   directions,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
 } from '~/utils/constants';
 import {getCardKey} from '~/utils/gameRules';
 import {
@@ -232,8 +233,6 @@ const initialGameFields: YanivGameFields = {
   emojiTriggers: {},
 };
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
 export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
   ...initialGameFields,
   clearGame: () => {
@@ -308,12 +307,12 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           };
 
       const deckPosition = {
-        y: screenHeight / 2 - 2 * CARD_HEIGHT,
-        x: screenWidth / 2 - CARD_WIDTH * 0.5,
+        y: SCREEN_HEIGHT / 2 - 2 * CARD_HEIGHT,
+        x: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
       };
       const pickupPosition = {
-        y: screenHeight / 2,
-        x: screenWidth / 2 - CARD_WIDTH * 0.5,
+        y: SCREEN_HEIGHT / 2,
+        x: SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5,
       };
 
       set(state => ({
@@ -385,10 +384,10 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           .map(i => playerPositions[i])
           .filter(Boolean)
           .map(pos => ({
-            x: pos.x - screenWidth / 2 + CARD_WIDTH / 2,
+            x: pos.x - SCREEN_WIDTH / 2 + CARD_WIDTH / 2,
             y:
               pos.y -
-              screenHeight / 2 +
+              SCREEN_HEIGHT / 2 +
               CARD_HEIGHT / 2 -
               (socketId === data.playerId ? CARD_SELECT_OFFSET : 0),
             deg: pos.deg,

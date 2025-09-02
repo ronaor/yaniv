@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo} from 'react';
-import {Dimensions, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Animated, {
   Easing,
   SharedValue,
@@ -14,18 +14,21 @@ import {CardComponent} from '~/components/cards/cardVisual';
 import CardBack from '~/components/cards//cardBack';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {getCardKey} from '~/utils/gameRules';
-import {directions, MOVE_DURATION} from '~/utils/constants';
+import {
+  directions,
+  MOVE_DURATION,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from '~/utils/constants';
 import {
   calculateCardsPositions,
   calculateRevealCardsPositions,
 } from '~/utils/logic';
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
 // Center collection point
 const COLLECTION_CENTER = {
-  x: screenWidth / 2 - 25, // Adjust for card width
-  y: screenHeight / 2 - 35, // Adjust for card height
+  x: SCREEN_WIDTH / 2 - 25, // Adjust for card width
+  y: SCREEN_HEIGHT / 2 - 35, // Adjust for card height
 };
 
 // stagger between cards (ms)
@@ -219,8 +222,8 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    width: screenWidth,
-    height: screenHeight,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     zIndex: 1000,
   },
 });

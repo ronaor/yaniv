@@ -2,7 +2,7 @@ import {noop} from 'lodash';
 import React, {forwardRef, memo, useImperativeHandle, useState} from 'react';
 import Dialog from '../dialog';
 import {PlayerStatus} from '~/types/player';
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {normalize} from '~/utils/ui';
 import {OutlinedText} from '../cartoonText';
 import LinearGradient from 'react-native-linear-gradient';
@@ -10,6 +10,7 @@ import SimpleButton from '../menu/simpleButton';
 import PlayerResultRow from '../user/playerResult';
 import Animated, {FadeIn} from 'react-native-reanimated';
 import {PlayerId} from '~/store/yanivGameStore';
+import {SCREEN_WIDTH} from '~/utils/constants';
 
 const Header = () => (
   <View style={styles.header}>
@@ -28,9 +29,6 @@ const Header = () => (
     <View style={styles.headerDown} />
   </View>
 );
-
-const {width: screenWidth} = Dimensions.get('screen');
-
 interface Player extends PlayerStatus {
   id: string;
 }
@@ -140,7 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   body: {
-    maxWidth: screenWidth - 42,
+    maxWidth: SCREEN_WIDTH - 42,
   },
 
   header: {
@@ -180,7 +178,7 @@ const styles = StyleSheet.create({
     borderColor: '#4C2400',
     borderRadius: 30,
     padding: 3,
-    width: screenWidth - 42,
+    width: SCREEN_WIDTH - 42,
   },
   border: {
     borderRadius: 25,

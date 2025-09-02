@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
   ScrollView,
-  Dimensions,
   Text,
   Pressable,
 } from 'react-native';
@@ -24,8 +23,7 @@ import {normalize} from '~/utils/ui';
 import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import SimpleButton from '~/components/menu/simpleButton';
 import Svg, {Image} from 'react-native-svg';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 interface RoomOptionRowProps {
   text: string;
@@ -124,7 +122,7 @@ function LobbyScreen({navigation}: LobbyProps) {
                   : `Waiting for players... (${players.length}/4)`
               }
               fontSize={normalize(17)}
-              width={screenWidth}
+              width={SCREEN_WIDTH}
               height={normalize(60)}
               fillColor={'#FFFFFF'}
               strokeColor={'#644008'}
@@ -182,14 +180,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     zIndex: 10,
     justifyContent: 'space-between',
-    width: screenWidth,
+    width: SCREEN_WIDTH,
     paddingHorizontal: 10,
     paddingVertical: 10,
     position: 'absolute',
   },
   playersContainer: {
     top: 30,
-    width: screenWidth * 0.75,
+    width: SCREEN_WIDTH * 0.75,
   },
   betweenText: {
     justifyContent: 'center',
@@ -198,13 +196,13 @@ const styles = StyleSheet.create({
     transform: [{translateY: 16}],
   },
   options: {
-    width: screenWidth * 0.8,
+    width: SCREEN_WIDTH * 0.8,
     paddingTop: 10,
-    paddingBottom: screenHeight * 0.08,
+    paddingBottom: SCREEN_HEIGHT * 0.08,
     gap: 10,
   },
   scrollViewContent: {
-    paddingTop: screenHeight * 0.12,
+    paddingTop: SCREEN_HEIGHT * 0.12,
     padding: 20,
     alignItems: 'center',
   },

@@ -5,7 +5,6 @@ import {
   TextInput,
   ActivityIndicator,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   Pressable,
 } from 'react-native';
@@ -24,8 +23,7 @@ import Animated, {
   LinearTransition,
 } from 'react-native-reanimated';
 import {User} from '~/types/player';
-
-const {width: screenWidth} = Dimensions.get('screen');
+import {SCREEN_WIDTH} from '~/utils/constants';
 
 interface EditProfileDialogStore {
   isOpen: boolean;
@@ -293,7 +291,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     fontSize: 20,
     fontWeight: '700',
-    minWidth: screenWidth * 0.55,
+    minWidth: SCREEN_WIDTH * 0.55,
     color: '#642a00',
     textAlign: 'center',
   },

@@ -1,8 +1,11 @@
-import {Dimensions} from 'react-native';
 import {Card, DirectionName, Position} from '~/types/cards';
-import {CARD_WIDTH, directions, OVERLAP_AMOUNT} from './constants';
-
-const {width, height} = Dimensions.get('screen');
+import {
+  CARD_WIDTH,
+  directions,
+  OVERLAP_AMOUNT,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
+} from './constants';
 
 const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
@@ -34,15 +37,15 @@ export function calculateCardsPositions(
     switch (direction) {
       case 'down': // bottom, pointing up
         return {
-          x: width / 2 - (cardsLen / 2) * spread + index * spread,
-          y: height - 145 + arcOffset + downYExtra,
+          x: SCREEN_WIDTH / 2 - (cardsLen / 2) * spread + index * spread,
+          y: SCREEN_HEIGHT - 145 + arcOffset + downYExtra,
           deg: shift * tiltStep,
         };
 
       case 'up': // top, pointing down
         return {
           x:
-            width / 2 -
+            SCREEN_WIDTH / 2 -
             (cardsLen / 2) * spread +
             (cardsLen - index) * spread +
             upXExtra,
@@ -52,22 +55,22 @@ export function calculateCardsPositions(
 
       case 'right': // right side, pointing left
         return {
-          x: width - 150 + arcOffset + CARD_WIDTH * 1.5,
-          y: height / 2 + (cardsLen / 2) * spread - index * spread - 135,
+          x: SCREEN_WIDTH - 150 + arcOffset + CARD_WIDTH * 1.5,
+          y: SCREEN_HEIGHT / 2 + (cardsLen / 2) * spread - index * spread - 135,
           deg: -90 + shift * tiltStep,
         };
 
       case 'left': // left side, pointing right
         return {
           x: 25 - arcOffset,
-          y: height / 2 - (cardsLen / 2) * spread + index * spread - 125,
+          y: SCREEN_HEIGHT / 2 - (cardsLen / 2) * spread + index * spread - 125,
           deg: 90 + shift * tiltStep,
         };
 
       default:
         return {
-          x: width / 2 - (cardsLen / 2) * spread + index * spread,
-          y: height - 150 + arcOffset,
+          x: SCREEN_WIDTH / 2 - (cardsLen / 2) * spread + index * spread,
+          y: SCREEN_HEIGHT - 150 + arcOffset,
           deg: shift * tiltStep,
         };
     }

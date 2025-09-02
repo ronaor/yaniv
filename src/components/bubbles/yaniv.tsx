@@ -9,11 +9,10 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import {DirectionName} from '~/types/cards';
-import {Dimensions, View, ViewStyle} from 'react-native';
+import {View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
 import {useEffect, useState} from 'react';
-
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
+import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
@@ -126,17 +125,17 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
 };
 
 const bubbleStyle: Record<DirectionName, ViewStyle> = {
-  down: {position: 'absolute', top: screenHeight - 380, left: 60, zIndex: 5},
+  down: {position: 'absolute', top: SCREEN_HEIGHT - 380, left: 60, zIndex: 5},
   up: {position: 'absolute', top: 170, left: 50},
   right: {
     position: 'absolute',
-    left: screenWidth - 260,
-    top: screenHeight / 2 - 140,
+    left: SCREEN_WIDTH - 260,
+    top: SCREEN_HEIGHT / 2 - 140,
   },
   left: {
     position: 'absolute',
     left: 50,
-    top: screenHeight / 2 - 140,
+    top: SCREEN_HEIGHT / 2 - 140,
   },
 };
 

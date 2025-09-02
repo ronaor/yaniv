@@ -5,7 +5,6 @@ import {
   Alert,
   ActivityIndicator,
   ImageBackground,
-  Dimensions,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menu/menuButton';
@@ -21,8 +20,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import LeaveButton from '~/components/menu/leaveButton';
 import {OutlinedText} from '~/components/cartoonText';
 import JoinRoomDialog from '~/components/dialogs/joinRoomDialog';
-
-const {width: screenWidth} = Dimensions.get('screen');
+import {SCREEN_WIDTH} from '~/utils/constants';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -105,7 +103,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             <OutlinedText
               text="Play online with your friends."
               fontSize={20}
-              width={screenWidth}
+              width={SCREEN_WIDTH}
               height={32}
               fillColor={'#FEF3C7'}
               strokeColor={'#A9490A'}

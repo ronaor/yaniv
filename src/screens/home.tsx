@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {Dimensions, ImageBackground, StyleSheet, View} from 'react-native';
+import {ImageBackground, StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
@@ -15,8 +15,7 @@ import {colors, textStyles} from '~/theme';
 import {HomeScreenProps} from '~/types/navigation';
 import {RoomConfig} from '~/types/player';
 import EditProfileDialog from '~/components/dialogs/editProfileDialog';
-
-const {width: screenWidth} = Dimensions.get('screen');
+import {SCREEN_WIDTH} from '~/utils/constants';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
@@ -127,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
     justifyContent: 'space-between',
-    width: screenWidth,
+    width: SCREEN_WIDTH,
     paddingHorizontal: 10,
     paddingVertical: 10,
     position: 'absolute',
