@@ -353,8 +353,10 @@ function GameScreen({navigation}: any) {
       lastPickedCard,
       tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
       wasPlayer: game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
+      layerHistory: board.layerHistory,
     }),
     [
+      board.layerHistory,
       board.pickupPile,
       game.currentTurn?.prevTurn?.discard.cardsPositions,
       game.currentTurn?.prevTurn?.playerId,
