@@ -313,7 +313,11 @@ function UserAvatar({
               numberOfLines={1}
               style={[
                 styles.name,
-                {fontSize: normalize(name.length > 5 ? 11 : 13)},
+                {
+                  fontSize: normalize(
+                    name.length >= 10 ? 10 : name.length > 5 ? 11 : 13,
+                  ),
+                },
               ]}>
               {name}
             </Text>

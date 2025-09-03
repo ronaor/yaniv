@@ -402,7 +402,7 @@ function GameScreen({navigation}: any) {
         barStyle="light-content"
       />
       <RandomBackground />
-      <SafeAreaTopBar color={'#000000ff'} />
+
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>
           {/* Header */}
@@ -546,6 +546,7 @@ function GameScreen({navigation}: any) {
       <View style={styles.emojis}>
         <EmojisButton onEmojiSelect={emit.shareEmoji} />
       </View>
+      <SafeAreaTopBar color={'#000000ff'} />
     </>
   );
 }
