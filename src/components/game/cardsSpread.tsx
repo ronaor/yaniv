@@ -23,6 +23,7 @@ interface CardsSpreadProps {
   onSpread?: () => void;
   onEnd?: () => void;
   shouldGroupCards: boolean;
+  visible?: boolean;
 }
 
 const CardsSpread = ({
@@ -30,6 +31,7 @@ const CardsSpread = ({
   onSpread,
   onEnd,
   shouldGroupCards,
+  visible = false,
 }: CardsSpreadProps) => {
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
@@ -82,7 +84,7 @@ const CardsSpread = ({
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       {/* Orbiting special card */}
-      {!isFinished && startShuffle && (
+      {visible && !isFinished && startShuffle && (
         <Animated.View style={specialCardStyle}>
           {finishShuffle ? (
             <CardBack />

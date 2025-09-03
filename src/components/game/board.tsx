@@ -128,6 +128,7 @@ function GameBoard({
         onShuffled={onFinishShuffled}
         onSpread={onFinishSpread}
         shouldGroupCards={lastGameId === gameId}
+        visible={!deckReady}
       />
     </View>
   );

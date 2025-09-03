@@ -95,9 +95,9 @@ const EditProfileDialog: React.FC = () => {
     }
   }, [loading, user.nickName, isOpen, open]);
 
-  if (loading) {
-    return (
-      <Dialog isModalOpen onBackgroundPress={() => {}}>
+  return (
+    <>
+      <Dialog isModalOpen={loading} onBackgroundPress={() => {}}>
         <View style={styles.loading}>
           <ActivityIndicator size="large" color={'white'} />
           <OutlinedText
@@ -112,82 +112,79 @@ const EditProfileDialog: React.FC = () => {
           />
         </View>
       </Dialog>
-    );
-  }
-
-  return (
-    <Dialog isModalOpen={isOpen} onBackgroundPress={handleClose}>
-      <View style={styles.body}>
-        {mode === 'edit' && (
-          <View style={styles.xButton}>
-            <XButton onPress={handleClose} />
-          </View>
-        )}
-        <LinearGradient
-          style={styles.gradient}
-          colors={['#DE8216', '#A9500F', '#A9500F', '#A9500F', '#783505ff']}>
-          <View style={styles.content}>
-            <Text style={styles.headerTitle}>
-              {mode === 'edit' ? 'EDIT PROFILE' : 'SET PROFILE'}
-            </Text>
-
-            {/* Current Avatar Display */}
-            <View style={styles.currentAvatarContainer}>
-              <TouchableOpacity
-                style={styles.avatarButton}
-                onPress={() => setShowAvatarPicker(!showAvatarPicker)}>
-                <AvatarImage index={selectedAvatarIndex} size={80} />
-              </TouchableOpacity>
+      <Dialog isModalOpen={isOpen} onBackgroundPress={handleClose}>
+        <View style={styles.body}>
+          {mode === 'edit' && (
+            <View style={styles.xButton}>
+              <XButton onPress={handleClose} />
             </View>
+          )}
+          <LinearGradient
+            style={styles.gradient}
+            colors={['#DE8216', '#A9500F', '#A9500F', '#A9500F', '#783505ff']}>
+            <View style={styles.content}>
+              <Text style={styles.headerTitle}>
+                {mode === 'edit' ? 'EDIT PROFILE' : 'SET PROFILE'}
+              </Text>
 
-            {/* Name Input */}
-            <View style={styles.inputWrapper}>
-              <LinearGradient
-                style={styles.inputGradient}
-                colors={['#EBD5BF', '#FFF5D5']}>
-                <TextInput
-                  style={styles.input}
-                  value={input}
-                  onChangeText={setInput}
-                  placeholder="Player name"
-                  placeholderTextColor={'#A0977D'}
+              {/* Current Avatar Display */}
+              <View style={styles.currentAvatarContainer}>
+                <TouchableOpacity
+                  style={styles.avatarButton}
+                  onPress={() => setShowAvatarPicker(!showAvatarPicker)}>
+                  <AvatarImage index={selectedAvatarIndex} size={80} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Name Input */}
+              <View style={styles.inputWrapper}>
+                <LinearGradient
+                  style={styles.inputGradient}
+                  colors={['#EBD5BF', '#FFF5D5']}>
+                  <TextInput
+                    style={styles.input}
+                    value={input}
+                    onChangeText={setInput}
+                    placeholder="Player name"
+                    placeholderTextColor={'#A0977D'}
+                  />
+                </LinearGradient>
+              </View>
+
+              <View style={styles.buttonAdjuster}>
+                <SimpleButton
+                  disabled={input.length === 0}
+                  text="SAVE"
+                  onPress={handleSave}
+                  colors={['#65D000', '#2D9900', '#217701']}
                 />
-              </LinearGradient>
+              </View>
             </View>
-
-            <View style={styles.buttonAdjuster}>
-              <SimpleButton
-                disabled={input.length === 0}
-                text="SAVE"
-                onPress={handleSave}
-                colors={['#65D000', '#2D9900', '#217701']}
+          </LinearGradient>
+        </View>
+        {/* Avatar Picker */}
+        {showAvatarPicker && (
+          <Pressable
+            disabled={!showAvatarPicker}
+            style={[StyleSheet.absoluteFill, styles.overlay]}
+            onPress={() => setShowAvatarPicker(false)}>
+            <Animated.View
+              entering={FadeInUp}
+              exiting={FadeOutUp}
+              layout={LinearTransition}
+              style={styles.avatarPickerContainer}>
+              <AvatarPicker
+                selectedIndex={selectedAvatarIndex}
+                onSelectAvatar={index => {
+                  setSelectedAvatarIndex(index);
+                  setShowAvatarPicker(false); // Auto-close after selection
+                }}
               />
-            </View>
-          </View>
-        </LinearGradient>
-      </View>
-      {/* Avatar Picker */}
-      {showAvatarPicker && (
-        <Pressable
-          disabled={!showAvatarPicker}
-          style={[StyleSheet.absoluteFill, styles.overlay]}
-          onPress={() => setShowAvatarPicker(false)}>
-          <Animated.View
-            entering={FadeInUp}
-            exiting={FadeOutUp}
-            layout={LinearTransition}
-            style={styles.avatarPickerContainer}>
-            <AvatarPicker
-              selectedIndex={selectedAvatarIndex}
-              onSelectAvatar={index => {
-                setSelectedAvatarIndex(index);
-                setShowAvatarPicker(false); // Auto-close after selection
-              }}
-            />
-          </Animated.View>
-        </Pressable>
-      )}
-    </Dialog>
+            </Animated.View>
+          </Pressable>
+        )}
+      </Dialog>
+    </>
   );
 };
 

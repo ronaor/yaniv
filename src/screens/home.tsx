@@ -37,7 +37,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
       'lobby3.mp3',
     ]);
     startNewSong(shuffledSongs, {
-      withFade: true,
+      withFade: false,
       loop: true,
     });
 

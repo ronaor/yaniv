@@ -441,10 +441,12 @@ function GameScreen({navigation}: any) {
         </View>
         <CardPointsList
           ref={cardsListRef}
-          key={user.id}
+          key={`${user.id}-${game.round}`}
+          isReady={roundReadyFor === game.round}
           cards={gamePlayers.all[user.id]?.hand ?? []}
           slapCardIndex={slapCardIndex}
           onCardSlapped={onSlapCard}
+          // fromPosition + action group
           fromPosition={
             user.id === game.currentTurn?.prevTurn?.playerId
               ? game.currentTurn?.prevTurn?.draw?.cardPosition
@@ -456,7 +458,6 @@ function GameScreen({navigation}: any) {
               : undefined
           }
           direction={'down'}
-          isReady={roundReadyFor === game.round}
           cardsDelay={cardsDelay[0]}
           disabled={!!roundResults}
         />
@@ -464,6 +465,7 @@ function GameScreen({navigation}: any) {
       {gamePlayers.order.slice(1).map((playerId, i) => (
         <View key={playerId} style={styles.absolute}>
           <HiddenCardPointsList
+            key={`${playerId}-${game.round}`}
             cards={gamePlayers.all[playerId]?.hand ?? []}
             direction={directions[i + 1]}
             fromPosition={
