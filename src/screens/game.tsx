@@ -236,6 +236,10 @@ function GameScreen({navigation}: any) {
   }, [humanLost]);
 
   useEffect(() => {
+    setPlayersKilling({});
+  }, [gameId]);
+
+  useEffect(() => {
     if (!roundResults || game.phase !== 'round-end') {
       setPlayersRevealing({});
       setPlayersResultedScores({});
@@ -492,7 +496,10 @@ function GameScreen({navigation}: any) {
             isActive={game.currentTurn?.playerId === playerId}
             timePerPlayer={game.rules.timePerPlayer}
             status={game.playersStats[playerId].playerStatus}
-            kill={playersKilling[playerId]}
+            kill={
+              playersKilling[playerId] ||
+              game.playersStats[playerId]?.playerStatus === 'lost'
+            }
             direction={directions[i + 1]}
             emoji={emojiTriggers[playerId]}
           />
@@ -513,7 +520,10 @@ function GameScreen({navigation}: any) {
         timePerPlayer={game.rules.timePerPlayer}
         isUser
         status={game.playersStats[user.id]?.playerStatus ?? 'active'}
-        kill={playersKilling[user.id]}
+        kill={
+          playersKilling[user.id] ||
+          game.playersStats[user.id]?.playerStatus === 'lost'
+        }
         direction={directions[0]}
         emoji={emojiTriggers[user.id]}
       />
