@@ -19,6 +19,7 @@ import {SCREEN_WIDTH} from '~/utils/constants';
 import {useSongPlayer} from '~/store/songPlayerStore';
 import {shuffleArray} from '~/utils/logic';
 import MenuBackground from '~/components/menu/menuBackground';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
@@ -93,6 +94,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <MenuBackground lookPosition={lookPosition} />
+      <SafeAreaTopBar />
       <View style={styles.screen}>
         <View style={styles.body}>
           <GameLogo enableEnterAnimation />

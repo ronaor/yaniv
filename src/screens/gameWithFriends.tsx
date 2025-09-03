@@ -21,6 +21,7 @@ import LeaveButton from '~/components/menu/leaveButton';
 import {OutlinedText} from '~/components/cartoonText';
 import JoinRoomDialog from '~/components/dialogs/joinRoomDialog';
 import {SCREEN_WIDTH} from '~/utils/constants';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
@@ -78,6 +79,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <SafeAreaTopBar />
       <ImageBackground
         source={require('~/assets/images/background.png')}
         style={styles.screen}>

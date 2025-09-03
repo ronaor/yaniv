@@ -47,6 +47,7 @@ import EmojisButton from '~/components/game/emojisButton';
 import {useSongPlayer} from '~/store/songPlayerStore';
 import useSound from '~/hooks/useSound';
 import {ERROR_SOUND} from '~/sounds';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -402,7 +403,7 @@ function GameScreen({navigation}: any) {
         barStyle="light-content"
       />
       <RandomBackground />
-
+      <SafeAreaTopBar color={'#000000ff'} />
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>
           {/* Header */}
