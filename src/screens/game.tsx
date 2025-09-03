@@ -92,12 +92,7 @@ function GameScreen({navigation}: any) {
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
 
-  const {stopCurrentSong} = useSongPlayer();
-
-  // Add this useEffect to stop music with fade when entering game
-  useEffect(() => {
-    stopCurrentSong({withFade: true});
-  }, [stopCurrentSong]);
+  const {duckVolume, restoreVolume} = useSongPlayer();
 
   const handValue = useMemo(
     () => getHandValue(gamePlayers.all[user.id]?.hand ?? []),
@@ -105,7 +100,11 @@ function GameScreen({navigation}: any) {
   );
 
   useEffect(() => {
-    return clearGame;
+    duckVolume();
+    return () => {
+      clearGame();
+      restoreVolume();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

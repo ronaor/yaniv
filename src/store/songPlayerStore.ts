@@ -4,13 +4,15 @@ import {useSoundStore} from '../hooks/useSound';
 
 interface SongPlayerState {
   currentSong: Sound | null;
-  nextSong: Sound | null; // For smooth transitions during fade
   playlist: string[];
   currentSongIndex: number;
   isPlaying: boolean;
   isLooping: boolean;
+  isDucked: boolean;
   isFading: boolean;
+  duckingTimeout: NodeJS.Timeout | null;
   fadeInterval: NodeJS.Timeout | null;
+  currentVolume: number;
 }
 
 interface SongPlayerActions {
@@ -18,25 +20,31 @@ interface SongPlayerActions {
     songs: string[],
     options?: {withFade?: boolean; loop?: boolean},
   ) => Promise<void>;
-  stopCurrentSong: (options?: {withFade?: boolean}) => Promise<void>;
+  duckVolume: () => void;
+  restoreVolume: () => void;
+  stopCurrentSong: () => void;
 }
 
 type SongPlayerStore = SongPlayerState & SongPlayerActions;
 
-const FADE_DURATION = 5000; // 5 seconds
-const FADE_STEPS = 50; // Number of volume steps
+const DUCK_VOLUME = 0.1;
+const DUCK_CLEANUP_DELAY = 5000; // 5 seconds
+const FADE_DURATION = 2500; // 2.5 seconds
+const FADE_STEPS = 25;
 const FADE_INTERVAL = FADE_DURATION / FADE_STEPS;
 
 const useSongPlayerStore = create<SongPlayerStore>((set, get) => ({
   // State
   currentSong: null,
-  nextSong: null,
   playlist: [],
   currentSongIndex: 0,
   isPlaying: false,
   isLooping: false,
+  isDucked: false,
   isFading: false,
+  duckingTimeout: null,
   fadeInterval: null,
+  currentVolume: 1.0,
 
   // Actions
   startNewSong: async (songs, options = {}) => {
@@ -49,28 +57,32 @@ const useSongPlayerStore = create<SongPlayerStore>((set, get) => ({
       return;
     }
 
-    // Check if same playlist is already playing
+    // Check if same playlist is already playing (including ducked state)
     const isSamePlaylist =
       state.playlist.length === songs.length &&
       state.playlist.every((song, index) => song === songs[index]) &&
       state.isLooping === loop &&
-      state.isPlaying;
+      (state.isPlaying || state.isDucked);
 
-    // Check if trying to start same single song that's already playing
+    // Check if trying to start same single song that's already playing/ducked
     const isSameSingleSong =
       songs.length === 1 &&
       state.playlist.length > 0 &&
       state.playlist[state.currentSongIndex] === songs[0] &&
-      state.isPlaying;
+      (state.isPlaying || state.isDucked);
 
     if (isSamePlaylist || isSameSingleSong) {
       console.log('Same song/playlist already playing, skipping restart');
+      // If it's ducked, restore volume instead of restarting
+      if (state.isDucked) {
+        get().restoreVolume();
+      }
       return;
     }
 
     // Stop current song if playing
     if (state.currentSong) {
-      await get().stopCurrentSong({withFade});
+      get().stopCurrentSong();
     }
 
     // Set new playlist
@@ -84,19 +96,148 @@ const useSongPlayerStore = create<SongPlayerStore>((set, get) => ({
     await loadAndPlaySong(0, withFade);
   },
 
-  stopCurrentSong: async (options = {}) => {
-    const {withFade = false} = options;
+  duckVolume: () => {
     const state = get();
 
-    if (!state.currentSong) {
+    if (!state.currentSong || state.isDucked || state.isFading) {
       return;
     }
 
-    if (withFade) {
-      await fadeOutCurrentSong();
-    } else {
-      stopImmediately();
+    // Clear any existing timeouts
+    if (state.duckingTimeout) {
+      clearTimeout(state.duckingTimeout);
     }
+    if (state.fadeInterval) {
+      clearInterval(state.fadeInterval);
+    }
+
+    // Start fade out
+    let currentVolume = state.currentVolume;
+    const volumeStep = (state.currentVolume - DUCK_VOLUME) / FADE_STEPS;
+
+    set({isFading: true});
+
+    const interval = setInterval(() => {
+      currentVolume -= volumeStep;
+
+      if (currentVolume <= DUCK_VOLUME) {
+        currentVolume = DUCK_VOLUME;
+        state.currentSong?.setVolume(currentVolume);
+        clearInterval(interval);
+
+        // Set cleanup timeout after fade completes
+        const timeout = setTimeout(() => {
+          const currentState = get();
+          if (currentState.isDucked && currentState.currentSong) {
+            currentState.currentSong.stop();
+            currentState.currentSong.release();
+            set({
+              currentSong: null,
+              isPlaying: false,
+              isDucked: false,
+              isFading: false,
+              duckingTimeout: null,
+              fadeInterval: null,
+              playlist: [],
+              currentSongIndex: 0,
+              currentVolume: 1.0,
+            });
+          }
+        }, DUCK_CLEANUP_DELAY);
+
+        set({
+          isDucked: true,
+          isPlaying: false,
+          isFading: false,
+          currentVolume: DUCK_VOLUME,
+          duckingTimeout: timeout,
+          fadeInterval: null,
+        });
+      } else {
+        state.currentSong?.setVolume(currentVolume);
+        set({currentVolume});
+      }
+    }, FADE_INTERVAL);
+
+    set({fadeInterval: interval});
+  },
+
+  restoreVolume: () => {
+    const state = get();
+
+    if (!state.currentSong || !state.isDucked || state.isFading) {
+      return;
+    }
+
+    // Clear timeouts
+    if (state.duckingTimeout) {
+      clearTimeout(state.duckingTimeout);
+    }
+    if (state.fadeInterval) {
+      clearInterval(state.fadeInterval);
+    }
+
+    // Start fade in
+    let currentVolume = state.currentVolume;
+    const targetVolume = 1.0;
+    const volumeStep = (targetVolume - currentVolume) / FADE_STEPS;
+
+    set({isFading: true});
+
+    const interval = setInterval(() => {
+      currentVolume += volumeStep;
+
+      if (currentVolume >= targetVolume) {
+        currentVolume = targetVolume;
+        state.currentSong?.setVolume(currentVolume);
+        clearInterval(interval);
+
+        set({
+          isDucked: false,
+          isPlaying: true,
+          isFading: false,
+          currentVolume: targetVolume,
+          duckingTimeout: null,
+          fadeInterval: null,
+        });
+      } else {
+        state.currentSong?.setVolume(currentVolume);
+        set({currentVolume});
+      }
+    }, FADE_INTERVAL);
+
+    set({fadeInterval: interval});
+  },
+
+  stopCurrentSong: () => {
+    const state = get();
+
+    // Clear all timeouts/intervals
+    if (state.duckingTimeout) {
+      clearTimeout(state.duckingTimeout);
+    }
+    if (state.fadeInterval) {
+      clearInterval(state.fadeInterval);
+    }
+
+    // Stop and clean up sound
+    if (state.currentSong) {
+      state.currentSong.stop();
+      state.currentSong.release();
+    }
+
+    // Reset state
+    set({
+      currentSong: null,
+      isPlaying: false,
+      isDucked: false,
+      isFading: false,
+      duckingTimeout: null,
+      fadeInterval: null,
+      playlist: [],
+      currentSongIndex: 0,
+      currentVolume: 1.0,
+    });
   },
 }));
 
@@ -117,35 +258,17 @@ const loadAndPlaySong = async (songIndex: number, withFade: boolean) => {
         return;
       }
 
-      // Individual songs don't loop - playlist handles looping
       sound.setNumberOfLoops(0);
-
-      // Set initial volume
       const initialVolume = withFade ? 0.0 : 1.0;
       sound.setVolume(initialVolume);
 
-      // Clean up any existing nextSong to ensure max 2 sounds
-      const currentState = useSongPlayerStore.getState();
-      if (currentState.nextSong) {
-        currentState.nextSong.release();
-      }
+      useSongPlayerStore.setState({
+        currentSong: sound,
+        currentSongIndex: songIndex,
+        isPlaying: true,
+        currentVolume: initialVolume,
+      });
 
-      // Update state - move current to next if fading, otherwise replace current
-      if (withFade && currentState.currentSong) {
-        useSongPlayerStore.setState({
-          nextSong: sound,
-          currentSongIndex: songIndex,
-        });
-      } else {
-        useSongPlayerStore.setState({
-          currentSong: sound,
-          nextSong: null,
-          currentSongIndex: songIndex,
-          isPlaying: true,
-        });
-      }
-
-      // Start playing
       sound.play(success => {
         if (!success) {
           console.error('Song playback failed');
@@ -154,24 +277,22 @@ const loadAndPlaySong = async (songIndex: number, withFade: boolean) => {
         }
 
         // Handle song end for playlist progression
-        if (songIndex < state.playlist.length - 1) {
-          // Move to next song in playlist
-          const nextIndex = songIndex + 1;
-          loadAndPlaySong(nextIndex, withFade);
-        } else if (state.isLooping) {
-          // Loop back to first song in playlist
-          loadAndPlaySong(0, withFade);
-        } else {
-          // Playlist ended (no loop)
-          useSongPlayerStore.setState({
-            isPlaying: false,
-            currentSong: null,
-            nextSong: null,
-          });
+        const currentState = useSongPlayerStore.getState();
+        if (!currentState.isDucked && !currentState.isFading) {
+          if (songIndex < currentState.playlist.length - 1) {
+            const nextIndex = songIndex + 1;
+            loadAndPlaySong(nextIndex, false);
+          } else if (currentState.isLooping) {
+            loadAndPlaySong(0, false);
+          } else {
+            useSongPlayerStore.setState({
+              isPlaying: false,
+              currentSong: null,
+            });
+          }
         }
       });
 
-      // Fade in if requested
       if (withFade) {
         fadeInSong(sound);
       }
@@ -195,118 +316,69 @@ const fadeInSong = (sound: Sound) => {
       sound.setVolume(currentVolume);
       clearInterval(interval);
 
-      // Promote nextSong to currentSong and clean up old current
-      const currentState = useSongPlayerStore.getState();
-      if (currentState.nextSong === sound && currentState.currentSong) {
-        currentState.currentSong.release();
-        useSongPlayerStore.setState({
-          currentSong: sound,
-          nextSong: null,
-          isPlaying: true,
-          isFading: false,
-          fadeInterval: null,
-        });
-      } else {
-        useSongPlayerStore.setState({
-          isFading: false,
-          fadeInterval: null,
-        });
-      }
+      useSongPlayerStore.setState({
+        isFading: false,
+        currentVolume: currentVolume,
+        fadeInterval: null,
+      });
     } else {
       sound.setVolume(currentVolume);
+      useSongPlayerStore.setState({currentVolume});
     }
   }, FADE_INTERVAL);
 
   useSongPlayerStore.setState({fadeInterval: interval});
 };
 
-const fadeOutCurrentSong = async (): Promise<void> => {
+// Cleanup function
+export const cleanupSongPlayer = () => {
   const state = useSongPlayerStore.getState();
-  const {currentSong} = state;
 
-  if (!currentSong) {
-    return;
+  if (state.duckingTimeout) {
+    clearTimeout(state.duckingTimeout);
+  }
+  if (state.fadeInterval) {
+    clearInterval(state.fadeInterval);
   }
 
-  return new Promise(resolve => {
-    let currentVolume = 1.0;
-    const volumeStep = 1.0 / FADE_STEPS;
-
-    useSongPlayerStore.setState({isFading: true});
-
-    const interval = setInterval(() => {
-      currentVolume -= volumeStep;
-
-      if (currentVolume <= 0.0) {
-        currentVolume = 0.0;
-        currentSong.setVolume(currentVolume);
-        clearInterval(interval);
-
-        // Stop and clean up
-        currentSong.stop();
-        currentSong.release();
-
-        useSongPlayerStore.setState({
-          currentSong: null,
-          nextSong: null,
-          isPlaying: false,
-          isFading: false,
-          fadeInterval: null,
-          playlist: [],
-          currentSongIndex: 0,
-        });
-
-        resolve();
-      } else {
-        currentSong.setVolume(currentVolume);
-      }
-    }, FADE_INTERVAL);
-
-    useSongPlayerStore.setState({fadeInterval: interval});
-  });
-};
-
-const stopImmediately = () => {
-  const state = useSongPlayerStore.getState();
-  const {currentSong, nextSong, fadeInterval} = state;
-
-  // Clear any ongoing fade
-  if (fadeInterval) {
-    clearInterval(fadeInterval);
+  if (state.currentSong) {
+    state.currentSong.stop();
+    state.currentSong.release();
   }
 
-  // Stop and clean up all sounds
-  if (currentSong) {
-    currentSong.stop();
-    currentSong.release();
-  }
-  if (nextSong) {
-    nextSong.stop();
-    nextSong.release();
-  }
-
-  // Reset state
   useSongPlayerStore.setState({
     currentSong: null,
-    nextSong: null,
     isPlaying: false,
+    isDucked: false,
     isFading: false,
+    duckingTimeout: null,
     fadeInterval: null,
     playlist: [],
     currentSongIndex: 0,
+    currentVolume: 1.0,
   });
 };
 
-// Cleanup function to be called when app closes or component unmounts
-export const cleanupSongPlayer = () => {
-  stopImmediately();
-};
-
-// Custom hooks for cleaner usage
+// Custom hooks
 export const useSongPlayer = () => {
-  const {startNewSong, stopCurrentSong, isPlaying, isFading} =
-    useSongPlayerStore();
-  return {startNewSong, stopCurrentSong, isPlaying, isFading};
+  const {
+    startNewSong,
+    duckVolume,
+    restoreVolume,
+    stopCurrentSong,
+    isPlaying,
+    isDucked,
+    isFading,
+  } = useSongPlayerStore();
+  return {
+    startNewSong,
+    duckVolume,
+    restoreVolume,
+    stopCurrentSong,
+    isPlaying,
+    isDucked,
+    isFading,
+  };
 };
 
 export {useSongPlayerStore};
