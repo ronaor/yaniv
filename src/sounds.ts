@@ -31,6 +31,8 @@ const ERROR_SOUND = createSound('error.wav');
 const WRONG_SOUND = createSound('wrong.wav');
 const YANIV_SOUND = createSound('yaniv.wav');
 const ASSAF_SOUND = createSound('assaf.wav');
+const DRUM_SOUND = createSound('drum_short.wav');
+const ACHIEVED_SOUND = createSound('achieved.wav');
 
 export {
   HIT_BALL_SOUND_POOL,
@@ -42,4 +44,6 @@ export {
   WRONG_SOUND,
   YANIV_SOUND,
   ASSAF_SOUND,
+  DRUM_SOUND,
+  ACHIEVED_SOUND,
 };

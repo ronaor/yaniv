@@ -11,6 +11,8 @@ import PlayerResultRow from '../user/playerResult';
 import Animated, {FadeIn} from 'react-native-reanimated';
 import {PlayerId} from '~/store/yanivGameStore';
 import {SCREEN_WIDTH} from '~/utils/constants';
+import useSound from '~/hooks/useSound';
+import {DRUM_SOUND} from '~/sounds';
 
 const Header = () => (
   <View style={styles.header}>
@@ -63,12 +65,19 @@ const EndGameDialog = memo(
       players.filter(p => p.playerStatus === 'leave').length ===
       players.length - 1;
 
+    const {playSound: playDrum} = useSound(DRUM_SOUND);
+
     useImperativeHandle(ref, () => ({
       open: (gameResults: GameResults) => {
         setPlayers(
           gameResults.places.map(id => ({id, ...gameResults.playersStats[id]})),
         );
-        setIsOpen(true);
+        setIsOpen(prev => {
+          if (!prev) {
+            playDrum();
+          }
+          return true;
+        });
       },
       close: () => {
         setIsOpen(false);

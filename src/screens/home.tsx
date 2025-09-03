@@ -16,8 +16,8 @@ import {HomeScreenProps} from '~/types/navigation';
 import {RoomConfig} from '~/types/player';
 import EditProfileDialog from '~/components/dialogs/editProfileDialog';
 import {SCREEN_WIDTH} from '~/utils/constants';
-// import {useSongPlayer} from '~/store/songPlayerStore';
-// import {shuffleArray} from '~/utils/logic';
+import {useSongPlayer} from '~/store/songPlayerStore';
+import {shuffleArray} from '~/utils/logic';
 import MenuBackground from '~/components/menu/menuBackground';
 
 function HomeScreen({navigation}: HomeScreenProps) {
@@ -30,19 +30,19 @@ function HomeScreen({navigation}: HomeScreenProps) {
     y: -400,
   });
 
-  // const {startNewSong} = useSongPlayer();
+  const {startNewSong} = useSongPlayer();
 
   useEffect(() => {
-    // const shuffledSongs = shuffleArray([
-    //   'main.mp3',
-    //   'lobby1.mp3',
-    //   'lobby2.mp3',
-    //   'lobby3.mp3',
-    // ]);
-    // startNewSong(shuffledSongs, {
-    //   withFade: false,
-    //   loop: true,
-    // });
+    const shuffledSongs = shuffleArray([
+      'main.mp3',
+      'lobby1.mp3',
+      'lobby2.mp3',
+      'lobby3.mp3',
+    ]);
+    startNewSong(shuffledSongs, {
+      withFade: false,
+      loop: true,
+    });
 
     setTimeout(() => {
       setLookPosition({x: 0, y: 100});
