@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Dimensions, ImageSourcePropType, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -7,12 +7,10 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('screen');
-
 interface ParallaxLayer {
-  source: ImageSourcePropType;
+  component: React.ComponentType<any>;
   parallaxFactor: {x: number; y: number};
-  style?: any;
+  props?: any;
 }
 
 interface ParallaxBackgroundProps {
@@ -37,7 +35,7 @@ function ParallaxBackground({
           key={index}
           lookPosition={lookPosition}
           layer={layer}
-          zIndex={layers.length - index} // Back to front rendering
+          zIndex={layers.length - index}
           animationDuration={animationDuration}
           animationEasing={animationEasing}
         />
@@ -64,7 +62,6 @@ function ParallaxLayer({
   const translateX = useSharedValue(-lookPosition.x * layer.parallaxFactor.x);
   const translateY = useSharedValue(-lookPosition.y * layer.parallaxFactor.y);
 
-  // Animate to new position when lookPosition prop changes
   useEffect(() => {
     const targetX = -lookPosition.x * layer.parallaxFactor.x;
     const targetY = -lookPosition.y * layer.parallaxFactor.y;
@@ -92,13 +89,11 @@ function ParallaxLayer({
     transform: [{translateX: translateX.value}, {translateY: translateY.value}],
   }));
 
+  const Component = layer.component;
+
   return (
     <Animated.View style={[styles.layer, {zIndex}, animatedStyle]}>
-      <Animated.Image
-        source={layer.source}
-        style={[styles.image, layer.style]}
-        resizeMode="cover"
-      />
+      <Component {...(layer.props || {})} />
     </Animated.View>
   );
 }
@@ -110,13 +105,6 @@ const styles = StyleSheet.create({
   },
   layer: {
     ...StyleSheet.absoluteFillObject,
-  },
-  image: {
-    width: screenWidth * 1.2, // Slightly larger for parallax movement
-    height: screenHeight * 1.2,
-    position: 'absolute',
-    left: -screenWidth * 0.1, // Center the oversized image
-    top: -screenHeight * 0.1,
   },
 });
 
