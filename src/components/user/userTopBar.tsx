@@ -25,8 +25,10 @@ function UserTopBar() {
   const scale = useSharedValue<number>(0);
 
   useEffect(() => {
-    scale.value = withTiming(1);
-  }, [scale]);
+    if (user.id !== '') {
+      scale.value = withTiming(1);
+    }
+  }, [scale, user.id]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const scaleValue = scale.value;

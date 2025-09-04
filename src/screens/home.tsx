@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from 'react';
-import {ImageBackground, StyleSheet, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import GameLogo from '~/components/menu/title';
 
@@ -16,11 +16,41 @@ import {HomeScreenProps} from '~/types/navigation';
 import {RoomConfig} from '~/types/player';
 import EditProfileDialog from '~/components/dialogs/editProfileDialog';
 import {SCREEN_WIDTH} from '~/utils/constants';
+import {useSongPlayer} from '~/store/songPlayerStore';
+import {shuffleArray} from '~/utils/logic';
+import MenuBackground from '~/components/menu/menuBackground';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
   const {emit} = useSocket();
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
+
+  const [lookPosition, setLookPosition] = useState({
+    x: 0,
+    y: -400,
+  });
+
+  const {startNewSong} = useSongPlayer();
+
+  useEffect(() => {
+    const shuffledSongs = shuffleArray([
+      'main.mp3',
+      'lobby1.mp3',
+      'lobby2.mp3',
+      'lobby3.mp3',
+    ]);
+
+    startNewSong(shuffledSongs, {
+      withFade: false,
+      loop: true,
+    });
+
+    setTimeout(() => {
+      setLookPosition({x: 0, y: 100});
+    }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const {isConnected} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
@@ -64,25 +94,28 @@ function HomeScreen({navigation}: HomeScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ImageBackground
-        source={require('~/assets/images/background.png')}
-        style={styles.screen}>
+      <MenuBackground lookPosition={lookPosition} />
+      <SafeAreaTopBar />
+      <View style={styles.screen}>
         <View style={styles.body}>
-          <GameLogo />
+          <GameLogo enableEnterAnimation />
           <View style={styles.menuButtons}>
             <MenuButton
               text={'Quick Game'}
               onPress={quickGameHandler}
               disabled={!isConnected}
+              enableEnterAnimation
             />
             <MenuButton
               text={'Play with Friends'}
               onPress={gameWithFriends}
               disabled={!isConnected}
+              enableEnterAnimation
             />
             <MenuButton
               text={'Play vs Computer'}
               onPress={() => setNewRoomModalOpen(true)}
+              enableEnterAnimation
             />
           </View>
           <EditProfileDialog />
@@ -100,7 +133,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
           />
         </Dialog>
         <UserTopBar />
-      </ImageBackground>
+      </View>
     </SafeAreaView>
   );
 }

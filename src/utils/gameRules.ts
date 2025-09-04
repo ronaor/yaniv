@@ -254,3 +254,22 @@ export const getCardKey = (card: Card) => `${card.suit}-${card.value}`;
 export function getHandValue(hand: Card[]): number {
   return hand.reduce((sum, card) => sum + getCardValue(card), 0);
 }
+
+export const findInsertionIndex = (
+  oldCards: Card[],
+  newCards: Card[],
+): number => {
+  const oldCardsKeys = oldCards.map(getCardKey);
+  const addedCards = newCards.filter(
+    oldC => !oldCardsKeys.includes(getCardKey(oldC)),
+  );
+  if (addedCards.length === 0) {
+    return 0;
+  }
+  for (let i = 0; i < newCards.length || i < oldCards.length; i++) {
+    if (addedCards.includes(newCards[i])) {
+      return i;
+    }
+  }
+  return 0;
+};

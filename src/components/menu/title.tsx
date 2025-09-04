@@ -1,6 +1,12 @@
 import Svg, {Image} from 'react-native-svg';
-import React from 'react';
-import {View} from 'react-native';
+import React, {useEffect} from 'react';
+
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+} from 'react-native-reanimated';
 import {SCREEN_WIDTH} from '~/utils/constants';
 
 const width = 240;
@@ -12,9 +18,39 @@ const titleStyle = {
   paddingHorizontal: 40,
 };
 
-function GameLogo() {
+interface GameLogoProps {
+  enableEnterAnimation?: boolean;
+}
+
+function GameLogo({enableEnterAnimation = false}: GameLogoProps) {
+  // Animation values
+  const opacity = useSharedValue(enableEnterAnimation ? 0 : 1);
+  const scale = useSharedValue(enableEnterAnimation ? 0.3 : 1);
+  const rotation = useSharedValue(enableEnterAnimation ? -15 : 0);
+
+  // Enter animation
+  useEffect(() => {
+    if (!enableEnterAnimation) {
+      return;
+    }
+
+    setTimeout(() => {
+      opacity.value = withSpring(1, {damping: 12, stiffness: 80});
+      scale.value = withSpring(1, {damping: 8, stiffness: 100});
+      rotation.value = withSequence(
+        withSpring(8, {damping: 10, stiffness: 120}), // Overshoot rotation
+        withSpring(0, {damping: 12, stiffness: 100}), // Settle back
+      );
+    }, 300); // Start slightly before parallax finishes
+  }, [enableEnterAnimation, opacity, scale, rotation]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{scale: scale.value}, {rotate: `${rotation.value}deg`}],
+  }));
+
   return (
-    <View style={titleStyle}>
+    <Animated.View style={[titleStyle, animatedStyle]}>
       <Svg
         style={{transform: [{scale: (SCREEN_WIDTH / width) * 0.8}]}}
         width={width}
@@ -28,7 +64,7 @@ function GameLogo() {
           preserveAspectRatio="xMidYMid meet"
         />
       </Svg>
-    </View>
+    </Animated.View>
   );
 }
 

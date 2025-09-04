@@ -15,6 +15,8 @@ import CardBack from '~/components/cards//cardBack';
 import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
 import {getCardKey} from '~/utils/gameRules';
 import {
+  CARD_HEIGHT,
+  CARD_WIDTH,
   directions,
   MOVE_DURATION,
   SCREEN_HEIGHT,
@@ -28,7 +30,7 @@ import {
 // Center collection point
 const COLLECTION_CENTER = {
   x: SCREEN_WIDTH / 2 - 25, // Adjust for card width
-  y: SCREEN_HEIGHT / 2 - 35, // Adjust for card height
+  y: SCREEN_HEIGHT / 2 - CARD_HEIGHT, // Adjust for card height
 };
 
 // stagger between cards (ms)
@@ -37,6 +39,7 @@ const STAGGER = 30;
 interface CardsGroupProps {
   shouldCollect: boolean;
   onComplete: () => void;
+  pickupPile: Card[];
 }
 
 interface AnimatedCardProps {
@@ -134,7 +137,11 @@ const AnimatedCard = ({
   );
 };
 
-const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
+const CardsGroup = ({
+  shouldCollect,
+  pickupPile,
+  onComplete,
+}: CardsGroupProps) => {
   const {players} = useYanivGameStore();
 
   const lastHands = useMemo(() => players.handsPrev ?? {}, [players]);
@@ -172,8 +179,22 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
       });
     });
 
-    return cardsData;
-  }, [shouldCollect, players, lastHands]);
+    const totalWidth = (pickupPile.length - 1) * CARD_WIDTH;
+    const pickupData = pickupPile.map((card, index) => {
+      const startX = SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5 - totalWidth / 2;
+      return {
+        card,
+        position: {
+          x: startX + index * CARD_WIDTH,
+          y: SCREEN_HEIGHT / 2 - 0.5 * CARD_HEIGHT,
+          deg: 0,
+        },
+        playerId: undefined,
+      };
+    });
+
+    return [...cardsData, ...pickupData];
+  }, [shouldCollect, players, lastHands, pickupPile]);
 
   // one shared progress for the whole group
   const progress = useSharedValue(0);
@@ -206,7 +227,7 @@ const CardsGroup = ({shouldCollect, onComplete}: CardsGroupProps) => {
     <View style={styles.container} pointerEvents="none">
       {allCardsWithPositions.map((cardData, index) => (
         <AnimatedCard
-          key={`${cardData.playerId}-${getCardKey(cardData.card)}-${index}`}
+          key={`${getCardKey(cardData.card)}-${index}`}
           card={cardData.card}
           startPosition={cardData.position}
           index={index}

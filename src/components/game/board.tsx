@@ -10,7 +10,7 @@ import {
 } from '~/utils/constants';
 
 import {Card, DirectionName, Position} from '~/types/cards';
-import {PlayerId} from '~/store/yanivGameStore';
+import {LayerHistory, PlayerId} from '~/store/yanivGameStore';
 import CardsSpread from './cardsSpread';
 import Animated, {
   useAnimatedStyle,
@@ -44,6 +44,7 @@ interface GameBoardProps {
     lastPickedCard?: Card;
     tookFrom?: Position[];
     wasPlayer: boolean;
+    layerHistory: LayerHistory;
   };
   disabled?: boolean;
   round: number;
@@ -64,8 +65,6 @@ function GameBoard({
   handlePickupCard,
   handleDrawFromDeck,
 }: GameBoardProps) {
-  const {pickupPile, lastPickedCard, tookFrom} = pickup;
-
   const [lastGameId, setLastGameId] = useState<string>(gameId);
 
   const [pickupReady, setPickupReady] = useState<boolean>(false);
@@ -111,13 +110,16 @@ function GameBoard({
       <View style={styles.pickup}>
         {pickupReady && (
           <DeckCardPointers
-            cards={pickupPile}
-            pickedCard={lastPickedCard}
+            cards={pickup.pickupPile}
+            // pickedCard={lastPickedCard}
             onPickUp={handlePickupCard}
-            fromTargets={tookFrom ?? [{x: 0, y: -1 * CARD_HEIGHT, deg: 0}]}
-            round={round}
+            fromTargets={
+              pickup.tookFrom ?? [{x: 0, y: -1 * CARD_HEIGHT, deg: 0}]
+            }
+            // round={round}
             disabled={disabled}
             wasPlayer={pickup.wasPlayer}
+            layerHistory={pickup.layerHistory}
           />
         )}
       </View>
@@ -128,6 +130,7 @@ function GameBoard({
         onShuffled={onFinishShuffled}
         onSpread={onFinishSpread}
         shouldGroupCards={lastGameId === gameId}
+        visible={!deckReady}
       />
     </View>
   );

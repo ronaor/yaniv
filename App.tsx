@@ -30,7 +30,6 @@ const App = () => {
     // backgroundColor: '#FFFFFF',
   };
   I18nManager.allowRTL(false);
-
   useSocketIO();
 
   const {leaveRoom, user} = useRoomStore();

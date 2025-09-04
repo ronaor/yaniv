@@ -1,8 +1,8 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React from 'react';
 import {Card, Position} from '~/types/cards';
 import {getCardKey, isCanPickupCard} from '~/utils/gameRules';
 import {DiscardedPointer, DiscardPointer} from './discardPoint';
-import {isEqual} from 'lodash';
+
 import {CARD_WIDTH} from '~/utils/constants';
 import PickupPointer from './pickupPoint';
 
@@ -13,102 +13,32 @@ import PickupPointer from './pickupPoint';
 //    2.1. animate the cards that are moved to trash
 //    2.2. remove the card that is picked
 
-const findInsertionIndex = (oldCards: Card[], newCards: Card[]): number => {
-  const oldCardsKeys = oldCards.map(getCardKey);
-  const addedCards = newCards.filter(
-    oldC => !oldCardsKeys.includes(getCardKey(oldC)),
-  );
-  if (addedCards.length === 0) {
-    return 0;
-  }
-  for (let i = 0; i < newCards.length || i < oldCards.length; i++) {
-    if (addedCards.includes(newCards[i])) {
-      return i;
-    }
-  }
-  return 0;
-};
-
 interface DeckCardPointersProps {
   cards: Card[];
-  pickedCard?: Card;
+  // pickedCard?: Card;
   onPickUp: (index: number) => void;
   fromTargets?: Position[];
-  round: number;
+  // round: number;
   disabled?: boolean;
   wasPlayer: boolean;
+  layerHistory: {
+    layer1: CardConfig[];
+    layer2: CardConfig[];
+    layer3: CardConfig[];
+    lastLength: number;
+  };
 }
 
 type CardConfig = Card & {index: number; deg: number};
 
 const DeckCardPointers = ({
   cards,
-  pickedCard,
   onPickUp,
   fromTargets,
-  round,
   disabled = false,
   wasPlayer,
+  layerHistory,
 }: DeckCardPointersProps) => {
-  const newCards = useRef<Card[]>([]);
-  const [layerHistory, setLayerHistory] = useState<{
-    layer1: CardConfig[];
-    layer2: CardConfig[];
-    layer3: CardConfig[];
-    lastLength: number;
-  }>({
-    layer1: [],
-    layer2: [],
-    layer3: [],
-    lastLength: 0,
-  });
-
-  // find first index in cards that is not exists in newCards.current:
-  const insertionIndex = useMemo(
-    () => findInsertionIndex(newCards.current, cards),
-    [cards],
-  );
-
-  useEffect(() => {
-    newCards.current = [];
-    setLayerHistory({
-      layer1: [],
-      layer2: [],
-      layer3: [],
-      lastLength: 0,
-    });
-    return () => {
-      newCards.current = [];
-    };
-  }, [round]);
-
-  useEffect(() => {
-    if (!isEqual(newCards.current, cards)) {
-      const currentKeys = cards.map(getCardKey);
-      const removedCards = newCards.current.filter(
-        card => !currentKeys.includes(getCardKey(card)),
-      );
-
-      if (removedCards.length > 0) {
-        const newLayer: CardConfig[] = [];
-        removedCards.forEach((card, i) => {
-          if (pickedCard && getCardKey(pickedCard) !== getCardKey(card)) {
-            newLayer.push({...card, deg: Math.random() * 40, index: i});
-          }
-        });
-        if (newLayer.length > 0) {
-          setLayerHistory(prev => ({
-            layer3: [...prev.layer2],
-            layer2: [...prev.layer1],
-            layer1: newLayer,
-            lastLength: removedCards.length,
-          }));
-        }
-      }
-    }
-    newCards.current = cards;
-  }, [cards, pickedCard]);
-
   return (
     <>
       {layerHistory.layer3.map(card => (
@@ -155,7 +85,7 @@ const DeckCardPointers = ({
           onPress={() => onPickUp(index)}
           index={index}
           card={card}
-          fromTarget={fromTargets?.[index - insertionIndex] ?? undefined}
+          fromTarget={fromTargets?.[index]}
           key={getCardKey(card)}
           isHidden={!wasPlayer}
           totalCards={cards.length}

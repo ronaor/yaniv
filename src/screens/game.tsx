@@ -44,6 +44,10 @@ import UserLostDialog, {
 } from '~/components/dialogs/userLostDialog';
 import {ballThrownEvent} from '~/utils/logic';
 import EmojisButton from '~/components/game/emojisButton';
+import {useSongPlayer} from '~/store/songPlayerStore';
+import useSound from '~/hooks/useSound';
+import {ERROR_SOUND} from '~/sounds';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -88,13 +92,19 @@ function GameScreen({navigation}: any) {
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
 
+  const {duckVolume, restoreVolume} = useSongPlayer();
+
   const handValue = useMemo(
     () => getHandValue(gamePlayers.all[user.id]?.hand ?? []),
     [gamePlayers.all, user.id],
   );
 
   useEffect(() => {
-    return clearGame;
+    duckVolume();
+    return () => {
+      clearGame();
+      restoreVolume();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -167,12 +177,14 @@ function GameScreen({navigation}: any) {
     }
   }, [humanLost, leaveRoom, navigation, players, user]);
 
+  const {playSound: playError} = useSound(ERROR_SOUND);
   // Handle game errors
   useEffect(() => {
     if (error) {
+      playError();
       Alert.alert('שגיאת משחק', error, [{text: 'סגור', onPress: clearError}]);
     }
-  }, [error, clearError]);
+  }, [error, clearError, playError]);
 
   const [playersRevealing, setPlayersRevealing] = useState<
     Record<PlayerId, boolean>
@@ -222,6 +234,10 @@ function GameScreen({navigation}: any) {
       userLostDialogRef.current?.open();
     }
   }, [humanLost]);
+
+  useEffect(() => {
+    setPlayersKilling({});
+  }, [gameId]);
 
   useEffect(() => {
     if (!roundResults || game.phase !== 'round-end') {
@@ -341,8 +357,10 @@ function GameScreen({navigation}: any) {
       lastPickedCard,
       tookFrom: game.currentTurn?.prevTurn?.discard.cardsPositions,
       wasPlayer: game.currentTurn?.prevTurn?.playerId === gamePlayers.current,
+      layerHistory: board.layerHistory,
     }),
     [
+      board.layerHistory,
       board.pickupPile,
       game.currentTurn?.prevTurn?.discard.cardsPositions,
       game.currentTurn?.prevTurn?.playerId,
@@ -429,10 +447,12 @@ function GameScreen({navigation}: any) {
         </View>
         <CardPointsList
           ref={cardsListRef}
-          key={user.id}
+          key={`${user.id}-${game.round}`}
+          isReady={roundReadyFor === game.round}
           cards={gamePlayers.all[user.id]?.hand ?? []}
           slapCardIndex={slapCardIndex}
           onCardSlapped={onSlapCard}
+          // fromPosition + action group
           fromPosition={
             user.id === game.currentTurn?.prevTurn?.playerId
               ? game.currentTurn?.prevTurn?.draw?.cardPosition
@@ -444,7 +464,6 @@ function GameScreen({navigation}: any) {
               : undefined
           }
           direction={'down'}
-          isReady={roundReadyFor === game.round}
           cardsDelay={cardsDelay[0]}
           disabled={!!roundResults}
         />
@@ -452,6 +471,7 @@ function GameScreen({navigation}: any) {
       {gamePlayers.order.slice(1).map((playerId, i) => (
         <View key={playerId} style={styles.absolute}>
           <HiddenCardPointsList
+            key={`${playerId}-${game.round}`}
             cards={gamePlayers.all[playerId]?.hand ?? []}
             direction={directions[i + 1]}
             fromPosition={
@@ -476,7 +496,10 @@ function GameScreen({navigation}: any) {
             isActive={game.currentTurn?.playerId === playerId}
             timePerPlayer={game.rules.timePerPlayer}
             status={game.playersStats[playerId].playerStatus}
-            kill={playersKilling[playerId]}
+            kill={
+              playersKilling[playerId] ||
+              game.playersStats[playerId]?.playerStatus === 'lost'
+            }
             direction={directions[i + 1]}
             emoji={emojiTriggers[playerId]}
           />
@@ -497,7 +520,10 @@ function GameScreen({navigation}: any) {
         timePerPlayer={game.rules.timePerPlayer}
         isUser
         status={game.playersStats[user.id]?.playerStatus ?? 'active'}
-        kill={playersKilling[user.id]}
+        kill={
+          playersKilling[user.id] ||
+          game.playersStats[user.id]?.playerStatus === 'lost'
+        }
         direction={directions[0]}
         emoji={emojiTriggers[user.id]}
       />
@@ -520,6 +546,7 @@ function GameScreen({navigation}: any) {
       <View style={styles.emojis}>
         <EmojisButton onEmojiSelect={emit.shareEmoji} />
       </View>
+      <SafeAreaTopBar color={'#000000ff'} />
     </>
   );
 }

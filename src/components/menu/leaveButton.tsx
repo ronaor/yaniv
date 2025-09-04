@@ -21,10 +21,13 @@ const LeaveButton = ({text, onPress, disabled = false}: LeaveButtonProps) => {
     : ['#E64E08', '#D02A07'];
 
   const {playSound} = useSound(CLICK_SOUND);
+  const $onPress = () => {
+    onPress();
+    playSound();
+  };
   return (
     <Pressable
-      onPress={onPress}
-      onPressOut={playSound}
+      onPress={$onPress}
       disabled={disabled}
       style={({pressed}) => [
         styles.container,

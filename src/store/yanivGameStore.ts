@@ -16,7 +16,7 @@ import {
   SCREEN_HEIGHT,
   SCREEN_WIDTH,
 } from '~/utils/constants';
-import {getCardKey} from '~/utils/gameRules';
+import {findInsertionIndex, getCardKey} from '~/utils/gameRules';
 import {
   calculateAllPlayerPositions,
   calculateCardsPositions,
@@ -29,6 +29,7 @@ import {useRoomStore} from './roomStore';
 import {useSocket} from './socketStore';
 import {useSoundStore} from '~/hooks/useSound';
 import {THROW_CARD_SOUND} from '~/sounds';
+import {isEqual} from 'lodash';
 
 //region Server Types
 interface PublicGameState {
@@ -86,9 +87,19 @@ type PlayerData = {
 //#endregion
 
 //region Board State
+type CardConfig = Card & {index: number; deg: number};
+export type LayerHistory = {
+  layer1: CardConfig[];
+  layer2: CardConfig[];
+  layer3: CardConfig[];
+  lastLength: number;
+};
+
 type BoardState = {
   pickupPile: Card[];
   discardHistory: TurnState[];
+  layerHistory: LayerHistory;
+  prevRoundPile: Card[];
 };
 //#endregion
 
@@ -220,7 +231,14 @@ const initialGameFields: YanivGameFields = {
   },
   board: {
     pickupPile: [],
+    prevRoundPile: [],
     discardHistory: [],
+    layerHistory: {
+      layer1: [],
+      layer2: [],
+      layer3: [],
+      lastLength: 0,
+    },
   },
   roundResults: undefined,
   ui: {
@@ -332,7 +350,14 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         },
         board: {
           pickupPile: [data.firstCard],
+          prevRoundPile: [],
           discardHistory: [],
+          layerHistory: {
+            layer1: [],
+            layer2: [],
+            layer3: [],
+            lastLength: 0,
+          },
         },
         ui: {
           cardPositions,
@@ -376,11 +401,42 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       }
 
       set(state => {
+        const pickupCards = data.pickupCards;
+        const lastPickupCard = data.card;
+        const prevCards = state.board.pickupPile;
+
+        let layerHistory = {...state.board.layerHistory};
+        if (!isEqual(lastPickupCard, pickupCards)) {
+          const currentKeys = pickupCards.map(getCardKey);
+          const removedCards = prevCards.filter(
+            card => !currentKeys.includes(getCardKey(card)),
+          );
+          if (removedCards.length > 0) {
+            const newLayer: CardConfig[] = [];
+            removedCards.forEach((card, i) => {
+              if (
+                lastPickupCard &&
+                getCardKey(lastPickupCard) !== getCardKey(card)
+              ) {
+                newLayer.push({...card, deg: Math.random() * 40, index: i});
+              }
+            });
+            if (newLayer.length > 0) {
+              layerHistory = {
+                layer3: [...layerHistory.layer2],
+                layer2: [...layerHistory.layer1],
+                layer1: newLayer,
+                lastLength: removedCards.length,
+              };
+            }
+          }
+        }
+
         // Calculate discard positions from selected cards
         const playerIndex = state.players.order.indexOf(data.playerId);
         const playerPositions = state.ui.cardPositions[data.playerId] || [];
 
-        const cardsPositions = data.selectedCardsPositions
+        let cardsPositions = data.selectedCardsPositions
           .map(i => playerPositions[i])
           .filter(Boolean)
           .map(pos => ({
@@ -392,6 +448,15 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
               (socketId === data.playerId ? CARD_SELECT_OFFSET : 0),
             deg: pos.deg,
           }));
+
+        // fix here cardsPositions according to
+        cardsPositions = cardsPositions ?? [
+          {x: 0, y: -1 * CARD_HEIGHT, deg: 0},
+        ];
+        const insertionIndex = findInsertionIndex(prevCards, pickupCards);
+        cardsPositions = pickupCards.map(
+          (_, index) => cardsPositions?.[index - insertionIndex] ?? undefined,
+        );
 
         // Determine card position and action type based on source
         let cardPosition: Position | undefined;
@@ -505,6 +570,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             ...state.board,
             pickupPile: data.pickupCards,
             discardHistory: [...state.board.discardHistory, turnState],
+            layerHistory,
           },
           ui: {
             ...state.ui,
@@ -581,7 +647,14 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           board: {
             pickupPile: [data.firstCard],
+            prevRoundPile: state.board.pickupPile,
             discardHistory: [],
+            layerHistory: {
+              layer1: [],
+              layer2: [],
+              layer3: [],
+              lastLength: 0,
+            },
           },
           ui: {
             ...state.ui,

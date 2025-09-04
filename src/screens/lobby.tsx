@@ -24,6 +24,7 @@ import AlternatingRowsList from '~/components/menu/alternatingRowsList';
 import SimpleButton from '~/components/menu/simpleButton';
 import Svg, {Image} from 'react-native-svg';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 
 interface RoomOptionRowProps {
   text: string;
@@ -87,6 +88,7 @@ function LobbyScreen({navigation}: LobbyProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <SafeAreaTopBar />
       <ImageBackground
         source={require('~/assets/images/background.png')}
         style={styles.screen}>

@@ -15,6 +15,16 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		61ADAE242E64B44E00A7C63B /* thrown.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE232E64B44E00A7C63B /* thrown.wav */; };
 		61ADAE262E6776CA00A7C63B /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE252E6776CA00A7C63B /* click.wav */; };
+		61ADAE2C2E677CD800A7C63B /* lobby3.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE292E677CD800A7C63B /* lobby3.mp3 */; };
+		61ADAE2D2E677CD800A7C63B /* lobby2.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE282E677CD800A7C63B /* lobby2.mp3 */; };
+		61ADAE2E2E677CD800A7C63B /* lobby1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE272E677CD800A7C63B /* lobby1.mp3 */; };
+		61ADAE322E6789AB00A7C63B /* main.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE312E6789AB00A7C63B /* main.mp3 */; };
+		61ADAE372E67967D00A7C63B /* wrong.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE362E67967D00A7C63B /* wrong.wav */; };
+		61ADAE382E67967D00A7C63B /* error.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE352E67967D00A7C63B /* error.wav */; };
+		61ADAE3B2E679D2A00A7C63B /* assaf.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE392E679D2A00A7C63B /* assaf.wav */; };
+		61ADAE3C2E679D2A00A7C63B /* yaniv.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE3A2E679D2A00A7C63B /* yaniv.wav */; };
+		61ADAE3F2E68E30A00A7C63B /* achieved.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE3D2E68E30A00A7C63B /* achieved.wav */; };
+		61ADAE402E68E30A00A7C63B /* drum_short.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61ADAE3E2E68E30A00A7C63B /* drum_short.wav */; };
 		61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933C2E60E2E300F8FE61 /* ball_hit.wav */; };
 		61FD93412E618C5100F8FE61 /* spread.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD93402E618C5100F8FE61 /* spread.wav */; };
 		61FD93422E618C5100F8FE61 /* shuffle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 61FD933F2E618C5100F8FE61 /* shuffle.wav */; };
@@ -49,6 +59,16 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-Yaniv.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Yaniv.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		61ADAE232E64B44E00A7C63B /* thrown.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = thrown.wav; sourceTree = "<group>"; };
 		61ADAE252E6776CA00A7C63B /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
+		61ADAE272E677CD800A7C63B /* lobby1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = lobby1.mp3; sourceTree = "<group>"; };
+		61ADAE282E677CD800A7C63B /* lobby2.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = lobby2.mp3; sourceTree = "<group>"; };
+		61ADAE292E677CD800A7C63B /* lobby3.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = lobby3.mp3; sourceTree = "<group>"; };
+		61ADAE312E6789AB00A7C63B /* main.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = main.mp3; sourceTree = "<group>"; };
+		61ADAE352E67967D00A7C63B /* error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = error.wav; sourceTree = "<group>"; };
+		61ADAE362E67967D00A7C63B /* wrong.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = wrong.wav; sourceTree = "<group>"; };
+		61ADAE392E679D2A00A7C63B /* assaf.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = assaf.wav; sourceTree = "<group>"; };
+		61ADAE3A2E679D2A00A7C63B /* yaniv.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = yaniv.wav; sourceTree = "<group>"; };
+		61ADAE3D2E68E30A00A7C63B /* achieved.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = achieved.wav; sourceTree = "<group>"; };
+		61ADAE3E2E68E30A00A7C63B /* drum_short.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = drum_short.wav; sourceTree = "<group>"; };
 		61FD933C2E60E2E300F8FE61 /* ball_hit.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ball_hit.wav; sourceTree = "<group>"; };
 		61FD933F2E618C5100F8FE61 /* shuffle.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shuffle.wav; sourceTree = "<group>"; };
 		61FD93402E618C5100F8FE61 /* spread.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = spread.wav; sourceTree = "<group>"; };
@@ -98,6 +118,16 @@
 		13B07FAE1A68108700A75B9A /* Yaniv */ = {
 			isa = PBXGroup;
 			children = (
+				61ADAE3D2E68E30A00A7C63B /* achieved.wav */,
+				61ADAE3E2E68E30A00A7C63B /* drum_short.wav */,
+				61ADAE392E679D2A00A7C63B /* assaf.wav */,
+				61ADAE3A2E679D2A00A7C63B /* yaniv.wav */,
+				61ADAE352E67967D00A7C63B /* error.wav */,
+				61ADAE362E67967D00A7C63B /* wrong.wav */,
+				61ADAE312E6789AB00A7C63B /* main.mp3 */,
+				61ADAE272E677CD800A7C63B /* lobby1.mp3 */,
+				61ADAE282E677CD800A7C63B /* lobby2.mp3 */,
+				61ADAE292E677CD800A7C63B /* lobby3.mp3 */,
 				61ADAE252E6776CA00A7C63B /* click.wav */,
 				61ADAE232E64B44E00A7C63B /* thrown.wav */,
 				61FD933F2E618C5100F8FE61 /* shuffle.wav */,
@@ -270,9 +300,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				61ADAE242E64B44E00A7C63B /* thrown.wav in Resources */,
+				61ADAE322E6789AB00A7C63B /* main.mp3 in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				61ADAE372E67967D00A7C63B /* wrong.wav in Resources */,
+				61ADAE3B2E679D2A00A7C63B /* assaf.wav in Resources */,
+				61ADAE3C2E679D2A00A7C63B /* yaniv.wav in Resources */,
+				61ADAE382E67967D00A7C63B /* error.wav in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				61ADAE262E6776CA00A7C63B /* click.wav in Resources */,
+				61ADAE3F2E68E30A00A7C63B /* achieved.wav in Resources */,
+				61ADAE402E68E30A00A7C63B /* drum_short.wav in Resources */,
+				61ADAE2C2E677CD800A7C63B /* lobby3.mp3 in Resources */,
+				61ADAE2D2E677CD800A7C63B /* lobby2.mp3 in Resources */,
+				61ADAE2E2E677CD800A7C63B /* lobby1.mp3 in Resources */,
 				0223D2CF20CD4C728A454F1B /* LuckiestGuy-Regular.ttf in Resources */,
 				61FD933D2E60E2E300F8FE61 /* ball_hit.wav in Resources */,
 				61FD93412E618C5100F8FE61 /* spread.wav in Resources */,

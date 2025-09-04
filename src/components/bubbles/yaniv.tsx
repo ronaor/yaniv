@@ -13,6 +13,8 @@ import {View, ViewStyle} from 'react-native';
 import {isUndefined} from 'lodash';
 import {useEffect, useState} from 'react';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
+import {YANIV_SOUND} from '~/sounds';
+import useSound from '~/hooks/useSound';
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
@@ -35,6 +37,8 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
     DirectionName | undefined
   >(direction);
 
+  const {playSound} = useSound(YANIV_SOUND);
+
   const bubbleDirection = activeDirection ?? direction;
   const pivotX =
     bubbleDirection === 'up' || bubbleDirection === 'left' ? 40 : -40;
@@ -45,6 +49,7 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
   useEffect(() => {
     const visible = !isUndefined(direction);
     if (visible) {
+      playSound();
       setActiveDirection(direction);
       rotation.value = activeDirection === 'right' ? -90 : 90;
       rotation.value = withSpring(0, springConfig);
@@ -64,7 +69,7 @@ const YanivBubble = ({direction}: YanivBubbleProps) => {
       scale.value = withSpring(0.3, springConfig);
       opacity.value = withTiming(0, {duration: 300});
     }
-  }, [activeDirection, direction, opacity, rotation, scale]);
+  }, [activeDirection, direction, opacity, playSound, rotation, scale]);
   // Use useAnimatedProps for SVG opacity
   const animatedProps = useAnimatedProps(() => ({
     opacity: opacity.value,

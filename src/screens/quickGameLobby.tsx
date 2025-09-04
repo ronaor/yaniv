@@ -16,6 +16,7 @@ import SelectionBar from '~/components/menu/mainSelectionBar';
 import MenuToggle from '~/components/menu/mainToggleSwitch';
 import PlayersList from '~/components/menu/playersList';
 import RoomTimer from '~/components/menu/roomTimer';
+import SafeAreaTopBar from '~/components/safeAreaTopBar';
 import {useRoomStore} from '~/store/roomStore';
 import {QuickGameLobbyProps} from '~/types/navigation';
 import {GAME_CONFIG, SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
@@ -95,6 +96,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <SafeAreaTopBar />
       <ImageBackground
         source={require('~/assets/images/background.png')}
         style={styles.screen}>
