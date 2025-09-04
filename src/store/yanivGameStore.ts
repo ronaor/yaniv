@@ -21,6 +21,7 @@ import {
   calculateAllPlayerPositions,
   calculateCardsPositions,
   calculateHiddenCardsPositions,
+  calculateRevealCardsPositions,
   createPlayerOrder,
   createPlayersData,
   generateUUID,
@@ -99,7 +100,11 @@ type BoardState = {
   pickupPile: Card[];
   discardHistory: TurnState[];
   layerHistory: LayerHistory;
-  prevRoundPile: Card[];
+  prevRoundPositions: {
+    card: Card;
+    position: Position;
+    playerId: string | undefined;
+  }[];
 };
 //#endregion
 
@@ -231,7 +236,7 @@ const initialGameFields: YanivGameFields = {
   },
   board: {
     pickupPile: [],
-    prevRoundPile: [],
+    prevRoundPositions: [],
     discardHistory: [],
     layerHistory: {
       layer1: [],
@@ -350,7 +355,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         },
         board: {
           pickupPile: [data.firstCard],
-          prevRoundPile: [],
+          prevRoundPositions: [],
           discardHistory: [],
           layerHistory: {
             layer1: [],
@@ -626,6 +631,57 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           };
         });
 
+        const allCardsWithPositions = () => {
+          // Helper to get positions for a player
+          const getPlayerPositions = (
+            playerId: PlayerId,
+            playerIndex: number,
+          ) => {
+            const handLength = lastHands[playerId]?.length ?? 0;
+            const direction = directions[playerIndex];
+
+            return socketId === playerId
+              ? calculateCardsPositions(handLength, direction)
+              : calculateRevealCardsPositions(handLength, direction);
+          };
+
+          // Collect player cards
+          const playerCardsData = state.players.order.flatMap(
+            (playerId, index) => {
+              const playerCards = lastHands[playerId] || [];
+              const positions = getPlayerPositions(playerId, index);
+
+              return playerCards
+                .map((card, cardIndex) => ({
+                  card,
+                  position: positions[cardIndex],
+                  playerId,
+                }))
+                .filter(item => item.position); // only keep cards with valid positions
+            },
+          );
+
+          // Add pickup pile cards
+          const totalWidth = (state.board.pickupPile.length - 1) * CARD_WIDTH;
+          const startX = SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5 - totalWidth / 2;
+
+          const pickupCardsData: {
+            card: Card;
+            position: Position;
+            playerId: string | undefined;
+          }[] = state.board.pickupPile.map((card, index) => ({
+            card,
+            position: {
+              x: startX + index * CARD_WIDTH,
+              y: SCREEN_HEIGHT / 2 - 0.5 * CARD_HEIGHT,
+              deg: 0,
+            },
+            playerId: undefined,
+          }));
+
+          return [...playerCardsData, ...pickupCardsData];
+        };
+
         return {
           ...state,
           game: {
@@ -647,7 +703,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           board: {
             pickupPile: [data.firstCard],
-            prevRoundPile: state.board.pickupPile,
+            prevRoundPositions: allCardsWithPositions(),
             discardHistory: [],
             layerHistory: {
               layer1: [],

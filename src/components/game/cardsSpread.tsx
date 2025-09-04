@@ -13,6 +13,7 @@ import CardsGroup from './cardGroup';
 import {useYanivGameStore} from '~/store/yanivGameStore';
 import {CARD_HEIGHT, CIRCLE_CENTER, SMALL_DELAY} from '~/utils/constants';
 import {noop} from 'lodash';
+import {Card, Position} from '~/types/cards';
 
 const NUM_LOOPS = 2;
 
@@ -22,6 +23,11 @@ interface CardsSpreadProps {
   onEnd?: () => void;
   shouldGroupCards: boolean;
   visible?: boolean;
+  prevRoundPositions: {
+    card: Card;
+    position: Position;
+    playerId: string | undefined;
+  }[];
 }
 
 const CardsSpread = ({
@@ -30,6 +36,7 @@ const CardsSpread = ({
   onEnd,
   shouldGroupCards,
   visible = false,
+  prevRoundPositions,
 }: CardsSpreadProps) => {
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
@@ -37,7 +44,7 @@ const CardsSpread = ({
 
   const specialCardYOffset = useSharedValue<number>(0);
 
-  const {game, players, board} = useYanivGameStore();
+  const {game, players} = useYanivGameStore();
   const playersActive = useMemo(() => {
     return players.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
@@ -100,7 +107,7 @@ const CardsSpread = ({
         <CardsGroup
           shouldCollect={true}
           onComplete={cardGroupingDone}
-          pickupPile={board.prevRoundPile}
+          prevRoundPositions={prevRoundPositions}
         />
       )}
     </View>

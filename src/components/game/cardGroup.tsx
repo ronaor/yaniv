@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo} from 'react';
+import React, {useEffect} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Animated, {
   Easing,
@@ -12,20 +12,14 @@ import Animated, {
 import {Card, Position} from '~/types/cards';
 import {CardComponent} from '~/components/cards/cardVisual';
 import CardBack from '~/components/cards//cardBack';
-import {PlayerId, useYanivGameStore} from '~/store/yanivGameStore';
+import {useYanivGameStore} from '~/store/yanivGameStore';
 import {getCardKey} from '~/utils/gameRules';
 import {
   CARD_HEIGHT,
-  CARD_WIDTH,
-  directions,
   MOVE_DURATION,
   SCREEN_HEIGHT,
   SCREEN_WIDTH,
 } from '~/utils/constants';
-import {
-  calculateCardsPositions,
-  calculateRevealCardsPositions,
-} from '~/utils/logic';
 
 // Center collection point
 const COLLECTION_CENTER = {
@@ -39,7 +33,11 @@ const STAGGER = 30;
 interface CardsGroupProps {
   shouldCollect: boolean;
   onComplete: () => void;
-  pickupPile: Card[];
+  prevRoundPositions: {
+    card: Card;
+    position: Position;
+    playerId: string | undefined;
+  }[];
 }
 
 interface AnimatedCardProps {
@@ -139,72 +137,20 @@ const AnimatedCard = ({
 
 const CardsGroup = ({
   shouldCollect,
-  pickupPile,
+  prevRoundPositions,
   onComplete,
 }: CardsGroupProps) => {
   const {players} = useYanivGameStore();
-
-  const lastHands = useMemo(() => players.handsPrev ?? {}, [players]);
-
-  // Collect all cards and their positions
-  const allCardsWithPositions = useMemo(() => {
-    if (!shouldCollect) {
-      return [];
-    }
-    const cardsData: Array<{card: Card; position: Position; playerId: string}> =
-      [];
-
-    const updatedCardPositions: Record<PlayerId, Position[]> = {};
-    players.order.forEach((playerId, index) => {
-      if (players.current === playerId) {
-        updatedCardPositions[playerId] = calculateCardsPositions(
-          lastHands[playerId]?.length ?? 0,
-          directions[index],
-        );
-      } else {
-        updatedCardPositions[playerId] = calculateRevealCardsPositions(
-          lastHands[playerId]?.length ?? 0,
-          directions[index],
-        );
-      }
-    });
-
-    players.order.forEach(playerId => {
-      const playerCards = lastHands[playerId] || [];
-      const playerPositions = updatedCardPositions[playerId] || [];
-      playerCards.forEach((card, index) => {
-        if (playerPositions[index]) {
-          cardsData.push({card, position: playerPositions[index], playerId});
-        }
-      });
-    });
-
-    const totalWidth = (pickupPile.length - 1) * CARD_WIDTH;
-    const pickupData = pickupPile.map((card, index) => {
-      const startX = SCREEN_WIDTH / 2 - CARD_WIDTH * 0.5 - totalWidth / 2;
-      return {
-        card,
-        position: {
-          x: startX + index * CARD_WIDTH,
-          y: SCREEN_HEIGHT / 2 - 0.5 * CARD_HEIGHT,
-          deg: 0,
-        },
-        playerId: undefined,
-      };
-    });
-
-    return [...cardsData, ...pickupData];
-  }, [shouldCollect, players, lastHands, pickupPile]);
 
   // one shared progress for the whole group
   const progress = useSharedValue(0);
 
   // totalDuration includes the stagger span so the last card finishes at progress=1
   const totalDuration =
-    MOVE_DURATION + Math.max(0, allCardsWithPositions.length - 1) * STAGGER;
+    MOVE_DURATION + Math.max(0, prevRoundPositions.length - 1) * STAGGER;
 
   useEffect(() => {
-    if (!shouldCollect || allCardsWithPositions.length === 0) {
+    if (!shouldCollect || prevRoundPositions.length === 0) {
       return;
     }
 
@@ -221,11 +167,11 @@ const CardsGroup = ({
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldCollect, totalDuration, allCardsWithPositions.length]);
+  }, [shouldCollect, totalDuration, prevRoundPositions.length]);
 
   return (
     <View style={styles.container} pointerEvents="none">
-      {allCardsWithPositions.map((cardData, index) => (
+      {prevRoundPositions.map((cardData, index) => (
         <AnimatedCard
           key={`${getCardKey(cardData.card)}-${index}`}
           card={cardData.card}

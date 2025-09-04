@@ -68,6 +68,7 @@ function GameScreen({navigation}: any) {
     gameResults,
     humanLost,
     emojiTriggers,
+    prevRoundPositions,
   ] = useYanivGameStore(
     useShallow(s => [
       s.game,
@@ -83,6 +84,7 @@ function GameScreen({navigation}: any) {
       s.gameResults,
       s.humanLost,
       s.emojiTriggers,
+      s.board.prevRoundPositions,
     ]),
   );
 
@@ -428,6 +430,7 @@ function GameScreen({navigation}: any) {
           onReady={setRoundReadyFor}
           handlePickupCard={handlePickupCard}
           handleDrawFromDeck={handleDrawFromDeck}
+          prevRoundPositions={prevRoundPositions}
         />
         <View style={styles.actionButtons}>
           <View style={styles.avatarHolder} />

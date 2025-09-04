@@ -49,6 +49,11 @@ interface GameBoardProps {
   disabled?: boolean;
   round: number;
   gameId: string;
+  prevRoundPositions: {
+    card: Card;
+    position: Position;
+    playerId: string | undefined;
+  }[];
   onReady?: (round: number) => void;
   handlePickupCard: (number: number) => void;
   handleDrawFromDeck: () => void;
@@ -59,6 +64,7 @@ function GameBoard({
   round,
   gameId,
   disabled = false,
+  prevRoundPositions,
   onReady,
   handlePickupCard,
   handleDrawFromDeck,
@@ -128,6 +134,7 @@ function GameBoard({
         onSpread={onFinishSpread}
         shouldGroupCards={lastGameId === gameId}
         visible={!deckReady}
+        prevRoundPositions={prevRoundPositions}
       />
     </View>
   );
