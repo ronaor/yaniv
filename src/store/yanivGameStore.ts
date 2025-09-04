@@ -99,6 +99,7 @@ type BoardState = {
   pickupPile: Card[];
   discardHistory: TurnState[];
   layerHistory: LayerHistory;
+  prevRoundPile: Card[];
 };
 //#endregion
 
@@ -230,6 +231,7 @@ const initialGameFields: YanivGameFields = {
   },
   board: {
     pickupPile: [],
+    prevRoundPile: [],
     discardHistory: [],
     layerHistory: {
       layer1: [],
@@ -348,6 +350,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         },
         board: {
           pickupPile: [data.firstCard],
+          prevRoundPile: [],
           discardHistory: [],
           layerHistory: {
             layer1: [],
@@ -644,6 +647,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           },
           board: {
             pickupPile: [data.firstCard],
+            prevRoundPile: state.board.pickupPile,
             discardHistory: [],
             layerHistory: {
               layer1: [],

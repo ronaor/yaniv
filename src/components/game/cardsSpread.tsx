@@ -39,7 +39,7 @@ const CardsSpread = ({
 
   const specialCardYOffset = useSharedValue<number>(0);
 
-  const {game, players} = useYanivGameStore();
+  const {game, players, board} = useYanivGameStore();
   const playersActive = useMemo(() => {
     return players.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
@@ -99,7 +99,11 @@ const CardsSpread = ({
         </Animated.View>
       )}
       {!isFinished && shouldGroupCards && !startShuffle && (
-        <CardsGroup shouldCollect={true} onComplete={cardGroupingDone} />
+        <CardsGroup
+          shouldCollect={true}
+          onComplete={cardGroupingDone}
+          pickupPile={board.prevRoundPile}
+        />
       )}
     </View>
   );
