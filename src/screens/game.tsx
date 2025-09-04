@@ -196,7 +196,7 @@ function GameScreen({navigation}: any) {
     Record<PlayerId, boolean>
   >({});
 
-  const {activeDirections, activePlayers, cardsDelay} = useMemo(() => {
+  const {activePlayers, cardsDelay} = useMemo(() => {
     const $activePlayers = gamePlayers.order.filter(
       pId => game.playersStats[pId].playerStatus === 'active',
     );
@@ -210,14 +210,6 @@ function GameScreen({navigation}: any) {
         : undefined,
     );
     return {
-      activeDirections: gamePlayers.order.reduce<
-        Record<PlayerId, DirectionName>
-      >((res, playerId, i) => {
-        if (game.playersStats[playerId].playerStatus === 'active') {
-          res[playerId] = directions[i];
-        }
-        return res;
-      }, {}),
       activePlayers: $activePlayers,
       cardsDelay: $cardsDelay,
     };
@@ -433,7 +425,6 @@ function GameScreen({navigation}: any) {
           round={game.round}
           gameId={gameId}
           disabled={!isMyTurn}
-          activeDirections={activeDirections}
           onReady={setRoundReadyFor}
           handlePickupCard={handlePickupCard}
           handleDrawFromDeck={handleDrawFromDeck}

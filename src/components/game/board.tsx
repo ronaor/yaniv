@@ -9,8 +9,8 @@ import {
   SCREEN_WIDTH,
 } from '~/utils/constants';
 
-import {Card, DirectionName, Position} from '~/types/cards';
-import {LayerHistory, PlayerId} from '~/store/yanivGameStore';
+import {Card, Position} from '~/types/cards';
+import {LayerHistory} from '~/store/yanivGameStore';
 import CardsSpread from './cardsSpread';
 import Animated, {
   useAnimatedStyle,
@@ -49,7 +49,6 @@ interface GameBoardProps {
   disabled?: boolean;
   round: number;
   gameId: string;
-  activeDirections: Record<PlayerId, DirectionName>;
   onReady?: (round: number) => void;
   handlePickupCard: (number: number) => void;
   handleDrawFromDeck: () => void;
@@ -60,7 +59,6 @@ function GameBoard({
   round,
   gameId,
   disabled = false,
-  activeDirections,
   onReady,
   handlePickupCard,
   handleDrawFromDeck,
@@ -124,7 +122,6 @@ function GameBoard({
         )}
       </View>
       <CardsSpread
-        activeDirections={activeDirections}
         key={`${gameId}-${round}`}
         onEnd={$onFinish}
         onShuffled={onFinishShuffled}

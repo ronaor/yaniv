@@ -1,7 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
-import {DirectionName} from '~/types/cards';
 
 import Animated, {
   runOnJS,
@@ -18,7 +17,6 @@ import {noop} from 'lodash';
 const NUM_LOOPS = 2;
 
 interface CardsSpreadProps {
-  activeDirections: Record<string, DirectionName>;
   onShuffled?: () => void;
   onSpread?: () => void;
   onEnd?: () => void;
