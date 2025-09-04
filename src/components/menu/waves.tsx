@@ -38,8 +38,8 @@ const generateRandomMinY = () => {
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
 
-const waveColors = ['#019dda', '#019dda'];
-const surfColors = ['#95ebcac5', '#95ebcad0'];
+const waveColors = ['#46cbffcb', '#46cbffef'];
+const surfColors = ['#95ebca9c', '#95ebca6f'];
 const seaColor = '#019EDA';
 
 interface WavesProp {}
@@ -186,7 +186,7 @@ const Waves = ({}: WavesProp) => {
 
   // Gradient calculations
   const gradientStart = useDerivedValue(() => vec(0, verticalOffset.value));
-  const gradientEnd = useDerivedValue(() => vec(0, verticalOffset.value + 130));
+  const gradientEnd = useDerivedValue(() => vec(0, verticalOffset.value + 100));
 
   const gradientColors = useDerivedValue(() => [
     surfColor.value,
