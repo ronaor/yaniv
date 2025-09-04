@@ -441,7 +441,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
         const playerIndex = state.players.order.indexOf(data.playerId);
         const playerPositions = state.ui.cardPositions[data.playerId] || [];
 
-        let cardsPositions = data.selectedCardsPositions
+        let sourcePositions = data.selectedCardsPositions
           .map(i => playerPositions[i])
           .filter(Boolean)
           .map(pos => ({
@@ -454,14 +454,26 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
             deg: pos.deg,
           }));
 
-        // fix here cardsPositions according to
-        cardsPositions = cardsPositions ?? [
-          {x: 0, y: -1 * CARD_HEIGHT, deg: 0},
-        ];
+        // Fallback if no source positions
+        sourcePositions =
+          sourcePositions.length > 0
+            ? sourcePositions
+            : [{x: 0, y: -1 * CARD_HEIGHT, deg: 0}];
+
         const insertionIndex = findInsertionIndex(prevCards, pickupCards);
-        cardsPositions = pickupCards.map(
-          (_, index) => cardsPositions?.[index - insertionIndex] ?? undefined,
-        );
+
+        // Create fromTargets array - map through final cards and assign positions only to new ones
+        const fromTargets = pickupCards.map((_, index) => {
+          // Check if this card index corresponds to a newly added card
+          const isNewCard =
+            index >= insertionIndex &&
+            index < insertionIndex + sourcePositions.length;
+          if (isNewCard) {
+            const sourceIndex = index - insertionIndex;
+            return sourcePositions[sourceIndex] || sourcePositions[0];
+          }
+          return undefined;
+        });
 
         // Determine card position and action type based on source
         let cardPosition: Position | undefined;
@@ -505,7 +517,7 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
           playerId: data.playerId,
           discard: {
             cards: data.pickupCards,
-            cardsPositions: cardsPositions,
+            cardsPositions: fromTargets,
           },
           draw: cardPosition
             ? {

@@ -7,7 +7,7 @@ export interface TurnState {
   // שים את הקלפים בדלפק
   discard: {
     cards: Card[];
-    cardsPositions: Position[];
+    cardsPositions: (Position | undefined)[];
   };
   // משוך את הקלף מהקופה או מהדלפק
   draw?: {
