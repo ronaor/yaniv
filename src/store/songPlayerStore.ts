@@ -27,10 +27,10 @@ interface SongPlayerActions {
 
 type SongPlayerStore = SongPlayerState & SongPlayerActions;
 
-const DUCK_VOLUME = 0.1;
-const DUCK_CLEANUP_DELAY = 5000; // 5 seconds
-const FADE_DURATION = 2500; // 2.5 seconds
-const FADE_STEPS = 25;
+const DUCK_VOLUME = 0.0;
+const DUCK_CLEANUP_DELAY = 13000; // 5 seconds
+const FADE_DURATION = 5000; // 2.5 seconds
+const FADE_STEPS = 20;
 const FADE_INTERVAL = FADE_DURATION / FADE_STEPS;
 
 const useSongPlayerStore = create<SongPlayerStore>((set, get) => ({

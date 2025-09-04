@@ -38,8 +38,8 @@ const generateRandomMinY = () => {
   return minYRange[0] + Math.random() * (minYRange[1] - minYRange[0]);
 };
 
-const waveColors = ['#46cbffcb', '#46cbffef'];
-const surfColors = ['#95ebca9c', '#95ebca6f'];
+const waveColors = ['#46cbffcb', '#42c5f8ef'];
+const surfColors = ['#95ebca5a', '#b7ebff84'];
 const seaColor = '#019EDA';
 
 interface WavesProp {}
@@ -185,8 +185,26 @@ const Waves = ({}: WavesProp) => {
   }, [snapshotPath.value, wavePath.value, snapshotOpacity.value]);
 
   // Gradient calculations
-  const gradientStart = useDerivedValue(() => vec(0, verticalOffset.value));
-  const gradientEnd = useDerivedValue(() => vec(0, verticalOffset.value + 100));
+  const gradientStart = useDerivedValue(() => {
+    'worklet';
+    return vec(0, verticalOffset.value * 0.85 + 100);
+  });
+
+  // end multiplier: 1.1 at min -> 1.2 at max
+  const gradientEnd = useDerivedValue(() => {
+    'worklet';
+    const a = waveMinY.value; // "min" of the cycle
+    const b = waveMaxY; // "max" of the cycle (can be numerically smaller)
+    const denom = b - a;
+    // normalize v into [0,1] where 0 at a, 1 at b (works even if a > b)
+    const tRaw = denom === 0 ? 0 : (verticalOffset.value - a) / denom;
+    const t = Math.max(0, Math.min(1, tRaw)); // clamp
+
+    // linear interpolation: 1.1 -> 1.2
+    const m = 1.1 + 0.1 * t;
+
+    return vec(0, verticalOffset.value * m);
+  });
 
   const gradientColors = useDerivedValue(() => [
     surfColor.value,
