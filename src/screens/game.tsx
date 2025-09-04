@@ -431,6 +431,7 @@ function GameScreen({navigation}: any) {
           handlePickupCard={handlePickupCard}
           handleDrawFromDeck={handleDrawFromDeck}
           prevRoundPositions={prevRoundPositions}
+          numActivePlayers={activePlayers.length}
         />
         <View style={styles.actionButtons}>
           <View style={styles.avatarHolder} />

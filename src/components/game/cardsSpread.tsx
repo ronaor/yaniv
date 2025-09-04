@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import CardBack from '~/components/cards/cardBack';
 
@@ -10,7 +10,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import CardShuffle from './cardsShuffle';
 import CardsGroup from './cardGroup';
-import {useYanivGameStore} from '~/store/yanivGameStore';
 import {CARD_HEIGHT, CIRCLE_CENTER, SMALL_DELAY} from '~/utils/constants';
 import {noop} from 'lodash';
 import {Card, Position} from '~/types/cards';
@@ -28,6 +27,7 @@ interface CardsSpreadProps {
     position: Position;
     playerId: string | undefined;
   }[];
+  numActivePlayers: number;
 }
 
 const CardsSpread = ({
@@ -37,19 +37,13 @@ const CardsSpread = ({
   shouldGroupCards,
   visible = false,
   prevRoundPositions,
+  numActivePlayers,
 }: CardsSpreadProps) => {
   const [isFinished, setIsFinished] = useState(false);
   const [finishShuffle, setFinishShuffle] = useState(false);
   const [startShuffle, setStartShuffle] = useState(!shouldGroupCards);
 
   const specialCardYOffset = useSharedValue<number>(0);
-
-  const {game, players} = useYanivGameStore();
-  const playersActive = useMemo(() => {
-    return players.order.filter(
-      pId => game.playersStats[pId].playerStatus === 'active',
-    );
-  }, [game.playersStats, players.order]);
 
   const cardGroupingDone = useCallback(() => {
     setStartShuffle(true);
@@ -70,8 +64,8 @@ const CardsSpread = ({
           runOnJS(setIsFinished)(!!finish);
         },
       );
-    }, playersActive.length * 5 * SMALL_DELAY);
-  }, [onShuffled, playersActive.length, onSpread, specialCardYOffset, onEnd]);
+    }, numActivePlayers * 5 * SMALL_DELAY);
+  }, [onShuffled, numActivePlayers, onSpread, specialCardYOffset, onEnd]);
 
   const specialCardStyle = useAnimatedStyle(() => {
     return {
