@@ -15,7 +15,7 @@ function SafeAreaTopBar({color = '#00515b'}: SafeAreaTopBarProps) {
     backgroundColor: color,
     height: insets.top,
   };
-  return <View style={style} />;
+  return <View pointerEvents="none" style={style} />;
 }
 
 export default SafeAreaTopBar;

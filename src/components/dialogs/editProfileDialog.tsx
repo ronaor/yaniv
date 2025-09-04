@@ -142,11 +142,16 @@ const EditProfileDialog: React.FC = () => {
                   style={styles.inputGradient}
                   colors={['#EBD5BF', '#FFF5D5']}>
                   <TextInput
+                    autoFocus={mode === 'first'}
                     style={styles.input}
                     value={input}
                     onChangeText={setInput}
                     placeholder="Player name"
                     placeholderTextColor={'#A0977D'}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    autoComplete="off"
                   />
                 </LinearGradient>
               </View>

@@ -95,7 +95,6 @@ function HomeScreen({navigation}: HomeScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <MenuBackground lookPosition={lookPosition} />
-      <SafeAreaTopBar />
       <View style={styles.screen}>
         <View style={styles.body}>
           <GameLogo enableEnterAnimation />
@@ -134,6 +133,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
         </Dialog>
         <UserTopBar />
       </View>
+      <SafeAreaTopBar />
     </SafeAreaView>
   );
 }

@@ -1,6 +1,12 @@
 import type {FC} from 'react';
 import React, {useState} from 'react';
-import {Modal, Pressable, StyleSheet, View} from 'react-native';
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import Animated, {
   runOnJS,
   useAnimatedReaction,
@@ -47,14 +53,9 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
 
     return (
       <Modal transparent visible={isModalOpen || isModalActive}>
-        <View
-          style={[
-            styles.body,
-            {
-              width: SCREEN_WIDTH,
-              height: SCREEN_HEIGHT,
-            },
-          ]}>
+        <KeyboardAvoidingView
+          style={styles.body}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <Animated.View style={[bgAnimStyle, styles.bg]}>
             <Pressable
               accessible={false}
@@ -66,7 +67,7 @@ export function withModalPopUpContainer<T extends PopUpContainerProps>(
           <Animated.View style={contentAnimStyle}>
             <Component {...props} />
           </Animated.View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     );
   };
@@ -77,6 +78,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
   },
   bg: {
     ...StyleSheet.absoluteFillObject,
@@ -87,4 +90,5 @@ const styles = StyleSheet.create({
   },
   pressable: {flex: 1},
 });
+
 export default withModalPopUpContainer;

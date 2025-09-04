@@ -40,12 +40,16 @@ export default function JoinRoomDialog({
                 style={styles.inputGradient}
                 colors={['#EBD5BF', '#FFF5D5']}>
                 <TextInput
+                  autoFocus
                   style={styles.input}
                   value={roomCode}
                   onChangeText={setRoomCode}
                   placeholder="Room Code"
                   autoCapitalize="characters"
                   placeholderTextColor={'#A0977D'}
+                  autoCorrect={false}
+                  spellCheck={false}
+                  autoComplete="off"
                 />
               </LinearGradient>
             </View>
