@@ -32,7 +32,8 @@ import CardBack from './cardBack';
 import {TurnState} from '~/types/turnState';
 import {interpolate} from 'react-native-reanimated';
 import useSound from '~/hooks/useSound';
-import {WRONG_SOUND} from '~/sounds';
+import {POP_SMALL_SOUND_POOL, WRONG_SOUND} from '~/sounds';
+import useSoundPool from '~/hooks/useSoundPool';
 
 interface CardPointsListProps {
   cards: Card[];
@@ -226,6 +227,7 @@ const CardPointer = ({
   }, [isSelected, translateInternalY]);
 
   const {playSound: playError} = useSound(WRONG_SOUND);
+  const {playSound: playPopSmall} = useSoundPool(POP_SMALL_SOUND_POOL);
 
   const $onCardSelect = useCallback(() => {
     if (disabled) {
@@ -238,9 +240,10 @@ const CardPointer = ({
         withTiming(0, {duration: 60}),
       );
     } else {
+      playPopSmall();
       onCardSelect();
     }
-  }, [disabled, playError, translateInternalDeg, onCardSelect]);
+  }, [disabled, playError, translateInternalDeg, playPopSmall, onCardSelect]);
 
   // Main animation
   useEffect(() => {

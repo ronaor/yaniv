@@ -29,7 +29,7 @@ import {
 import {useRoomStore} from './roomStore';
 import {useSocket} from './socketStore';
 import {useSoundStore} from '~/hooks/useSound';
-import {THROW_CARD_SOUND} from '~/sounds';
+import {POP_BIG_SOUND, THROW_CARD_SOUND} from '~/sounds';
 import {isEqual} from 'lodash';
 
 //region Server Types
@@ -402,6 +402,9 @@ export const useYanivGameStore = create<YanivGameStore>((set, get) => ({
       const socketId = useSocket.getState().getSocketId();
 
       if (useSoundStore.getState().isSoundEnabled) {
+        if (socketId === data.playerId) {
+          POP_BIG_SOUND.play();
+        }
         THROW_CARD_SOUND.play();
       }
 

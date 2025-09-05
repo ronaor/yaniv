@@ -33,6 +33,8 @@ const YANIV_SOUND = createSound('yaniv.wav');
 const ASSAF_SOUND = createSound('assaf.wav');
 const DRUM_SOUND = createSound('drum_short.wav');
 const ACHIEVED_SOUND = createSound('achieved.wav');
+const POP_SMALL_SOUND_POOL = createSoundPool('pop_small.wav');
+const POP_BIG_SOUND = createSound('pop_big.wav');
 
 export {
   HIT_BALL_SOUND_POOL,
@@ -46,4 +48,6 @@ export {
   ASSAF_SOUND,
   DRUM_SOUND,
   ACHIEVED_SOUND,
+  POP_SMALL_SOUND_POOL,
+  POP_BIG_SOUND,
 };
