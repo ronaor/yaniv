@@ -3,14 +3,6 @@ import Sound from 'react-native-sound';
 import {create} from 'zustand';
 import {subscribeWithSelector} from 'zustand/middleware';
 
-interface MusicContext {
-  playlist: string[];
-  currentIndex: number;
-  isLooping: boolean;
-  wasPlaying: boolean;
-  wasDucked: boolean;
-}
-
 interface SongPlayerState {
   isMusicEnabled: boolean;
   currentSong: Sound | null;
@@ -23,7 +15,6 @@ interface SongPlayerState {
   duckingTimeout: NodeJS.Timeout | null;
   fadeInterval: NodeJS.Timeout | null;
   currentVolume: number;
-  musicContext: MusicContext | null;
 }
 
 interface SongPlayerActions {
@@ -33,7 +24,7 @@ interface SongPlayerActions {
   ) => Promise<void>;
   duckVolume: () => void;
   restoreVolume: () => void;
-  stopCurrentSong: (clearContext?: boolean) => void;
+  stopCurrentSong: () => void;
   setIsMusicEnabled: (value: boolean) => void;
   _handleMusicEnabledChange: (enabled: boolean) => Promise<void>;
 }
@@ -68,21 +59,6 @@ const useSongPlayerStore = create<SongPlayerStore>()(
       const {withFade = false, loop = false} = options;
       const state = get();
 
-      // Check if sound is globally enabled
-      if (!state.isMusicEnabled) {
-        // Store context for when music gets re-enabled
-        set({
-          musicContext: {
-            playlist: songs,
-            currentIndex: 0,
-            isLooping: loop,
-            wasPlaying: true,
-            wasDucked: false,
-          },
-        });
-        return;
-      }
-
       // Check if same playlist is already playing (including ducked state)
       const isSamePlaylist =
         state.playlist.length === songs.length &&
@@ -97,7 +73,8 @@ const useSongPlayerStore = create<SongPlayerStore>()(
         state.playlist[state.currentSongIndex] === songs[0] &&
         (state.isPlaying || state.isDucked);
 
-      if (isSamePlaylist || isSameSingleSong) {
+      const alreadyPlayingASong = get().currentSong?.isPlaying() ?? false;
+      if (alreadyPlayingASong && (isSamePlaylist || isSameSingleSong)) {
         console.log('Same song/playlist already playing, skipping restart');
         // If it's ducked, restore volume instead of restarting
         if (state.isDucked) {
@@ -108,7 +85,7 @@ const useSongPlayerStore = create<SongPlayerStore>()(
 
       // Stop current song if playing
       if (state.currentSong) {
-        get().stopCurrentSong(false); // Don't clear context when starting new song
+        get().stopCurrentSong(); // Don't clear context when starting new song
       }
 
       // Set new playlist
@@ -116,10 +93,8 @@ const useSongPlayerStore = create<SongPlayerStore>()(
         playlist: songs,
         currentSongIndex: 0,
         isLooping: loop,
-        musicContext: null, // Clear context since we're actively playing
       });
 
-      // Start first song
       await loadAndPlaySong(0, withFade);
     },
 
@@ -131,15 +106,20 @@ const useSongPlayerStore = create<SongPlayerStore>()(
       }
 
       // Save context before ducking
-      set({
-        musicContext: {
-          playlist: state.playlist,
-          currentIndex: state.currentSongIndex,
-          isLooping: state.isLooping,
-          wasPlaying: state.isPlaying,
-          wasDucked: true,
-        },
-      });
+      if (!state.isMusicEnabled) {
+        set({
+          currentSong: null,
+          isPlaying: false,
+          isDucked: false,
+          isFading: false,
+          duckingTimeout: null,
+          fadeInterval: null,
+          playlist: [],
+          currentSongIndex: 0,
+          currentVolume: 1.0,
+        });
+        return;
+      }
 
       // Clear any existing timeouts
       if (state.duckingTimeout) {
@@ -247,21 +227,8 @@ const useSongPlayerStore = create<SongPlayerStore>()(
       set({fadeInterval: interval});
     },
 
-    stopCurrentSong: (clearContext = true) => {
+    stopCurrentSong: () => {
       const state = get();
-
-      // Save context before stopping (unless explicitly told not to)
-      if (clearContext && (state.isPlaying || state.isDucked)) {
-        set({
-          musicContext: {
-            playlist: state.playlist,
-            currentIndex: state.currentSongIndex,
-            isLooping: state.isLooping,
-            wasPlaying: state.isPlaying,
-            wasDucked: state.isDucked,
-          },
-        });
-      }
 
       // Clear all timeouts/intervals
       if (state.duckingTimeout) {
@@ -288,7 +255,6 @@ const useSongPlayerStore = create<SongPlayerStore>()(
         playlist: [],
         currentSongIndex: 0,
         currentVolume: 1.0,
-        ...(clearContext && {musicContext: null}), // Only clear context if requested
       });
     },
 
@@ -304,36 +270,15 @@ const useSongPlayerStore = create<SongPlayerStore>()(
       if (!enabled) {
         // Music disabled - save current state and stop
         if (state.isPlaying || state.isDucked) {
-          set({
-            musicContext: {
-              playlist: state.playlist,
-              currentIndex: state.currentSongIndex,
-              isLooping: state.isLooping,
-              wasPlaying: state.isPlaying,
-              wasDucked: state.isDucked,
-            },
-          });
-          get().stopCurrentSong(false); // Don't clear context
+          get().currentSong?.stop();
         }
       } else {
         // Music enabled - restore previous state if available
-        if (state.musicContext?.wasPlaying) {
-          const context = state.musicContext;
-
-          if (context.wasDucked) {
-            // Start the song but immediately duck it
-            await get().startNewSong(context.playlist, {
-              loop: context.isLooping,
-              withFade: false,
-            });
-            get().duckVolume();
-          } else {
-            // Resume normal playback
-            await get().startNewSong(context.playlist, {
-              loop: context.isLooping,
-              withFade: false,
-            });
-          }
+        if (state.isPlaying) {
+          await get().startNewSong(state.playlist, {
+            loop: state.isLooping,
+            withFade: false,
+          });
         }
       }
     },
@@ -476,7 +421,6 @@ export const cleanupSongPlayer = () => {
     playlist: [],
     currentSongIndex: 0,
     currentVolume: 1.0,
-    musicContext: null,
   });
 };
 
