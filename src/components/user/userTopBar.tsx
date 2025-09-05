@@ -18,6 +18,7 @@ import BasePressable from '../basePressable';
 import {useSoundStore} from '~/hooks/useSound';
 import {useSongPlayerStore} from '~/store/songPlayerStore';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const SettingsIcon = () => (
   <Svg width={30} height={30} viewBox="0 0 24 24" fill="white">
@@ -81,19 +82,18 @@ function UserTopBar() {
         layout={LinearTransition}
         style={[styles.top, animatedStyle]}>
         <View style={styles.header}>
-          <BasePressable
-            style={styles.userRow}
-            onPress={() => openEditProfileDialogEdit(user)}>
-            <View style={styles.user}>
+          <View style={styles.user}>
+            <BasePressable onPress={() => openEditProfileDialogEdit(user)}>
               <View style={styles.avatarContainer}>
                 <AvatarImage index={user.avatarIndex} size={40} />
               </View>
+            </BasePressable>
+            <TouchableOpacity onPress={() => openEditProfileDialogEdit(user)}>
               <Text numberOfLines={1} style={styles.name}>
                 {user.nickName}
               </Text>
-            </View>
-          </BasePressable>
-
+            </TouchableOpacity>
+          </View>
           <View style={styles.rightSide}>
             <View style={styles.connectionStatus}>
               <View
