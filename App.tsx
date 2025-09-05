@@ -97,6 +97,7 @@ export default function App() {
           break;
         }
         case 'Game': {
+          setLookPosition({x: 0, y: -400});
           break;
         }
       }

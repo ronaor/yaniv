@@ -89,7 +89,6 @@ function HomeScreen({navigation}: HomeScreenProps) {
   const handleCreateRoom = (config: RoomConfig) => {
     emit('create_bot_room', {user, config});
     setNewRoomModalOpen(false);
-    setLookPosition({x: 0, y: -10000});
     navigation.navigate('Game');
   };
 
