@@ -1,12 +1,11 @@
-import React, {useEffect, useMemo} from 'react';
-import {Pressable} from 'react-native';
 import Animated, {
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import {CardComponent} from './cardVisual';
+import {Pressable} from 'react-native';
+import React, {useEffect} from 'react';
 import {Card, Position} from '~/types/cards';
 import {CARD_WIDTH, MOVE_DURATION} from '~/utils/constants';
 
@@ -29,61 +28,35 @@ const PickupPointer = ({
   isHidden = false,
   totalCards,
 }: PickupPointerProps) => {
-  const targetPos = useMemo<Position>(() => {
-    const totalWidth = (totalCards - 1) * CARD_WIDTH;
-    const startX = -totalWidth / 2;
-    return {x: startX + index * CARD_WIDTH, y: 0, deg: 0};
-  }, [index, totalCards]);
+  const totalWidth = (totalCards - 1) * CARD_WIDTH;
+  const startX = -totalWidth / 2;
+  const targetX = startX + index * CARD_WIDTH;
 
-  const currentPos = useSharedValue<Position>(fromTarget ?? targetPos);
-  const destPos = useSharedValue<Position>(targetPos);
-  const progress = useSharedValue<number>(fromTarget ? 0 : 1);
-
+  const translateY = useSharedValue<number>(fromTarget?.y ?? 0);
+  const translateX = useSharedValue<number>(fromTarget?.x ?? targetX);
+  const cardDeg = useSharedValue<number>(fromTarget?.deg ?? 0);
   const scale = useSharedValue(isHidden ? 1 : 1.25);
 
   useEffect(() => {
-    destPos.value = targetPos;
-    progress.value = withTiming(1, {duration: MOVE_DURATION}, finished => {
-      'worklet';
-      if (finished) {
-        currentPos.value = destPos.value;
-        progress.value = 0;
-      }
-    });
+    translateX.value = withTiming(targetX, {duration: MOVE_DURATION});
+    translateY.value = withTiming(0, {duration: MOVE_DURATION});
+    cardDeg.value = withTiming(0, {duration: MOVE_DURATION});
     scale.value = withTiming(1, {duration: MOVE_DURATION});
-  }, [targetPos, currentPos, destPos, progress, scale]);
+  }, [translateX, translateY, cardDeg, card, targetX, scale]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const x = interpolate(
-      progress.value,
-      [0, 1],
-      [currentPos.value.x, destPos.value.x],
-    );
-    const y = interpolate(
-      progress.value,
-      [0, 1],
-      [currentPos.value.y, destPos.value.y],
-    );
-    const deg = interpolate(
-      progress.value,
-      [0, 1],
-      [currentPos.value.deg, destPos.value.deg],
-    );
-
-    return {
-      position: 'absolute',
-      transform: [
-        {translateX: x},
-        {translateY: y},
-        {rotate: `${deg}deg`},
-        {scale: scale.value},
-      ],
-      opacity: index !== 0 && index !== totalCards - 1 ? 0.8 : 1,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
+    transform: [
+      {translateX: translateX.value},
+      {translateY: translateY.value},
+      {rotate: `${cardDeg.value}deg`},
+      {scale: scale.value},
+    ],
+    opacity: index !== 0 && index !== totalCards - 1 ? 0.8 : 1,
+  }));
 
   return (
-    <Animated.View style={animatedStyle} pointerEvents="box-none">
+    <Animated.View style={animatedStyle}>
       <Pressable disabled={disabled} onPress={onPress}>
         <CardComponent card={card} />
       </Pressable>

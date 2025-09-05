@@ -402,6 +402,8 @@ function GameScreen({navigation}: any) {
 
   const animatedStyle = useAnimatedStyle(() => ({opacity: opacity.value}));
 
+  const userLost = game.playersStats[user.id]?.playerStatus === 'lost';
+
   return (
     <>
       <StatusBar
@@ -449,10 +451,12 @@ function GameScreen({navigation}: any) {
           />
           <View style={styles.actionButtons}>
             <View style={styles.avatarHolder} />
-            <YanivButton
-              onPress={emit.callYaniv}
-              disabled={handValue > game.rules.canCallYaniv || !isMyTurn}
-            />
+            {!userLost && (
+              <YanivButton
+                onPress={emit.callYaniv}
+                disabled={handValue > game.rules.canCallYaniv || !isMyTurn}
+              />
+            )}
           </View>
           <CardPointsList
             ref={cardsListRef}
@@ -516,7 +520,7 @@ function GameScreen({navigation}: any) {
         ))}
 
         <PlayerHand
-          hidden={roundReadyFor !== game.round}
+          hidden={roundReadyFor !== game.round || userLost}
           handValue={playersResultedScores[user.id] ? undefined : handValue}
         />
 
@@ -529,10 +533,7 @@ function GameScreen({navigation}: any) {
           timePerPlayer={game.rules.timePerPlayer}
           isUser
           status={game.playersStats[user.id]?.playerStatus ?? 'active'}
-          kill={
-            playersKilling[user.id] ||
-            game.playersStats[user.id]?.playerStatus === 'lost'
-          }
+          kill={playersKilling[user.id] || userLost}
           direction={directions[0]}
           emoji={emojiTriggers[user.id]}
         />

@@ -97,7 +97,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
               fontSize={20}
               width={SCREEN_WIDTH}
               height={32}
-              fillColor={'#FEF3C7'}
+              fillColor={'#ffffffff'}
               strokeColor={'#3917009c'}
               strokeWidth={3}
               fontWeight={'700'}

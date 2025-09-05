@@ -20,7 +20,7 @@ function PlayerHand({hidden, handValue}: PlayerHandProps) {
     return {
       position: 'absolute' as const,
       // Position it to the right of the avatar with some spacing
-      left: avatarPos.x + 90 + (Platform.OS === 'android' ? -15 : 0), // 40px to the right of avatar center
+      left: avatarPos.x + 80 + (Platform.OS === 'android' ? -15 : 0),
       top: avatarPos.y - 30, // 50px above avatar center
     };
   }, []);
