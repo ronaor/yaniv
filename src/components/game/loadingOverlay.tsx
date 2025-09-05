@@ -3,7 +3,9 @@ import {View, StyleSheet} from 'react-native';
 import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 import {OutlinedText} from '../cartoonText';
 
-const LoadingOverlay = () => {
+interface LoadingOverlayProps {}
+
+const LoadingOverlay = ({}: LoadingOverlayProps) => {
   return (
     <Animated.View
       entering={FadeIn}
@@ -35,7 +37,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#4d442f70',
     justifyContent: 'center',
     alignItems: 'center',
   },

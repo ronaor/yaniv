@@ -48,6 +48,7 @@ import {useSongPlayer} from '~/store/songPlayerStore';
 import useSound from '~/hooks/useSound';
 import {ERROR_SOUND} from '~/sounds';
 import SafeAreaTopBar from '~/components/safeAreaTopBar';
+import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -219,6 +220,7 @@ function GameScreen({navigation}: any) {
 
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
+  const [mapLoaded, setMapLoaded] = useState<boolean>(false);
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -388,6 +390,8 @@ function GameScreen({navigation}: any) {
     [emit],
   );
 
+  const setReady = useCallback(() => setMapLoaded(true), []);
+
   return (
     <>
       <StatusBar
@@ -395,7 +399,7 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <RandomBackground />
+      <RandomBackground setReady={setReady} />
 
       <SafeAreaView style={styles.surface}>
         <View style={styles.body} pointerEvents={'box-none'}>
@@ -542,6 +546,13 @@ function GameScreen({navigation}: any) {
         <EmojisButton onEmojiSelect={emit.shareEmoji} />
       </View>
       <SafeAreaTopBar color={'#000000ff'} />
+      {!mapLoaded && (
+        <Animated.View
+          entering={FadeIn}
+          exiting={FadeOut}
+          style={styles.background}
+        />
+      )}
     </>
   );
 }
@@ -642,6 +653,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 175,
     right: 15,
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000000',
+    zIndex: 200,
   },
 });
 

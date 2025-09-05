@@ -72,7 +72,7 @@ const App = () => {
             name="Home"
             component={HomeScreen}
             options={{
-              animation: 'slide_from_left',
+              animation: 'fade',
             }}
           />
           <Stack.Screen
@@ -100,7 +100,7 @@ const App = () => {
             name="Game"
             component={GameScreen}
             options={{
-              animation: 'slide_from_left',
+              animation: 'fade',
             }}
           />
         </Stack.Navigator>

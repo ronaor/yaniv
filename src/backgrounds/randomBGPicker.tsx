@@ -19,7 +19,10 @@ const backgrounds = [
 const POTENTIAL_BGS = 50;
 const FIVE_MINUTES = 5 * 60 * 1000;
 
-function RandomBackground() {
+interface RandomBackgroundProps {
+  setReady?: () => void;
+}
+function RandomBackground({setReady}: RandomBackgroundProps) {
   const SelectedBackground = useMemo(() => {
     // Create pool of 50 by cycling through the backgrounds.length background COMPONENTS
     const pool = Array(POTENTIAL_BGS)
@@ -36,7 +39,7 @@ function RandomBackground() {
     return pool[index];
   }, []);
 
-  return <SelectedBackground />;
+  return <SelectedBackground setReady={setReady} />;
 }
 
 export default RandomBackground;
