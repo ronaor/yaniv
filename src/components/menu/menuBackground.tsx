@@ -1,4 +1,4 @@
-import {ImageSourcePropType, Animated, StyleSheet} from 'react-native';
+import {ImageSourcePropType, Animated, StyleSheet, View} from 'react-native';
 import {SCREEN_HEIGHT, SCREEN_WIDTH} from '~/utils/constants';
 import Waves from './waves';
 import {Location} from '~/types/cards';
@@ -62,7 +62,11 @@ interface MenuBackgroundProps {}
 
 function MenuBackground({}: MenuBackgroundProps) {
   const {lookPosition} = useMenuStore();
-  return <ParallaxBackground lookPosition={lookPosition} layers={layers} />;
+  return (
+    <View style={styles.absolute}>
+      <ParallaxBackground lookPosition={lookPosition} layers={layers} />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -72,6 +76,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: -SCREEN_WIDTH * 0.1, // Center the oversized image
     top: -SCREEN_HEIGHT * 0.1,
+  },
+  absolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#25afe1',
   },
 });
 

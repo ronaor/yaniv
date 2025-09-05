@@ -48,7 +48,11 @@ import {useSongPlayer} from '~/store/songPlayerStore';
 import useSound from '~/hooks/useSound';
 import {ERROR_SOUND} from '~/sounds';
 import SafeAreaTopBar from '~/components/safeAreaTopBar';
-import Animated, {FadeIn, FadeOut} from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 function GameScreen({navigation}: any) {
   const {players, leaveRoom} = useRoomStore(
@@ -94,6 +98,7 @@ function GameScreen({navigation}: any) {
   const endGameDialogRef = useRef<EndGameDialogRef>(null);
   const userLostDialogRef = useRef<UserLostDialogRef>(null);
   const ballEventsRef = useRef<BallsOverlayRef>(null);
+  const opacity = useSharedValue<number>(0);
 
   const {duckVolume, restoreVolume} = useSongPlayer();
 
@@ -164,6 +169,7 @@ function GameScreen({navigation}: any) {
   const handleLeave = useCallback(() => {
     const leave = () => {
       leaveRoom(user);
+      opacity.value = withTiming(0);
       navigation.reset({index: 0, routes: [{name: 'Home'}]});
     };
     if (humanLost || players.length < 2) {
@@ -178,7 +184,7 @@ function GameScreen({navigation}: any) {
         },
       ]);
     }
-  }, [humanLost, leaveRoom, navigation, players, user]);
+  }, [humanLost, leaveRoom, navigation, opacity, players.length, user]);
 
   const {playSound: playError} = useSound(ERROR_SOUND);
   // Handle game errors
@@ -220,7 +226,7 @@ function GameScreen({navigation}: any) {
 
   const [yanivCall, setYanivCall] = useState<DirectionName | undefined>();
   const [assafCall, setAssafCall] = useState<DirectionName | undefined>();
-  const [mapLoaded, setMapLoaded] = useState<boolean>(false);
+  // const [mapLoaded, setMapLoaded] = useState<boolean>(false);
   const [roundReadyFor, setRoundReadyFor] = useState<number>(-1);
 
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -390,7 +396,11 @@ function GameScreen({navigation}: any) {
     [emit],
   );
 
-  const setReady = useCallback(() => setMapLoaded(true), []);
+  const setReady = useCallback(() => {
+    opacity.value = withTiming(1);
+  }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({opacity: opacity.value}));
 
   return (
     <>
@@ -399,160 +409,155 @@ function GameScreen({navigation}: any) {
         backgroundColor="transparent"
         barStyle="light-content"
       />
-      <RandomBackground setReady={setReady} />
-
-      <SafeAreaView style={styles.surface}>
-        <View style={styles.body} pointerEvents={'box-none'}>
-          {/* Header */}
-          <View style={styles.header}>
-            <SimpleButton
-              text={'Leave'}
-              onPress={handleLeave}
-              colors={['#E64E08', '#db300eff', '#D02A07']}
-              size="small"
-            />
-            <GameTimer />
+      <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
+        <RandomBackground setReady={setReady} />
+        <SafeAreaView style={styles.surface}>
+          <View style={styles.body} pointerEvents={'box-none'}>
+            {/* Header */}
+            <View style={styles.header}>
+              <SimpleButton
+                text={'Leave'}
+                onPress={handleLeave}
+                colors={['#E64E08', '#db300eff', '#D02A07']}
+                size="small"
+              />
+              <GameTimer />
+            </View>
           </View>
-        </View>
 
-        {gamePlayers.order.map((playerId, i) => (
-          <LightAround
-            key={`light-${playerId}`}
-            direction={directions[i]}
-            isActive={game.currentTurn?.playerId === playerId}
+          {gamePlayers.order.map((playerId, i) => (
+            <LightAround
+              key={`light-${playerId}`}
+              direction={directions[i]}
+              isActive={game.currentTurn?.playerId === playerId}
+            />
+          ))}
+
+          {roundReadyFor !== game.round && <LoadingOverlay />}
+
+          {/* Game Area */}
+          <GameBoard
+            pickup={pickupEvent}
+            round={game.round}
+            gameId={gameId}
+            disabled={!isMyTurn}
+            onReady={setRoundReadyFor}
+            handlePickupCard={handlePickupCard}
+            handleDrawFromDeck={handleDrawFromDeck}
+            prevRoundPositions={prevRoundPositions}
+            numActivePlayers={activePlayers.length}
           />
-        ))}
-
-        {roundReadyFor !== game.round && <LoadingOverlay />}
-
-        {/* Game Area */}
-        <GameBoard
-          pickup={pickupEvent}
-          round={game.round}
-          gameId={gameId}
-          disabled={!isMyTurn}
-          onReady={setRoundReadyFor}
-          handlePickupCard={handlePickupCard}
-          handleDrawFromDeck={handleDrawFromDeck}
-          prevRoundPositions={prevRoundPositions}
-          numActivePlayers={activePlayers.length}
-        />
-        <View style={styles.actionButtons}>
-          <View style={styles.avatarHolder} />
-          <YanivButton
-            onPress={emit.callYaniv}
-            disabled={handValue > game.rules.canCallYaniv || !isMyTurn}
-          />
-        </View>
-        <CardPointsList
-          ref={cardsListRef}
-          key={`${user.id}-${game.round}`}
-          isReady={roundReadyFor === game.round}
-          cards={gamePlayers.all[user.id]?.hand ?? []}
-          slapCardIndex={slapCardIndex}
-          onCardSlapped={onSlapCard}
-          // fromPosition + action group
-          fromPosition={
-            user.id === game.currentTurn?.prevTurn?.playerId
-              ? game.currentTurn?.prevTurn?.draw?.cardPosition
-              : undefined
-          }
-          action={
-            user.id === game.currentTurn?.prevTurn?.playerId
-              ? game.currentTurn?.prevTurn?.action
-              : undefined
-          }
-          direction={'down'}
-          cardsDelay={cardsDelay[0]}
-          disabled={!!roundResults}
-        />
-      </SafeAreaView>
-      {gamePlayers.order.slice(1).map((playerId, i) => (
-        <View key={playerId} style={styles.absolute}>
-          <HiddenCardPointsList
-            key={`${playerId}-${game.round}`}
-            cards={gamePlayers.all[playerId]?.hand ?? []}
-            direction={directions[i + 1]}
+          <View style={styles.actionButtons}>
+            <View style={styles.avatarHolder} />
+            <YanivButton
+              onPress={emit.callYaniv}
+              disabled={handValue > game.rules.canCallYaniv || !isMyTurn}
+            />
+          </View>
+          <CardPointsList
+            ref={cardsListRef}
+            key={`${user.id}-${game.round}`}
+            isReady={roundReadyFor === game.round}
+            cards={gamePlayers.all[user.id]?.hand ?? []}
+            slapCardIndex={slapCardIndex}
+            onCardSlapped={onSlapCard}
+            // fromPosition + action group
             fromPosition={
-              playerId === game.currentTurn?.prevTurn?.playerId
+              user.id === game.currentTurn?.prevTurn?.playerId
                 ? game.currentTurn?.prevTurn?.draw?.cardPosition
                 : undefined
             }
             action={
-              playerId === game.currentTurn?.prevTurn?.playerId
+              user.id === game.currentTurn?.prevTurn?.playerId
                 ? game.currentTurn?.prevTurn?.action
                 : undefined
             }
-            reveal={!!playersRevealing[playerId]}
-            isReady={roundReadyFor === game.round}
-            cardsDelay={cardsDelay[i + 1]}
+            direction={'down'}
+            cardsDelay={cardsDelay[0]}
+            disabled={!!roundResults}
           />
-          <UserAvatar
-            name={game.playersStats[playerId].playerName}
-            avatarIndex={game.playersStats[playerId].avatarIndex}
-            score={gamePlayers.all[playerId]?.stats?.score ?? 0}
-            roundScore={playersResultedScores[playerId]}
-            isActive={game.currentTurn?.playerId === playerId}
-            timePerPlayer={game.rules.timePerPlayer}
-            status={game.playersStats[playerId].playerStatus}
-            kill={
-              playersKilling[playerId] ||
-              game.playersStats[playerId]?.playerStatus === 'lost'
-            }
-            direction={directions[i + 1]}
-            emoji={emojiTriggers[playerId]}
-          />
-        </View>
-      ))}
+        </SafeAreaView>
+        {gamePlayers.order.slice(1).map((playerId, i) => (
+          <View key={playerId} style={styles.absolute}>
+            <HiddenCardPointsList
+              key={`${playerId}-${game.round}`}
+              cards={gamePlayers.all[playerId]?.hand ?? []}
+              direction={directions[i + 1]}
+              fromPosition={
+                playerId === game.currentTurn?.prevTurn?.playerId
+                  ? game.currentTurn?.prevTurn?.draw?.cardPosition
+                  : undefined
+              }
+              action={
+                playerId === game.currentTurn?.prevTurn?.playerId
+                  ? game.currentTurn?.prevTurn?.action
+                  : undefined
+              }
+              reveal={!!playersRevealing[playerId]}
+              isReady={roundReadyFor === game.round}
+              cardsDelay={cardsDelay[i + 1]}
+            />
+            <UserAvatar
+              name={game.playersStats[playerId].playerName}
+              avatarIndex={game.playersStats[playerId].avatarIndex}
+              score={gamePlayers.all[playerId]?.stats?.score ?? 0}
+              roundScore={playersResultedScores[playerId]}
+              isActive={game.currentTurn?.playerId === playerId}
+              timePerPlayer={game.rules.timePerPlayer}
+              status={game.playersStats[playerId].playerStatus}
+              kill={
+                playersKilling[playerId] ||
+                game.playersStats[playerId]?.playerStatus === 'lost'
+              }
+              direction={directions[i + 1]}
+              emoji={emojiTriggers[playerId]}
+            />
+          </View>
+        ))}
 
-      <PlayerHand
-        hidden={roundReadyFor !== game.round}
-        handValue={playersResultedScores[user.id] ? undefined : handValue}
-      />
-
-      <UserAvatar
-        name={user.nickName}
-        avatarIndex={user.avatarIndex}
-        score={gamePlayers.all[user.id]?.stats?.score ?? 0}
-        roundScore={playersResultedScores[user.id]}
-        isActive={isMyTurn}
-        timePerPlayer={game.rules.timePerPlayer}
-        isUser
-        status={game.playersStats[user.id]?.playerStatus ?? 'active'}
-        kill={
-          playersKilling[user.id] ||
-          game.playersStats[user.id]?.playerStatus === 'lost'
-        }
-        direction={directions[0]}
-        emoji={emojiTriggers[user.id]}
-      />
-
-      {/* Yaniv/Assaf Overlay */}
-      <YanivBubble direction={yanivCall} />
-      <AssafBubble direction={assafCall} />
-
-      <BallsOverlay round={game.round} ref={ballEventsRef} />
-      <EndGameDialog
-        ref={endGameDialogRef}
-        handlePlayAgain={handlePlayAgain}
-        handleLeave={handleLeave}
-      />
-      <UserLostDialog
-        ref={userLostDialogRef}
-        handleContinue={() => userLostDialogRef.current?.close()}
-        handleLeave={handleLeave}
-      />
-      <View style={styles.emojis}>
-        <EmojisButton onEmojiSelect={emit.shareEmoji} />
-      </View>
-      <SafeAreaTopBar color={'#000000ff'} />
-      {!mapLoaded && (
-        <Animated.View
-          entering={FadeIn}
-          exiting={FadeOut}
-          style={styles.background}
+        <PlayerHand
+          hidden={roundReadyFor !== game.round}
+          handValue={playersResultedScores[user.id] ? undefined : handValue}
         />
-      )}
+
+        <UserAvatar
+          name={user.nickName}
+          avatarIndex={user.avatarIndex}
+          score={gamePlayers.all[user.id]?.stats?.score ?? 0}
+          roundScore={playersResultedScores[user.id]}
+          isActive={isMyTurn}
+          timePerPlayer={game.rules.timePerPlayer}
+          isUser
+          status={game.playersStats[user.id]?.playerStatus ?? 'active'}
+          kill={
+            playersKilling[user.id] ||
+            game.playersStats[user.id]?.playerStatus === 'lost'
+          }
+          direction={directions[0]}
+          emoji={emojiTriggers[user.id]}
+        />
+
+        {/* Yaniv/Assaf Overlay */}
+        <YanivBubble direction={yanivCall} />
+        <AssafBubble direction={assafCall} />
+
+        <BallsOverlay round={game.round} ref={ballEventsRef} />
+        <EndGameDialog
+          ref={endGameDialogRef}
+          handlePlayAgain={handlePlayAgain}
+          handleLeave={handleLeave}
+        />
+        <UserLostDialog
+          ref={userLostDialogRef}
+          handleContinue={() => userLostDialogRef.current?.close()}
+          handleLeave={handleLeave}
+        />
+        <View style={styles.emojis}>
+          <EmojisButton onEmojiSelect={emit.shareEmoji} />
+        </View>
+      </Animated.View>
+
+      <SafeAreaTopBar color={'#000000ff'} />
     </>
   );
 }
@@ -653,15 +658,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 175,
     right: 15,
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#ffffffb0',
-    zIndex: 200,
   },
 });
 
