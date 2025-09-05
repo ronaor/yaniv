@@ -1,38 +1,72 @@
-import {NavigationContainer, NavigationState} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import 'react-native-gesture-handler';
 import React, {useCallback} from 'react';
+import {
+  DefaultTheme,
+  NavigationContainer,
+  NavigationState,
+} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {I18nManager} from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
+import {LogBox} from 'react-native';
+import MenuBackground, {useMenuStore} from '~/components/menu/menuBackground';
 import GameBannerAd from '~/ads/banner';
-import GameScreen from '~/screens/game';
-import GameWithFriendsScreen from '~/screens/gameWithFriends';
+
 import HomeScreen from '~/screens/home';
+import GameWithFriendsScreen from '~/screens/gameWithFriends';
 import LobbyScreen from '~/screens/lobby';
 import QuickGameLobby from '~/screens/quickGameLobby';
+import GameScreen from '~/screens/game';
+
 import {useRoomStore} from '~/store/roomStore';
-import {RootStackParamList} from '~/types/navigation';
 import useSocketIO from '~/useSocketIO';
 import '~/sounds';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {edgeToEdgeSlide, Fade} from '~/utils/edgeToEdgeSlide';
+import {RootStackParamList} from '~/types/navigation';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-mobileAds()
-  .initialize()
-  .then(_ => {});
+const Stack = createStackNavigator<RootStackParamList>();
 
 if (__DEV__) {
   require('./ReactotronConfig.js');
 }
 
-const App = () => {
-  const backgroundStyle = {
-    // backgroundColor: '#FFFFFF',
-  };
+mobileAds()
+  .initialize()
+  .then(() => {});
+
+LogBox.ignoreLogs([
+  'Sending `onAnimatedValueUpdate` with no listeners registered.',
+  'onAnimatedValueUpdate', // belt-and-suspenders
+]);
+
+const theme = {
+  ...DefaultTheme,
+  colors: {...DefaultTheme.colors, background: 'transparent'},
+};
+
+// helper: get active route name from nested states (if you later nest)
+const getActiveRouteName = (
+  state: NavigationState | undefined,
+): string | undefined => {
+  if (!state) {
+    return;
+  }
+  const route = state.routes[state.index];
+  // @ts-ignore: nested state optional
+  if (route?.state) {
+    return getActiveRouteName(route.state as NavigationState);
+  }
+  return route?.name;
+};
+
+export default function App() {
   I18nManager.allowRTL(false);
   useSocketIO();
 
   const {leaveRoom, user} = useRoomStore();
+
+  const {setLookPosition} = useMenuStore();
 
   const onStateChange = useCallback(
     (state: NavigationState | undefined) => {
@@ -40,74 +74,101 @@ const App = () => {
         return;
       }
 
-      const currentRoute = state.routes[state.index];
-      const previousRoute = state.routes[state.index - 1];
-      const currentRouteName = currentRoute?.name;
-      const previousRouteName = previousRoute?.name;
+      const routes = state.routes;
+      const i = state.index;
+      const currentRoute = routes[i];
+      const prevRoute = routes[i - 1];
 
-      // Check if we were in lobby and now we're not in game screen
-      // This means user navigated away from lobby (back to home or other screen)
+      const currentName = getActiveRouteName(state) ?? currentRoute?.name;
+      const prevName = prevRoute?.name;
+      switch (currentName) {
+        case 'GameWithFriends':
+        case 'Lobby': {
+          setLookPosition({x: -50, y: 100});
+          break;
+        }
+        case 'Home': {
+          setLookPosition({x: 0, y: 100});
+          break;
+        }
+
+        case 'QuickLobby': {
+          setLookPosition({x: 60, y: 100});
+          break;
+        }
+        case 'Game': {
+          break;
+        }
+      }
+
       if (
-        (previousRouteName === 'Lobby' || previousRouteName === 'QuickLobby') &&
-        currentRouteName !== 'Game'
+        (prevName === 'Lobby' || prevName === 'QuickLobby') &&
+        currentName !== 'Game'
       ) {
         leaveRoom(user);
       }
     },
-    [leaveRoom, user],
+    [leaveRoom, setLookPosition, user],
   );
 
   return (
     <GestureHandlerRootView>
-      <NavigationContainer onStateChange={onStateChange}>
+      <MenuBackground />
+
+      <NavigationContainer theme={theme} onStateChange={onStateChange}>
         <Stack.Navigator
           initialRouteName="Home"
           screenOptions={{
             headerShown: false,
-            contentStyle: backgroundStyle,
-            animation: 'fade',
-            gestureDirection: 'horizontal',
+            cardStyle: {backgroundColor: 'transparent'},
+            gestureDirection: I18nManager.isRTL
+              ? 'horizontal-inverted'
+              : 'horizontal',
+            cardStyleInterpolator: edgeToEdgeSlide,
+            detachPreviousScreen: false,
           }}>
           <Stack.Screen
             name="Home"
             component={HomeScreen}
             options={{
-              animation: 'fade',
+              cardStyleInterpolator: Fade,
+              gestureEnabled: false,
+              title: 'Home',
             }}
           />
           <Stack.Screen
             name="GameWithFriends"
             component={GameWithFriendsScreen}
             options={{
-              animation: 'slide_from_left',
+              title: 'GameWithFriends',
+              gestureDirection: 'horizontal-inverted',
             }}
           />
           <Stack.Screen
             name="Lobby"
             component={LobbyScreen}
-            options={{
-              animation: 'slide_from_left',
-            }}
+            options={{title: 'Lobby', gestureDirection: 'horizontal-inverted'}}
           />
           <Stack.Screen
             name="QuickLobby"
             component={QuickGameLobby}
-            options={{
-              animation: 'slide_from_left',
-            }}
+            options={{title: 'QuickGameLobby'}}
           />
+
+          {/* Keep Game but fade it (often feels best when entering gameplay) */}
           <Stack.Screen
             name="Game"
             component={GameScreen}
             options={{
-              animation: 'fade',
+              cardStyleInterpolator: Fade,
+              gestureEnabled: false,
+              title: 'Game',
             }}
           />
         </Stack.Navigator>
+
         <GameBannerAd />
       </NavigationContainer>
     </GestureHandlerRootView>
   );
-};
-
-export default App;
+}

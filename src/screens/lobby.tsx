@@ -2,7 +2,6 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import React, {useCallback, useEffect} from 'react';
 import {
   Alert,
-  ImageBackground,
   StyleSheet,
   View,
   ScrollView,
@@ -76,22 +75,19 @@ function LobbyScreen({navigation}: LobbyProps) {
           style: 'destructive',
           onPress: () => {
             leaveRoom(user);
-            navigation.reset({index: 0, routes: [{name: 'Home'}]});
+            navigation.goBack();
           },
         },
       ]);
     } else {
       leaveRoom(user);
-      navigation.reset({index: 0, routes: [{name: 'Home'}]});
+      navigation.goBack();
     }
   }, [players.length, leaveRoom, user, navigation]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <SafeAreaTopBar />
-      <ImageBackground
-        source={require('~/assets/images/background.png')}
-        style={styles.screen}>
+      <View style={styles.screen}>
         <View style={styles.header}>
           <LeaveButton text={'Leave'} onPress={handleLeave} />
           <AlternatingRowsList cornerRadius={15}>
@@ -163,7 +159,8 @@ function LobbyScreen({navigation}: LobbyProps) {
             />
           )}
         </View>
-      </ImageBackground>
+      </View>
+      <SafeAreaTopBar />
     </SafeAreaView>
   );
 }

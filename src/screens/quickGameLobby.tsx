@@ -1,12 +1,6 @@
 import {isUndefined} from 'lodash';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-  Alert,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {Alert, ScrollView, StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {OutlinedText} from '~/components/cartoonText';
 
@@ -96,10 +90,7 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <SafeAreaTopBar />
-      <ImageBackground
-        source={require('~/assets/images/background.png')}
-        style={styles.screen}>
+      <View style={styles.screen}>
         <View style={styles.header}>
           <LeaveButton text={'Leave'} onPress={handleLeave} />
         </View>
@@ -160,7 +151,8 @@ function QuickGameLobby({navigation}: QuickGameLobbyProps) {
         </ScrollView>
 
         <RoomTimer />
-      </ImageBackground>
+      </View>
+      <SafeAreaTopBar />
     </SafeAreaView>
   );
 }

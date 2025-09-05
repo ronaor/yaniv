@@ -4,6 +4,20 @@ import Waves from './waves';
 import {Location} from '~/types/cards';
 import ParallaxBackground from '~/backgrounds/parallaxBackground';
 import React from 'react';
+import {create} from 'zustand';
+
+interface MenuStore {
+  lookPosition: Location;
+  setLookPosition: (position: Location) => void;
+}
+
+export const useMenuStore = create<MenuStore>((set, _get) => ({
+  lookPosition: {x: 0, y: -400},
+
+  setLookPosition: position => {
+    set({lookPosition: position});
+  },
+}));
 
 const ImageBG = ({source}: {source: ImageSourcePropType}) => {
   return (
@@ -44,11 +58,10 @@ const layers = [
   },
 ];
 
-interface MenuBackgroundProps {
-  lookPosition: Location;
-}
+interface MenuBackgroundProps {}
 
-function MenuBackground({lookPosition}: MenuBackgroundProps) {
+function MenuBackground({}: MenuBackgroundProps) {
+  const {lookPosition} = useMenuStore();
   return <ParallaxBackground lookPosition={lookPosition} layers={layers} />;
 }
 

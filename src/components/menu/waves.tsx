@@ -9,6 +9,8 @@ import {
   vec,
   SkPath,
   PathOp,
+  Group,
+  rect,
 } from '@shopify/react-native-skia';
 import {
   useSharedValue,
@@ -238,12 +240,15 @@ const Waves = ({}: WavesProp) => {
       </Path>
 
       {/* Wave stroke */}
-      <Path
-        path={wavePath}
-        style="stroke"
-        strokeWidth={animatedStrokeWidth}
-        color="#ffffffd8"
-      />
+
+      <Group clip={rect(0, SCREEN_HEIGHT - 250, SCREEN_WIDTH - 20, 200)}>
+        <Path
+          path={wavePath}
+          style="stroke"
+          strokeWidth={animatedStrokeWidth}
+          color="#ffffffd8"
+        />
+      </Group>
     </Canvas>
   );
 };
@@ -253,7 +258,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
-    transform: [{translateY: SCREEN_HEIGHT - 310}, {scaleY: -1}, {scaleX: 1.2}],
+    transform: [{translateY: SCREEN_HEIGHT - 310}, {scaleY: -1}, {scaleX: 2}],
   },
 });
 

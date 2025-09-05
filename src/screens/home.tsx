@@ -18,19 +18,14 @@ import EditProfileDialog from '~/components/dialogs/editProfileDialog';
 import {SCREEN_WIDTH} from '~/utils/constants';
 import {useSongPlayer} from '~/store/songPlayerStore';
 import {shuffleArray} from '~/utils/logic';
-import MenuBackground from '~/components/menu/menuBackground';
 import SafeAreaTopBar from '~/components/safeAreaTopBar';
+import {useMenuStore} from '~/components/menu/menuBackground';
 
 function HomeScreen({navigation}: HomeScreenProps) {
   const {quickGame} = useRoomStore.getState();
   const {emit} = useSocket();
   const [newRoomModalOpen, setNewRoomModalOpen] = useState<boolean>(false);
-
-  const [lookPosition, setLookPosition] = useState({
-    x: 0,
-    y: -400,
-  });
-
+  const {setLookPosition} = useMenuStore();
   const {startNewSong} = useSongPlayer();
 
   useEffect(() => {
@@ -46,15 +41,20 @@ function HomeScreen({navigation}: HomeScreenProps) {
       loop: true,
     });
 
-    setTimeout(() => {
-      setLookPosition({x: 0, y: 100});
-    }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const {isConnected} = useSocket();
   const gameWithFriends = () => navigation.navigate('GameWithFriends');
   const {user} = useUser();
+
+  useEffect(() => {
+    if (user.id.length > 0) {
+      setTimeout(() => {
+        setLookPosition({x: 0, y: 100});
+      }, 500);
+    }
+  }, [setLookPosition, user.id]);
 
   const quickGameHandler = useCallback(async () => {
     // Emit the request
@@ -95,7 +95,6 @@ function HomeScreen({navigation}: HomeScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <MenuBackground lookPosition={lookPosition} />
       <View style={styles.screen}>
         <View style={styles.body}>
           <GameLogo enableEnterAnimation />
@@ -143,7 +142,6 @@ const styles = StyleSheet.create({
   safeArea: {flex: 1},
   screen: {
     flex: 1,
-
     flexDirection: 'column',
     alignItems: 'center',
   },

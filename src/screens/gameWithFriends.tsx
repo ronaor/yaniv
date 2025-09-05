@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  ActivityIndicator,
-  ImageBackground,
-} from 'react-native';
+import {StyleSheet, Text, View, Alert, ActivityIndicator} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MenuButton from '~/components/menu/menuButton';
 import Dialog from '~/components/dialog';
@@ -79,10 +72,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <SafeAreaTopBar />
-      <ImageBackground
-        source={require('~/assets/images/background.png')}
-        style={styles.screen}>
+      <View style={styles.screen}>
         <View style={styles.topBar}>
           <LeaveButton text={'Exit'} onPress={navigation.goBack} />
         </View>
@@ -108,7 +98,7 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
               width={SCREEN_WIDTH}
               height={32}
               fillColor={'#FEF3C7'}
-              strokeColor={'#A9490A'}
+              strokeColor={'#3917009c'}
               strokeWidth={3}
               fontWeight={'700'}
             />
@@ -137,7 +127,8 @@ function GameWithFriendsScreen({navigation}: GameWithFriendsProps) {
             </View>
           )}
         </View>
-      </ImageBackground>
+      </View>
+      <SafeAreaTopBar />
     </SafeAreaView>
   );
 }
@@ -166,7 +157,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 3,
   },
   menuButtons: {
     padding: 20,
@@ -227,7 +218,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     justifyContent: 'center',
-    gap: 10,
   },
   topBar: {padding: 20, flexDirection: 'row'},
 });

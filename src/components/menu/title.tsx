@@ -41,7 +41,7 @@ function GameLogo({enableEnterAnimation = false}: GameLogoProps) {
         withSpring(8, {damping: 10, stiffness: 120}), // Overshoot rotation
         withSpring(0, {damping: 12, stiffness: 100}), // Settle back
       );
-    }, 300); // Start slightly before parallax finishes
+    }, 400); // Start slightly before parallax finishes
   }, [enableEnterAnimation, opacity, scale, rotation]);
 
   const animatedStyle = useAnimatedStyle(() => ({
