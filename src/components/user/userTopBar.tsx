@@ -1,16 +1,22 @@
-import React, {useEffect} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Switch, Text, View} from 'react-native';
 import {openEditProfileDialogEdit} from '../dialogs/editProfileDialog';
 import {useSocket} from '~/store/socketStore';
 import {useUser} from '~/store/userStore';
 import {colors} from '~/theme';
 import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import Svg, {Path} from 'react-native-svg';
 import AvatarImage from './avatarImage';
+import BasePressable from '../basePressable';
+import {useSoundStore} from '~/hooks/useSound';
+import {useSongPlayerStore} from '~/store/songPlayerStore';
 
 const SettingsIcon = () => (
   <Svg width={30} height={30} viewBox="0 0 24 24" fill="white">
@@ -23,6 +29,10 @@ function UserTopBar() {
   const {user} = useUser();
 
   const scale = useSharedValue<number>(0);
+  const [slideDownVisible, setSlideDownVisible] = useState<boolean>(false);
+
+  const {isSoundEnabled, setIsSoundEnabled} = useSoundStore();
+  const {isMusicEnabled, setIsMusicEnabled} = useSongPlayerStore();
 
   useEffect(() => {
     if (user.id !== '') {
@@ -40,42 +50,72 @@ function UserTopBar() {
   });
 
   return (
-    <Animated.View style={[styles.top, animatedStyle]}>
-      <TouchableOpacity
-        style={styles.user}
-        onPress={() => openEditProfileDialogEdit(user)}>
-        <View style={styles.avatarContainer}>
-          <AvatarImage index={user.avatarIndex} size={40} />
-        </View>
-        <Text numberOfLines={1} style={styles.name}>
-          {user.nickName}
-        </Text>
-      </TouchableOpacity>
+    <Animated.View
+      layout={LinearTransition}
+      style={[styles.top, animatedStyle]}>
+      <View style={styles.header}>
+        <BasePressable
+          style={styles.userRow}
+          onPress={() => openEditProfileDialogEdit(user)}>
+          <View style={styles.user}>
+            <View style={styles.avatarContainer}>
+              <AvatarImage index={user.avatarIndex} size={40} />
+            </View>
+            <Text numberOfLines={1} style={styles.name}>
+              {user.nickName}
+            </Text>
+          </View>
+        </BasePressable>
 
-      <View style={styles.leftSide}>
-        <View style={styles.connectionStatus}>
-          <View
-            style={[
-              styles.connectionDot,
-              {
-                backgroundColor: isConnected
-                  ? colors.success
-                  : isConnecting
-                  ? colors.warning
-                  : colors.error,
-              },
-            ]}
-          />
-          <Text style={styles.connectionText}>
-            {isConnected
-              ? 'Connected'
-              : isConnecting
-              ? 'Connecting...'
-              : 'Disconnected'}
-          </Text>
+        <View style={styles.rightSide}>
+          <View style={styles.connectionStatus}>
+            <View
+              style={[
+                styles.connectionDot,
+                {
+                  backgroundColor: isConnected
+                    ? colors.success
+                    : isConnecting
+                    ? colors.warning
+                    : colors.error,
+                },
+              ]}
+            />
+            <Text style={styles.connectionText}>
+              {isConnected
+                ? 'Connected'
+                : isConnecting
+                ? 'Connecting...'
+                : 'Disconnected'}
+            </Text>
+          </View>
+          <BasePressable onPress={() => setSlideDownVisible(prev => !prev)}>
+            <SettingsIcon />
+          </BasePressable>
         </View>
-        <SettingsIcon />
       </View>
+      {slideDownVisible && (
+        <Animated.View
+          entering={FadeIn}
+          exiting={FadeOut}
+          style={styles.slideDown}>
+          <View style={styles.row}>
+            <Text style={styles.text}>{'Music'}</Text>
+            <Switch
+              value={isMusicEnabled}
+              onValueChange={value => setIsMusicEnabled(value)}
+            />
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.row}>
+            <Text style={styles.text}> {'Sound Effects'}</Text>
+            <Switch
+              value={isSoundEnabled}
+              onValueChange={value => setIsSoundEnabled(value)}
+            />
+          </View>
+        </Animated.View>
+      )}
     </Animated.View>
   );
 }
@@ -86,13 +126,19 @@ const styles = StyleSheet.create({
   top: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#00515B',
+    width: '100%',
+    backgroundColor: '#0a2d39e8',
     borderBottomRightRadius: 25,
     position: 'absolute',
-    alignItems: 'center',
+    overflow: 'hidden',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flex: 1,
+  },
+  userRow: {flex: 1},
   avatarContainer: {
     borderRadius: 25,
     overflow: 'hidden',
@@ -117,9 +163,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10,
   },
-  leftSide: {
+  rightSide: {
     gap: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
+  slideDown: {paddingVertical: 20},
+  row: {
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  divider: {
+    marginVertical: 15,
+    height: 1,
+    paddingHorizontal: 10,
+    backgroundColor: '#ffffff69',
+    width: '100%',
+  },
+  text: {fontSize: 18, fontWeight: '700', color: '#FDF9D1'},
 });

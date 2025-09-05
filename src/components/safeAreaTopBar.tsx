@@ -6,7 +6,7 @@ interface SafeAreaTopBarProps {
   color?: string;
 }
 
-function SafeAreaTopBar({color = '#00515b'}: SafeAreaTopBarProps) {
+function SafeAreaTopBar({color = '#0E3F4F'}: SafeAreaTopBarProps) {
   const insets = useSafeAreaInsets();
   const style: ViewStyle = {
     position: 'absolute',

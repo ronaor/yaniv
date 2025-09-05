@@ -133,7 +133,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
         </Dialog>
         <UserTopBar />
       </View>
-      <SafeAreaTopBar />
+      <SafeAreaTopBar color="#000000a6" />
     </SafeAreaView>
   );
 }

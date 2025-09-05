@@ -42,7 +42,7 @@ interface GameBoardProps {
   pickup: {
     pickupPile: Card[];
     lastPickedCard?: Card;
-    tookFrom?: Position[];
+    tookFrom?: (Position | undefined)[];
     wasPlayer: boolean;
     layerHistory: LayerHistory;
   };

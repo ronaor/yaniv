@@ -17,7 +17,7 @@ interface DeckCardPointersProps {
   cards: Card[];
   // pickedCard?: Card;
   onPickUp: (index: number) => void;
-  fromTargets?: Position[];
+  fromTargets?: (Position | undefined)[];
   // round: number;
   disabled?: boolean;
   wasPlayer: boolean;
