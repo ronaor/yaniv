@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
-    transform: [{translateY: SCREEN_HEIGHT - 310}, {scaleY: -1}, {scaleX: 1.1}],
+    transform: [{translateY: SCREEN_HEIGHT - 310}, {scaleY: -1}, {scaleX: 1.2}],
   },
 });
 
